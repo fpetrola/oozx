@@ -1,19 +1,85 @@
 {
-  "game": "wally",
+  "game": "renegade",
   "mode": "replay",
   "recording": null,
   "games": {
-    "rtype": {"title": "R-Type", "type": "RType", "recording": "/home/fernando/detodo/spectrum/rzx-top/4256/rtype-random.rzx", "entry": "BF60"},
-    "zynaps": {"title": "Zynaps", "type": "Zynaps", "recording": "/home/fernando/detodo/spectrum/rzx-top/5890/zynaps.rzx", "entry": "A9E4"},
-    "greatescape": {"title": "The Great Escape", "type": "GreatEscape", "recording": "/home/fernando/detodo/spectrum/rzx-top/2125/greatescape_moneybagending.rzx", "entry": "F510"},
-    "manicminer": {"title": "Manic Miner", "type": "ManicMiner", "recording": "/home/fernando/detodo/spectrum/rzx-top/3012/manicnoliveslost.rzx", "entry": "92FB"},
-    "dynamitedan2": {"title": "Dynamite Dan II", "type": "DynamiteDan2", "recording": "/home/fernando/detodo/spectrum/rzx-top/1553/dynamitedan2.rzx", "entry": "6B94"},
-    "dynamitedan": {"title": "Dynamite Dan", "type": "DynamiteDan", "recording": "/home/fernando/detodo/spectrum/dynamitedan/dynamitedan.rzx", "entry": "C804"},
-    "monty": {"title": "Monty on the Run", "type": "MontyOnTheRun", "recording": "/home/fernando/detodo/spectrum/montyontherun.rzx", "entry": "AAC5"},
-    "wally": {"title": "Everyone's a Wally", "type": "Wally", "recording": "/home/fernando/detodo/spectrum/eawally/eawallyCsabaComplete.rzx", "entry": "8185"},
-    "emlyn": {"title": "Emlyn Hughes International Soccer", "type": "Emlyn", "recording": "/home/fernando/detodo/spectrum/emlyn_r4.rzx", "entry": "FE65"},
-    "dizzy": {"title": "Dizzy", "type": "Dizzy", "recording": "/home/fernando/detodo/spectrum/dizzy/Dizzy RZX - The Long Way.rzx", "entry": "F85B"},
-    "equinox": {"title": "Equinox", "type": "Equinox", "recording": "/home/fernando/detodo/spectrum/equinox/equinox.rzx", "entry": "5B8D"},
-    "jetsetwilly": {"title": "Jet Set Willy", "type": "JetSetWilly", "snapshot": "/home/fernando/detodo/spectrum/versions/oozx/doc/jsw/jsw-clasico.z80", "entry": "869F"}
+    "renegade": {
+      "title": "Renegade",
+      "type": "Renegade",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/renegade.rzx",
+      "entry": "F280"
+    },
+    "rtype": {
+      "title": "R-Type",
+      "type": "RType",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/4256/rtype-random.rzx",
+      "entry": "BF60"
+    },
+    "zynaps": {
+      "title": "Zynaps",
+      "type": "Zynaps",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/5890/zynaps.rzx",
+      "entry": "A9E4"
+    },
+    "greatescape": {
+      "title": "The Great Escape",
+      "type": "GreatEscape",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/2125/greatescape_moneybagending.rzx",
+      "entry": "F510"
+    },
+    "manicminer": {
+      "title": "Manic Miner",
+      "type": "ManicMiner",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/3012/manicnoliveslost.rzx",
+      "entry": "92FB"
+    },
+    "dynamitedan2": {
+      "title": "Dynamite Dan II",
+      "type": "DynamiteDan2",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/1553/dynamitedan2.rzx",
+      "entry": "6B94"
+    },
+    "dynamitedan": {
+      "title": "Dynamite Dan",
+      "type": "DynamiteDan",
+      "recording": "/home/fernando/detodo/spectrum/dynamitedan/dynamitedan.rzx",
+      "entry": "C804"
+    },
+    "monty": {
+      "title": "Monty on the Run",
+      "type": "MontyOnTheRun",
+      "recording": "/home/fernando/detodo/spectrum/montyontherun.rzx",
+      "entry": "AAC5"
+    },
+    "wally": {
+      "title": "Everyone's a Wally",
+      "type": "Wally",
+      "recording": "/home/fernando/detodo/spectrum/eawally/eawallyCsabaComplete.rzx",
+      "entry": "8185"
+    },
+    "emlyn": {
+      "title": "Emlyn Hughes International Soccer",
+      "type": "Emlyn",
+      "recording": "/home/fernando/detodo/spectrum/emlyn_r4.rzx",
+      "entry": "FE65"
+    },
+    "dizzy": {
+      "title": "Dizzy",
+      "type": "Dizzy",
+      "recording": "/home/fernando/detodo/spectrum/dizzy/Dizzy RZX - The Long Way.rzx",
+      "entry": "F85B"
+    },
+    "equinox": {
+      "title": "Equinox",
+      "type": "Equinox",
+      "recording": "/home/fernando/detodo/spectrum/equinox/equinox.rzx",
+      "entry": "5B8D"
+    },
+    "jetsetwilly": {
+      "title": "Jet Set Willy",
+      "type": "JetSetWilly",
+      "snapshot": "/home/fernando/detodo/spectrum/versions/oozx/doc/jsw/jsw-clasico.z80",
+      "entry": "869F"
+    }
   }
 }

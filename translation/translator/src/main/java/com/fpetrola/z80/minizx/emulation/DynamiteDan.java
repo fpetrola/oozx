@@ -16,15 +16,6 @@ public class DynamiteDan extends MiniZX {
 
       while(true) {
          switch(var2) {
-         case 51204:
-            var2 = $C804();
-            break;
-         case 51210:
-            var2 = $C80A();
-            break;
-         case 51222:
-            var2 = $C816();
-            break;
          case 61169:
             var2 = $EEF1();
             break;
@@ -41,3324 +32,3592 @@ public class DynamiteDan extends MiniZX {
    }
 
    public void $62A3() {
-      pc(25251, 1);
+      pc(25251, 1, 10);
       BC(772);
-      pc(25254, 1);
+      pc(25254, 1, 10);
       DE(4874);
-      pc(25257, 1);
+      pc(25257, 1, 10);
       HL(25250);
-      pc(25260, 1);
+      pc(25260, 1, 7);
       int var1 = HL();
       int var2 = mem(var1, 25260);
       A(var2);
-      pc(25261, 1);
+      pc(25261, 1, 7);
       int var3 = A();
       alu("cp", var3, 80);
-      pc(25263, 1);
-      if(!flag(64, false)) {
-         pc(25264, 1);
+      pc(25263, 1, 5);
+      if(flag(64, false)) {
+         tstates(6);
+      } else {
+         pc(25264, 1, 11);
          int var4 = HL();
          int var5 = mem(var4, 25264);
          int var6 = alu("inc", var5);
          int var7 = HL();
          wMem(var7, var6, 25264);
-         pc(25265, 1);
+         pc(25265, 1, 7);
          int var8 = HL();
          int var9 = mem(var8, 25265);
          A(var9);
-         pc(25266, 1);
+         pc(25266, 1, 7);
          int var10 = A();
          alu("cp", var10, 80);
-         pc(25268, 1);
+         pc(25268, 1, 10);
          if(flag(64, false)) {
             $E897();
          } else {
-            pc(25271, 1);
+            pc(25271, 1, 7);
             int var11 = A();
             alu("cp", var11, 64);
-            pc(25273, 1);
-            if(!flag(1, true)) {
-               pc(25275, 1);
-               int var22 = A();
-               int var23 = alu("and", var22, 2);
-               A(var23);
-               pc(25277, 2);
-               int var24 = A();
-               int var25 = alu("srl", var24);
-               A(var25);
-               pc(25279, 1);
-               int var26 = A();
-               int var27 = alu("add", var26, 6);
-               A(var27);
-               pc(25281, 1);
-               $E8BA();
-            } else {
-               pc(25284, 1);
-               int var12 = A();
-               int var13 = alu("sub", var12, 64);
-               A(var13);
-               pc(25286, 1);
-               int var14 = BC();
-               push(var14);
-               pc(25287, 1);
-               int var15 = A();
-               C(var15);
-               pc(25288, 1);
+            pc(25273, 1, 7);
+            if(flag(1, true)) {
+               tstates(5);
+               pc(25284, 1, 7);
+               int var18 = A();
+               int var19 = alu("sub", var18, 64);
+               A(var19);
+               pc(25286, 1, 11);
+               int var20 = BC();
+               push(var20);
+               pc(25287, 1, 4);
+               int var21 = A();
+               C(var21);
+               pc(25288, 1, 7);
                B(0);
-               pc(25290, 1);
+               pc(25290, 1, 10);
                HL(25234);
-               pc(25293, 1);
-               int var16 = BC();
-               int var17 = HL();
-               int var18 = alu("add16", var17, var16);
-               HL(var18);
-               pc(25294, 1);
-               int var19 = HL();
-               int var20 = mem(var19, 25294);
-               A(var20);
-               pc(25295, 1);
+               pc(25293, 1, 11);
+               int var22 = BC();
+               int var23 = HL();
+               int var24 = alu("add16", var23, var22);
+               HL(var24);
+               pc(25294, 1, 7);
+               int var25 = HL();
+               int var26 = mem(var25, 25294);
+               A(var26);
+               pc(25295, 1, 17);
                $F3D3();
-               pc(25298, 1);
-               int var21 = pop();
-               BC(var21);
-               pc(25299, 1);
+               pc(25298, 1, 10);
+               int var27 = pop();
+               BC(var27);
+               pc(25299, 1, 10);
                $E84E();
+            } else {
+               pc(25275, 1, 7);
+               int var12 = A();
+               int var13 = alu("and", var12, 2);
+               A(var13);
+               pc(25277, 2, 8);
+               int var14 = A();
+               int var15 = alu("srl", var14);
+               A(var15);
+               pc(25279, 1, 7);
+               int var16 = A();
+               int var17 = alu("add", var16, 6);
+               A(var17);
+               pc(25281, 1, 10);
+               $E8BA();
             }
          }
       }
    }
 
-   public int $C804() {
-      pc(51204, 1);
-      $CA5B();
-      pc(51207, 1);
-      $C881();
-      return 51210;
-   }
+   public void $C804() {
+      label106:
+      while(true) {
+         pc(51204, 1, 17);
+         $CA5B();
+         pc(51207, 1, 17);
+         $C881();
 
-   public int $C80A() {
-      pc(51210, 1);
-      $D9EC();
-      pc(51213, 1);
-      $E592();
-      pc(51216, 1);
-      $E93F();
-      pc(51219, 1);
-      push(51222);
-      $CFD9();
-      return 51222;
-   }
+         while(true) {
+            pc(51210, 1, 17);
+            $D9EC();
+            pc(51213, 1, 17);
+            $E592();
+            pc(51216, 1, 17);
+            $E93F();
 
-   public int $C816() {
-      pc(51222, 1);
-      $EF7C();
-      pc(51225, 1);
-      $CC89();
-      pc(51228, 1);
-      $C92A();
-      pc(51231, 1);
-      $DA8D();
-      pc(51234, 1);
-      $CC5F();
+            try {
+               pc(51219, 1, 17);
+               $CFD9();
+            } catch (StackException var73) {
+               int var2 = var73.getNextPC();
+               if(var2 == 52693) {
+                  HL(51222);
+                  pc(52693, 1, 10);
+                  HL(51327);
+                  pc(52696, 2, 15);
+                  int var36 = HL();
+                  int var37 = mem(var36, 52696) | 128;
+                  int var38 = HL();
+                  wMem(var38, var37, 52696);
+               } else {
+                  if(var2 != 56386) {
+                     throw var73;
+                  }
 
-      try {
-         pc(51237, 1);
-         $E5E8();
-      } catch (StackException var35) {
-         if(var35.getNextPC() == 58945) {
-            HL(51240);
-            $E641();
-            return -1;
-         }
+                  HL(51222);
+                  pc(56386, 1, 10);
+               }
 
-         throw var35;
-      }
+               pc(52698, 1, 17);
+               $E820();
+               pc(52701, 1, 10);
+               HL(59392);
+               pc(52704, 1, 7);
+               int var3 = HL();
+               int var4 = mem(var3, 52704);
+               A(var4);
+               pc(52705, 1, 7);
+               int var5 = A();
+               int var6 = alu("and", var5, 248);
+               A(var6);
+               pc(52707, 1, 7);
+               int var7 = A();
+               int var8 = HL();
+               wMem(var8, var7, 52707);
+               pc(52708, 1, 11);
+               int var9 = A() << 8 | 7166;
+               int var10 = A();
+               out(var9, var10);
+               pc(52710, 1, 10);
+               HL(55946);
+               pc(52713, 1, 10);
+               int var11 = HL();
+               wMem(var11, 0, 52713);
+               pc(52715, 1, 10);
+               HL(52840);
+               pc(52718, 1, 17);
+               $ED06();
+               pc(52721, 1, 10);
+               HL(59097);
+               pc(52724, 1, 10);
+               int var12 = HL();
+               wMem(var12, 127, 52724);
+               pc(52726, 1, 6);
+               int var13 = HL();
+               int var14 = inc16(var13);
+               HL(var14);
+               pc(52727, 1, 10);
+               int var15 = HL();
+               wMem(var15, 0, 52727);
+               pc(52729, 2, 14);
+               IY(52850);
 
-      pc(51240, 1);
-      $E663();
-      pc(51243, 1);
-      $E6DC();
-      pc(51246, 1);
-      $CEAD();
-      pc(51249, 1);
-      $DE52();
-      pc(51252, 1);
-      BC(1024);
-      pc(51255, 1);
-      $D4AF();
-      pc(51258, 1);
-      A(223);
-      pc(51260, 1);
-      int var2 = A() << 8 | 254;
-      int var3 = in(var2, 51260);
-      A(var3);
-      pc(51262, 1);
-      int var4 = A();
-      int var5 = alu("rra", var4);
-      A(var5);
-      pc(51263, 1);
-      if(!flag(1, false)) {
-         do {
-            pc(51265, 1);
-            int var13 = A();
-            int var14 = A();
-            int var15 = alu("xor", var14, var13);
-            A(var15);
-            pc(51266, 1);
-            int var16 = A() << 8 | 254;
-            int var17 = in(var16, 51266);
-            A(var17);
-            pc(51268, 1);
-            int var18 = A();
-            int var19 = alu("cpl", var18);
-            A(var19);
-            pc(51269, 1);
-            int var20 = A();
-            int var21 = alu("and", var20, 31);
-            A(var21);
-            pc(51271, 1);
-         } while(flag(64, true));
+               while(true) {
+                  pc(52733, 1, 17);
+                  $E6F6();
+                  pc(52736, 1, 10);
+                  HL(55946);
+                  pc(52739, 2, 15);
+                  int var16 = HL();
+                  int var17 = mem(var16, 52739) & -3;
+                  int var18 = HL();
+                  wMem(var18, var17, 52739);
+                  pc(52741, 1, 17);
+                  $DA8D();
+                  pc(52744, 1, 13);
+                  int var19 = mem(59098, 52744);
+                  A(var19);
+                  pc(52747, 1, 17);
+                  $F021();
+                  pc(52750, 1, 17);
+                  $C92A();
+                  pc(52753, 1, 13);
+                  int var20 = mem(59098, 52753);
+                  A(var20);
+                  pc(52756, 1, 4);
+                  int var21 = A();
+                  int var22 = A();
+                  int var23 = alu("and", var22, var21);
+                  A(var23);
+                  pc(52757, 1, 7);
+                  if(!flag(64, true)) {
+                     pc(52759, 1, 7);
+                     A(184);
 
-         do {
-            pc(51273, 1);
+                     while(true) {
+                        pc(52761, 1, 11);
+                        int var24 = AF();
+                        push(var24);
+                        pc(52762, 1, 17);
+                        $F3D3();
+                        pc(52765, 1, 10);
+                        DE(521);
+                        pc(52768, 1, 17);
+                        $E84E();
+                        pc(52771, 1, 17);
+                        $DAFA();
+                        pc(52774, 1, 17);
+                        $C92A();
+                        pc(52777, 1, 17);
+                        $DA8D();
+                        pc(52780, 1, 10);
+                        int var25 = pop();
+                        AF(var25);
+                        pc(52781, 1, 4);
+                        int var26 = A();
+                        int var27 = alu("inc", var26);
+                        A(var27);
+                        pc(52782, 1, 7);
+                        int var28 = A();
+                        alu("cp", var28, 187);
+                        pc(52784, 1, 7);
+                        if(!flag(64, true)) {
+                           while(true) {
+                              pc(52786, 1, 17);
+                              $C92A();
+                              pc(52789, 1, 17);
+                              $DA8D();
+                              pc(52792, 1, 17);
+                              $DAFA();
+                              pc(52795, 1, 13);
+                              int var29 = mem(51307, 52795);
+                              A(var29);
+                              pc(52798, 1, 4);
+                              int var30 = A();
+                              int var31 = A();
+                              int var32 = alu("and", var31, var30);
+                              A(var32);
+                              pc(52799, 1, 7);
+                              if(!flag(64, true)) {
+                                 pc(52801, 1, 10);
+                                 HL(52819);
+                                 pc(52804, 1, 17);
+                                 $DDE0();
+                                 pc(52807, 1, 7);
+                                 B(50);
+
+                                 while(true) {
+                                    pc(52809, 1, 11);
+                                    int var33 = BC();
+                                    push(var33);
+                                    pc(52810, 1, 17);
+                                    $DAFA();
+                                    pc(52813, 1, 10);
+                                    int var34 = pop();
+                                    BC(var34);
+                                    pc(52814, 1, 8);
+                                    int var35 = B() - 1 & 255;
+                                    B(var35);
+                                    if(B() == 0) {
+                                       pc(52816, 1, 10);
+                                       continue label106;
+                                    }
+
+                                    tstates(5);
+                                 }
+                              }
+
+                              tstates(5);
+                           }
+                        }
+
+                        tstates(5);
+                     }
+                  }
+
+                  tstates(5);
+               }
+            }
+
+            pc(51222, 1, 17);
+            $EF7C();
+            pc(51225, 1, 17);
+            $CC89();
+            pc(51228, 1, 17);
+            $C92A();
+            pc(51231, 1, 17);
+            $DA8D();
+            pc(51234, 1, 17);
+            $CC5F();
+
+            try {
+               pc(51237, 1, 17);
+               $E5E8();
+            } catch (StackException var74) {
+               if(var74.getNextPC() == 58945) {
+                  HL(51240);
+                  pc(58945, 1, 10);
+                  break;
+               }
+
+               throw var74;
+            }
+
+            pc(51240, 1, 17);
+            $E663();
+            pc(51243, 1, 17);
+            $E6DC();
+            pc(51246, 1, 17);
+            $CEAD();
+            pc(51249, 1, 17);
+            $DE52();
+            pc(51252, 1, 10);
+            BC(1024);
+            pc(51255, 1, 17);
+            $D4AF();
+            pc(51258, 1, 7);
             A(223);
-            pc(51275, 1);
-            int var22 = A() << 8 | 254;
-            int var23 = in(var22, 51275);
-            A(var23);
-            pc(51277, 1);
-            int var24 = A();
-            int var25 = alu("rra", var24);
-            A(var25);
-            pc(51278, 1);
-         } while(flag(1, false));
+            pc(51260, 1, 11);
+            int var40 = A() << 8 | 254;
+            int var41 = in(var40, 51260);
+            A(var41);
+            pc(51262, 1, 4);
+            int var42 = A();
+            int var43 = alu("rra", var42);
+            A(var43);
+            pc(51263, 1, 7);
+            if(flag(1, false)) {
+               tstates(5);
+            } else {
+               label100:
+               while(true) {
+                  pc(51265, 1, 4);
+                  int var44 = A();
+                  int var45 = A();
+                  int var46 = alu("xor", var45, var44);
+                  A(var46);
+                  pc(51266, 1, 11);
+                  int var47 = A() << 8 | 254;
+                  int var48 = in(var47, 51266);
+                  A(var48);
+                  pc(51268, 1, 4);
+                  int var49 = A();
+                  int var50 = alu("cpl", var49);
+                  A(var50);
+                  pc(51269, 1, 7);
+                  int var51 = A();
+                  int var52 = alu("and", var51, 31);
+                  A(var52);
+                  pc(51271, 1, 7);
+                  if(!flag(64, true)) {
+                     while(true) {
+                        pc(51273, 1, 7);
+                        A(223);
+                        pc(51275, 1, 11);
+                        int var53 = A() << 8 | 254;
+                        int var54 = in(var53, 51275);
+                        A(var54);
+                        pc(51277, 1, 4);
+                        int var55 = A();
+                        int var56 = alu("rra", var55);
+                        A(var56);
+                        pc(51278, 1, 7);
+                        if(!flag(1, false)) {
+                           while(true) {
+                              pc(51280, 1, 4);
+                              int var57 = A();
+                              int var58 = A();
+                              int var59 = alu("xor", var58, var57);
+                              A(var59);
+                              pc(51281, 1, 11);
+                              int var60 = A() << 8 | 254;
+                              int var61 = in(var60, 51281);
+                              A(var61);
+                              pc(51283, 1, 4);
+                              int var62 = A();
+                              int var63 = alu("cpl", var62);
+                              A(var63);
+                              pc(51284, 1, 7);
+                              int var64 = A();
+                              int var65 = alu("and", var64, 31);
+                              A(var65);
+                              pc(51286, 1, 7);
+                              if(!flag(64, true)) {
+                                 break label100;
+                              }
 
-         do {
-            pc(51280, 1);
-            int var26 = A();
-            int var27 = A();
-            int var28 = alu("xor", var27, var26);
-            A(var28);
-            pc(51281, 1);
-            int var29 = A() << 8 | 254;
-            int var30 = in(var29, 51281);
-            A(var30);
-            pc(51283, 1);
-            int var31 = A();
-            int var32 = alu("cpl", var31);
-            A(var32);
-            pc(51284, 1);
-            int var33 = A();
-            int var34 = alu("and", var33, 31);
-            A(var34);
-            pc(51286, 1);
-         } while(flag(64, true));
-      }
+                              tstates(5);
+                           }
+                        }
 
-      pc(51288, 1);
-      A(251);
-      pc(51290, 1);
-      int var6 = A() << 8 | 254;
-      int var7 = in(var6, 51290);
-      A(var7);
-      pc(51292, 1);
-      int var8 = A();
-      int var9 = alu("rra", var8);
-      A(var9);
-      pc(51293, 1);
-      if(flag(1, false)) {
-         return 51210;
-      } else {
-         pc(51295, 1);
-         HL(51327);
-         pc(51298, 2);
-         int var10 = HL();
-         int var11 = mem(var10, 51298) | 128;
-         int var12 = HL();
-         wMem(var12, var11, 51298);
-         pc(51300, 1);
-         return 51204;
+                        tstates(5);
+                     }
+                  }
+
+                  tstates(5);
+               }
+            }
+
+            pc(51288, 1, 7);
+            A(251);
+            pc(51290, 1, 11);
+            int var66 = A() << 8 | 254;
+            int var67 = in(var66, 51290);
+            A(var67);
+            pc(51292, 1, 4);
+            int var68 = A();
+            int var69 = alu("rra", var68);
+            A(var69);
+            pc(51293, 1, 7);
+            if(!flag(1, false)) {
+               pc(51295, 1, 10);
+               HL(51327);
+               pc(51298, 2, 15);
+               int var70 = HL();
+               int var71 = mem(var70, 51298) | 128;
+               int var72 = HL();
+               wMem(var72, var71, 51298);
+               pc(51300, 1, 12);
+               break;
+            }
+
+            tstates(5);
+         }
       }
    }
 
    public void $C881() {
-      pc(51329, 1);
+      pc(51329, 1, 17);
       $E801();
-      pc(51332, 1);
+      pc(51332, 1, 10);
       HL(27114);
-      pc(51335, 1);
+      pc(51335, 1, 10);
       DE(12);
-      pc(51338, 1);
+      pc(51338, 1, 7);
       B(48);
 
-      do {
-         pc(51340, 2);
+      while(true) {
+         pc(51340, 2, 15);
          int var1 = HL();
          int var2 = mem(var1, 51340) | 8;
          int var3 = HL();
          wMem(var3, var2, 51340);
-         pc(51342, 1);
+         pc(51342, 1, 11);
          int var4 = DE();
          int var5 = HL();
          int var6 = alu("add16", var5, var4);
          HL(var6);
-         pc(51343, 1);
+         pc(51343, 1, 8);
          int var7 = B() - 1 & 255;
          B(var7);
-      } while(B() != 0);
+         if(B() == 0) {
+            pc(51345, 1, 17);
+            $EF1E();
+            pc(51348, 1, 17);
+            $F345();
+            pc(51351, 1, 10);
+            HL(51302);
+            pc(51354, 1, 10);
+            DE(51493);
+            pc(51357, 1, 7);
+            B(4);
 
-      pc(51345, 1);
-      $EF1E();
-      pc(51348, 1);
-      $F345();
-      pc(51351, 1);
-      HL(51302);
-      pc(51354, 1);
-      DE(51493);
-      pc(51357, 1);
-      B(4);
+            while(true) {
+               pc(51359, 1, 7);
+               int var8 = DE();
+               int var9 = mem(var8, 51359);
+               A(var9);
+               pc(51360, 1, 7);
+               int var10 = HL();
+               int var11 = mem(var10, 51360);
+               int var12 = A();
+               alu("cp", var12, var11);
+               pc(51361, 1, 7);
+               if(flag(1, false)) {
+                  tstates(5);
+                  pc(51371, 1, 10);
+                  HL(51302);
+                  pc(51374, 1, 10);
+                  DE(51493);
+                  pc(51377, 1, 10);
+                  BC(4);
+                  pc(51380, 2, 21);
+                  ldir(51380);
+                  break;
+               }
 
-      while(true) {
-         pc(51359, 1);
-         int var8 = DE();
-         int var9 = mem(var8, 51359);
-         A(var9);
-         pc(51360, 1);
-         int var10 = HL();
-         int var11 = mem(var10, 51360);
-         int var12 = A();
-         alu("cp", var12, var11);
-         pc(51361, 1);
-         if(!flag(1, false)) {
-            pc(51363, 1);
-            if(flag(64, true)) {
-               break;
+               pc(51363, 1, 7);
+               if(flag(64, true)) {
+                  tstates(5);
+                  break;
+               }
+
+               pc(51365, 1, 6);
+               int var13 = DE();
+               int var14 = inc16(var13);
+               DE(var14);
+               pc(51366, 1, 6);
+               int var15 = HL();
+               int var16 = inc16(var15);
+               HL(var16);
+               pc(51367, 1, 8);
+               int var17 = B() - 1 & 255;
+               B(var17);
+               if(B() == 0) {
+                  pc(51369, 1, 12);
+                  break;
+               }
+
+               tstates(5);
             }
 
-            pc(51365, 1);
-            int var17 = DE();
-            int var18 = inc16(var17);
-            DE(var18);
-            pc(51366, 1);
+            pc(51382, 1, 17);
+            $D378();
+            pc(51385, 1, 10);
+            HL(52822);
+            pc(51388, 1, 10);
+            int var18 = HL();
+            wMem(var18, 0, 51388);
+            pc(51390, 1, 6);
             int var19 = HL();
-            int var20 = inc16(var19);
+            int var20 = dec16(var19);
             HL(var20);
-            pc(51367, 1);
-            int var21 = B() - 1 & 255;
-            B(var21);
-            if(B() != 0) {
-               continue;
-            }
-
-            pc(51369, 1);
-            break;
+            pc(51391, 1, 10);
+            int var21 = HL();
+            wMem(var21, 39, 51391);
+            pc(51393, 1, 10);
+            HL(51410);
+            pc(51396, 1, 10);
+            DE(51302);
+            pc(51399, 1, 10);
+            BC(27);
+            pc(51402, 2, 21);
+            ldir(51402);
+            pc(51404, 1, 7);
+            A(43);
+            pc(51406, 1, 17);
+            $CBBD();
+            pc(51409, 1, 10);
+            return;
          }
 
-         pc(51371, 1);
-         HL(51302);
-         pc(51374, 1);
-         DE(51493);
-         pc(51377, 1);
-         BC(4);
-         pc(51380, 2);
-         ldir(51380);
-         break;
+         tstates(5);
       }
-
-      pc(51382, 1);
-      $D378();
-      pc(51385, 1);
-      HL(52822);
-      pc(51388, 1);
-      int var13 = HL();
-      wMem(var13, 0, 51388);
-      pc(51390, 1);
-      int var14 = HL();
-      int var15 = dec16(var14);
-      HL(var15);
-      pc(51391, 1);
-      int var16 = HL();
-      wMem(var16, 39, 51391);
-      pc(51393, 1);
-      HL(51410);
-      pc(51396, 1);
-      DE(51302);
-      pc(51399, 1);
-      BC(27);
-      pc(51402, 2);
-      ldir(51402);
-      pc(51404, 1);
-      A(43);
-      pc(51406, 1);
-      $CBBD();
-      pc(51409, 1);
    }
 
    public void $C8FF() {
-      pc(51455, 2);
+      pc(51455, 2, 20);
       int var1 = mem16(51314, 51455);
       DE(var1);
-      pc(51459, 1);
+      pc(51459, 1, 10);
       HL(25302);
-      pc(51462, 1);
+      pc(51462, 1, 7);
       A(14);
 
-      do {
-         pc(51464, 1);
+      label29:
+      while(true) {
+         pc(51464, 1, 4);
          int var2 = AF();
          exAF(var2);
-         pc(51465, 1);
+         pc(51465, 1, 11);
          int var3 = DE();
          push(var3);
-         pc(51466, 1);
+         pc(51466, 1, 17);
          $E8D2();
-         pc(51469, 1);
+         pc(51469, 1, 7);
          C(2);
 
-         do {
-            pc(51471, 1);
+         while(true) {
+            pc(51471, 1, 11);
             int var4 = DE();
             push(var4);
-            pc(51472, 1);
+            pc(51472, 1, 7);
             B(3);
 
-            do {
-               pc(51474, 1);
+            while(true) {
+               pc(51474, 1, 7);
                int var5 = DE();
                int var6 = mem(var5, 51474);
                A(var6);
-               pc(51475, 1);
+               pc(51475, 1, 7);
                int var7 = A();
                int var8 = HL();
                wMem(var8, var7, 51475);
-               pc(51476, 1);
+               pc(51476, 1, 6);
                int var9 = HL();
                int var10 = inc16(var9);
                HL(var10);
-               pc(51477, 1);
+               pc(51477, 1, 4);
                int var11 = E();
                int var12 = alu("inc", var11);
                E(var12);
-               pc(51478, 1);
+               pc(51478, 1, 8);
                int var13 = B() - 1 & 255;
                B(var13);
-            } while(B() != 0);
+               if(B() == 0) {
+                  pc(51480, 1, 10);
+                  int var14 = pop();
+                  DE(var14);
+                  pc(51481, 1, 4);
+                  int var15 = D();
+                  int var16 = alu("inc", var15);
+                  D(var16);
+                  pc(51482, 1, 4);
+                  int var17 = C();
+                  int var18 = alu("dec", var17);
+                  C(var18);
+                  pc(51483, 1, 7);
+                  if(!flag(64, true)) {
+                     pc(51485, 1, 10);
+                     int var19 = pop();
+                     DE(var19);
+                     pc(51486, 1, 4);
+                     int var20 = E();
+                     int var21 = alu("inc", var20);
+                     E(var21);
+                     pc(51487, 1, 4);
+                     int var22 = E();
+                     int var23 = alu("inc", var22);
+                     E(var23);
+                     pc(51488, 1, 4);
+                     int var24 = AF();
+                     exAF(var24);
+                     pc(51489, 1, 4);
+                     int var25 = A();
+                     int var26 = alu("dec", var25);
+                     A(var26);
+                     pc(51490, 1, 7);
+                     if(!flag(64, true)) {
+                        pc(51492, 1, 10);
+                        return;
+                     }
 
-            pc(51480, 1);
-            int var14 = pop();
-            DE(var14);
-            pc(51481, 1);
-            int var15 = D();
-            int var16 = alu("inc", var15);
-            D(var16);
-            pc(51482, 1);
-            int var17 = C();
-            int var18 = alu("dec", var17);
-            C(var18);
-            pc(51483, 1);
-         } while(flag(64, true));
+                     tstates(5);
+                     continue label29;
+                  }
 
-         pc(51485, 1);
-         int var19 = pop();
-         DE(var19);
-         pc(51486, 1);
-         int var20 = E();
-         int var21 = alu("inc", var20);
-         E(var21);
-         pc(51487, 1);
-         int var22 = E();
-         int var23 = alu("inc", var22);
-         E(var23);
-         pc(51488, 1);
-         int var24 = AF();
-         exAF(var24);
-         pc(51489, 1);
-         int var25 = A();
-         int var26 = alu("dec", var25);
-         A(var26);
-         pc(51490, 1);
-      } while(flag(64, true));
+                  tstates(5);
+                  break;
+               }
 
-      pc(51492, 1);
+               tstates(5);
+            }
+         }
+      }
    }
 
    public void $C92A() {
-      pc(51498, 1);
+      pc(51498, 1, 16);
       int var1 = mem16(51312, 51498);
       HL(var1);
-      pc(51501, 1);
+      pc(51501, 1, 6);
       int var2 = HL();
       int var3 = dec16(var2);
       HL(var3);
-      pc(51502, 1);
+      pc(51502, 1, 4);
       int var4 = L();
       A(var4);
-      pc(51503, 1);
+      pc(51503, 1, 4);
       int var5 = H();
       int var6 = A();
       int var7 = alu("or", var6, var5);
       A(var7);
-      pc(51504, 1);
-      if(!flag(64, true)) {
-         pc(51506, 1);
+      pc(51504, 1, 7);
+      if(flag(64, true)) {
+         tstates(5);
+      } else {
+         pc(51506, 1, 10);
          HL(51307);
-         pc(51509, 1);
-         int var149 = HL();
-         int var150 = mem(var149, 51509);
-         int var151 = alu("inc", var150);
-         int var152 = HL();
-         wMem(var152, var151, 51509);
-         pc(51510, 1);
+         pc(51509, 1, 11);
+         int var8 = HL();
+         int var9 = mem(var8, 51509);
+         int var10 = alu("inc", var9);
+         int var11 = HL();
+         wMem(var11, var10, 51509);
+         pc(51510, 1, 10);
          HL(900);
       }
 
-      pc(51513, 1);
-      int var8 = HL();
-      wMem16(51312, var8, 51513);
-      pc(51516, 1);
-      HL(51311);
-      pc(51519, 1);
-      int var9 = HL();
-      int var10 = mem(var9, 51519);
-      int var11 = alu("dec", var10);
+      pc(51513, 1, 16);
       int var12 = HL();
-      wMem(var12, var11, 51519);
-      pc(51520, 1);
-      if(!flag(64, false)) {
-         label87: {
-            pc(51522, 1);
-            int var139 = mem(51309, 51522);
-            A(var139);
-            pc(51525, 1);
-            int var140 = A();
-            alu("cp", var140, 1);
-            pc(51527, 1);
-            if(!flag(64, true)) {
-               pc(51529, 1);
-               int var142 = HL();
-               int var143 = mem(var142, 51529);
-               A(var143);
-               pc(51530, 1);
-               int var144 = A();
-               int var145 = alu("and", var144, 7);
-               A(var145);
-               pc(51532, 1);
+      wMem16(51312, var12, 51513);
+      pc(51516, 1, 10);
+      HL(51311);
+      pc(51519, 1, 11);
+      int var13 = HL();
+      int var14 = mem(var13, 51519);
+      int var15 = alu("dec", var14);
+      int var16 = HL();
+      wMem(var16, var15, 51519);
+      pc(51520, 1, 7);
+      if(flag(64, false)) {
+         tstates(5);
+         pc(51549, 1, 10);
+         int var145 = HL();
+         wMem(var145, 200, 51549);
+         pc(51551, 1, 4);
+         int var146 = A();
+         int var147 = A();
+         int var148 = alu("xor", var147, var146);
+         A(var148);
+         pc(51552, 1, 17);
+         $DB01();
+         pc(51555, 1, 10);
+         HL(51309);
+         pc(51558, 1, 11);
+         int var149 = HL();
+         int var150 = mem(var149, 51558);
+         int var151 = alu("dec", var150);
+         int var152 = HL();
+         wMem(var152, var151, 51558);
+      } else {
+         label113: {
+            pc(51522, 1, 13);
+            int var17 = mem(51309, 51522);
+            A(var17);
+            pc(51525, 1, 7);
+            int var18 = A();
+            alu("cp", var18, 1);
+            pc(51527, 1, 7);
+            if(flag(64, true)) {
+               tstates(5);
+            } else {
+               pc(51529, 1, 7);
+               int var19 = HL();
+               int var20 = mem(var19, 51529);
+               A(var20);
+               pc(51530, 1, 7);
+               int var21 = A();
+               int var22 = alu("and", var21, 7);
+               A(var22);
+               pc(51532, 1, 7);
                if(!flag(64, true)) {
-                  pc(51534, 1);
+                  pc(51534, 1, 7);
                   A(46);
-                  pc(51536, 1);
+                  pc(51536, 1, 17);
                   $DB01();
-                  pc(51539, 1);
-                  int var146 = A();
-                  int var147 = A();
-                  int var148 = alu("xor", var147, var146);
-                  A(var148);
-                  pc(51540, 1);
-                  break label87;
+                  pc(51539, 1, 4);
+                  int var23 = A();
+                  int var24 = A();
+                  int var25 = alu("xor", var24, var23);
+                  A(var25);
+                  pc(51540, 1, 12);
+                  break label113;
                }
+
+               tstates(5);
             }
 
-            pc(51542, 1);
+            pc(51542, 1, 7);
             A(7);
          }
 
-         pc(51544, 1);
-         int var141 = A();
-         wMem(51437, var141, 51544);
-         pc(51547, 1);
-      } else {
-         pc(51549, 1);
-         int var13 = HL();
-         wMem(var13, 200, 51549);
-         pc(51551, 1);
-         int var14 = A();
-         int var15 = A();
-         int var16 = alu("xor", var15, var14);
-         A(var16);
-         pc(51552, 1);
-         $DB01();
-         pc(51555, 1);
-         HL(51309);
-         pc(51558, 1);
-         int var17 = HL();
-         int var18 = mem(var17, 51558);
-         int var19 = alu("dec", var18);
-         int var20 = HL();
-         wMem(var20, var19, 51558);
+         pc(51544, 1, 13);
+         int var26 = A();
+         wMem(51437, var26, 51544);
+         pc(51547, 1, 12);
       }
 
-      pc(51559, 1);
+      pc(51559, 1, 10);
       HL(51310);
-      pc(51562, 1);
-      int var21 = HL();
-      int var22 = mem(var21, 51562);
-      int var23 = alu("dec", var22);
-      int var24 = HL();
-      wMem(var24, var23, 51562);
-      pc(51563, 1);
-      if(!flag(64, true)) {
-         pc(51565, 1);
-         int var111 = HL();
-         wMem(var111, 3, 51565);
-         pc(51567, 1);
+      pc(51562, 1, 11);
+      int var27 = HL();
+      int var28 = mem(var27, 51562);
+      int var29 = alu("dec", var28);
+      int var30 = HL();
+      wMem(var30, var29, 51562);
+      pc(51563, 1, 7);
+      if(flag(64, true)) {
+         tstates(5);
+      } else {
+         pc(51565, 1, 10);
+         int var31 = HL();
+         wMem(var31, 3, 51565);
+         pc(51567, 1, 10);
          HL(51307);
-         pc(51570, 1);
-         int var112 = HL();
-         int var113 = mem(var112, 51570);
-         A(var113);
-         pc(51571, 1);
-         int var114 = A();
-         int var115 = A();
-         int var116 = alu("and", var115, var114);
-         A(var116);
-         pc(51572, 1);
-         if(!flag(64, false)) {
-            pc(51574, 1);
-            int var117 = HL();
-            int var118 = mem(var117, 51574);
-            int var119 = alu("dec", var118);
-            int var120 = HL();
-            wMem(var120, var119, 51574);
-            pc(51575, 1);
-            int var121 = mem(51326, 51575);
-            A(var121);
-            pc(51578, 2);
-            int var122 = A();
-            bit(5, var122);
-            pc(51580, 1);
-            if(!flag(64, true)) {
-               pc(51582, 1);
+         pc(51570, 1, 7);
+         int var32 = HL();
+         int var33 = mem(var32, 51570);
+         A(var33);
+         pc(51571, 1, 4);
+         int var34 = A();
+         int var35 = A();
+         int var36 = alu("and", var35, var34);
+         A(var36);
+         pc(51572, 1, 7);
+         if(flag(64, false)) {
+            tstates(5);
+         } else {
+            pc(51574, 1, 11);
+            int var37 = HL();
+            int var38 = mem(var37, 51574);
+            int var39 = alu("dec", var38);
+            int var40 = HL();
+            wMem(var40, var39, 51574);
+            pc(51575, 1, 13);
+            int var41 = mem(51326, 51575);
+            A(var41);
+            pc(51578, 2, 8);
+            int var42 = A();
+            bit(5, var42);
+            pc(51580, 1, 7);
+            if(flag(64, true)) {
+               tstates(5);
+            } else {
+               pc(51582, 1, 10);
                HL(56008);
-               pc(51585, 1);
-               int var138 = HL();
-               wMem16(55947, var138, 51585);
+               pc(51585, 1, 16);
+               int var43 = HL();
+               wMem16(55947, var43, 51585);
             }
 
-            pc(51588, 1);
+            pc(51588, 1, 10);
             HL(51305);
-            pc(51591, 1);
+            pc(51591, 1, 7);
             B(4);
 
             while(true) {
-               pc(51593, 1);
-               int var123 = HL();
-               int var124 = mem(var123, 51593);
-               A(var124);
-               pc(51594, 1);
-               int var125 = A();
-               alu("cp", var125, 9);
-               pc(51596, 1);
+               pc(51593, 1, 7);
+               int var44 = HL();
+               int var45 = mem(var44, 51593);
+               A(var45);
+               pc(51594, 1, 7);
+               int var46 = A();
+               alu("cp", var46, 9);
+               pc(51596, 1, 7);
                if(flag(64, true)) {
-                  pc(51605, 1);
-                  int var126 = A();
-                  int var127 = alu("inc", var126);
-                  A(var127);
-                  pc(51606, 1);
-                  int var128 = A();
-                  int var129 = HL();
-                  wMem(var129, var128, 51606);
+                  tstates(5);
+                  pc(51605, 1, 4);
+                  int var141 = A();
+                  int var142 = alu("inc", var141);
+                  A(var142);
+                  pc(51606, 1, 7);
+                  int var143 = A();
+                  int var144 = HL();
+                  wMem(var144, var143, 51606);
                   break;
                }
 
-               pc(51598, 1);
-               int var130 = A();
-               int var131 = A();
-               int var132 = alu("xor", var131, var130);
-               A(var132);
-               pc(51599, 1);
-               int var133 = A();
-               int var134 = HL();
-               wMem(var134, var133, 51599);
-               pc(51600, 1);
-               int var135 = HL();
-               int var136 = dec16(var135);
-               HL(var136);
-               pc(51601, 1);
-               int var137 = B() - 1 & 255;
-               B(var137);
+               pc(51598, 1, 4);
+               int var47 = A();
+               int var48 = A();
+               int var49 = alu("xor", var48, var47);
+               A(var49);
+               pc(51599, 1, 7);
+               int var50 = A();
+               int var51 = HL();
+               wMem(var51, var50, 51599);
+               pc(51600, 1, 6);
+               int var52 = HL();
+               int var53 = dec16(var52);
+               HL(var53);
+               pc(51601, 1, 8);
+               int var54 = B() - 1 & 255;
+               B(var54);
                if(B() == 0) {
-                  pc(51603, 1);
+                  pc(51603, 1, 12);
                   break;
                }
+
+               tstates(5);
             }
          }
       }
 
-      pc(51607, 1);
+      pc(51607, 1, 10);
       HL(23200);
-      pc(51610, 1);
+      pc(51610, 1, 10);
       DE(51437);
-      pc(51613, 1);
-      int var25 = mem(51309, 51613);
-      A(var25);
-      pc(51616, 1);
-      int var26 = A();
-      B(var26);
-      pc(51617, 1);
-      int var27 = A();
-      C(var27);
-      pc(51618, 1);
-      int var28 = A();
-      int var29 = A();
-      int var30 = alu("and", var29, var28);
-      A(var30);
-      pc(51619, 1);
-      if(!flag(64, true)) {
-         pc(51621, 1);
-         int var108 = mem(51316, 51621);
-         A(var108);
-         pc(51624, 2);
-         int var109 = A();
-         bit(5, var109);
-         pc(51626, 1);
-         if(!flag(64, true)) {
-            pc(51628, 1);
-            int var110 = HL();
-            wMem(var110, 0, 51628);
-            pc(51630, 1);
-            $CD8A();
-            pc(51633, 1);
+      pc(51613, 1, 13);
+      int var55 = mem(51309, 51613);
+      A(var55);
+      pc(51616, 1, 4);
+      int var56 = A();
+      B(var56);
+      pc(51617, 1, 4);
+      int var57 = A();
+      C(var57);
+      pc(51618, 1, 4);
+      int var58 = A();
+      int var59 = A();
+      int var60 = alu("and", var59, var58);
+      A(var60);
+      pc(51619, 1, 7);
+      if(flag(64, true)) {
+         tstates(5);
+
+         label92:
+         while(true) {
+            pc(51635, 1, 7);
+            int var117 = DE();
+            int var118 = mem(var117, 51635);
+            A(var118);
+            pc(51636, 1, 7);
+            int var119 = A();
+            int var120 = HL();
+            wMem(var120, var119, 51636);
+            pc(51637, 1, 4);
+            int var121 = L();
+            int var122 = alu("inc", var121);
+            L(var122);
+            pc(51638, 1, 6);
+            int var123 = DE();
+            int var124 = inc16(var123);
+            DE(var124);
+            pc(51639, 1, 8);
+            int var125 = B() - 1 & 255;
+            B(var125);
+            if(B() == 0) {
+               pc(51641, 1, 7);
+               A(8);
+               pc(51643, 1, 4);
+               int var126 = C();
+               int var127 = A();
+               int var128 = alu("sub", var127, var126);
+               A(var128);
+               pc(51644, 1, 4);
+               int var129 = A();
+               int var130 = A();
+               int var131 = alu("and", var130, var129);
+               A(var131);
+               pc(51645, 1, 7);
+               if(flag(64, false)) {
+                  tstates(5);
+                  break;
+               } else {
+                  pc(51647, 1, 4);
+                  int var132 = A();
+                  B(var132);
+                  pc(51648, 1, 4);
+                  int var133 = A();
+                  int var134 = A();
+                  int var135 = alu("xor", var134, var133);
+                  A(var135);
+
+                  while(true) {
+                     pc(51649, 1, 7);
+                     int var136 = A();
+                     int var137 = HL();
+                     wMem(var137, var136, 51649);
+                     pc(51650, 1, 4);
+                     int var138 = L();
+                     int var139 = alu("inc", var138);
+                     L(var139);
+                     pc(51651, 1, 8);
+                     int var140 = B() - 1 & 255;
+                     B(var140);
+                     if(B() == 0) {
+                        break label92;
+                     }
+
+                     tstates(5);
+                  }
+               }
+            }
+
+            tstates(5);
          }
       } else {
-         do {
-            pc(51635, 1);
-            int var31 = DE();
-            int var32 = mem(var31, 51635);
-            A(var32);
-            pc(51636, 1);
-            int var33 = A();
-            int var34 = HL();
-            wMem(var34, var33, 51636);
-            pc(51637, 1);
-            int var35 = L();
-            int var36 = alu("inc", var35);
-            L(var36);
-            pc(51638, 1);
-            int var37 = DE();
-            int var38 = inc16(var37);
-            DE(var38);
-            pc(51639, 1);
-            int var39 = B() - 1 & 255;
-            B(var39);
-         } while(B() != 0);
-
-         pc(51641, 1);
-         A(8);
-         pc(51643, 1);
-         int var40 = C();
-         int var41 = A();
-         int var42 = alu("sub", var41, var40);
-         A(var42);
-         pc(51644, 1);
-         int var43 = A();
-         int var44 = A();
-         int var45 = alu("and", var44, var43);
-         A(var45);
-         pc(51645, 1);
-         if(!flag(64, false)) {
-            pc(51647, 1);
-            int var99 = A();
-            B(var99);
-            pc(51648, 1);
-            int var100 = A();
-            int var101 = A();
-            int var102 = alu("xor", var101, var100);
-            A(var102);
-
-            do {
-               pc(51649, 1);
-               int var103 = A();
-               int var104 = HL();
-               wMem(var104, var103, 51649);
-               pc(51650, 1);
-               int var105 = L();
-               int var106 = alu("inc", var105);
-               L(var106);
-               pc(51651, 1);
-               int var107 = B() - 1 & 255;
-               B(var107);
-            } while(B() != 0);
+         pc(51621, 1, 13);
+         int var61 = mem(51316, 51621);
+         A(var61);
+         pc(51624, 2, 8);
+         int var62 = A();
+         bit(5, var62);
+         pc(51626, 1, 7);
+         if(flag(64, true)) {
+            tstates(5);
+         } else {
+            pc(51628, 1, 10);
+            int var63 = HL();
+            wMem(var63, 0, 51628);
+            pc(51630, 1, 17);
+            $CD8A();
+            pc(51633, 1, 12);
          }
       }
 
-      pc(51653, 1);
+      pc(51653, 1, 10);
       HL(51302);
-      pc(51656, 1);
+      pc(51656, 1, 10);
       DE(20912);
-      pc(51659, 1);
+      pc(51659, 1, 17);
       runJumps(61177);
-      pc(51662, 1);
-      int var46 = mem(23271, 51662);
-      A(var46);
-      pc(51665, 1);
-      int var47 = A();
-      C(var47);
-      pc(51666, 1);
+      pc(51662, 1, 13);
+      int var64 = mem(23271, 51662);
+      A(var64);
+      pc(51665, 1, 4);
+      int var65 = A();
+      C(var65);
+      pc(51666, 1, 10);
       HL(23264);
-      pc(51669, 1);
+      pc(51669, 1, 7);
       B(8);
 
-      do {
-         pc(51671, 1);
-         int var48 = HL();
-         int var49 = mem(var48, 51671);
-         A(var49);
-         pc(51672, 1);
-         int var50 = C();
-         int var51 = HL();
-         wMem(var51, var50, 51672);
-         pc(51673, 1);
-         int var52 = L();
-         int var53 = alu("inc", var52);
-         L(var53);
-         pc(51674, 1);
-         int var54 = A();
-         C(var54);
-         pc(51675, 1);
-         int var55 = B() - 1 & 255;
-         B(var55);
-      } while(B() != 0);
-
-      pc(51677, 1);
-      BC(1282);
-      pc(51680, 1);
-      HL(23190);
-      pc(51683, 1);
-      DE(51445);
-      pc(51686, 1);
-      int var56 = mem(51308, 51686);
-      A(var56);
-      pc(51689, 1);
-      int var57 = A();
-      alu("cp", var57, 26);
-      pc(51691, 1);
-      if(flag(1, true)) {
-         untranslated(0);
-      } else {
-         pc(51694, 1);
-         int var58 = A();
-         alu("cp", var58, 11);
-         pc(51696, 1);
-         if(!flag(1, false)) {
-            pc(51698, 1);
-            A(10);
-         }
-
-         pc(51700, 1);
-         int var59 = AF();
-         exAF(var59);
-
-         while(true) {
-            pc(51701, 1);
-            int var60 = AF();
-            exAF(var60);
-            pc(51702, 1);
-            int var61 = A();
-            int var62 = A();
-            int var63 = alu("and", var62, var61);
-            A(var63);
-            pc(51703, 1);
-            if(!flag(64, false)) {
-               pc(51705, 1);
-               int var97 = A();
-               int var98 = alu("dec", var97);
-               A(var98);
-               pc(51706, 1);
+      while(true) {
+         pc(51671, 1, 7);
+         int var66 = HL();
+         int var67 = mem(var66, 51671);
+         A(var67);
+         pc(51672, 1, 7);
+         int var68 = C();
+         int var69 = HL();
+         wMem(var69, var68, 51672);
+         pc(51673, 1, 4);
+         int var70 = L();
+         int var71 = alu("inc", var70);
+         L(var71);
+         pc(51674, 1, 4);
+         int var72 = A();
+         C(var72);
+         pc(51675, 1, 8);
+         int var73 = B() - 1 & 255;
+         B(var73);
+         if(B() == 0) {
+            pc(51677, 1, 10);
+            BC(1282);
+            pc(51680, 1, 10);
+            HL(23190);
+            pc(51683, 1, 10);
+            DE(51445);
+            pc(51686, 1, 13);
+            int var74 = mem(51308, 51686);
+            A(var74);
+            pc(51689, 1, 7);
+            int var75 = A();
+            alu("cp", var75, 26);
+            pc(51691, 1, 10);
+            if(flag(1, true)) {
+               untranslated(0);
+               return;
             } else {
-               pc(51708, 1);
-               DE(15616);
-            }
-
-            pc(51711, 1);
-            int var64 = AF();
-            exAF(var64);
-            pc(51712, 1);
-            int var65 = BC();
-            push(var65);
-            pc(51713, 1);
-            int var66 = HL();
-            push(var66);
-            pc(51714, 1);
-            int var67 = DE();
-            int var68 = mem(var67, 51714);
-            A(var68);
-            pc(51715, 1);
-            int var69 = A();
-            int var70 = HL();
-            wMem(var70, var69, 51715);
-            pc(51716, 1);
-            int var71 = L();
-            int var72 = alu("inc", var71);
-            L(var72);
-            pc(51717, 1);
-            int var73 = A();
-            int var74 = HL();
-            wMem(var74, var73, 51717);
-            pc(51718, 1);
-            int var75 = L();
-            int var76 = alu("dec", var75);
-            L(var76);
-            pc(51719, 1);
-            BC(32);
-            pc(51722, 1);
-            int var77 = BC();
-            int var78 = HL();
-            int var79 = alu("add16", var78, var77);
-            HL(var79);
-            pc(51723, 1);
-            int var80 = A();
-            int var81 = HL();
-            wMem(var81, var80, 51723);
-            pc(51724, 1);
-            int var82 = L();
-            int var83 = alu("inc", var82);
-            L(var83);
-            pc(51725, 1);
-            int var84 = A();
-            int var85 = HL();
-            wMem(var85, var84, 51725);
-            pc(51726, 1);
-            int var86 = pop();
-            HL(var86);
-            pc(51727, 1);
-            int var87 = L();
-            int var88 = alu("inc", var87);
-            L(var88);
-            pc(51728, 1);
-            int var89 = L();
-            int var90 = alu("inc", var89);
-            L(var90);
-            pc(51729, 1);
-            int var91 = DE();
-            int var92 = inc16(var91);
-            DE(var92);
-            pc(51730, 1);
-            int var93 = pop();
-            BC(var93);
-            pc(51731, 1);
-            int var94 = B() - 1 & 255;
-            B(var94);
-            if(B() == 0) {
-               pc(51733, 1);
-               int var95 = C();
-               int var96 = alu("dec", var95);
-               C(var96);
-               pc(51734, 1);
-               if(flag(64, false)) {
-                  return;
+               pc(51694, 1, 7);
+               int var76 = A();
+               alu("cp", var76, 11);
+               pc(51696, 1, 7);
+               if(flag(1, false)) {
+                  tstates(5);
+               } else {
+                  pc(51698, 1, 7);
+                  A(10);
                }
 
-               pc(51735, 1);
-               HL(23254);
-               pc(51738, 1);
-               B(5);
-               pc(51740, 1);
+               pc(51700, 1, 4);
+               int var77 = AF();
+               exAF(var77);
+
+               while(true) {
+                  pc(51701, 1, 4);
+                  int var78 = AF();
+                  exAF(var78);
+                  pc(51702, 1, 4);
+                  int var79 = A();
+                  int var80 = A();
+                  int var81 = alu("and", var80, var79);
+                  A(var81);
+                  pc(51703, 1, 7);
+                  if(flag(64, false)) {
+                     tstates(5);
+                     pc(51708, 1, 10);
+                     DE(15616);
+                  } else {
+                     pc(51705, 1, 4);
+                     int var82 = A();
+                     int var83 = alu("dec", var82);
+                     A(var83);
+                     pc(51706, 1, 12);
+                  }
+
+                  pc(51711, 1, 4);
+                  int var84 = AF();
+                  exAF(var84);
+                  pc(51712, 1, 11);
+                  int var85 = BC();
+                  push(var85);
+                  pc(51713, 1, 11);
+                  int var86 = HL();
+                  push(var86);
+                  pc(51714, 1, 7);
+                  int var87 = DE();
+                  int var88 = mem(var87, 51714);
+                  A(var88);
+                  pc(51715, 1, 7);
+                  int var89 = A();
+                  int var90 = HL();
+                  wMem(var90, var89, 51715);
+                  pc(51716, 1, 4);
+                  int var91 = L();
+                  int var92 = alu("inc", var91);
+                  L(var92);
+                  pc(51717, 1, 7);
+                  int var93 = A();
+                  int var94 = HL();
+                  wMem(var94, var93, 51717);
+                  pc(51718, 1, 4);
+                  int var95 = L();
+                  int var96 = alu("dec", var95);
+                  L(var96);
+                  pc(51719, 1, 10);
+                  BC(32);
+                  pc(51722, 1, 11);
+                  int var97 = BC();
+                  int var98 = HL();
+                  int var99 = alu("add16", var98, var97);
+                  HL(var99);
+                  pc(51723, 1, 7);
+                  int var100 = A();
+                  int var101 = HL();
+                  wMem(var101, var100, 51723);
+                  pc(51724, 1, 4);
+                  int var102 = L();
+                  int var103 = alu("inc", var102);
+                  L(var103);
+                  pc(51725, 1, 7);
+                  int var104 = A();
+                  int var105 = HL();
+                  wMem(var105, var104, 51725);
+                  pc(51726, 1, 10);
+                  int var106 = pop();
+                  HL(var106);
+                  pc(51727, 1, 4);
+                  int var107 = L();
+                  int var108 = alu("inc", var107);
+                  L(var108);
+                  pc(51728, 1, 4);
+                  int var109 = L();
+                  int var110 = alu("inc", var109);
+                  L(var110);
+                  pc(51729, 1, 6);
+                  int var111 = DE();
+                  int var112 = inc16(var111);
+                  DE(var112);
+                  pc(51730, 1, 10);
+                  int var113 = pop();
+                  BC(var113);
+                  pc(51731, 1, 8);
+                  int var114 = B() - 1 & 255;
+                  B(var114);
+                  if(B() != 0) {
+                     tstates(5);
+                  } else {
+                     pc(51733, 1, 4);
+                     int var115 = C();
+                     int var116 = alu("dec", var115);
+                     C(var116);
+                     pc(51734, 1, 5);
+                     if(flag(64, false)) {
+                        tstates(6);
+                        return;
+                     }
+
+                     pc(51735, 1, 10);
+                     HL(23254);
+                     pc(51738, 1, 7);
+                     B(5);
+                     pc(51740, 1, 12);
+                  }
+               }
             }
          }
+
+         tstates(5);
       }
    }
 
    public void $CA5B() {
-      label101:
+      label115:
       while(true) {
-         pc(51803, 1);
+         pc(51803, 1, 17);
          $E801();
-         pc(51806, 1);
+         pc(51806, 1, 10);
          HL(61372);
-         pc(51809, 1);
+         pc(51809, 1, 17);
          $ED06();
-         pc(51812, 1);
+         pc(51812, 1, 10);
          HL(60454);
-         pc(51815, 1);
+         pc(51815, 1, 17);
          runJumps(61169);
-         pc(51818, 1);
+         pc(51818, 1, 10);
          DE(2567);
-         pc(51821, 1);
+         pc(51821, 1, 7);
          A(2);
 
-         do {
-            pc(51823, 1);
+         while(true) {
+            pc(51823, 1, 11);
             int var1 = DE();
             push(var1);
-            pc(51824, 1);
+            pc(51824, 1, 11);
             int var2 = AF();
             push(var2);
-            pc(51825, 1);
+            pc(51825, 1, 10);
             BC(3585);
-            pc(51828, 1);
+            pc(51828, 1, 17);
             $E8BA();
-            pc(51831, 1);
+            pc(51831, 1, 10);
             int var3 = pop();
             AF(var3);
-            pc(51832, 1);
+            pc(51832, 1, 10);
             int var4 = pop();
             DE(var4);
-            pc(51833, 1);
+            pc(51833, 1, 4);
             int var5 = E();
             int var6 = alu("inc", var5);
             E(var6);
-            pc(51834, 1);
+            pc(51834, 1, 4);
             int var7 = E();
             int var8 = alu("inc", var7);
             E(var8);
-            pc(51835, 1);
+            pc(51835, 1, 4);
             int var9 = A();
             int var10 = alu("inc", var9);
             A(var10);
-            pc(51836, 1);
+            pc(51836, 1, 7);
             int var11 = A();
             alu("cp", var11, 7);
-            pc(51838, 1);
-         } while(flag(64, true));
+            pc(51838, 1, 7);
+            if(!flag(64, true)) {
+               pc(51840, 1, 10);
+               BC(18);
+               pc(51843, 1, 10);
+               DE(22631);
+               pc(51846, 1, 10);
+               HL(51755);
+               pc(51849, 2, 21);
+               ldir(51849);
+               pc(51851, 1, 10);
+               HL(55946);
+               pc(51854, 1, 10);
+               int var12 = HL();
+               wMem(var12, 0, 51854);
+               pc(51856, 2, 14);
+               IY(51773);
+               pc(51860, 1, 17);
+               $E54D();
+               pc(51863, 1, 10);
+               HL(59097);
+               pc(51866, 1, 10);
+               int var13 = HL();
+               wMem(var13, 127, 51866);
+               pc(51868, 1, 6);
+               int var14 = HL();
+               int var15 = inc16(var14);
+               HL(var15);
+               pc(51869, 1, 10);
+               int var16 = HL();
+               wMem(var16, 0, 51869);
+               pc(51871, 1, 10);
+               HL(59909);
+               pc(51874, 1, 16);
+               int var17 = HL();
+               wMem16(51799, var17, 51874);
+               pc(51877, 1, 7);
+               A(18);
+               pc(51879, 1, 13);
+               int var18 = A();
+               wMem(51801, var18, 51879);
 
-         pc(51840, 1);
-         BC(18);
-         pc(51843, 1);
-         DE(22631);
-         pc(51846, 1);
-         HL(51755);
-         pc(51849, 2);
-         ldir(51849);
-         pc(51851, 1);
-         HL(55946);
-         pc(51854, 1);
-         int var12 = HL();
-         wMem(var12, 0, 51854);
-         pc(51856, 2);
-         IY(51773);
-         pc(51860, 1);
-         $E54D();
-         pc(51863, 1);
-         HL(59097);
-         pc(51866, 1);
-         int var13 = HL();
-         wMem(var13, 127, 51866);
-         pc(51868, 1);
-         int var14 = HL();
-         int var15 = inc16(var14);
-         HL(var15);
-         pc(51869, 1);
-         int var16 = HL();
-         wMem(var16, 0, 51869);
-         pc(51871, 1);
-         HL(59909);
-         pc(51874, 1);
-         int var17 = HL();
-         wMem16(51799, var17, 51874);
-         pc(51877, 1);
-         A(18);
-         pc(51879, 1);
-         int var18 = A();
-         wMem(51801, var18, 51879);
-
-         label94:
-         while(true) {
-            pc(51882, 1);
-            int var19 = mem16(51799, 51882);
-            HL(var19);
-            pc(51885, 1);
-            int var20 = HL();
-            int var21 = mem(var20, 51885);
-            A(var21);
-            pc(51886, 1);
-            int var22 = HL();
-            int var23 = inc16(var22);
-            HL(var23);
-            pc(51887, 1);
-            int var24 = HL();
-            int var25 = mem(var24, 51887);
-            H(var25);
-            pc(51888, 1);
-            int var26 = A();
-            L(var26);
-            pc(51889, 1);
-            $DB0B();
-
-            while(true) {
+               label107:
                while(true) {
-                  pc(51892, 1);
-                  A(253);
-                  pc(51894, 1);
-                  int var27 = A() << 8 | 254;
-                  int var28 = in(var27, 51894);
-                  A(var28);
-                  pc(51896, 2);
-                  int var29 = A();
-                  bit(2, var29);
-                  pc(51898, 1);
-                  if(flag(64, false)) {
-                     pc(56163, 1);
-                     $E801();
-                     pc(56166, 1);
-                     HL(64915);
-                     pc(56169, 1);
-                     runJumps(61169);
-                     pc(56172, 1);
-                     HL(56157);
-                     pc(56175, 1);
-                     $F470();
-                     pc(56178, 1);
-                     HL(55946);
-                     pc(56181, 1);
-                     int var30 = HL();
-                     wMem(var30, 0, 56181);
-                     pc(56183, 1);
-                     $DD8D();
-                     pc(56186, 1);
-                     HL(56146);
-                     pc(56189, 1);
-                     $DDE0();
-                     pc(56192, 1);
-                     pc(62142, 1);
-                     $F2F4();
-                     pc(62145, 1);
-                     HL(62117);
-                     pc(62148, 1);
-                     runJumps(61169);
-                     pc(62151, 1);
-                     $F300();
-                     pc(62154, 1);
-                     int var31 = D();
-                     A(var31);
-                     pc(62155, 1);
-                     int var32 = A();
-                     wMem(62062, var32, 62155);
-                     pc(62158, 1);
-                     $F2F4();
-                     pc(62161, 1);
-                     HL(62125);
-                     pc(62164, 1);
-                     runJumps(61169);
-                     pc(62167, 1);
-                     $F300();
-                     pc(62170, 1);
-                     int var33 = D();
-                     A(var33);
-                     pc(62171, 1);
-                     int var34 = A();
-                     wMem(62063, var34, 62171);
-                     pc(62174, 1);
-                     $F2F4();
-                     pc(62177, 1);
-                     HL(62134);
-                     pc(62180, 1);
-                     runJumps(61169);
-                     pc(62183, 1);
-                     $F300();
-                     pc(62186, 1);
-                     int var35 = D();
-                     A(var35);
-                     pc(62187, 1);
-                     int var36 = A();
-                     wMem(62064, var36, 62187);
-                     pc(62190, 1);
-                     $F2F4();
-                     pc(62193, 1);
-                     pc(51798, 1);
-                     int var37 = D();
-                     int var38 = alu("inc", var37);
-                     D(var38);
-                     pc(51799, 1);
-                     int var39 = executeMutantCode(51799);
-                     if(var39 != 51800) {
-                        if(var39 != -1) {
-                           jump(var39);
-                        }
+                  pc(51882, 1, 16);
+                  int var19 = mem16(51799, 51882);
+                  HL(var19);
+                  pc(51885, 1, 7);
+                  int var20 = HL();
+                  int var21 = mem(var20, 51885);
+                  A(var21);
+                  pc(51886, 1, 6);
+                  int var22 = HL();
+                  int var23 = inc16(var22);
+                  HL(var23);
+                  pc(51887, 1, 7);
+                  int var24 = HL();
+                  int var25 = mem(var24, 51887);
+                  H(var25);
+                  pc(51888, 1, 4);
+                  int var26 = A();
+                  L(var26);
+                  pc(51889, 1, 17);
+                  $DB0B();
 
-                        return;
-                     }
+                  while(true) {
+                     while(true) {
+                        pc(51892, 1, 7);
+                        A(253);
+                        pc(51894, 1, 11);
+                        int var27 = A() << 8 | 254;
+                        int var28 = in(var27, 51894);
+                        A(var28);
+                        pc(51896, 2, 8);
+                        int var29 = A();
+                        bit(2, var29);
+                        pc(51898, 1, 10);
+                        if(flag(64, false)) {
+                           pc(56163, 1, 17);
+                           $E801();
+                           pc(56166, 1, 10);
+                           HL(64915);
+                           pc(56169, 1, 17);
+                           runJumps(61169);
+                           pc(56172, 1, 10);
+                           HL(56157);
+                           pc(56175, 1, 17);
+                           $F470();
+                           pc(56178, 1, 10);
+                           HL(55946);
+                           pc(56181, 1, 10);
+                           int var30 = HL();
+                           wMem(var30, 0, 56181);
+                           pc(56183, 1, 17);
+                           $DD8D();
+                           pc(56186, 1, 10);
+                           HL(56146);
+                           pc(56189, 1, 17);
+                           $DDE0();
+                           pc(56192, 1, 10);
+                           pc(62142, 1, 17);
+                           $F2F4();
+                           pc(62145, 1, 10);
+                           HL(62117);
+                           pc(62148, 1, 17);
+                           runJumps(61169);
+                           pc(62151, 1, 17);
+                           $F300();
+                           pc(62154, 1, 4);
+                           int var31 = D();
+                           A(var31);
+                           pc(62155, 1, 13);
+                           int var32 = A();
+                           wMem(62062, var32, 62155);
+                           pc(62158, 1, 17);
+                           $F2F4();
+                           pc(62161, 1, 10);
+                           HL(62125);
+                           pc(62164, 1, 17);
+                           runJumps(61169);
+                           pc(62167, 1, 17);
+                           $F300();
+                           pc(62170, 1, 4);
+                           int var33 = D();
+                           A(var33);
+                           pc(62171, 1, 13);
+                           int var34 = A();
+                           wMem(62063, var34, 62171);
+                           pc(62174, 1, 17);
+                           $F2F4();
+                           pc(62177, 1, 10);
+                           HL(62134);
+                           pc(62180, 1, 17);
+                           runJumps(61169);
+                           pc(62183, 1, 17);
+                           $F300();
+                           pc(62186, 1, 4);
+                           int var35 = D();
+                           A(var35);
+                           pc(62187, 1, 13);
+                           int var36 = A();
+                           wMem(62064, var36, 62187);
+                           pc(62190, 1, 17);
+                           $F2F4();
+                           pc(62193, 1, 10);
+                           pc(51798, 1, 4);
+                           int var37 = D();
+                           int var38 = alu("inc", var37);
+                           D(var38);
+                           pc(51799, 1, 0);
+                           int var39 = executeMutantCode(51799);
+                           if(var39 != 51800) {
+                              if(var39 != -1) {
+                                 jump(var39);
+                              }
 
-                     pc(51800, 1);
-                     int var40 = executeMutantCode(51800);
-                     if(var40 == 51803) {
-                        continue label101;
-                     }
-
-                     if(var40 != -1) {
-                        jump(var40);
-                     }
-
-                     return;
-                  }
-
-                  pc(51901, 2);
-                  IY(51779);
-                  pc(51905, 1);
-                  $E59F();
-                  pc(51908, 1);
-                  $EDA2();
-                  pc(51911, 1);
-                  $DA8D();
-                  pc(51914, 1);
-                  $DAFA();
-                  pc(51917, 1);
-                  int var41 = mem16(55944, 51917);
-                  HL(var41);
-                  pc(51920, 1);
-                  int var42 = HL();
-                  int var43 = mem(var42, 51920);
-                  A(var43);
-                  pc(51921, 1);
-                  int var44 = A();
-                  alu("cp", var44, 255);
-                  pc(51923, 1);
-                  if(!flag(64, true)) {
-                     pc(51925, 1);
-                     int var105 = mem16(51799, 51925);
-                     HL(var105);
-                     pc(51928, 1);
-                     int var106 = HL();
-                     int var107 = inc16(var106);
-                     HL(var107);
-                     pc(51929, 1);
-                     int var108 = HL();
-                     int var109 = inc16(var108);
-                     HL(var109);
-                     pc(51930, 1);
-                     int var110 = mem(51801, 51930);
-                     A(var110);
-                     pc(51933, 1);
-                     int var111 = A();
-                     int var112 = alu("dec", var111);
-                     A(var112);
-                     pc(51934, 1);
-                     int var113 = A();
-                     int var114 = A();
-                     int var115 = alu("and", var114, var113);
-                     A(var115);
-                     pc(51935, 1);
-                     if(!flag(64, true)) {
-                        pc(51937, 1);
-                        A(18);
-                        pc(51939, 1);
-                        HL(59909);
-                     }
-
-                     pc(51942, 1);
-                     int var116 = HL();
-                     wMem16(51799, var116, 51942);
-                     pc(51945, 1);
-                     int var117 = A();
-                     wMem(51801, var117, 51945);
-                     pc(51948, 1);
-                     continue label94;
-                  }
-
-                  pc(51950, 1);
-                  int var45 = mem(51802, 51950);
-                  A(var45);
-                  pc(51953, 1);
-                  int var46 = A();
-                  E(var46);
-                  pc(51954, 1);
-                  D(10);
-                  pc(51956, 1);
-                  $E8E3();
-                  pc(51959, 1);
-                  exHLDE();
-                  pc(51960, 1);
-                  B(10);
-
-                  do {
-                     pc(51962, 2);
-                     int var47 = HL();
-                     int var48 = mem(var47, 51962) | 128;
-                     int var49 = HL();
-                     wMem(var49, var48, 51962);
-                     pc(51964, 1);
-                     int var50 = L();
-                     int var51 = alu("inc", var50);
-                     L(var51);
-                     pc(51965, 1);
-                     int var52 = B() - 1 & 255;
-                     B(var52);
-                  } while(B() != 0);
-
-                  pc(51967, 1);
-                  A(253);
-                  pc(51969, 1);
-                  int var53 = A() << 8 | 254;
-                  int var54 = in(var53, 51969);
-                  A(var54);
-                  pc(51971, 1);
-                  int var55 = A();
-                  int var56 = alu("and", var55, 2);
-                  A(var56);
-                  pc(51973, 1);
-                  if(!flag(64, true)) {
-                     pc(51975, 1);
-                     int var102 = mem(51802, 51975);
-                     A(var102);
-                     pc(51978, 1);
-                     int var103 = A();
-                     alu("cp", var103, 11);
-                     pc(51980, 1);
-                     if(!flag(64, false)) {
-                        pc(51982, 1);
-                        $CB8D();
-                        pc(51985, 1);
-                        HL(59867);
-                        pc(51988, 1);
-                        int var104 = HL();
-                        wMem16(59834, var104, 51988);
-                        pc(51991, 1);
-                        A(11);
-                        break;
-                     }
-                  } else {
-                     pc(51998, 1);
-                     A(191);
-                     pc(52000, 1);
-                     int var57 = A() << 8 | 254;
-                     int var58 = in(var57, 52000);
-                     A(var58);
-                     pc(52002, 1);
-                     int var59 = A();
-                     B(var59);
-                     pc(52003, 1);
-                     int var60 = A();
-                     int var61 = alu("and", var60, 4);
-                     A(var61);
-                     pc(52005, 1);
-                     if(!flag(64, true)) {
-                        pc(52007, 1);
-                        int var99 = mem(51802, 52007);
-                        A(var99);
-                        pc(52010, 1);
-                        int var100 = A();
-                        alu("cp", var100, 7);
-                        pc(52012, 1);
-                        if(!flag(64, false)) {
-                           pc(52014, 1);
-                           $CB8D();
-                           pc(52017, 1);
-                           HL(62065);
-                           pc(52020, 1);
-                           int var101 = HL();
-                           wMem16(59834, var101, 52020);
-                           pc(52023, 1);
-                           A(7);
-                           pc(52025, 1);
-                           break;
-                        }
-                     } else {
-                        pc(52027, 1);
-                        int var62 = B();
-                        A(var62);
-                        pc(52028, 1);
-                        int var63 = A();
-                        int var64 = alu("and", var63, 8);
-                        A(var64);
-                        pc(52030, 1);
-                        if(!flag(64, true)) {
-                           pc(52032, 1);
-                           int var95 = mem(51802, 52032);
-                           A(var95);
-                           pc(52035, 1);
-                           int var96 = A();
-                           alu("cp", var96, 9);
-                           pc(52037, 1);
-                           if(!flag(64, false)) {
-                              pc(52040, 1);
-                              $CB8D();
-                              pc(52043, 1);
-                              HL(59840);
-                              pc(52046, 1);
-                              int var97 = HL();
-                              wMem16(59834, var97, 52046);
-                              pc(52049, 1);
-                              A(9);
-                              pc(52051, 1);
-                              break;
-                           }
-                        } else {
-                           pc(52053, 1);
-                           A(223);
-                           pc(52055, 1);
-                           int var65 = A() << 8 | 254;
-                           int var66 = in(var65, 52055);
-                           A(var66);
-                           pc(52057, 2);
-                           int var67 = A();
-                           bit(2, var67);
-                           pc(52059, 1);
-                           if(flag(64, false)) {
-                              pc(56566, 1);
-                              HL(55946);
-                              pc(56569, 2);
-                              int var68 = HL();
-                              int var69 = mem(var68, 56569) & -2;
-                              int var70 = HL();
-                              wMem(var70, var69, 56569);
-                              pc(56571, 1);
-                              $E801();
-                              pc(56574, 1);
-                              HL(63687);
-                              pc(56577, 1);
-                              runJumps(61169);
-                              pc(56580, 1);
-                              HL(62757);
-                              pc(56583, 1);
-                              $F470();
-                              pc(56586, 1);
-                              $DD8D();
-                              pc(56589, 1);
-                              HL(62880);
-                              pc(56592, 1);
-                              $DDE0();
-                              pc(56595, 1);
-                              $E801();
-                              pc(56598, 1);
-                              HL(64358);
-                              pc(56601, 1);
-                              runJumps(61169);
-                              pc(56604, 1);
-                              HL(62818);
-                              pc(56607, 1);
-                              $F470();
-                              pc(56610, 1);
-                              $DD8D();
-                              pc(56613, 1);
-                              HL(62893);
-                              pc(56616, 1);
-                              $DDE0();
-                              pc(56619, 1);
-                              $E801();
-                              pc(56622, 1);
-                              HL(64682);
-                              pc(56625, 1);
-                              runJumps(61169);
-                              pc(56628, 1);
-                              HL(62839);
-                              pc(56631, 1);
-                              $F470();
-                              pc(56634, 2);
-                              IX(62725);
-                              pc(56638, 1);
-                              int var71 = A();
-                              int var72 = A();
-                              int var73 = alu("xor", var72, var71);
-                              A(var73);
-
-                              do {
-                                 pc(56639, 1);
-                                 int var74 = AF();
-                                 push(var74);
-                                 pc(56640, 1);
-                                 $DCCC();
-                                 pc(56643, 2);
-                                 int var75 = IX();
-                                 int var76 = inc16(var75);
-                                 IX(var76);
-                                 pc(56645, 2);
-                                 int var77 = IX();
-                                 int var78 = inc16(var77);
-                                 IX(var78);
-                                 pc(56647, 1);
-                                 int var79 = pop();
-                                 AF(var79);
-                                 pc(56648, 1);
-                                 int var80 = A();
-                                 int var81 = alu("inc", var80);
-                                 A(var81);
-                                 pc(56649, 1);
-                                 int var82 = A();
-                                 alu("cp", var82, 8);
-                                 pc(56651, 1);
-                              } while(flag(64, true));
-
-                              pc(56653, 1);
-                              $DD8D();
-                              pc(56656, 1);
-                              HL(62921);
-                              pc(56659, 1);
-                              $DDE0();
-                              pc(56662, 1);
-                              $E801();
-                              pc(56665, 1);
-                              HL(64797);
-                              pc(56668, 1);
-                              runJumps(61169);
-                              pc(56671, 1);
-                              HL(62855);
-                              pc(56674, 1);
-                              $F470();
-                              pc(56677, 1);
-                              A(1);
-                              pc(56679, 1);
-                              int var83 = A();
-                              wMem(56565, var83, 56679);
-                              pc(56682, 2);
-                              IX(62746);
-                              pc(56686, 1);
-                              HL(62866);
-                              pc(56689, 1);
-                              $ED06();
-                              pc(56692, 1);
-                              HL(60297);
-                              pc(56695, 1);
-                              DE(1556);
-                              pc(56698, 1);
-                              $E84E();
-                              pc(56701, 1);
-                              $DD8D();
-                              pc(56704, 1);
-                              HL(62933);
-                              pc(56707, 1);
-                              $DDE0();
-                              pc(56710, 1);
-                              int var84 = A();
-                              int var85 = A();
-                              int var86 = alu("xor", var85, var84);
-                              A(var86);
-                              pc(56711, 1);
-                              int var87 = A();
-                              wMem(56565, var87, 56711);
-                              pc(56714, 1);
-                              continue label101;
-                           }
-
-                           pc(52062, 1);
-                           $CB9C();
-                           pc(52065, 1);
-                           if(!flag(64, true)) {
-                              pc(52068, 1);
-                              HL(55946);
-                              pc(52071, 2);
-                              int var88 = HL();
-                              int var89 = mem(var88, 52071) & -2;
-                              int var90 = HL();
-                              wMem(var90, var89, 52071);
-
-                              do {
-                                 pc(52073, 2);
-                                 IY(51795);
-                                 pc(52077, 1);
-                                 $E6F6();
-                                 pc(52080, 1);
-                                 $DA8D();
-                                 pc(52083, 1);
-                                 $DAFA();
-                                 pc(52086, 1);
-                                 $EDA2();
-                                 pc(52089, 2);
-                                 IY(51779);
-                                 pc(52093, 1);
-                                 $E59F();
-                                 pc(52096, 1);
-                                 int var91 = mem(59098, 52096);
-                                 A(var91);
-                                 pc(52099, 1);
-                                 int var92 = A();
-                                 int var93 = A();
-                                 int var94 = alu("and", var93, var92);
-                                 A(var94);
-                                 pc(52100, 1);
-                              } while(flag(64, true));
-
-                              pc(52102, 1);
-                              HL(51742);
-                              pc(52105, 1);
-                              $DDE0();
-                              pc(52108, 1);
                               return;
                            }
+
+                           pc(51800, 1, 0);
+                           int var40 = executeMutantCode(51800);
+                           if(var40 == 51803) {
+                              continue label115;
+                           }
+
+                           if(var40 != -1) {
+                              jump(var40);
+                           }
+
+                           return;
+                        }
+
+                        pc(51901, 2, 14);
+                        IY(51779);
+                        pc(51905, 1, 17);
+                        $E59F();
+                        pc(51908, 1, 17);
+                        $EDA2();
+                        pc(51911, 1, 17);
+                        $DA8D();
+                        pc(51914, 1, 17);
+                        $DAFA();
+                        pc(51917, 1, 16);
+                        int var41 = mem16(55944, 51917);
+                        HL(var41);
+                        pc(51920, 1, 7);
+                        int var42 = HL();
+                        int var43 = mem(var42, 51920);
+                        A(var43);
+                        pc(51921, 1, 7);
+                        int var44 = A();
+                        alu("cp", var44, 255);
+                        pc(51923, 1, 7);
+                        if(!flag(64, true)) {
+                           pc(51925, 1, 16);
+                           int var45 = mem16(51799, 51925);
+                           HL(var45);
+                           pc(51928, 1, 6);
+                           int var46 = HL();
+                           int var47 = inc16(var46);
+                           HL(var47);
+                           pc(51929, 1, 6);
+                           int var48 = HL();
+                           int var49 = inc16(var48);
+                           HL(var49);
+                           pc(51930, 1, 13);
+                           int var50 = mem(51801, 51930);
+                           A(var50);
+                           pc(51933, 1, 4);
+                           int var51 = A();
+                           int var52 = alu("dec", var51);
+                           A(var52);
+                           pc(51934, 1, 4);
+                           int var53 = A();
+                           int var54 = A();
+                           int var55 = alu("and", var54, var53);
+                           A(var55);
+                           pc(51935, 1, 7);
+                           if(flag(64, true)) {
+                              tstates(5);
+                           } else {
+                              pc(51937, 1, 7);
+                              A(18);
+                              pc(51939, 1, 10);
+                              HL(59909);
+                           }
+
+                           pc(51942, 1, 16);
+                           int var56 = HL();
+                           wMem16(51799, var56, 51942);
+                           pc(51945, 1, 13);
+                           int var57 = A();
+                           wMem(51801, var57, 51945);
+                           pc(51948, 1, 12);
+                           continue label107;
+                        }
+
+                        tstates(5);
+                        pc(51950, 1, 13);
+                        int var58 = mem(51802, 51950);
+                        A(var58);
+                        pc(51953, 1, 4);
+                        int var59 = A();
+                        E(var59);
+                        pc(51954, 1, 7);
+                        D(10);
+                        pc(51956, 1, 17);
+                        $E8E3();
+                        pc(51959, 1, 4);
+                        exHLDE();
+                        pc(51960, 1, 7);
+                        B(10);
+
+                        while(true) {
+                           pc(51962, 2, 15);
+                           int var60 = HL();
+                           int var61 = mem(var60, 51962) | 128;
+                           int var62 = HL();
+                           wMem(var62, var61, 51962);
+                           pc(51964, 1, 4);
+                           int var63 = L();
+                           int var64 = alu("inc", var63);
+                           L(var64);
+                           pc(51965, 1, 8);
+                           int var65 = B() - 1 & 255;
+                           B(var65);
+                           if(B() == 0) {
+                              pc(51967, 1, 7);
+                              A(253);
+                              pc(51969, 1, 11);
+                              int var66 = A() << 8 | 254;
+                              int var67 = in(var66, 51969);
+                              A(var67);
+                              pc(51971, 1, 7);
+                              int var68 = A();
+                              int var69 = alu("and", var68, 2);
+                              A(var69);
+                              pc(51973, 1, 7);
+                              if(flag(64, true)) {
+                                 tstates(5);
+                                 pc(51998, 1, 7);
+                                 A(191);
+                                 pc(52000, 1, 11);
+                                 int var74 = A() << 8 | 254;
+                                 int var75 = in(var74, 52000);
+                                 A(var75);
+                                 pc(52002, 1, 4);
+                                 int var76 = A();
+                                 B(var76);
+                                 pc(52003, 1, 7);
+                                 int var77 = A();
+                                 int var78 = alu("and", var77, 4);
+                                 A(var78);
+                                 pc(52005, 1, 7);
+                                 if(flag(64, true)) {
+                                    tstates(5);
+                                    pc(52027, 1, 4);
+                                    int var82 = B();
+                                    A(var82);
+                                    pc(52028, 1, 7);
+                                    int var83 = A();
+                                    int var84 = alu("and", var83, 8);
+                                    A(var84);
+                                    pc(52030, 1, 7);
+                                    if(flag(64, true)) {
+                                       tstates(5);
+                                       pc(52053, 1, 7);
+                                       A(223);
+                                       pc(52055, 1, 11);
+                                       int var88 = A() << 8 | 254;
+                                       int var89 = in(var88, 52055);
+                                       A(var89);
+                                       pc(52057, 2, 8);
+                                       int var90 = A();
+                                       bit(2, var90);
+                                       pc(52059, 1, 10);
+                                       if(flag(64, false)) {
+                                          pc(56566, 1, 10);
+                                          HL(55946);
+                                          pc(56569, 2, 15);
+                                          int var91 = HL();
+                                          int var92 = mem(var91, 56569) & -2;
+                                          int var93 = HL();
+                                          wMem(var93, var92, 56569);
+                                          pc(56571, 1, 17);
+                                          $E801();
+                                          pc(56574, 1, 10);
+                                          HL(63687);
+                                          pc(56577, 1, 17);
+                                          runJumps(61169);
+                                          pc(56580, 1, 10);
+                                          HL(62757);
+                                          pc(56583, 1, 17);
+                                          $F470();
+                                          pc(56586, 1, 17);
+                                          $DD8D();
+                                          pc(56589, 1, 10);
+                                          HL(62880);
+                                          pc(56592, 1, 17);
+                                          $DDE0();
+                                          pc(56595, 1, 17);
+                                          $E801();
+                                          pc(56598, 1, 10);
+                                          HL(64358);
+                                          pc(56601, 1, 17);
+                                          runJumps(61169);
+                                          pc(56604, 1, 10);
+                                          HL(62818);
+                                          pc(56607, 1, 17);
+                                          $F470();
+                                          pc(56610, 1, 17);
+                                          $DD8D();
+                                          pc(56613, 1, 10);
+                                          HL(62893);
+                                          pc(56616, 1, 17);
+                                          $DDE0();
+                                          pc(56619, 1, 17);
+                                          $E801();
+                                          pc(56622, 1, 10);
+                                          HL(64682);
+                                          pc(56625, 1, 17);
+                                          runJumps(61169);
+                                          pc(56628, 1, 10);
+                                          HL(62839);
+                                          pc(56631, 1, 17);
+                                          $F470();
+                                          pc(56634, 2, 14);
+                                          IX(62725);
+                                          pc(56638, 1, 4);
+                                          int var94 = A();
+                                          int var95 = A();
+                                          int var96 = alu("xor", var95, var94);
+                                          A(var96);
+
+                                          while(true) {
+                                             pc(56639, 1, 11);
+                                             int var97 = AF();
+                                             push(var97);
+                                             pc(56640, 1, 17);
+                                             $DCCC();
+                                             pc(56643, 2, 10);
+                                             int var98 = IX();
+                                             int var99 = inc16(var98);
+                                             IX(var99);
+                                             pc(56645, 2, 10);
+                                             int var100 = IX();
+                                             int var101 = inc16(var100);
+                                             IX(var101);
+                                             pc(56647, 1, 10);
+                                             int var102 = pop();
+                                             AF(var102);
+                                             pc(56648, 1, 4);
+                                             int var103 = A();
+                                             int var104 = alu("inc", var103);
+                                             A(var104);
+                                             pc(56649, 1, 7);
+                                             int var105 = A();
+                                             alu("cp", var105, 8);
+                                             pc(56651, 1, 7);
+                                             if(!flag(64, true)) {
+                                                pc(56653, 1, 17);
+                                                $DD8D();
+                                                pc(56656, 1, 10);
+                                                HL(62921);
+                                                pc(56659, 1, 17);
+                                                $DDE0();
+                                                pc(56662, 1, 17);
+                                                $E801();
+                                                pc(56665, 1, 10);
+                                                HL(64797);
+                                                pc(56668, 1, 17);
+                                                runJumps(61169);
+                                                pc(56671, 1, 10);
+                                                HL(62855);
+                                                pc(56674, 1, 17);
+                                                $F470();
+                                                pc(56677, 1, 7);
+                                                A(1);
+                                                pc(56679, 1, 13);
+                                                int var106 = A();
+                                                wMem(56565, var106, 56679);
+                                                pc(56682, 2, 14);
+                                                IX(62746);
+                                                pc(56686, 1, 10);
+                                                HL(62866);
+                                                pc(56689, 1, 17);
+                                                $ED06();
+                                                pc(56692, 1, 10);
+                                                HL(60297);
+                                                pc(56695, 1, 10);
+                                                DE(1556);
+                                                pc(56698, 1, 17);
+                                                $E84E();
+                                                pc(56701, 1, 17);
+                                                $DD8D();
+                                                pc(56704, 1, 10);
+                                                HL(62933);
+                                                pc(56707, 1, 17);
+                                                $DDE0();
+                                                pc(56710, 1, 4);
+                                                int var107 = A();
+                                                int var108 = A();
+                                                int var109 = alu("xor", var108, var107);
+                                                A(var109);
+                                                pc(56711, 1, 13);
+                                                int var110 = A();
+                                                wMem(56565, var110, 56711);
+                                                pc(56714, 1, 10);
+                                                continue label115;
+                                             }
+
+                                             tstates(5);
+                                          }
+                                       }
+
+                                       pc(52062, 1, 17);
+                                       $CB9C();
+                                       pc(52065, 1, 10);
+                                       if(!flag(64, true)) {
+                                          pc(52068, 1, 10);
+                                          HL(55946);
+                                          pc(52071, 2, 15);
+                                          int var111 = HL();
+                                          int var112 = mem(var111, 52071) & -2;
+                                          int var113 = HL();
+                                          wMem(var113, var112, 52071);
+
+                                          while(true) {
+                                             pc(52073, 2, 14);
+                                             IY(51795);
+                                             pc(52077, 1, 17);
+                                             $E6F6();
+                                             pc(52080, 1, 17);
+                                             $DA8D();
+                                             pc(52083, 1, 17);
+                                             $DAFA();
+                                             pc(52086, 1, 17);
+                                             $EDA2();
+                                             pc(52089, 2, 14);
+                                             IY(51779);
+                                             pc(52093, 1, 17);
+                                             $E59F();
+                                             pc(52096, 1, 13);
+                                             int var114 = mem(59098, 52096);
+                                             A(var114);
+                                             pc(52099, 1, 4);
+                                             int var115 = A();
+                                             int var116 = A();
+                                             int var117 = alu("and", var116, var115);
+                                             A(var117);
+                                             pc(52100, 1, 7);
+                                             if(!flag(64, true)) {
+                                                pc(52102, 1, 10);
+                                                HL(51742);
+                                                pc(52105, 1, 17);
+                                                $DDE0();
+                                                pc(52108, 1, 10);
+                                                return;
+                                             }
+
+                                             tstates(5);
+                                          }
+                                       }
+                                       break;
+                                    }
+
+                                    pc(52032, 1, 13);
+                                    int var85 = mem(51802, 52032);
+                                    A(var85);
+                                    pc(52035, 1, 7);
+                                    int var86 = A();
+                                    alu("cp", var86, 9);
+                                    pc(52037, 1, 10);
+                                    if(flag(64, false)) {
+                                       break;
+                                    }
+
+                                    pc(52040, 1, 17);
+                                    $CB8D();
+                                    pc(52043, 1, 10);
+                                    HL(59840);
+                                    pc(52046, 1, 16);
+                                    int var87 = HL();
+                                    wMem16(59834, var87, 52046);
+                                    pc(52049, 1, 7);
+                                    A(9);
+                                    pc(52051, 1, 12);
+                                 } else {
+                                    pc(52007, 1, 13);
+                                    int var79 = mem(51802, 52007);
+                                    A(var79);
+                                    pc(52010, 1, 7);
+                                    int var80 = A();
+                                    alu("cp", var80, 7);
+                                    pc(52012, 1, 7);
+                                    if(flag(64, false)) {
+                                       tstates(5);
+                                       break;
+                                    }
+
+                                    pc(52014, 1, 17);
+                                    $CB8D();
+                                    pc(52017, 1, 10);
+                                    HL(62065);
+                                    pc(52020, 1, 16);
+                                    int var81 = HL();
+                                    wMem16(59834, var81, 52020);
+                                    pc(52023, 1, 7);
+                                    A(7);
+                                    pc(52025, 1, 12);
+                                 }
+                              } else {
+                                 pc(51975, 1, 13);
+                                 int var70 = mem(51802, 51975);
+                                 A(var70);
+                                 pc(51978, 1, 7);
+                                 int var71 = A();
+                                 alu("cp", var71, 11);
+                                 pc(51980, 1, 7);
+                                 if(flag(64, false)) {
+                                    tstates(5);
+                                    break;
+                                 }
+
+                                 pc(51982, 1, 17);
+                                 $CB8D();
+                                 pc(51985, 1, 10);
+                                 HL(59867);
+                                 pc(51988, 1, 16);
+                                 int var72 = HL();
+                                 wMem16(59834, var72, 51988);
+                                 pc(51991, 1, 7);
+                                 A(11);
+                              }
+
+                              pc(51993, 1, 13);
+                              int var73 = A();
+                              wMem(51802, var73, 51993);
+                              pc(51996, 1, 12);
+                              break;
+                           }
+
+                           tstates(5);
                         }
                      }
                   }
                }
-
-               pc(51993, 1);
-               int var98 = A();
-               wMem(51802, var98, 51993);
-               pc(51996, 1);
             }
+
+            tstates(5);
          }
       }
    }
 
    public void $CB8D() {
-      pc(52109, 1);
+      pc(52109, 1, 4);
       int var1 = A();
       E(var1);
-      pc(52110, 1);
+      pc(52110, 1, 7);
       D(10);
-      pc(52112, 1);
+      pc(52112, 1, 17);
       $E8E3();
-      pc(52115, 1);
+      pc(52115, 1, 4);
       exHLDE();
-      pc(52116, 1);
+      pc(52116, 1, 7);
       B(10);
 
-      do {
-         pc(52118, 2);
+      while(true) {
+         pc(52118, 2, 15);
          int var2 = HL();
          int var3 = mem(var2, 52118) & -129;
          int var4 = HL();
          wMem(var4, var3, 52118);
-         pc(52120, 1);
+         pc(52120, 1, 4);
          int var5 = L();
          int var6 = alu("inc", var5);
          L(var6);
-         pc(52121, 1);
+         pc(52121, 1, 8);
          int var7 = B() - 1 & 255;
          B(var7);
-      } while(B() != 0);
-
-      pc(52123, 1);
-   }
-
-   public void $CB9C() {
-      pc(52124, 1);
-      int var1 = mem(51802, 52124);
-      A(var1);
-      pc(52127, 1);
-      int var2 = A();
-      alu("cp", var2, 9);
-      pc(52129, 1);
-      if(!flag(64, true)) {
-         pc(52131, 1);
-         int var10 = A() << 8 | 31;
-         int var11 = in(var10, 52131);
-         A(var11);
-         pc(52133, 1);
-         int var12 = A();
-         int var13 = alu("cpl", var12);
-         A(var13);
-         pc(52134, 2);
-         int var14 = A();
-         bit(4, var14);
-         pc(52136, 1);
-         if(flag(64, false)) {
+         if(B() == 0) {
+            pc(52123, 1, 10);
             return;
          }
 
-         pc(52137, 1);
-      } else {
-         pc(52139, 1);
-         int var3 = A();
-         alu("cp", var3, 11);
-         pc(52141, 1);
-         if(!flag(64, true)) {
-            pc(52143, 1);
+         tstates(5);
+      }
+   }
+
+   public void $CB9C() {
+      pc(52124, 1, 13);
+      int var1 = mem(51802, 52124);
+      A(var1);
+      pc(52127, 1, 7);
+      int var2 = A();
+      alu("cp", var2, 9);
+      pc(52129, 1, 7);
+      if(flag(64, true)) {
+         tstates(5);
+         pc(52139, 1, 7);
+         int var11 = A();
+         alu("cp", var11, 11);
+         pc(52141, 1, 7);
+         if(flag(64, true)) {
+            tstates(5);
+         } else {
+            pc(52143, 1, 7);
             A(239);
-            pc(52145, 1);
-            int var7 = A() << 8 | 254;
-            int var8 = in(var7, 52145);
-            A(var8);
-            pc(52147, 2);
-            int var9 = A();
-            bit(0, var9);
-            pc(52149, 1);
+            pc(52145, 1, 11);
+            int var12 = A() << 8 | 254;
+            int var13 = in(var12, 52145);
+            A(var13);
+            pc(52147, 2, 8);
+            int var14 = A();
+            bit(0, var14);
+            pc(52149, 1, 5);
             if(flag(64, false)) {
+               tstates(6);
                return;
             }
          }
+      } else {
+         pc(52131, 1, 11);
+         int var3 = A() << 8 | 31;
+         int var4 = in(var3, 52131);
+         A(var4);
+         pc(52133, 1, 4);
+         int var5 = A();
+         int var6 = alu("cpl", var5);
+         A(var6);
+         pc(52134, 2, 8);
+         int var7 = A();
+         bit(4, var7);
+         pc(52136, 1, 5);
+         if(flag(64, false)) {
+            tstates(6);
+            return;
+         }
+
+         pc(52137, 1, 12);
       }
 
-      pc(52150, 1);
+      pc(52150, 1, 7);
       A(191);
-      pc(52152, 1);
-      int var4 = A() << 8 | 254;
-      int var5 = in(var4, 52152);
-      A(var5);
-      pc(52154, 2);
-      int var6 = A();
-      bit(0, var6);
-      pc(52156, 1);
+      pc(52152, 1, 11);
+      int var8 = A() << 8 | 254;
+      int var9 = in(var8, 52152);
+      A(var9);
+      pc(52154, 2, 8);
+      int var10 = A();
+      bit(0, var10);
+      pc(52156, 1, 10);
    }
 
    public void $CBBD() {
-      pc(52157, 1);
+      pc(52157, 1, 13);
       int var1 = A();
       wMem(53194, var1, 52157);
-      pc(52160, 1);
+      pc(52160, 1, 4);
       int var2 = A();
       int var3 = A();
       int var4 = alu("add", var3, var2);
       A(var4);
-      pc(52161, 1);
+      pc(52161, 1, 4);
       int var5 = A();
       int var6 = A();
       int var7 = alu("add", var6, var5);
       A(var7);
-      pc(52162, 1);
+      pc(52162, 1, 4);
       int var8 = A();
       L(var8);
-      pc(52163, 1);
+      pc(52163, 1, 7);
       H(0);
-      pc(52165, 1);
+      pc(52165, 1, 4);
       int var9 = L();
       C(var9);
-      pc(52166, 1);
+      pc(52166, 1, 4);
       int var10 = H();
       B(var10);
-      pc(52167, 1);
+      pc(52167, 1, 11);
       int var11 = HL();
       int var12 = HL();
       int var13 = alu("add16", var12, var11);
       HL(var13);
-      pc(52168, 1);
+      pc(52168, 1, 11);
       int var14 = BC();
       int var15 = HL();
       int var16 = alu("add16", var15, var14);
       HL(var16);
-      pc(52169, 1);
+      pc(52169, 1, 10);
       DE(27110);
-      pc(52172, 1);
+      pc(52172, 1, 11);
       int var17 = DE();
       int var18 = HL();
       int var19 = alu("add16", var18, var17);
       HL(var19);
-      pc(52173, 1);
+      pc(52173, 1, 11);
       int var20 = HL();
       push(var20);
-      pc(52174, 2);
+      pc(52174, 2, 14);
       int var21 = pop();
       IX(var21);
-      pc(52176, 2);
+      pc(52176, 2, 19);
       int var22 = IX() + 4;
       int var23 = mem(var22, 52176);
       A(var23);
-      pc(52179, 1);
+      pc(52179, 1, 7);
       int var24 = A();
       int var25 = alu("and", var24, 192);
       A(var25);
-      pc(52181, 1);
+      pc(52181, 1, 4);
       int var26 = A();
       int var27 = alu("rrca", var26);
       A(var27);
-      pc(52182, 1);
+      pc(52182, 1, 4);
       int var28 = A();
       int var29 = alu("rrca", var28);
       A(var29);
-      pc(52183, 1);
+      pc(52183, 1, 4);
       int var30 = A();
       int var31 = alu("rrca", var30);
       A(var31);
-      pc(52184, 1);
+      pc(52184, 1, 4);
       int var32 = A();
       C(var32);
-      pc(52185, 1);
+      pc(52185, 1, 10);
       HL(27686);
-      pc(52188, 1);
+      pc(52188, 1, 11);
       int var33 = BC();
       int var34 = HL();
       int var35 = alu("add16", var34, var33);
       HL(var35);
-      pc(52189, 1);
+      pc(52189, 1, 10);
       BC(8);
-      pc(52192, 1);
+      pc(52192, 1, 10);
       DE(53201);
-      pc(52195, 2);
+      pc(52195, 2, 21);
       ldir(52195);
-      pc(52197, 1);
+      pc(52197, 1, 4);
       exx();
-      pc(52198, 1);
+      pc(52198, 1, 11);
       int var36 = HL();
       push(var36);
-      pc(52199, 1);
+      pc(52199, 1, 11);
       int var37 = DE();
       push(var37);
-      pc(52200, 1);
+      pc(52200, 1, 11);
       int var38 = BC();
       push(var38);
-      pc(52201, 1);
+      pc(52201, 1, 4);
       exx();
-      pc(52202, 1);
+      pc(52202, 1, 17);
       $E820();
-      pc(52205, 1);
+      pc(52205, 1, 17);
       $ED00();
-      pc(52208, 1);
+      pc(52208, 1, 17);
       $DCC1();
-      pc(52211, 1);
+      pc(52211, 1, 17);
       $CC36();
-      pc(52214, 1);
+      pc(52214, 1, 17);
       $E544();
-      pc(52217, 1);
+      pc(52217, 1, 17);
       $CE76();
-      pc(52220, 1);
+      pc(52220, 1, 13);
       int var39 = mem(53194, 52220);
       A(var39);
-      pc(52223, 1);
+      pc(52223, 1, 4);
       int var40 = A();
       B(var40);
-      pc(52224, 1);
+      pc(52224, 1, 17);
       $F3EC();
-      pc(52227, 1);
+      pc(52227, 1, 17);
       $C8FF();
-      pc(52230, 1);
+      pc(52230, 1, 10);
       HL(51324);
-      pc(52233, 1);
+      pc(52233, 1, 7);
       int var41 = HL();
       int var42 = mem(var41, 52233);
       A(var42);
-      pc(52234, 1);
+      pc(52234, 1, 7);
       int var43 = A();
       alu("cp", var43, 28);
-      pc(52236, 1);
-      if(!flag(1, true)) {
-         pc(52238, 1);
-         int var69 = HL();
-         wMem(var69, 28, 52238);
+      pc(52236, 1, 7);
+      if(flag(1, true)) {
+         tstates(5);
+      } else {
+         pc(52238, 1, 10);
+         int var44 = HL();
+         wMem(var44, 28, 52238);
       }
 
-      pc(52240, 2);
-      int var44 = IX() + 11;
-      int var45 = mem(var44, 52240);
-      bit(7, var45);
-      pc(52244, 1);
-      if(!flag(64, true)) {
-         pc(52246, 2);
-         int var49 = IX() + 11;
-         int var50 = mem(var49, 52246) | 128;
-         wMem(var49, var50, 52246);
-         pc(52250, 1);
+      pc(52240, 2, 20);
+      int var45 = IX() + 11;
+      int var46 = mem(var45, 52240);
+      bit(7, var46);
+      pc(52244, 1, 7);
+      if(flag(64, true)) {
+         tstates(5);
+      } else {
+         pc(52246, 2, 23);
+         int var47 = IX() + 11;
+         int var48 = mem(var47, 52246) | 128;
+         wMem(var47, var48, 52246);
+         pc(52250, 1, 10);
          HL(52822);
-         pc(52253, 1);
-         int var51 = HL();
-         int var52 = mem(var51, 52253);
-         A(var52);
-         pc(52254, 1);
-         int var53 = A();
-         alu("cp", var53, 9);
-         pc(52256, 1);
-         if(!flag(64, false)) {
-            pc(52258, 1);
-            int var65 = HL();
-            int var66 = mem(var65, 52258);
-            int var67 = alu("inc", var66);
-            int var68 = HL();
-            wMem(var68, var67, 52258);
-            pc(52259, 1);
-         } else {
-            pc(52261, 1);
-            int var54 = HL();
-            wMem(var54, 0, 52261);
-            pc(52263, 1);
-            int var55 = HL();
-            int var56 = dec16(var55);
-            HL(var56);
-            pc(52264, 1);
-            int var57 = HL();
-            int var58 = mem(var57, 52264);
-            int var59 = alu("inc", var58);
+         pc(52253, 1, 7);
+         int var49 = HL();
+         int var50 = mem(var49, 52253);
+         A(var50);
+         pc(52254, 1, 7);
+         int var51 = A();
+         alu("cp", var51, 9);
+         pc(52256, 1, 7);
+         if(flag(64, false)) {
+            tstates(5);
+            pc(52261, 1, 10);
+            int var59 = HL();
+            wMem(var59, 0, 52261);
+            pc(52263, 1, 6);
             int var60 = HL();
-            wMem(var60, var59, 52264);
-            pc(52265, 1);
-            int var61 = HL();
-            int var62 = mem(var61, 52265);
-            A(var62);
-            pc(52266, 1);
-            int var63 = A();
-            alu("cp", var63, 40);
-            pc(52268, 1);
-            if(!flag(64, true)) {
-               pc(52270, 1);
-               int var64 = HL();
-               wMem(var64, 1, 52270);
+            int var61 = dec16(var60);
+            HL(var61);
+            pc(52264, 1, 11);
+            int var62 = HL();
+            int var63 = mem(var62, 52264);
+            int var64 = alu("inc", var63);
+            int var65 = HL();
+            wMem(var65, var64, 52264);
+            pc(52265, 1, 7);
+            int var66 = HL();
+            int var67 = mem(var66, 52265);
+            A(var67);
+            pc(52266, 1, 7);
+            int var68 = A();
+            alu("cp", var68, 40);
+            pc(52268, 1, 7);
+            if(flag(64, true)) {
+               tstates(5);
+            } else {
+               pc(52270, 1, 10);
+               int var69 = HL();
+               wMem(var69, 1, 52270);
             }
+         } else {
+            pc(52258, 1, 11);
+            int var52 = HL();
+            int var53 = mem(var52, 52258);
+            int var54 = alu("inc", var53);
+            int var55 = HL();
+            wMem(var55, var54, 52258);
+            pc(52259, 1, 12);
          }
       }
 
-      pc(52272, 1);
+      pc(52272, 1, 4);
       exx();
-      pc(52273, 1);
-      int var46 = pop();
-      BC(var46);
-      pc(52274, 1);
-      int var47 = pop();
-      DE(var47);
-      pc(52275, 1);
-      int var48 = pop();
-      HL(var48);
-      pc(52276, 1);
+      pc(52273, 1, 10);
+      int var56 = pop();
+      BC(var56);
+      pc(52274, 1, 10);
+      int var57 = pop();
+      DE(var57);
+      pc(52275, 1, 10);
+      int var58 = pop();
+      HL(var58);
+      pc(52276, 1, 4);
       exx();
-      pc(52277, 1);
+      pc(52277, 1, 10);
    }
 
    public void $CC36() {
-      pc(52278, 1);
+      pc(52278, 1, 13);
       int var1 = mem(53194, 52278);
       A(var1);
-      pc(52281, 1);
+      pc(52281, 1, 7);
       int var2 = A();
       alu("cp", var2, 8);
-      pc(52283, 1);
-      if(!flag(1, true)) {
-         pc(52284, 1);
+      pc(52283, 1, 5);
+      if(flag(1, true)) {
+         tstates(6);
+      } else {
+         pc(52284, 1, 10);
          HL(27013);
-         pc(52287, 1);
+         pc(52287, 1, 10);
          DE(20576);
-         pc(52290, 1);
+         pc(52290, 1, 7);
          C(3);
 
-         do {
-            pc(52292, 1);
+         while(true) {
+            pc(52292, 1, 11);
             int var3 = DE();
             push(var3);
-            pc(52293, 1);
+            pc(52293, 1, 7);
             B(32);
 
-            do {
-               pc(52295, 1);
+            while(true) {
+               pc(52295, 1, 7);
                int var4 = HL();
                int var5 = mem(var4, 52295);
                A(var5);
-               pc(52296, 1);
+               pc(52296, 1, 7);
                int var6 = A();
                int var7 = DE();
                wMem(var7, var6, 52296);
-               pc(52297, 1);
+               pc(52297, 1, 6);
                int var8 = HL();
                int var9 = inc16(var8);
                HL(var9);
-               pc(52298, 1);
+               pc(52298, 1, 4);
                int var10 = E();
                int var11 = alu("inc", var10);
                E(var11);
-               pc(52299, 1);
+               pc(52299, 1, 8);
                int var12 = B() - 1 & 255;
                B(var12);
-            } while(B() != 0);
+               if(B() == 0) {
+                  pc(52301, 1, 10);
+                  int var13 = pop();
+                  DE(var13);
+                  pc(52302, 1, 4);
+                  int var14 = D();
+                  int var15 = alu("inc", var14);
+                  D(var15);
+                  pc(52303, 1, 4);
+                  int var16 = C();
+                  int var17 = alu("dec", var16);
+                  C(var17);
+                  pc(52304, 1, 7);
+                  if(!flag(64, true)) {
+                     pc(52306, 1, 10);
+                     DE(23136);
+                     pc(52309, 1, 7);
+                     A(79);
+                     pc(52311, 1, 7);
+                     B(32);
 
-            pc(52301, 1);
-            int var13 = pop();
-            DE(var13);
-            pc(52302, 1);
-            int var14 = D();
-            int var15 = alu("inc", var14);
-            D(var15);
-            pc(52303, 1);
-            int var16 = C();
-            int var17 = alu("dec", var16);
-            C(var17);
-            pc(52304, 1);
-         } while(flag(64, true));
+                     while(true) {
+                        pc(52313, 1, 7);
+                        int var18 = A();
+                        int var19 = DE();
+                        wMem(var19, var18, 52313);
+                        pc(52314, 1, 4);
+                        int var20 = E();
+                        int var21 = alu("inc", var20);
+                        E(var21);
+                        pc(52315, 1, 8);
+                        int var22 = B() - 1 & 255;
+                        B(var22);
+                        if(B() == 0) {
+                           pc(52317, 1, 10);
+                           return;
+                        }
 
-         pc(52306, 1);
-         DE(23136);
-         pc(52309, 1);
-         A(79);
-         pc(52311, 1);
-         B(32);
+                        tstates(5);
+                     }
+                  }
 
-         do {
-            pc(52313, 1);
-            int var18 = A();
-            int var19 = DE();
-            wMem(var19, var18, 52313);
-            pc(52314, 1);
-            int var20 = E();
-            int var21 = alu("inc", var20);
-            E(var21);
-            pc(52315, 1);
-            int var22 = B() - 1 & 255;
-            B(var22);
-         } while(B() != 0);
+                  tstates(5);
+                  break;
+               }
 
-         pc(52317, 1);
+               tstates(5);
+            }
+         }
       }
    }
 
    public void $CC5F() {
-      pc(52319, 1);
+      pc(52319, 1, 13);
       int var1 = mem(53194, 52319);
       A(var1);
-      pc(52322, 1);
+      pc(52322, 1, 7);
       int var2 = A();
       alu("cp", var2, 8);
-      pc(52324, 1);
-      if(!flag(1, true)) {
-         pc(52325, 1);
+      pc(52324, 1, 5);
+      if(flag(1, true)) {
+         tstates(6);
+      } else {
+         pc(52325, 1, 10);
          HL(52318);
-         pc(52328, 1);
+         pc(52328, 1, 11);
          int var3 = HL();
          int var4 = mem(var3, 52328);
          int var5 = alu("dec", var4);
          int var6 = HL();
          wMem(var6, var5, 52328);
-         pc(52329, 1);
+         pc(52329, 1, 7);
          if(!flag(64, false)) {
-            pc(52331, 1);
+            pc(52331, 1, 10);
          } else {
-            pc(52332, 1);
+            tstates(5);
+            pc(52332, 1, 10);
             int var7 = HL();
             wMem(var7, 3, 52332);
-            pc(52334, 1);
+            pc(52334, 1, 10);
             DE(20576);
-            pc(52337, 1);
+            pc(52337, 1, 7);
             C(3);
 
-            do {
-               pc(52339, 1);
+            while(true) {
+               pc(52339, 1, 11);
                int var8 = DE();
                push(var8);
-               pc(52340, 1);
+               pc(52340, 1, 7);
                int var9 = DE();
                int var10 = mem(var9, 52340);
                A(var10);
-               pc(52341, 1);
+               pc(52341, 1, 4);
                int var11 = A();
                H(var11);
-               pc(52342, 1);
+               pc(52342, 1, 4);
                int var12 = E();
                int var13 = alu("inc", var12);
                E(var13);
-               pc(52343, 1);
+               pc(52343, 1, 7);
                B(31);
 
-               do {
-                  pc(52345, 1);
+               while(true) {
+                  pc(52345, 1, 7);
                   int var14 = DE();
                   int var15 = mem(var14, 52345);
                   A(var15);
-                  pc(52346, 1);
+                  pc(52346, 1, 4);
                   int var16 = E();
                   int var17 = alu("dec", var16);
                   E(var17);
-                  pc(52347, 1);
+                  pc(52347, 1, 7);
                   int var18 = A();
                   int var19 = DE();
                   wMem(var19, var18, 52347);
-                  pc(52348, 1);
+                  pc(52348, 1, 4);
                   int var20 = E();
                   int var21 = alu("inc", var20);
                   E(var21);
-                  pc(52349, 1);
+                  pc(52349, 1, 4);
                   int var22 = E();
                   int var23 = alu("inc", var22);
                   E(var23);
-                  pc(52350, 1);
+                  pc(52350, 1, 8);
                   int var24 = B() - 1 & 255;
                   B(var24);
-               } while(B() != 0);
+                  if(B() == 0) {
+                     pc(52352, 1, 4);
+                     int var25 = E();
+                     int var26 = alu("dec", var25);
+                     E(var26);
+                     pc(52353, 1, 4);
+                     int var27 = H();
+                     A(var27);
+                     pc(52354, 1, 7);
+                     int var28 = A();
+                     int var29 = DE();
+                     wMem(var29, var28, 52354);
+                     pc(52355, 1, 10);
+                     int var30 = pop();
+                     DE(var30);
+                     pc(52356, 1, 4);
+                     int var31 = D();
+                     int var32 = alu("inc", var31);
+                     D(var32);
+                     pc(52357, 1, 4);
+                     int var33 = C();
+                     int var34 = alu("dec", var33);
+                     C(var34);
+                     pc(52358, 1, 7);
+                     if(!flag(64, true)) {
+                        pc(52360, 1, 10);
+                        return;
+                     }
 
-               pc(52352, 1);
-               int var25 = E();
-               int var26 = alu("dec", var25);
-               E(var26);
-               pc(52353, 1);
-               int var27 = H();
-               A(var27);
-               pc(52354, 1);
-               int var28 = A();
-               int var29 = DE();
-               wMem(var29, var28, 52354);
-               pc(52355, 1);
-               int var30 = pop();
-               DE(var30);
-               pc(52356, 1);
-               int var31 = D();
-               int var32 = alu("inc", var31);
-               D(var32);
-               pc(52357, 1);
-               int var33 = C();
-               int var34 = alu("dec", var33);
-               C(var34);
-               pc(52358, 1);
-            } while(flag(64, true));
+                     tstates(5);
+                     break;
+                  }
 
-            pc(52360, 1);
+                  tstates(5);
+               }
+            }
          }
       }
    }
 
    public void $CC89() {
-      label54: {
-         pc(52361, 1);
+      label70: {
+         pc(52361, 1, 17);
          $DC71();
-         pc(52364, 2);
+         pc(52364, 2, 20);
          int var1 = mem16(51322, 52364);
          BC(var1);
-         pc(52368, 1);
+         pc(52368, 1, 13);
          int var2 = mem(53194, 52368);
          A(var2);
-         pc(52371, 1);
+         pc(52371, 1, 4);
          int var3 = A();
          H(var3);
-         pc(52372, 2);
+         pc(52372, 2, 20);
          int var4 = mem16(51324, 52372);
          DE(var4);
-         pc(52376, 1);
+         pc(52376, 1, 4);
          int var5 = C();
          A(var5);
-         pc(52377, 1);
+         pc(52377, 1, 4);
          int var6 = A();
          int var7 = A();
          int var8 = alu("and", var7, var6);
          A(var8);
-         pc(52378, 1);
-         if(!flag(64, false)) {
-            pc(52380, 1);
-            int var70 = C();
-            int var71 = alu("dec", var70);
-            C(var71);
-            pc(52381, 1);
-            int var72 = H();
-            A(var72);
-            pc(52382, 1);
-            int var73 = D();
-            int var74 = A();
-            alu("cp", var74, var73);
-            pc(52383, 1);
-            if(flag(64, true)) {
-               break label54;
-            }
-         } else {
-            pc(52392, 2);
-            int var9 = B();
-            bit(1, var9);
-            pc(52394, 1);
+         pc(52378, 1, 7);
+         if(flag(64, false)) {
+            tstates(5);
+            pc(52392, 2, 8);
+            int var16 = B();
+            bit(1, var16);
+            pc(52394, 1, 7);
             if(!flag(64, true)) {
-               pc(52396, 2);
-               int var12 = B();
-               bit(0, var12);
-               pc(52398, 1);
-               if(!flag(64, true)) {
-                  label56: {
-                     pc(52400, 1);
-                     int var40 = E();
-                     int var41 = alu("dec", var40);
-                     E(var41);
-                     pc(52401, 1);
-                     int var42 = E();
-                     int var43 = alu("dec", var42);
-                     E(var43);
-                     pc(52402, 1);
-                     int var44 = E();
-                     A(var44);
-                     pc(52403, 1);
-                     int var45 = A();
-                     alu("cp", var45, 254);
-                     pc(52405, 1);
-                     if(!flag(64, true)) {
-                        pc(52407, 1);
-                        int var59 = D();
+               pc(52396, 2, 8);
+               int var17 = B();
+               bit(0, var17);
+               pc(52398, 1, 7);
+               if(flag(64, true)) {
+                  label72: {
+                     tstates(5);
+                     pc(52453, 1, 4);
+                     int var48 = E();
+                     int var49 = alu("inc", var48);
+                     E(var49);
+                     pc(52454, 1, 4);
+                     int var50 = E();
+                     int var51 = alu("inc", var50);
+                     E(var51);
+                     pc(52455, 1, 4);
+                     int var52 = E();
+                     A(var52);
+                     pc(52456, 1, 7);
+                     int var53 = A();
+                     alu("cp", var53, 160);
+                     pc(52458, 1, 7);
+                     if(flag(64, true)) {
+                        tstates(5);
+                     } else {
+                        pc(52460, 1, 4);
+                        int var54 = D();
+                        A(var54);
+                        pc(52461, 1, 7);
+                        int var55 = A();
+                        int var56 = alu("sub", var55, 8);
+                        A(var56);
+                        pc(52463, 1, 4);
+                        int var57 = A();
+                        D(var57);
+                        pc(52464, 1, 7);
+                        E(0);
+                        pc(52466, 1, 7);
+                        int var58 = A();
+                        int var59 = alu("add", var58, 8);
                         A(var59);
-                        pc(52408, 1);
-                        int var60 = A();
-                        int var61 = alu("add", var60, 8);
-                        A(var61);
-                        pc(52410, 1);
-                        int var62 = A();
-                        D(var62);
-                        pc(52411, 1);
-                        E(158);
-                        pc(52413, 1);
-                        int var63 = A();
-                        int var64 = alu("sub", var63, 8);
-                        A(var64);
-                        pc(52415, 1);
-                        int var65 = H();
-                        int var66 = A();
-                        alu("cp", var66, var65);
-                        pc(52416, 1);
+                        pc(52468, 1, 4);
+                        int var60 = H();
+                        int var61 = A();
+                        alu("cp", var61, var60);
+                        pc(52469, 1, 7);
                         if(!flag(64, true)) {
-                           pc(52418, 1);
-                           int var67 = A();
-                           int var68 = A();
-                           int var69 = alu("xor", var68, var67);
-                           A(var69);
-                           pc(52419, 1);
-                           break label56;
+                           pc(52471, 1, 7);
+                           E(26);
+                           pc(52473, 1, 7);
+                           A(158);
+                           pc(52475, 1, 12);
+                           break label72;
                         }
+
+                        tstates(5);
                      }
 
-                     pc(52421, 1);
+                     pc(52477, 1, 17);
                      $D1B2();
-                     pc(52424, 1);
-                     int var46 = D();
-                     A(var46);
-                     pc(52425, 1);
-                     int var47 = H();
-                     int var48 = A();
-                     alu("cp", var48, var47);
-                     pc(52426, 1);
+                     pc(52480, 1, 4);
+                     int var62 = H();
+                     A(var62);
+                     pc(52481, 1, 4);
+                     int var63 = D();
+                     int var64 = A();
+                     alu("cp", var64, var63);
+                     pc(52482, 1, 7);
                      if(!flag(64, false)) {
-                        pc(52428, 1);
-                        int var54 = H();
-                        int var55 = A();
-                        int var56 = alu("sub", var55, var54);
-                        A(var56);
-                        pc(52429, 1);
-                        if(!flag(1, false)) {
-                           pc(52431, 1);
-                           int var57 = A();
-                           alu("cp", var57, 16);
-                           pc(52433, 1);
-                           if(!flag(1, false)) {
-                              pc(52435, 2);
-                              int var58 = B() | 1;
-                              B(var58);
-                              pc(52437, 1);
+                        pc(52484, 1, 4);
+                        int var65 = D();
+                        int var66 = A();
+                        int var67 = alu("sub", var66, var65);
+                        A(var67);
+                        pc(52485, 1, 7);
+                        if(flag(1, false)) {
+                           tstates(5);
+                        } else {
+                           pc(52487, 1, 7);
+                           int var68 = A();
+                           alu("cp", var68, 16);
+                           pc(52489, 1, 7);
+                           if(flag(1, false)) {
+                              tstates(5);
+                           } else {
+                              pc(52491, 2, 8);
+                              int var69 = B() & -2;
+                              B(var69);
+                              pc(52493, 1, 12);
                            }
                         }
-                        break label54;
+                        break label70;
                      }
 
-                     pc(52439, 1);
+                     tstates(5);
+                     pc(52495, 1, 17);
                      $CD2B();
-                     pc(52442, 1);
+                     pc(52498, 1, 17);
                      $CD5C();
-                     pc(52445, 1);
-                     int var49 = E();
-                     A(var49);
-                     pc(52446, 1);
-                     int var50 = A();
-                     int var51 = alu("inc", var50);
-                     A(var51);
-                     pc(52447, 1);
-                     int var52 = A();
-                     int var53 = alu("inc", var52);
-                     A(var53);
+                     pc(52501, 1, 4);
+                     int var70 = E();
+                     A(var70);
+                     pc(52502, 1, 4);
+                     int var71 = A();
+                     int var72 = alu("dec", var71);
+                     A(var72);
+                     pc(52503, 1, 4);
+                     int var73 = A();
+                     int var74 = alu("dec", var73);
+                     A(var74);
                   }
 
-                  pc(52448, 1);
+                  pc(52504, 1, 17);
                   $CD24();
-                  pc(52451, 1);
                } else {
-                  label57: {
-                     pc(52453, 1);
-                     int var13 = E();
-                     int var14 = alu("inc", var13);
-                     E(var14);
-                     pc(52454, 1);
-                     int var15 = E();
-                     int var16 = alu("inc", var15);
-                     E(var16);
-                     pc(52455, 1);
-                     int var17 = E();
-                     A(var17);
-                     pc(52456, 1);
-                     int var18 = A();
-                     alu("cp", var18, 160);
-                     pc(52458, 1);
-                     if(!flag(64, true)) {
-                        pc(52460, 1);
-                        int var32 = D();
-                        A(var32);
-                        pc(52461, 1);
-                        int var33 = A();
-                        int var34 = alu("sub", var33, 8);
-                        A(var34);
-                        pc(52463, 1);
-                        int var35 = A();
-                        D(var35);
-                        pc(52464, 1);
-                        E(0);
-                        pc(52466, 1);
-                        int var36 = A();
-                        int var37 = alu("add", var36, 8);
-                        A(var37);
-                        pc(52468, 1);
-                        int var38 = H();
-                        int var39 = A();
-                        alu("cp", var39, var38);
-                        pc(52469, 1);
-                        if(!flag(64, true)) {
-                           pc(52471, 1);
-                           E(26);
-                           pc(52473, 1);
-                           A(158);
-                           pc(52475, 1);
-                           break label57;
-                        }
-                     }
-
-                     pc(52477, 1);
-                     $D1B2();
-                     pc(52480, 1);
-                     int var19 = H();
-                     A(var19);
-                     pc(52481, 1);
-                     int var20 = D();
-                     int var21 = A();
-                     alu("cp", var21, var20);
-                     pc(52482, 1);
-                     if(!flag(64, false)) {
-                        pc(52484, 1);
-                        int var27 = D();
-                        int var28 = A();
-                        int var29 = alu("sub", var28, var27);
-                        A(var29);
-                        pc(52485, 1);
-                        if(!flag(1, false)) {
-                           pc(52487, 1);
-                           int var30 = A();
-                           alu("cp", var30, 16);
-                           pc(52489, 1);
-                           if(!flag(1, false)) {
-                              pc(52491, 2);
-                              int var31 = B() & -2;
-                              B(var31);
-                              pc(52493, 1);
-                           }
-                        }
-                        break label54;
-                     }
-
-                     pc(52495, 1);
-                     $CD2B();
-                     pc(52498, 1);
-                     $CD5C();
-                     pc(52501, 1);
+                  label73: {
+                     pc(52400, 1, 4);
+                     int var18 = E();
+                     int var19 = alu("dec", var18);
+                     E(var19);
+                     pc(52401, 1, 4);
+                     int var20 = E();
+                     int var21 = alu("dec", var20);
+                     E(var21);
+                     pc(52402, 1, 4);
                      int var22 = E();
                      A(var22);
-                     pc(52502, 1);
+                     pc(52403, 1, 7);
                      int var23 = A();
-                     int var24 = alu("dec", var23);
-                     A(var24);
-                     pc(52503, 1);
-                     int var25 = A();
-                     int var26 = alu("dec", var25);
-                     A(var26);
+                     alu("cp", var23, 254);
+                     pc(52405, 1, 7);
+                     if(flag(64, true)) {
+                        tstates(5);
+                     } else {
+                        pc(52407, 1, 4);
+                        int var24 = D();
+                        A(var24);
+                        pc(52408, 1, 7);
+                        int var25 = A();
+                        int var26 = alu("add", var25, 8);
+                        A(var26);
+                        pc(52410, 1, 4);
+                        int var27 = A();
+                        D(var27);
+                        pc(52411, 1, 7);
+                        E(158);
+                        pc(52413, 1, 7);
+                        int var28 = A();
+                        int var29 = alu("sub", var28, 8);
+                        A(var29);
+                        pc(52415, 1, 4);
+                        int var30 = H();
+                        int var31 = A();
+                        alu("cp", var31, var30);
+                        pc(52416, 1, 7);
+                        if(!flag(64, true)) {
+                           pc(52418, 1, 4);
+                           int var32 = A();
+                           int var33 = A();
+                           int var34 = alu("xor", var33, var32);
+                           A(var34);
+                           pc(52419, 1, 12);
+                           break label73;
+                        }
+
+                        tstates(5);
+                     }
+
+                     pc(52421, 1, 17);
+                     $D1B2();
+                     pc(52424, 1, 4);
+                     int var35 = D();
+                     A(var35);
+                     pc(52425, 1, 4);
+                     int var36 = H();
+                     int var37 = A();
+                     alu("cp", var37, var36);
+                     pc(52426, 1, 7);
+                     if(!flag(64, false)) {
+                        pc(52428, 1, 4);
+                        int var38 = H();
+                        int var39 = A();
+                        int var40 = alu("sub", var39, var38);
+                        A(var40);
+                        pc(52429, 1, 7);
+                        if(flag(1, false)) {
+                           tstates(5);
+                        } else {
+                           pc(52431, 1, 7);
+                           int var41 = A();
+                           alu("cp", var41, 16);
+                           pc(52433, 1, 7);
+                           if(flag(1, false)) {
+                              tstates(5);
+                           } else {
+                              pc(52435, 2, 8);
+                              int var42 = B() | 1;
+                              B(var42);
+                              pc(52437, 1, 12);
+                           }
+                        }
+                        break label70;
+                     }
+
+                     tstates(5);
+                     pc(52439, 1, 17);
+                     $CD2B();
+                     pc(52442, 1, 17);
+                     $CD5C();
+                     pc(52445, 1, 4);
+                     int var43 = E();
+                     A(var43);
+                     pc(52446, 1, 4);
+                     int var44 = A();
+                     int var45 = alu("inc", var44);
+                     A(var45);
+                     pc(52447, 1, 4);
+                     int var46 = A();
+                     int var47 = alu("inc", var46);
+                     A(var47);
                   }
 
-                  pc(52504, 1);
+                  pc(52448, 1, 17);
                   $CD24();
+                  pc(52451, 1, 12);
                }
-               break label54;
+               break label70;
+            }
+
+            tstates(5);
+         } else {
+            pc(52380, 1, 4);
+            int var9 = C();
+            int var10 = alu("dec", var9);
+            C(var10);
+            pc(52381, 1, 4);
+            int var11 = H();
+            A(var11);
+            pc(52382, 1, 4);
+            int var12 = D();
+            int var13 = A();
+            alu("cp", var13, var12);
+            pc(52383, 1, 10);
+            if(flag(64, true)) {
+               break label70;
             }
          }
 
-         pc(52386, 1);
+         pc(52386, 1, 17);
          $CD2B();
-         pc(52389, 1);
+         pc(52389, 1, 10);
       }
 
-      pc(52507, 2);
-      int var10 = DE();
-      wMem16(51324, var10, 52507);
-      pc(52511, 2);
-      int var11 = BC();
-      wMem16(51322, var11, 52511);
-      pc(52515, 1);
+      pc(52507, 2, 20);
+      int var14 = DE();
+      wMem16(51324, var14, 52507);
+      pc(52511, 2, 20);
+      int var15 = BC();
+      wMem16(51322, var15, 52511);
+      pc(52515, 1, 10);
    }
 
    public void $CD24() {
-      pc(52516, 1);
+      pc(52516, 1, 4);
       exx();
-      pc(52517, 1);
+      pc(52517, 1, 4);
       int var1 = A();
       E(var1);
-      pc(52518, 1);
+      pc(52518, 1, 10);
       HL(52606);
-      pc(52521, 1);
+      pc(52521, 1, 12);
       $CD31();
    }
 
    public void $CD2B() {
-      pc(52523, 1);
+      pc(52523, 1, 4);
       int var1 = E();
       A(var1);
-      pc(52524, 1);
+      pc(52524, 1, 4);
       exx();
-      pc(52525, 1);
+      pc(52525, 1, 4);
       int var2 = A();
       E(var2);
-      pc(52526, 1);
+      pc(52526, 1, 10);
       HL(52612);
       $CD31();
    }
 
    public void $CD31() {
-      pc(52529, 1);
+      pc(52529, 1, 7);
       D(15);
-      pc(52531, 1);
+      pc(52531, 1, 7);
       C(2);
-      pc(52533, 1);
+      pc(52533, 1, 17);
       $E8D2();
 
-      do {
-         pc(52536, 1);
+      while(true) {
+         pc(52536, 1, 11);
          int var1 = DE();
          push(var1);
-         pc(52537, 1);
+         pc(52537, 1, 7);
          B(3);
 
-         do {
-            pc(52539, 1);
+         while(true) {
+            pc(52539, 1, 7);
             int var2 = HL();
             int var3 = mem(var2, 52539);
             A(var3);
-            pc(52540, 1);
+            pc(52540, 1, 7);
             int var4 = A();
             int var5 = DE();
             wMem(var5, var4, 52540);
-            pc(52541, 1);
+            pc(52541, 1, 6);
             int var6 = HL();
             int var7 = inc16(var6);
             HL(var7);
-            pc(52542, 1);
+            pc(52542, 1, 4);
             int var8 = E();
             int var9 = alu("inc", var8);
             E(var9);
-            pc(52543, 1);
+            pc(52543, 1, 8);
             int var10 = B() - 1 & 255;
             B(var10);
-         } while(B() != 0);
+            if(B() == 0) {
+               pc(52545, 1, 10);
+               int var11 = pop();
+               DE(var11);
+               pc(52546, 1, 4);
+               int var12 = D();
+               int var13 = alu("inc", var12);
+               D(var13);
+               pc(52547, 1, 4);
+               int var14 = C();
+               int var15 = alu("dec", var14);
+               C(var15);
+               pc(52548, 1, 7);
+               if(!flag(64, true)) {
+                  pc(52550, 1, 4);
+                  exx();
+                  pc(52551, 1, 4);
+                  int var16 = C();
+                  A(var16);
+                  pc(52552, 1, 4);
+                  int var17 = A();
+                  int var18 = A();
+                  int var19 = alu("and", var18, var17);
+                  A(var19);
+                  pc(52553, 1, 5);
+                  if(flag(64, true)) {
+                     tstates(6);
+                     return;
+                  }
 
-         pc(52545, 1);
-         int var11 = pop();
-         DE(var11);
-         pc(52546, 1);
-         int var12 = D();
-         int var13 = alu("inc", var12);
-         D(var13);
-         pc(52547, 1);
-         int var14 = C();
-         int var15 = alu("dec", var14);
-         C(var15);
-         pc(52548, 1);
-      } while(flag(64, true));
+                  pc(52554, 2, 8);
+                  int var20 = B();
+                  bit(1, var20);
+                  pc(52556, 1, 5);
+                  if(flag(64, true)) {
+                     tstates(6);
+                     return;
+                  }
 
-      pc(52550, 1);
-      exx();
-      pc(52551, 1);
-      int var16 = C();
-      A(var16);
-      pc(52552, 1);
-      int var17 = A();
-      int var18 = A();
-      int var19 = alu("and", var18, var17);
-      A(var19);
-      pc(52553, 1);
-      if(!flag(64, true)) {
-         pc(52554, 2);
-         int var20 = B();
-         bit(1, var20);
-         pc(52556, 1);
-         if(!flag(64, true)) {
-            pc(52557, 2);
-            int var21 = E();
-            bit(1, var21);
-            pc(52559, 1);
-            if(!flag(64, true)) {
-               pc(52560, 1);
-               int var22 = E();
-               A(var22);
-               pc(52561, 1);
-               int var23 = A();
-               int var24 = alu("rra", var23);
-               A(var24);
-               pc(52562, 1);
-               int var25 = A();
-               int var26 = alu("and", var25, 15);
-               A(var26);
-               pc(52564, 1);
-               int var27 = A();
-               int var28 = alu("add", var27, 3);
-               A(var28);
-               pc(52566, 1);
-               int var29 = HL();
-               push(var29);
-               pc(52567, 1);
-               $DB01();
-               pc(52570, 1);
-               int var30 = pop();
-               HL(var30);
-               pc(52571, 1);
+                  pc(52557, 2, 8);
+                  int var21 = E();
+                  bit(1, var21);
+                  pc(52559, 1, 5);
+                  if(flag(64, true)) {
+                     tstates(6);
+                     return;
+                  }
+
+                  pc(52560, 1, 4);
+                  int var22 = E();
+                  A(var22);
+                  pc(52561, 1, 4);
+                  int var23 = A();
+                  int var24 = alu("rra", var23);
+                  A(var24);
+                  pc(52562, 1, 7);
+                  int var25 = A();
+                  int var26 = alu("and", var25, 15);
+                  A(var26);
+                  pc(52564, 1, 7);
+                  int var27 = A();
+                  int var28 = alu("add", var27, 3);
+                  A(var28);
+                  pc(52566, 1, 11);
+                  int var29 = HL();
+                  push(var29);
+                  pc(52567, 1, 17);
+                  $DB01();
+                  pc(52570, 1, 10);
+                  int var30 = pop();
+                  HL(var30);
+                  pc(52571, 1, 10);
+                  return;
+               }
+
+               tstates(5);
+               break;
             }
+
+            tstates(5);
          }
       }
    }
 
    public void $CD5C() {
-      pc(52572, 1);
+      pc(52572, 1, 4);
       int var1 = E();
       A(var1);
-      pc(52573, 1);
+      pc(52573, 1, 7);
       int var2 = A();
       int var3 = alu("and", var2, 7);
       A(var3);
-      pc(52575, 1);
+      pc(52575, 1, 4);
       int var4 = A();
       int var5 = A();
       int var6 = alu("and", var5, var4);
       A(var6);
-      pc(52576, 1);
-      if(!flag(64, true)) {
-         pc(52577, 1);
+      pc(52576, 1, 5);
+      if(flag(64, true)) {
+         tstates(6);
+      } else {
+         pc(52577, 1, 4);
          int var7 = E();
          A(var7);
-         pc(52578, 1);
+         pc(52578, 1, 4);
          exx();
-         pc(52579, 1);
+         pc(52579, 1, 4);
          int var8 = A();
          E(var8);
-         pc(52580, 1);
+         pc(52580, 1, 7);
          D(14);
-         pc(52582, 1);
+         pc(52582, 1, 17);
          $E909();
-         pc(52585, 1);
+         pc(52585, 1, 7);
          int var9 = DE();
          int var10 = mem(var9, 52585);
          A(var10);
-         pc(52586, 1);
+         pc(52586, 1, 4);
          int var11 = A();
          B(var11);
-         pc(52587, 1);
+         pc(52587, 1, 4);
          int var12 = E();
          int var13 = alu("inc", var12);
          E(var13);
-         pc(52588, 1);
+         pc(52588, 1, 4);
          int var14 = E();
          int var15 = alu("inc", var14);
          E(var15);
-         pc(52589, 1);
+         pc(52589, 1, 4);
          int var16 = E();
          int var17 = alu("inc", var16);
          E(var17);
-         pc(52590, 1);
+         pc(52590, 1, 4);
          int var18 = E();
          int var19 = alu("inc", var18);
          E(var19);
-         pc(52591, 1);
+         pc(52591, 1, 7);
          int var20 = DE();
          int var21 = mem(var20, 52591);
          A(var21);
-         pc(52592, 1);
+         pc(52592, 1, 4);
          int var22 = A();
          C(var22);
-         pc(52593, 1);
+         pc(52593, 1, 7);
          E(4);
-         pc(52595, 1);
+         pc(52595, 1, 17);
          $D9AA();
-         pc(52598, 1);
-         if(!flag(64, false)) {
-            pc(52600, 1);
+         pc(52598, 1, 7);
+         if(flag(64, false)) {
+            tstates(5);
+            pc(52602, 1, 4);
             exx();
-            pc(52601, 1);
-         } else {
-            pc(52602, 1);
-            exx();
-            pc(52603, 1);
+            pc(52603, 1, 7);
             C(100);
-            pc(52605, 1);
+            pc(52605, 1, 10);
+         } else {
+            pc(52600, 1, 4);
+            exx();
+            pc(52601, 1, 10);
          }
       }
    }
 
    public void $CD8A() {
-      pc(52618, 1);
+      pc(52618, 1, 7);
       A(8);
-      pc(52620, 1);
+      pc(52620, 1, 13);
       int var1 = A();
       wMem(51328, var1, 52620);
-      pc(52623, 1);
+      pc(52623, 1, 10);
       HL(51316);
-      pc(52626, 2);
+      pc(52626, 2, 15);
       int var2 = HL();
       int var3 = mem(var2, 52626) | 32;
       int var4 = HL();
       wMem(var4, var3, 52626);
-      pc(52628, 1);
+      pc(52628, 1, 10);
       HL(55946);
-      pc(52631, 2);
+      pc(52631, 2, 15);
       int var5 = HL();
       int var6 = mem(var5, 52631) | 2;
       int var7 = HL();
       wMem(var7, var6, 52631);
-      pc(52633, 1);
+      pc(52633, 1, 10);
    }
 
    public void $CD9A() {
-      pc(52634, 1);
+      pc(52634, 1, 10);
       HL(51328);
-      pc(52637, 1);
+      pc(52637, 1, 7);
       int var1 = HL();
       int var2 = mem(var1, 52637);
       A(var2);
-      pc(52638, 1);
+      pc(52638, 1, 4);
       int var3 = A();
       int var4 = A();
       int var5 = alu("and", var4, var3);
       A(var5);
-      pc(52639, 1);
-      if(!flag(64, false)) {
-         pc(52641, 1);
-         int var40 = HL();
-         int var41 = mem(var40, 52641);
-         int var42 = alu("dec", var41);
-         int var43 = HL();
-         wMem(var43, var42, 52641);
-         pc(52642, 1);
-      } else {
-         pc(52643, 1);
+      pc(52639, 1, 7);
+      if(flag(64, false)) {
+         tstates(5);
+         pc(52643, 1, 10);
          HL(55946);
-         pc(52646, 2);
-         int var6 = HL();
-         int var7 = mem(var6, 52646) & -3;
-         int var8 = HL();
-         wMem(var8, var7, 52646);
-         pc(52648, 1);
+         pc(52646, 2, 15);
+         int var10 = HL();
+         int var11 = mem(var10, 52646) & -3;
+         int var12 = HL();
+         wMem(var12, var11, 52646);
+         pc(52648, 1, 10);
          HL(51309);
-         pc(52651, 1);
-         int var9 = HL();
-         int var10 = mem(var9, 52651);
-         A(var10);
-         pc(52652, 1);
-         int var11 = A();
-         alu("cp", var11, 8);
-         pc(52654, 1);
-         if(!flag(64, false)) {
-            pc(52656, 1);
-            int var32 = HL();
-            int var33 = mem(var32, 52656);
-            int var34 = alu("inc", var33);
-            int var35 = HL();
-            wMem(var35, var34, 52656);
-            pc(52657, 2);
-            int var36 = A();
-            int var37 = alu("sla", var36);
-            A(var37);
-            pc(52659, 2);
-            int var38 = A();
-            int var39 = alu("sla", var38);
-            A(var39);
-            pc(52661, 1);
-            $DB01();
-            pc(52664, 1);
-         } else {
-            pc(52665, 1);
+         pc(52651, 1, 7);
+         int var13 = HL();
+         int var14 = mem(var13, 52651);
+         A(var14);
+         pc(52652, 1, 7);
+         int var15 = A();
+         alu("cp", var15, 8);
+         pc(52654, 1, 7);
+         if(flag(64, false)) {
+            tstates(5);
+            pc(52665, 1, 10);
             HL(51308);
-            pc(52668, 1);
+            pc(52668, 1, 7);
             A(25);
-            pc(52670, 1);
-            int var12 = HL();
-            int var13 = mem(var12, 52670);
-            int var14 = A();
-            alu("cp", var14, var13);
-            pc(52671, 1);
+            pc(52670, 1, 7);
+            int var24 = HL();
+            int var25 = mem(var24, 52670);
+            int var26 = A();
+            alu("cp", var26, var25);
+            pc(52671, 1, 10);
             if(flag(1, false)) {
                untranslated(0);
             } else {
-               pc(52674, 1);
-               int var15 = HL();
-               int var16 = mem(var15, 52674);
-               A(var16);
-               pc(52675, 1);
-               int var17 = A();
-               int var18 = A();
-               int var19 = alu("and", var18, var17);
-               A(var19);
-               pc(52676, 1);
-               if(!flag(64, false)) {
-                  pc(52678, 1);
-                  int var25 = HL();
-                  int var26 = mem(var25, 52678);
-                  int var27 = alu("dec", var26);
-                  int var28 = HL();
-                  wMem(var28, var27, 52678);
-                  pc(52679, 1);
-                  HL(51316);
-                  pc(52682, 2);
-                  int var29 = HL();
-                  int var30 = mem(var29, 52682) & -33;
-                  int var31 = HL();
-                  wMem(var31, var30, 52682);
-                  pc(52684, 1);
-                  HL(61064);
-                  pc(52687, 1);
-                  $DB0B();
-                  pc(52690, 1);
+               pc(52674, 1, 7);
+               int var27 = HL();
+               int var28 = mem(var27, 52674);
+               A(var28);
+               pc(52675, 1, 4);
+               int var29 = A();
+               int var30 = A();
+               int var31 = alu("and", var30, var29);
+               A(var31);
+               pc(52676, 1, 7);
+               if(flag(64, false)) {
+                  tstates(5);
+                  pc(52691, 1, 10);
+                  throw new StackException(52692);
                } else {
-                  pc(52691, 1);
-                  int var20 = pop();
-                  HL(var20);
-                  pc(52692, 1);
-                  int var21 = pop();
-                  HL(var21);
-                  pc(52693, 1);
-                  HL(51327);
-                  pc(52696, 2);
-                  int var22 = HL();
-                  int var23 = mem(var22, 52696) | 128;
-                  int var24 = HL();
-                  wMem(var24, var23, 52696);
-                  $CDDA();
+                  pc(52678, 1, 11);
+                  int var32 = HL();
+                  int var33 = mem(var32, 52678);
+                  int var34 = alu("dec", var33);
+                  int var35 = HL();
+                  wMem(var35, var34, 52678);
+                  pc(52679, 1, 10);
+                  HL(51316);
+                  pc(52682, 2, 15);
+                  int var36 = HL();
+                  int var37 = mem(var36, 52682) & -33;
+                  int var38 = HL();
+                  wMem(var38, var37, 52682);
+                  pc(52684, 1, 10);
+                  HL(61064);
+                  pc(52687, 1, 17);
+                  $DB0B();
+                  pc(52690, 1, 10);
                }
             }
+         } else {
+            pc(52656, 1, 11);
+            int var16 = HL();
+            int var17 = mem(var16, 52656);
+            int var18 = alu("inc", var17);
+            int var19 = HL();
+            wMem(var19, var18, 52656);
+            pc(52657, 2, 8);
+            int var20 = A();
+            int var21 = alu("sla", var20);
+            A(var21);
+            pc(52659, 2, 8);
+            int var22 = A();
+            int var23 = alu("sla", var22);
+            A(var23);
+            pc(52661, 1, 17);
+            $DB01();
+            pc(52664, 1, 10);
          }
+      } else {
+         pc(52641, 1, 11);
+         int var6 = HL();
+         int var7 = mem(var6, 52641);
+         int var8 = alu("dec", var7);
+         int var9 = HL();
+         wMem(var9, var8, 52641);
+         pc(52642, 1, 10);
       }
    }
 
-   public void $CDDA() {
-      pc(52698, 1);
-      $E820();
-      pc(52701, 1);
-      HL(59392);
-      pc(52704, 1);
-      int var1 = HL();
-      int var2 = mem(var1, 52704);
-      A(var2);
-      pc(52705, 1);
-      int var3 = A();
-      int var4 = alu("and", var3, 248);
-      A(var4);
-      pc(52707, 1);
-      int var5 = A();
-      int var6 = HL();
-      wMem(var6, var5, 52707);
-      pc(52708, 1);
-      pc(52710, 1);
-      HL(55946);
-      pc(52713, 1);
-      int var7 = HL();
-      wMem(var7, 0, 52713);
-      pc(52715, 1);
-      HL(52840);
-      pc(52718, 1);
-      $ED06();
-      pc(52721, 1);
-      HL(59097);
-      pc(52724, 1);
-      int var8 = HL();
-      wMem(var8, 127, 52724);
-      pc(52726, 1);
-      int var9 = HL();
-      int var10 = inc16(var9);
-      HL(var10);
-      pc(52727, 1);
-      int var11 = HL();
-      wMem(var11, 0, 52727);
-      pc(52729, 2);
-      IY(52850);
-
-      do {
-         pc(52733, 1);
-         $E6F6();
-         pc(52736, 1);
-         HL(55946);
-         pc(52739, 2);
-         int var12 = HL();
-         int var13 = mem(var12, 52739) & -3;
-         int var14 = HL();
-         wMem(var14, var13, 52739);
-         pc(52741, 1);
-         $DA8D();
-         pc(52744, 1);
-         int var15 = mem(59098, 52744);
-         A(var15);
-         pc(52747, 1);
-         $F021();
-         pc(52750, 1);
-         $C92A();
-         pc(52753, 1);
-         int var16 = mem(59098, 52753);
-         A(var16);
-         pc(52756, 1);
-         int var17 = A();
-         int var18 = A();
-         int var19 = alu("and", var18, var17);
-         A(var19);
-         pc(52757, 1);
-      } while(flag(64, true));
-
-      pc(52759, 1);
-      A(184);
-
-      do {
-         pc(52761, 1);
-         int var20 = AF();
-         push(var20);
-         pc(52762, 1);
-         $F3D3();
-         pc(52765, 1);
-         DE(521);
-         pc(52768, 1);
-         $E84E();
-         pc(52771, 1);
-         $DAFA();
-         pc(52774, 1);
-         $C92A();
-         pc(52777, 1);
-         $DA8D();
-         pc(52780, 1);
-         int var21 = pop();
-         AF(var21);
-         pc(52781, 1);
-         int var22 = A();
-         int var23 = alu("inc", var22);
-         A(var23);
-         pc(52782, 1);
-         int var24 = A();
-         alu("cp", var24, 187);
-         pc(52784, 1);
-      } while(flag(64, true));
-
-      do {
-         pc(52786, 1);
-         $C92A();
-         pc(52789, 1);
-         $DA8D();
-         pc(52792, 1);
-         $DAFA();
-         pc(52795, 1);
-         int var25 = mem(51307, 52795);
-         A(var25);
-         pc(52798, 1);
-         int var26 = A();
-         int var27 = A();
-         int var28 = alu("and", var27, var26);
-         A(var28);
-         pc(52799, 1);
-      } while(flag(64, true));
-
-      pc(52801, 1);
-      HL(52819);
-      pc(52804, 1);
-      $DDE0();
-      pc(52807, 1);
-      B(50);
-
-      do {
-         pc(52809, 1);
-         int var29 = BC();
-         push(var29);
-         pc(52810, 1);
-         $DAFA();
-         pc(52813, 1);
-         int var30 = pop();
-         BC(var30);
-         pc(52814, 1);
-         int var31 = B() - 1 & 255;
-         B(var31);
-      } while(B() != 0);
-
-      pc(52816, 1);
-      runJumps(51204);
-   }
-
    public void $CE76() {
-      pc(52854, 1);
+      pc(52854, 1, 13);
       int var1 = mem(53194, 52854);
       A(var1);
-      pc(52857, 1);
+      pc(52857, 1, 7);
       int var2 = A();
       alu("cp", var2, 27);
-      pc(52859, 1);
-      if(!flag(64, true)) {
-         pc(52860, 1);
+      pc(52859, 1, 5);
+      if(flag(64, true)) {
+         tstates(6);
+      } else {
+         pc(52860, 1, 13);
          int var3 = mem(51326, 52860);
          A(var3);
-         pc(52863, 2);
+         pc(52863, 2, 8);
          int var4 = A();
          bit(0, var4);
-         pc(52865, 1);
-         if(!flag(64, true)) {
-            pc(52867, 1);
+         pc(52865, 1, 7);
+         if(flag(64, true)) {
+            tstates(5);
+         } else {
+            pc(52867, 1, 10);
             DE(5130);
-            pc(52870, 1);
+            pc(52870, 1, 10);
             HL(60380);
-            pc(52873, 1);
+            pc(52873, 1, 17);
             $E84E();
          }
 
-         pc(52876, 1);
+         pc(52876, 1, 13);
          int var5 = mem(51326, 52876);
          A(var5);
-         pc(52879, 2);
+         pc(52879, 2, 8);
          int var6 = A();
          bit(1, var6);
-         pc(52881, 1);
-         if(!flag(64, true)) {
-            pc(52882, 1);
+         pc(52881, 1, 5);
+         if(flag(64, true)) {
+            tstates(6);
+         } else {
+            pc(52882, 1, 10);
             DE(1286);
-            pc(52885, 1);
+            pc(52885, 1, 10);
             HL(60297);
-            pc(52888, 1);
+            pc(52888, 1, 17);
             $E84E();
-            pc(52891, 1);
+            pc(52891, 1, 13);
             int var7 = mem(51308, 52891);
             A(var7);
-            pc(52894, 1);
+            pc(52894, 1, 7);
             int var8 = A();
             alu("cp", var8, 26);
-            pc(52896, 1);
+            pc(52896, 1, 10);
             if(flag(1, true)) {
                untranslated(0);
             } else {
-               pc(52899, 1);
+               pc(52899, 1, 10);
             }
          }
       }
    }
 
    public void $CEAD() {
-      pc(52909, 1);
+      pc(52909, 1, 7);
       B(3);
-      pc(52911, 1);
+      pc(52911, 1, 10);
       HL(52900);
-      pc(52914, 1);
+      pc(52914, 1, 13);
       int var1 = mem(53194, 52914);
       A(var1);
 
-      do {
-         pc(52917, 1);
+      while(true) {
+         pc(52917, 1, 7);
          int var2 = HL();
          int var3 = mem(var2, 52917);
          int var4 = A();
          alu("cp", var4, var3);
-         pc(52918, 1);
+         pc(52918, 1, 7);
          if(flag(64, false)) {
-            pc(52926, 1);
-            int var5 = HL();
-            int var6 = inc16(var5);
-            HL(var6);
-            pc(52927, 1);
-            int var7 = HL();
-            int var8 = mem(var7, 52927);
-            A(var8);
-            pc(52928, 1);
-            int var9 = HL();
-            int var10 = inc16(var9);
-            HL(var10);
-            pc(52929, 1);
-            int var11 = HL();
-            int var12 = mem(var11, 52929);
-            H(var12);
-            pc(52930, 1);
-            int var13 = A();
-            L(var13);
-            pc(52931, 1);
+            tstates(5);
+            pc(52926, 1, 6);
+            int var12 = HL();
+            int var13 = inc16(var12);
+            HL(var13);
+            pc(52927, 1, 7);
+            int var14 = HL();
+            int var15 = mem(var14, 52927);
+            A(var15);
+            pc(52928, 1, 6);
+            int var16 = HL();
+            int var17 = inc16(var16);
+            HL(var17);
+            pc(52929, 1, 7);
+            int var18 = HL();
+            int var19 = mem(var18, 52929);
+            H(var19);
+            pc(52930, 1, 4);
+            int var20 = A();
+            L(var20);
+            pc(52931, 1, 4);
             if(HL() != 52961) {
                if(HL() == 53111) {
                   $CF77();
                   return;
-               }
-
-               if(HL() != 52956) {
-                  int var14 = HL();
-                  jump(var14);
+               } else if(HL() != 52956) {
+                  int var21 = HL();
+                  jump(var21);
+                  return;
+               } else {
+                  pc(52956, 1, 10);
+                  HL(52932);
+                  pc(52959, 1, 12);
+                  $CEF0();
                   return;
                }
-
-               pc(52956, 1);
-               HL(52932);
-               pc(52959, 1);
+            } else {
+               pc(52961, 1, 10);
+               HL(52940);
+               pc(52964, 1, 12);
                $CEF0();
                return;
             }
+         }
 
-            pc(52961, 1);
-            HL(52940);
-            pc(52964, 1);
-            $CEF0();
+         pc(52920, 1, 6);
+         int var5 = HL();
+         int var6 = inc16(var5);
+         HL(var6);
+         pc(52921, 1, 6);
+         int var7 = HL();
+         int var8 = inc16(var7);
+         HL(var8);
+         pc(52922, 1, 6);
+         int var9 = HL();
+         int var10 = inc16(var9);
+         HL(var10);
+         pc(52923, 1, 8);
+         int var11 = B() - 1 & 255;
+         B(var11);
+         if(B() == 0) {
+            pc(52925, 1, 10);
             return;
          }
 
-         pc(52920, 1);
-         int var15 = HL();
-         int var16 = inc16(var15);
-         HL(var16);
-         pc(52921, 1);
-         int var17 = HL();
-         int var18 = inc16(var17);
-         HL(var18);
-         pc(52922, 1);
-         int var19 = HL();
-         int var20 = inc16(var19);
-         HL(var20);
-         pc(52923, 1);
-         int var21 = B() - 1 & 255;
-         B(var21);
-      } while(B() != 0);
-
-      pc(52925, 1);
+         tstates(5);
+      }
    }
 
    public void $CEF0() {
-      pc(52976, 1);
+      pc(52976, 1, 10);
       DE(52968);
-      pc(52979, 1);
+      pc(52979, 1, 10);
       BC(8);
-      pc(52982, 2);
+      pc(52982, 2, 21);
       ldir(52982);
-      pc(52984, 1);
+      pc(52984, 1, 10);
       HL(52967);
-      pc(52987, 1);
+      pc(52987, 1, 11);
       int var1 = HL();
       int var2 = mem(var1, 52987);
       int var3 = alu("inc", var2);
       int var4 = HL();
       wMem(var4, var3, 52987);
-      pc(52988, 1);
+      pc(52988, 1, 7);
       int var5 = HL();
       int var6 = mem(var5, 52988);
       A(var6);
-      pc(52989, 1);
+      pc(52989, 1, 10);
       HL(52966);
-      pc(52992, 2);
+      pc(52992, 2, 8);
       int var7 = A();
       bit(7, var7);
-      pc(52994, 1);
-      if(!flag(64, true)) {
-         pc(52996, 1);
-         int var95 = HL();
-         int var96 = mem(var95, 52996);
-         int var97 = alu("inc", var96);
-         int var98 = HL();
-         wMem(var98, var97, 52996);
-         pc(52997, 1);
-         int var99 = HL();
-         int var100 = mem(var99, 52997);
-         A(var100);
-         pc(52998, 1);
-         int var101 = A();
-         alu("cp", var101, 8);
-         pc(53000, 1);
-         if(!flag(64, true)) {
-            pc(53002, 1);
-            int var102 = HL();
-            wMem(var102, 1, 53002);
-            pc(53004, 1);
+      pc(52994, 1, 7);
+      if(flag(64, true)) {
+         tstates(5);
+         pc(53006, 2, 8);
+         int var92 = A();
+         bit(0, var92);
+         pc(53008, 1, 7);
+         if(flag(64, false)) {
+            tstates(5);
+         } else {
+            pc(53010, 1, 11);
+            int var93 = HL();
+            int var94 = mem(var93, 53010);
+            int var95 = alu("dec", var94);
+            int var96 = HL();
+            wMem(var96, var95, 53010);
+            pc(53011, 1, 7);
+            int var97 = HL();
+            int var98 = mem(var97, 53011);
+            A(var98);
+            pc(53012, 1, 4);
+            int var99 = A();
+            int var100 = A();
+            int var101 = alu("and", var100, var99);
+            A(var101);
+            pc(53013, 1, 7);
+            if(flag(64, true)) {
+               tstates(5);
+            } else {
+               pc(53015, 1, 10);
+               int var102 = HL();
+               wMem(var102, 7, 53015);
+            }
          }
       } else {
-         pc(53006, 2);
-         int var8 = A();
-         bit(0, var8);
-         pc(53008, 1);
-         if(!flag(64, false)) {
-            pc(53010, 1);
-            int var85 = HL();
-            int var86 = mem(var85, 53010);
-            int var87 = alu("dec", var86);
-            int var88 = HL();
-            wMem(var88, var87, 53010);
-            pc(53011, 1);
-            int var89 = HL();
-            int var90 = mem(var89, 53011);
-            A(var90);
-            pc(53012, 1);
-            int var91 = A();
-            int var92 = A();
-            int var93 = alu("and", var92, var91);
-            A(var93);
-            pc(53013, 1);
-            if(!flag(64, true)) {
-               pc(53015, 1);
-               int var94 = HL();
-               wMem(var94, 7, 53015);
-            }
+         pc(52996, 1, 11);
+         int var8 = HL();
+         int var9 = mem(var8, 52996);
+         int var10 = alu("inc", var9);
+         int var11 = HL();
+         wMem(var11, var10, 52996);
+         pc(52997, 1, 7);
+         int var12 = HL();
+         int var13 = mem(var12, 52997);
+         A(var13);
+         pc(52998, 1, 7);
+         int var14 = A();
+         alu("cp", var14, 8);
+         pc(53000, 1, 7);
+         if(flag(64, true)) {
+            tstates(5);
+         } else {
+            pc(53002, 1, 10);
+            int var15 = HL();
+            wMem(var15, 1, 53002);
+            pc(53004, 1, 12);
          }
       }
 
-      pc(53017, 1);
-      int var9 = mem(52966, 53017);
-      A(var9);
-      pc(53020, 1);
-      int var10 = mem16(52968, 53020);
-      HL(var10);
-      pc(53023, 2);
-      int var11 = mem16(52970, 53023);
-      BC(var11);
-      pc(53027, 1);
+      pc(53017, 1, 13);
+      int var16 = mem(52966, 53017);
+      A(var16);
+      pc(53020, 1, 16);
+      int var17 = mem16(52968, 53020);
+      HL(var17);
+      pc(53023, 2, 20);
+      int var18 = mem16(52970, 53023);
+      BC(var18);
+      pc(53027, 1, 10);
       DE(32);
 
-      do {
-         pc(53030, 1);
-         int var12 = BC();
-         push(var12);
-         pc(53031, 1);
-         int var13 = HL();
-         push(var13);
+      while(true) {
+         pc(53030, 1, 11);
+         int var19 = BC();
+         push(var19);
+         pc(53031, 1, 11);
+         int var20 = HL();
+         push(var20);
 
-         do {
-            pc(53032, 1);
-            int var14 = A();
-            int var15 = HL();
-            wMem(var15, var14, 53032);
-            pc(53033, 1);
-            int var16 = DE();
-            int var17 = HL();
-            int var18 = alu("add16", var17, var16);
-            HL(var18);
-            pc(53034, 1);
-            int var19 = A();
-            int var20 = alu("inc", var19);
-            A(var20);
-            pc(53035, 1);
+         while(true) {
+            pc(53032, 1, 7);
             int var21 = A();
-            alu("cp", var21, 8);
-            pc(53037, 1);
-            if(!flag(64, true)) {
-               pc(53039, 1);
+            int var22 = HL();
+            wMem(var22, var21, 53032);
+            pc(53033, 1, 11);
+            int var23 = DE();
+            int var24 = HL();
+            int var25 = alu("add16", var24, var23);
+            HL(var25);
+            pc(53034, 1, 4);
+            int var26 = A();
+            int var27 = alu("inc", var26);
+            A(var27);
+            pc(53035, 1, 7);
+            int var28 = A();
+            alu("cp", var28, 8);
+            pc(53037, 1, 7);
+            if(flag(64, true)) {
+               tstates(5);
+            } else {
+               pc(53039, 1, 7);
                A(1);
             }
 
-            pc(53041, 1);
-            int var22 = B() - 1 & 255;
-            B(var22);
-         } while(B() != 0);
-
-         pc(53043, 1);
-         int var23 = pop();
-         HL(var23);
-         pc(53044, 1);
-         int var24 = pop();
-         BC(var24);
-         pc(53045, 1);
-         int var25 = L();
-         int var26 = alu("inc", var25);
-         L(var26);
-         pc(53046, 1);
-         int var27 = L();
-         int var28 = alu("inc", var27);
-         L(var28);
-         pc(53047, 1);
-         int var29 = L();
-         int var30 = alu("inc", var29);
-         L(var30);
-         pc(53048, 1);
-         int var31 = C();
-         int var32 = alu("dec", var31);
-         C(var32);
-         pc(53049, 1);
-      } while(flag(64, true));
-
-      pc(53051, 1);
-      HL(52967);
-      pc(53054, 2);
-      int var33 = HL();
-      int var34 = mem(var33, 53054);
-      bit(7, var34);
-      pc(53056, 1);
-      if(!flag(64, true)) {
-         pc(53057, 1);
-         int var35 = HL();
-         int var36 = mem(var35, 53057);
-         A(var36);
-         pc(53058, 1);
-         int var37 = A();
-         int var38 = alu("and", var37, 112);
-         A(var38);
-         pc(53060, 1);
-         int var39 = A();
-         int var40 = alu("rrca", var39);
-         A(var40);
-         pc(53061, 1);
-         int var41 = A();
-         int var42 = alu("rrca", var41);
-         A(var42);
-         pc(53062, 1);
-         int var43 = HL();
-         int var44 = dec16(var43);
-         HL(var44);
-         pc(53063, 1);
-         int var45 = HL();
-         int var46 = mem(var45, 53063);
-         B(var46);
-         pc(53064, 2);
-         int var47 = B();
-         int var48 = alu("sla", var47);
-         B(var48);
-         pc(53066, 1);
-         int var49 = B();
-         int var50 = A();
-         int var51 = alu("sub", var50, var49);
-         A(var51);
-         pc(53067, 1);
-         int var52 = A();
-         int var53 = alu("or", var52, 32);
-         A(var53);
-         pc(53069, 1);
-         int var54 = A();
-         int var55 = alu("and", var54, 46);
-         A(var55);
-         pc(53071, 1);
-         $DB01();
-         pc(53074, 2);
-         int var56 = mem16(51314, 53074);
-         DE(var56);
-         pc(53078, 1);
-         HL(52972);
-         pc(53081, 1);
-         int var57 = E();
-         A(var57);
-         pc(53082, 1);
-         int var58 = HL();
-         int var59 = mem(var58, 53082);
-         int var60 = A();
-         alu("cp", var60, var59);
-         pc(53083, 1);
-         if(!flag(64, true)) {
-            pc(53084, 1);
-            int var61 = D();
-            A(var61);
-            pc(53085, 1);
-            int var62 = HL();
-            int var63 = inc16(var62);
-            HL(var63);
-            pc(53086, 1);
-            int var64 = HL();
-            int var65 = mem(var64, 53086);
-            B(var65);
-            pc(53087, 1);
-            int var66 = B();
-            int var67 = alu("dec", var66);
-            B(var67);
-            pc(53088, 1);
-            int var68 = B();
-            int var69 = A();
-            alu("cp", var69, var68);
-            pc(53089, 1);
-            if(!flag(1, false)) {
-               pc(53090, 1);
-               int var70 = HL();
-               int var71 = inc16(var70);
-               HL(var71);
-               pc(53091, 1);
-               int var72 = HL();
-               int var73 = mem(var72, 53091);
-               B(var73);
-               pc(53092, 1);
-               int var74 = B();
-               int var75 = A();
-               alu("cp", var75, var74);
-               pc(53093, 1);
-               if(!flag(1, true)) {
-                  pc(53094, 1);
-                  int var76 = mem(51318, 53094);
-                  A(var76);
-                  pc(53097, 1);
-                  int var77 = A();
-                  int var78 = A();
-                  int var79 = alu("and", var78, var77);
-                  A(var79);
-                  pc(53098, 1);
-                  if(!flag(64, true)) {
-                     pc(53099, 1);
-                     int var80 = mem(51316, 53099);
-                     A(var80);
-                     pc(53102, 2);
-                     int var81 = A();
-                     bit(5, var81);
-                     pc(53104, 1);
-                     if(!flag(64, true)) {
-                        pc(53105, 1);
-                        HL(51327);
-                        pc(53108, 2);
-                        int var82 = HL();
-                        int var83 = mem(var82, 53108) | 1;
-                        int var84 = HL();
-                        wMem(var84, var83, 53108);
-                        pc(53110, 1);
-                     }
+            pc(53041, 1, 8);
+            int var29 = B() - 1 & 255;
+            B(var29);
+            if(B() == 0) {
+               pc(53043, 1, 10);
+               int var30 = pop();
+               HL(var30);
+               pc(53044, 1, 10);
+               int var31 = pop();
+               BC(var31);
+               pc(53045, 1, 4);
+               int var32 = L();
+               int var33 = alu("inc", var32);
+               L(var33);
+               pc(53046, 1, 4);
+               int var34 = L();
+               int var35 = alu("inc", var34);
+               L(var35);
+               pc(53047, 1, 4);
+               int var36 = L();
+               int var37 = alu("inc", var36);
+               L(var37);
+               pc(53048, 1, 4);
+               int var38 = C();
+               int var39 = alu("dec", var38);
+               C(var39);
+               pc(53049, 1, 7);
+               if(!flag(64, true)) {
+                  pc(53051, 1, 10);
+                  HL(52967);
+                  pc(53054, 2, 12);
+                  int var40 = HL();
+                  int var41 = mem(var40, 53054);
+                  bit(7, var41);
+                  pc(53056, 1, 5);
+                  if(flag(64, true)) {
+                     tstates(6);
+                     return;
                   }
+
+                  pc(53057, 1, 7);
+                  int var42 = HL();
+                  int var43 = mem(var42, 53057);
+                  A(var43);
+                  pc(53058, 1, 7);
+                  int var44 = A();
+                  int var45 = alu("and", var44, 112);
+                  A(var45);
+                  pc(53060, 1, 4);
+                  int var46 = A();
+                  int var47 = alu("rrca", var46);
+                  A(var47);
+                  pc(53061, 1, 4);
+                  int var48 = A();
+                  int var49 = alu("rrca", var48);
+                  A(var49);
+                  pc(53062, 1, 6);
+                  int var50 = HL();
+                  int var51 = dec16(var50);
+                  HL(var51);
+                  pc(53063, 1, 7);
+                  int var52 = HL();
+                  int var53 = mem(var52, 53063);
+                  B(var53);
+                  pc(53064, 2, 8);
+                  int var54 = B();
+                  int var55 = alu("sla", var54);
+                  B(var55);
+                  pc(53066, 1, 4);
+                  int var56 = B();
+                  int var57 = A();
+                  int var58 = alu("sub", var57, var56);
+                  A(var58);
+                  pc(53067, 1, 7);
+                  int var59 = A();
+                  int var60 = alu("or", var59, 32);
+                  A(var60);
+                  pc(53069, 1, 7);
+                  int var61 = A();
+                  int var62 = alu("and", var61, 46);
+                  A(var62);
+                  pc(53071, 1, 17);
+                  $DB01();
+                  pc(53074, 2, 20);
+                  int var63 = mem16(51314, 53074);
+                  DE(var63);
+                  pc(53078, 1, 10);
+                  HL(52972);
+                  pc(53081, 1, 4);
+                  int var64 = E();
+                  A(var64);
+                  pc(53082, 1, 7);
+                  int var65 = HL();
+                  int var66 = mem(var65, 53082);
+                  int var67 = A();
+                  alu("cp", var67, var66);
+                  pc(53083, 1, 5);
+                  if(flag(64, true)) {
+                     tstates(6);
+                     return;
+                  }
+
+                  pc(53084, 1, 4);
+                  int var68 = D();
+                  A(var68);
+                  pc(53085, 1, 6);
+                  int var69 = HL();
+                  int var70 = inc16(var69);
+                  HL(var70);
+                  pc(53086, 1, 7);
+                  int var71 = HL();
+                  int var72 = mem(var71, 53086);
+                  B(var72);
+                  pc(53087, 1, 4);
+                  int var73 = B();
+                  int var74 = alu("dec", var73);
+                  B(var74);
+                  pc(53088, 1, 4);
+                  int var75 = B();
+                  int var76 = A();
+                  alu("cp", var76, var75);
+                  pc(53089, 1, 5);
+                  if(flag(1, false)) {
+                     tstates(6);
+                     return;
+                  }
+
+                  pc(53090, 1, 6);
+                  int var77 = HL();
+                  int var78 = inc16(var77);
+                  HL(var78);
+                  pc(53091, 1, 7);
+                  int var79 = HL();
+                  int var80 = mem(var79, 53091);
+                  B(var80);
+                  pc(53092, 1, 4);
+                  int var81 = B();
+                  int var82 = A();
+                  alu("cp", var82, var81);
+                  pc(53093, 1, 5);
+                  if(flag(1, true)) {
+                     tstates(6);
+                     return;
+                  }
+
+                  pc(53094, 1, 13);
+                  int var83 = mem(51318, 53094);
+                  A(var83);
+                  pc(53097, 1, 4);
+                  int var84 = A();
+                  int var85 = A();
+                  int var86 = alu("and", var85, var84);
+                  A(var86);
+                  pc(53098, 1, 5);
+                  if(flag(64, true)) {
+                     tstates(6);
+                     return;
+                  }
+
+                  pc(53099, 1, 13);
+                  int var87 = mem(51316, 53099);
+                  A(var87);
+                  pc(53102, 2, 8);
+                  int var88 = A();
+                  bit(5, var88);
+                  pc(53104, 1, 5);
+                  if(flag(64, true)) {
+                     tstates(6);
+                     return;
+                  }
+
+                  pc(53105, 1, 10);
+                  HL(51327);
+                  pc(53108, 2, 15);
+                  int var89 = HL();
+                  int var90 = mem(var89, 53108) | 1;
+                  int var91 = HL();
+                  wMem(var91, var90, 53108);
+                  pc(53110, 1, 10);
+                  return;
                }
+
+               tstates(5);
+               break;
             }
+
+            tstates(5);
          }
       }
    }
 
    public void $CF77() {
-      pc(53111, 1);
+      pc(53111, 1, 10);
       HL(52948);
-      pc(53114, 1);
+      pc(53114, 1, 17);
       $CEF0();
-      pc(53117, 1);
+      pc(53117, 1, 17);
       $62A3();
-      pc(53120, 1);
+      pc(53120, 1, 13);
       int var1 = mem(25250, 53120);
       A(var1);
-      pc(53123, 1);
+      pc(53123, 1, 7);
       int var2 = A();
       alu("cp", var2, 80);
-      pc(53125, 1);
-      if(!flag(64, true)) {
-         pc(53127, 1);
-         int var8 = mem(51314, 53127);
-         A(var8);
-         pc(53130, 1);
-         int var9 = A();
-         alu("cp", var9, 62);
-         pc(53132, 1);
-         if(!flag(64, true)) {
-            pc(53133, 1);
-            int var10 = mem(51315, 53133);
-            A(var10);
-            pc(53136, 1);
-            int var11 = A();
-            alu("cp", var11, 21);
-            pc(53138, 1);
-            if(!flag(64, true)) {
-               pc(53139, 1);
-               int var12 = mem(51317, 53139);
-               A(var12);
-               pc(53142, 1);
-               int var13 = A();
-               alu("cp", var13, 5);
-               pc(53144, 1);
-               if(!flag(64, true)) {
-                  pc(53145, 1);
-                  int var14 = mem(51326, 53145);
-                  A(var14);
-                  pc(53148, 2);
-                  int var15 = A();
-                  bit(0, var15);
-                  pc(53150, 1);
-                  if(!flag(64, true)) {
-                     pc(53151, 1);
-                     int var16 = mem(51320, 53151);
-                     A(var16);
-                     pc(53154, 1);
-                     int var17 = A();
-                     alu("cp", var17, 8);
-                     pc(53156, 1);
-                     if(!flag(64, true)) {
-                        pc(53157, 1);
-                        int var18 = A();
-                        int var19 = A();
-                        int var20 = alu("xor", var19, var18);
-                        A(var20);
-                        pc(53158, 1);
-                        int var21 = A();
-                        wMem(25250, var21, 53158);
-                        pc(53161, 1);
-                        HL(51326);
-                        pc(53164, 2);
-                        int var22 = HL();
-                        int var23 = mem(var22, 53164) | 1;
-                        int var24 = HL();
-                        wMem(var24, var23, 53164);
-                        pc(53166, 1);
-                        HL(28174);
-                        pc(53169, 1);
-                        $DB0B();
-                        pc(53172, 1);
-                     }
-                  }
+      pc(53125, 1, 7);
+      if(flag(64, true)) {
+         tstates(5);
+         pc(53173, 1, 7);
+         int var20 = A();
+         alu("cp", var20, 64);
+         pc(53175, 1, 5);
+         if(flag(64, true)) {
+            tstates(6);
+         } else {
+            pc(53176, 1, 13);
+            int var21 = mem(51308, 53176);
+            A(var21);
+            pc(53179, 1, 7);
+            int var22 = A();
+            alu("cp", var22, 26);
+            pc(53181, 1, 10);
+            if(flag(1, true)) {
+               untranslated(0);
+            } else {
+               pc(53184, 1, 13);
+               int var23 = mem(51315, 53184);
+               A(var23);
+               pc(53187, 1, 7);
+               int var24 = A();
+               alu("cp", var24, 23);
+               pc(53189, 1, 5);
+               if(flag(1, true)) {
+                  tstates(6);
+               } else {
+                  pc(53190, 1, 10);
+                  $CD8A();
                }
             }
          }
       } else {
-         pc(53173, 1);
-         int var3 = A();
-         alu("cp", var3, 64);
-         pc(53175, 1);
-         if(!flag(64, true)) {
-            pc(53176, 1);
-            int var4 = mem(51308, 53176);
-            A(var4);
-            pc(53179, 1);
-            int var5 = A();
-            alu("cp", var5, 26);
-            pc(53181, 1);
-            if(flag(1, true)) {
-               untranslated(0);
+         pc(53127, 1, 13);
+         int var3 = mem(51314, 53127);
+         A(var3);
+         pc(53130, 1, 7);
+         int var4 = A();
+         alu("cp", var4, 62);
+         pc(53132, 1, 5);
+         if(flag(64, true)) {
+            tstates(6);
+         } else {
+            pc(53133, 1, 13);
+            int var5 = mem(51315, 53133);
+            A(var5);
+            pc(53136, 1, 7);
+            int var6 = A();
+            alu("cp", var6, 21);
+            pc(53138, 1, 5);
+            if(flag(64, true)) {
+               tstates(6);
             } else {
-               pc(53184, 1);
-               int var6 = mem(51315, 53184);
-               A(var6);
-               pc(53187, 1);
-               int var7 = A();
-               alu("cp", var7, 23);
-               pc(53189, 1);
-               if(!flag(1, true)) {
-                  pc(53190, 1);
-                  $CD8A();
+               pc(53139, 1, 13);
+               int var7 = mem(51317, 53139);
+               A(var7);
+               pc(53142, 1, 7);
+               int var8 = A();
+               alu("cp", var8, 5);
+               pc(53144, 1, 5);
+               if(flag(64, true)) {
+                  tstates(6);
+               } else {
+                  pc(53145, 1, 13);
+                  int var9 = mem(51326, 53145);
+                  A(var9);
+                  pc(53148, 2, 8);
+                  int var10 = A();
+                  bit(0, var10);
+                  pc(53150, 1, 5);
+                  if(flag(64, true)) {
+                     tstates(6);
+                  } else {
+                     pc(53151, 1, 13);
+                     int var11 = mem(51320, 53151);
+                     A(var11);
+                     pc(53154, 1, 7);
+                     int var12 = A();
+                     alu("cp", var12, 8);
+                     pc(53156, 1, 5);
+                     if(flag(64, true)) {
+                        tstates(6);
+                     } else {
+                        pc(53157, 1, 4);
+                        int var13 = A();
+                        int var14 = A();
+                        int var15 = alu("xor", var14, var13);
+                        A(var15);
+                        pc(53158, 1, 13);
+                        int var16 = A();
+                        wMem(25250, var16, 53158);
+                        pc(53161, 1, 10);
+                        HL(51326);
+                        pc(53164, 2, 15);
+                        int var17 = HL();
+                        int var18 = mem(var17, 53164) | 1;
+                        int var19 = HL();
+                        wMem(var19, var18, 53164);
+                        pc(53166, 1, 10);
+                        HL(28174);
+                        pc(53169, 1, 17);
+                        $DB0B();
+                        pc(53172, 1, 10);
+                     }
+                  }
                }
             }
          }
@@ -3366,182 +3625,202 @@ public class DynamiteDan extends MiniZX {
    }
 
    public void $CFD9() {
-      pc(53209, 1);
+      pc(53209, 1, 13);
       int var1 = mem(51326, 53209);
       A(var1);
-      pc(53212, 2);
+      pc(53212, 2, 8);
       int var2 = A();
       bit(7, var2);
-      pc(53214, 1);
-      if(!flag(64, true)) {
-         pc(53215, 1);
+      pc(53214, 1, 5);
+      if(flag(64, true)) {
+         tstates(6);
+      } else {
+         pc(53215, 1, 13);
          int var3 = mem(51316, 53215);
          A(var3);
-         pc(53218, 2);
+         pc(53218, 2, 8);
          int var4 = A();
          bit(7, var4);
-         pc(53220, 1);
+         pc(53220, 1, 10);
          if(!flag(64, true)) {
-            pc(53223, 2);
-            int var63 = A();
-            bit(5, var63);
-            pc(53225, 1);
-            if(flag(64, true)) {
-               push(53228);
-               $CD9A();
+            pc(53223, 2, 8);
+            int var62 = A();
+            bit(5, var62);
+
+            try {
+               pc(53225, 1, 10);
+               if(flag(64, true)) {
+                  tstates(7);
+                  $CD9A();
+               }
+            } catch (StackException var216) {
+               if(var216.getNextPC() == 52692) {
+                  HL(53228);
+                  pc(52692, 1, 10);
+                  throw new StackException(52693);
+               }
+
+               throw var216;
             }
 
-            pc(53228, 1);
+            pc(53228, 1, 13);
             int var64 = mem(51327, 53228);
             A(var64);
-            pc(53231, 2);
+            pc(53231, 2, 8);
             int var65 = A();
             bit(0, var65);
-            pc(53233, 1);
+            pc(53233, 1, 10);
             if(flag(64, true)) {
-               label184: {
-                  label173: {
-                     pc(53386, 1);
+               label227: {
+                  label216: {
+                     pc(53386, 1, 7);
                      A(14);
-                     pc(53388, 1);
+                     pc(53388, 1, 13);
                      int var66 = A();
                      wMem(56301, var66, 53388);
-                     pc(53391, 1);
+                     pc(53391, 1, 13);
                      int var67 = mem(51317, 53391);
                      A(var67);
-                     pc(53394, 1);
+                     pc(53394, 1, 4);
                      int var68 = A();
                      int var69 = A();
                      int var70 = alu("and", var69, var68);
                      A(var70);
-                     pc(53395, 1);
-                     if(!flag(64, false)) {
-                        pc(53397, 1);
-                        int var101 = A();
-                        alu("cp", var101, 7);
-                        pc(53399, 1);
+                     pc(53395, 1, 7);
+                     if(flag(64, false)) {
+                        tstates(5);
+                     } else {
+                        pc(53397, 1, 7);
+                        int var71 = A();
+                        alu("cp", var71, 7);
+                        pc(53399, 1, 7);
                         if(!flag(64, false)) {
-                           pc(53401, 1);
-                           break label173;
+                           pc(53401, 1, 12);
+                           break label216;
                         }
+
+                        tstates(5);
                      }
 
-                     pc(53403, 1);
+                     pc(53403, 1, 17);
                      $D567();
-                     pc(53406, 1);
-                     int var71 = mem(52967, 53406);
-                     A(var71);
-                     pc(53409, 2);
-                     int var72 = A();
-                     bit(7, var72);
-                     pc(53411, 1);
+                     pc(53406, 1, 13);
+                     int var100 = mem(52967, 53406);
+                     A(var100);
+                     pc(53409, 2, 8);
+                     int var101 = A();
+                     bit(7, var101);
+                     pc(53411, 1, 7);
                      if(flag(64, true)) {
-                        break label184;
+                        tstates(5);
+                        break label227;
                      }
                   }
 
-                  pc(53413, 2);
-                  int var80 = mem16(51314, 53413);
-                  DE(var80);
-                  pc(53417, 1);
-                  int var81 = mem(52972, 53417);
-                  A(var81);
-                  pc(53420, 1);
-                  int var82 = E();
-                  int var83 = A();
-                  alu("cp", var83, var82);
-                  pc(53421, 1);
+                  pc(53413, 2, 20);
+                  int var72 = mem16(51314, 53413);
+                  DE(var72);
+                  pc(53417, 1, 13);
+                  int var73 = mem(52972, 53417);
+                  A(var73);
+                  pc(53420, 1, 4);
+                  int var74 = E();
+                  int var75 = A();
+                  alu("cp", var75, var74);
+                  pc(53421, 1, 7);
                   if(!flag(64, true)) {
-                     pc(53423, 1);
-                     int var92 = mem(52974, 53423);
-                     A(var92);
-                     pc(53426, 1);
-                     int var93 = A();
-                     int var94 = alu("dec", var93);
-                     A(var94);
-                     pc(53427, 1);
-                     int var95 = A();
-                     int var96 = alu("dec", var95);
-                     A(var96);
-                     pc(53428, 1);
-                     int var97 = A();
-                     B(var97);
-                     pc(53429, 1);
-                     int var98 = D();
-                     A(var98);
-                     pc(53430, 1);
-                     int var99 = B();
-                     int var100 = A();
-                     alu("cp", var100, var99);
-                     pc(53431, 1);
-                     if(!flag(1, false)) {
-                        pc(53433, 1);
-                        $D3EC();
-                        pc(53436, 1);
+                     pc(53423, 1, 13);
+                     int var76 = mem(52974, 53423);
+                     A(var76);
+                     pc(53426, 1, 4);
+                     int var77 = A();
+                     int var78 = alu("dec", var77);
+                     A(var78);
+                     pc(53427, 1, 4);
+                     int var79 = A();
+                     int var80 = alu("dec", var79);
+                     A(var80);
+                     pc(53428, 1, 4);
+                     int var81 = A();
+                     B(var81);
+                     pc(53429, 1, 4);
+                     int var82 = D();
+                     A(var82);
+                     pc(53430, 1, 4);
+                     int var83 = B();
+                     int var84 = A();
+                     alu("cp", var84, var83);
+                     pc(53431, 1, 7);
+                     if(flag(1, false)) {
+                        tstates(5);
+                        pc(53439, 1, 17);
+                        $D4B5();
+                        pc(53442, 1, 10);
                         $D1CE();
                         return;
                      }
 
-                     pc(53439, 1);
-                     $D4B5();
-                     pc(53442, 1);
+                     pc(53433, 1, 17);
+                     $D3EC();
+                     pc(53436, 1, 10);
                      $D1CE();
                      return;
                   }
 
-                  pc(53445, 1);
+                  tstates(5);
+                  pc(53445, 1, 10);
                   HL(51318);
-                  pc(53448, 1);
-                  int var84 = HL();
-                  int var85 = mem(var84, 53448);
-                  int var86 = alu("inc", var85);
-                  int var87 = HL();
-                  wMem(var87, var86, 53448);
-                  pc(53449, 1);
-                  int var88 = mem(52975, 53449);
-                  A(var88);
-                  pc(53452, 1);
-                  int var89 = HL();
-                  int var90 = mem(var89, 53452);
-                  int var91 = A();
-                  alu("cp", var91, var90);
-                  pc(53453, 1);
+                  pc(53448, 1, 11);
+                  int var85 = HL();
+                  int var86 = mem(var85, 53448);
+                  int var87 = alu("inc", var86);
+                  int var88 = HL();
+                  wMem(var88, var87, 53448);
+                  pc(53449, 1, 13);
+                  int var89 = mem(52975, 53449);
+                  A(var89);
+                  pc(53452, 1, 7);
+                  int var90 = HL();
+                  int var91 = mem(var90, 53452);
+                  int var92 = A();
+                  alu("cp", var92, var91);
+                  pc(53453, 1, 10);
                   if(flag(64, true)) {
                      $D1CE();
                      return;
                   }
                }
 
-               pc(53456, 1);
-               int var73 = A();
-               int var74 = A();
-               int var75 = alu("xor", var74, var73);
-               A(var75);
-               pc(53457, 1);
-               int var76 = A();
-               wMem(51318, var76, 53457);
-               pc(53460, 1);
+               pc(53456, 1, 4);
+               int var93 = A();
+               int var94 = A();
+               int var95 = alu("xor", var94, var93);
+               A(var95);
+               pc(53457, 1, 13);
+               int var96 = A();
+               wMem(51318, var96, 53457);
+               pc(53460, 1, 10);
                HL(51327);
-               pc(53463, 2);
-               int var77 = HL();
-               int var78 = mem(var77, 53463) & -2;
-               int var79 = HL();
-               wMem(var79, var78, 53463);
-               pc(53465, 1);
+               pc(53463, 2, 15);
+               int var97 = HL();
+               int var98 = mem(var97, 53463) & -2;
+               int var99 = HL();
+               wMem(var99, var98, 53463);
+               pc(53465, 1, 10);
                $D1CE();
                return;
             }
 
-            pc(53236, 1);
+            pc(53236, 1, 17);
             $DC71();
 
             try {
-               pc(53239, 1);
+               pc(53239, 1, 17);
                $D895();
             } catch (StackException var215) {
                if(var215.getNextPC() == 54038) {
                   DE(53242);
-                  pc(54038, 1);
+                  pc(54038, 1, 10);
                   $D1CE();
                   return;
                }
@@ -3549,4895 +3828,5177 @@ public class DynamiteDan extends MiniZX {
                throw var215;
             }
 
-            pc(53242, 1);
+            pc(53242, 1, 13);
             int var103 = mem(51322, 53242);
             A(var103);
-            pc(53245, 1);
+            pc(53245, 1, 4);
             int var104 = A();
             int var105 = A();
             int var106 = alu("and", var105, var104);
             A(var106);
-            pc(53246, 1);
-            if(!flag(64, true)) {
-               pc(53248, 1);
-               int var198 = mem(51323, 53248);
-               A(var198);
-               pc(53251, 2);
-               int var199 = A();
-               bit(2, var199);
-               pc(53253, 1);
+            pc(53246, 1, 7);
+            if(flag(64, true)) {
+               tstates(5);
+            } else {
+               pc(53248, 1, 13);
+               int var107 = mem(51323, 53248);
+               A(var107);
+               pc(53251, 2, 8);
+               int var108 = A();
+               bit(2, var108);
+               pc(53253, 1, 10);
                if(flag(64, true)) {
-                  pc(53615, 1);
-                  int var200 = mem(51323, 53615);
-                  A(var200);
-                  pc(53618, 2);
-                  int var201 = A();
-                  bit(0, var201);
-                  pc(53620, 1);
-                  if(!flag(64, false)) {
-                     pc(53622, 1);
-                     $D607();
-                     pc(53625, 1);
-                  } else {
-                     pc(53627, 1);
+                  pc(53615, 1, 13);
+                  int var109 = mem(51323, 53615);
+                  A(var109);
+                  pc(53618, 2, 8);
+                  int var110 = A();
+                  bit(0, var110);
+                  pc(53620, 1, 7);
+                  if(flag(64, false)) {
+                     tstates(5);
+                     pc(53627, 1, 17);
                      $D567();
+                  } else {
+                     pc(53622, 1, 17);
+                     $D607();
+                     pc(53625, 1, 12);
                   }
 
-                  pc(53630, 1);
-                  int var202 = mem(51324, 53630);
-                  A(var202);
-                  pc(53633, 1);
+                  pc(53630, 1, 13);
+                  int var111 = mem(51324, 53630);
+                  A(var111);
+                  pc(53633, 1, 17);
                   $CD24();
-                  pc(53636, 1);
+                  pc(53636, 1, 17);
                   $D1CE();
-                  pc(53639, 2);
-                  int var203 = mem16(51314, 53639);
-                  DE(var203);
-                  pc(53643, 1);
-                  int var204 = E();
-                  A(var204);
-                  pc(53644, 1);
-                  int var205 = A();
-                  int var206 = alu("add", var205, 26);
-                  A(var206);
-                  pc(53646, 1);
-                  int var207 = A();
-                  E(var207);
-                  pc(53647, 1);
-                  int var208 = A();
-                  wMem(51324, var208, 53647);
-                  pc(53650, 1);
-                  int var209 = mem(53194, 53650);
-                  A(var209);
-                  pc(53653, 1);
-                  int var210 = A();
-                  wMem(51325, var210, 53653);
-                  pc(53656, 1);
+                  pc(53639, 2, 20);
+                  int var112 = mem16(51314, 53639);
+                  DE(var112);
+                  pc(53643, 1, 4);
+                  int var113 = E();
+                  A(var113);
+                  pc(53644, 1, 7);
+                  int var114 = A();
+                  int var115 = alu("add", var114, 26);
+                  A(var115);
+                  pc(53646, 1, 4);
+                  int var116 = A();
+                  E(var116);
+                  pc(53647, 1, 13);
+                  int var117 = A();
+                  wMem(51324, var117, 53647);
+                  pc(53650, 1, 13);
+                  int var118 = mem(53194, 53650);
+                  A(var118);
+                  pc(53653, 1, 13);
+                  int var119 = A();
+                  wMem(51325, var119, 53653);
+                  pc(53656, 1, 17);
                   $CD2B();
-                  pc(53659, 2);
-                  int var211 = mem16(51324, 53659);
-                  DE(var211);
-                  pc(53663, 2);
-                  int var212 = mem16(51322, 53663);
-                  BC(var212);
-                  pc(53667, 1);
+                  pc(53659, 2, 20);
+                  int var120 = mem16(51324, 53659);
+                  DE(var120);
+                  pc(53663, 2, 20);
+                  int var121 = mem16(51322, 53663);
+                  BC(var121);
+                  pc(53667, 1, 17);
                   $CD5C();
-                  pc(53670, 1);
+                  pc(53670, 1, 17);
                   $D1B2();
-                  pc(53673, 2);
-                  int var213 = DE();
-                  wMem16(51324, var213, 53673);
-                  pc(53677, 2);
-                  int var214 = BC();
-                  wMem16(51322, var214, 53677);
-                  pc(53681, 1);
+                  pc(53673, 2, 20);
+                  int var122 = DE();
+                  wMem16(51324, var122, 53673);
+                  pc(53677, 2, 20);
+                  int var123 = BC();
+                  wMem16(51322, var123, 53677);
+                  pc(53681, 1, 10);
                   return;
                }
             }
 
-            pc(53256, 1);
-            int var107 = mem(51316, 53256);
-            A(var107);
-            pc(53259, 2);
-            int var108 = A();
-            bit(4, var108);
-            pc(53261, 1);
+            pc(53256, 1, 13);
+            int var124 = mem(51316, 53256);
+            A(var124);
+            pc(53259, 2, 8);
+            int var125 = A();
+            bit(4, var125);
+            pc(53261, 1, 10);
             if(flag(64, true)) {
-               pc(53468, 1);
-               int var109 = mem(51316, 53468);
-               A(var109);
-               pc(53471, 1);
-               int var110 = A();
-               B(var110);
-               pc(53472, 1);
-               int var111 = mem(51318, 53472);
-               A(var111);
-               pc(53475, 1);
-               int var112 = A();
-               L(var112);
-               pc(53476, 2);
-               int var113 = B();
-               bit(2, var113);
-               pc(53478, 1);
-               if(!flag(64, true)) {
-                  pc(53480, 1);
-                  int var128 = mem(51321, 53480);
-                  A(var128);
-                  pc(53483, 1);
-                  int var129 = L();
-                  int var130 = A();
-                  alu("cp", var130, var129);
-                  pc(53484, 1);
-                  if(!flag(64, true)) {
-                     pc(53486, 2);
-                     int var133 = B() | 4;
-                     B(var133);
-                     pc(53488, 1);
-                     L(0);
-                     pc(53490, 1);
+               pc(53468, 1, 13);
+               int var126 = mem(51316, 53468);
+               A(var126);
+               pc(53471, 1, 4);
+               int var127 = A();
+               B(var127);
+               pc(53472, 1, 13);
+               int var128 = mem(51318, 53472);
+               A(var128);
+               pc(53475, 1, 4);
+               int var129 = A();
+               L(var129);
+               pc(53476, 2, 8);
+               int var130 = B();
+               bit(2, var130);
+               pc(53478, 1, 7);
+               if(flag(64, true)) {
+                  tstates(5);
+                  pc(53498, 1, 13);
+                  int var143 = mem(51319, 53498);
+                  A(var143);
+                  pc(53501, 1, 7);
+                  int var144 = A();
+                  int var145 = alu("sub", var144, 2);
+                  A(var145);
+                  pc(53503, 1, 4);
+                  int var146 = L();
+                  int var147 = A();
+                  alu("cp", var147, var146);
+                  pc(53504, 1, 7);
+                  if(flag(64, true)) {
+                     tstates(5);
                   } else {
-                     pc(53492, 1);
-                     $D567();
-                     pc(53495, 1);
-                     int var131 = L();
-                     int var132 = alu("inc", var131);
-                     L(var132);
-                     pc(53496, 1);
-                  }
-               } else {
-                  pc(53498, 1);
-                  int var114 = mem(51319, 53498);
-                  A(var114);
-                  pc(53501, 1);
-                  int var115 = A();
-                  int var116 = alu("sub", var115, 2);
-                  A(var116);
-                  pc(53503, 1);
-                  int var117 = L();
-                  int var118 = A();
-                  alu("cp", var118, var117);
-                  pc(53504, 1);
-                  if(!flag(64, true)) {
-                     pc(53506, 2);
-                     int var127 = B() & -17;
-                     B(var127);
+                     pc(53506, 2, 8);
+                     int var148 = B() & -17;
+                     B(var148);
                   }
 
-                  pc(53508, 1);
+                  pc(53508, 1, 17);
                   $D607();
-                  pc(53511, 1);
-                  int var119 = L();
-                  int var120 = alu("inc", var119);
-                  L(var120);
-               }
-
-               pc(53512, 2);
-               int var121 = B();
-               bit(3, var121);
-               pc(53514, 1);
-               if(!flag(64, false)) {
-                  pc(53516, 2);
-                  int var126 = B();
-                  bit(1, var126);
-                  pc(53518, 1);
-                  if(!flag(64, true)) {
-                     pc(53520, 1);
-                     $D3EC();
-                     pc(53523, 1);
+                  pc(53511, 1, 4);
+                  int var149 = L();
+                  int var150 = alu("inc", var149);
+                  L(var150);
+               } else {
+                  pc(53480, 1, 13);
+                  int var131 = mem(51321, 53480);
+                  A(var131);
+                  pc(53483, 1, 4);
+                  int var132 = L();
+                  int var133 = A();
+                  alu("cp", var133, var132);
+                  pc(53484, 1, 7);
+                  if(flag(64, true)) {
+                     tstates(5);
+                     pc(53492, 1, 17);
+                     $D567();
+                     pc(53495, 1, 4);
+                     int var141 = L();
+                     int var142 = alu("inc", var141);
+                     L(var142);
+                     pc(53496, 1, 12);
                   } else {
-                     pc(53525, 1);
-                     $D4B5();
+                     pc(53486, 2, 8);
+                     int var134 = B() | 4;
+                     B(var134);
+                     pc(53488, 1, 7);
+                     L(0);
+                     pc(53490, 1, 12);
                   }
                }
 
-               pc(53528, 1);
-               int var122 = B();
-               A(var122);
-               pc(53529, 1);
-               int var123 = A();
-               wMem(51316, var123, 53529);
-               pc(53532, 1);
-               int var124 = L();
-               A(var124);
-               pc(53533, 1);
-               int var125 = A();
-               wMem(51318, var125, 53533);
-               pc(53536, 1);
+               pc(53512, 2, 8);
+               int var135 = B();
+               bit(3, var135);
+               pc(53514, 1, 7);
+               if(flag(64, false)) {
+                  tstates(5);
+               } else {
+                  pc(53516, 2, 8);
+                  int var136 = B();
+                  bit(1, var136);
+                  pc(53518, 1, 7);
+                  if(flag(64, true)) {
+                     tstates(5);
+                     pc(53525, 1, 17);
+                     $D4B5();
+                  } else {
+                     pc(53520, 1, 17);
+                     $D3EC();
+                     pc(53523, 1, 12);
+                  }
+               }
+
+               pc(53528, 1, 4);
+               int var137 = B();
+               A(var137);
+               pc(53529, 1, 13);
+               int var138 = A();
+               wMem(51316, var138, 53529);
+               pc(53532, 1, 4);
+               int var139 = L();
+               A(var139);
+               pc(53533, 1, 13);
+               int var140 = A();
+               wMem(51318, var140, 53533);
+               pc(53536, 1, 10);
                $D1CE();
                return;
             }
 
-            pc(53264, 2);
-            int var134 = A();
-            bit(7, var134);
-            pc(53266, 1);
+            pc(53264, 2, 8);
+            int var151 = A();
+            bit(7, var151);
+            pc(53266, 1, 10);
             if(!flag(64, true)) {
-               label193: {
-                  pc(53269, 2);
-                  int var135 = A();
-                  bit(0, var135);
-                  pc(53271, 1);
-                  if(!flag(64, true)) {
-                     label191: {
-                        pc(53274, 2);
-                        int var164 = A();
-                        bit(6, var164);
-                        pc(53276, 1);
-                        if(flag(64, true)) {
-                           pc(53369, 1);
-                           HL(51318);
-                           pc(53372, 1);
-                           int var165 = HL();
-                           int var166 = mem(var165, 53372);
-                           A(var166);
-                           pc(53373, 1);
-                           int var167 = A();
-                           alu("cp", var167, 255);
-                           pc(53375, 1);
-                           if(!flag(64, true)) {
-                              pc(53377, 1);
-                              int var172 = HL();
-                              wMem(var172, 28, 53377);
-                           }
+               pc(53269, 2, 8);
+               int var152 = A();
+               bit(0, var152);
+               pc(53271, 1, 10);
+               if(!flag(64, true)) {
+                  pc(53274, 2, 8);
+                  int var181 = A();
+                  bit(6, var181);
+                  pc(53276, 1, 7);
+                  if(flag(64, true)) {
+                     tstates(5);
+                     pc(53369, 1, 10);
+                     HL(51318);
+                     pc(53372, 1, 7);
+                     int var207 = HL();
+                     int var208 = mem(var207, 53372);
+                     A(var208);
+                     pc(53373, 1, 7);
+                     int var209 = A();
+                     alu("cp", var209, 255);
+                     pc(53375, 1, 7);
+                     if(flag(64, true)) {
+                        tstates(5);
+                     } else {
+                        pc(53377, 1, 10);
+                        int var210 = HL();
+                        wMem(var210, 28, 53377);
+                     }
 
-                           pc(53379, 1);
-                           int var168 = HL();
-                           int var169 = mem(var168, 53379);
-                           int var170 = alu("inc", var169);
-                           int var171 = HL();
-                           wMem(var171, var170, 53379);
-                           pc(53380, 1);
-                           $D607();
-                           pc(53383, 1);
-                           $D1CE();
-                           return;
-                        }
+                     pc(53379, 1, 11);
+                     int var211 = HL();
+                     int var212 = mem(var211, 53379);
+                     int var213 = alu("inc", var212);
+                     int var214 = HL();
+                     wMem(var214, var213, 53379);
+                     pc(53380, 1, 17);
+                     $D607();
+                     pc(53383, 1, 10);
+                     $D1CE();
+                     return;
+                  }
 
-                        pc(53278, 1);
-                        $E9BC();
-                        pc(53281, 1);
-                        int var173 = C();
-                        A(var173);
-                        pc(53282, 1);
-                        int var174 = A();
-                        alu("cp", var174, 5);
-                        pc(53284, 1);
+                  pc(53278, 1, 17);
+                  $E9BC();
+                  pc(53281, 1, 4);
+                  int var182 = C();
+                  A(var182);
+                  pc(53282, 1, 7);
+                  int var183 = A();
+                  alu("cp", var183, 5);
+                  pc(53284, 1, 7);
+                  if(flag(64, false)) {
+                     tstates(5);
+                     pc(53366, 1, 10);
+                     $D1CE();
+                     return;
+                  }
+
+                  pc(53286, 1, 7);
+                  int var184 = A();
+                  alu("cp", var184, 4);
+                  pc(53288, 1, 7);
+                  if(flag(64, false)) {
+                     tstates(5);
+                     pc(53316, 1, 10);
+                     HL(51316);
+                     pc(53319, 2, 15);
+                     int var204 = HL();
+                     int var205 = mem(var204, 53319) | 1;
+                     int var206 = HL();
+                     wMem(var206, var205, 53319);
+                     pc(53321, 1, 12);
+                  } else {
+                     label236: {
+                        pc(53290, 1, 7);
+                        int var185 = A();
+                        alu("cp", var185, 3);
+                        pc(53292, 1, 7);
                         if(flag(64, false)) {
-                           pc(53366, 1);
-                           $D1CE();
-                           return;
-                        }
-
-                        label157: {
-                           pc(53286, 1);
-                           int var175 = A();
-                           alu("cp", var175, 4);
-                           pc(53288, 1);
+                           tstates(5);
+                        } else {
+                           pc(53294, 1, 7);
+                           int var186 = A();
+                           alu("cp", var186, 2);
+                           pc(53296, 1, 7);
                            if(!flag(64, false)) {
-                              pc(53290, 1);
-                              int var181 = A();
-                              alu("cp", var181, 3);
-                              pc(53292, 1);
+                              pc(53298, 1, 7);
+                              int var187 = A();
+                              alu("cp", var187, 1);
+                              pc(53300, 1, 7);
                               if(flag(64, false)) {
-                                 break label157;
-                              }
-
-                              pc(53294, 1);
-                              int var182 = A();
-                              alu("cp", var182, 2);
-                              pc(53296, 1);
-                              if(!flag(64, false)) {
-                                 pc(53298, 1);
-                                 int var190 = A();
-                                 alu("cp", var190, 1);
-                                 pc(53300, 1);
-                                 if(flag(64, false)) {
-                                    break label193;
-                                 }
-
-                                 pc(53302, 1);
-                                 pc(53323, 1);
-                                 int var191 = mem(51316, 53323);
-                                 A(var191);
-                                 pc(53326, 2);
-                                 int var192 = A();
-                                 bit(1, var192);
-                                 pc(53328, 1);
-                                 if(flag(64, false)) {
-                                    break label193;
-                                 }
-
-                                 pc(53330, 1);
-                                 int var193 = A();
-                                 int var194 = alu("and", var193, 32);
-                                 A(var194);
-                                 pc(53332, 1);
-                                 int var195 = A();
-                                 int var196 = alu("add", var195, 11);
-                                 A(var196);
-                                 pc(53334, 1);
-                                 int var197 = A();
-                                 wMem(51316, var197, 53334);
-                                 pc(53337, 1);
+                                 tstates(5);
                               } else {
-                                 pc(53339, 1);
-                                 int var183 = mem(51316, 53339);
-                                 A(var183);
-                                 pc(53342, 2);
-                                 int var184 = A();
-                                 bit(1, var184);
-                                 pc(53344, 1);
-                                 if(flag(64, true)) {
-                                    break label157;
+                                 pc(53302, 1, 12);
+                                 pc(53323, 1, 13);
+                                 int var188 = mem(51316, 53323);
+                                 A(var188);
+                                 pc(53326, 2, 8);
+                                 int var189 = A();
+                                 bit(1, var189);
+                                 pc(53328, 1, 7);
+                                 if(!flag(64, false)) {
+                                    pc(53330, 1, 7);
+                                    int var190 = A();
+                                    int var191 = alu("and", var190, 32);
+                                    A(var191);
+                                    pc(53332, 1, 7);
+                                    int var192 = A();
+                                    int var193 = alu("add", var192, 11);
+                                    A(var193);
+                                    pc(53334, 1, 13);
+                                    int var194 = A();
+                                    wMem(51316, var194, 53334);
+                                    pc(53337, 1, 12);
+                                    break label236;
                                  }
 
-                                 pc(53346, 1);
-                                 int var185 = A();
-                                 int var186 = alu("and", var185, 32);
-                                 A(var186);
-                                 pc(53348, 1);
-                                 int var187 = A();
-                                 int var188 = alu("add", var187, 9);
-                                 A(var188);
-                                 pc(53350, 1);
-                                 int var189 = A();
-                                 wMem(51316, var189, 53350);
+                                 tstates(5);
                               }
-                           } else {
-                              pc(53316, 1);
-                              HL(51316);
-                              pc(53319, 2);
-                              int var176 = HL();
-                              int var177 = mem(var176, 53319) | 1;
-                              int var178 = HL();
-                              wMem(var178, var177, 53319);
-                              pc(53321, 1);
+
+                              pc(53304, 1, 17);
+                              $D4B5();
+                              pc(53307, 1, 10);
+                              $D1CE();
+                              return;
                            }
 
-                           pc(53353, 1);
-                           A(12);
-                           pc(53355, 1);
-                           int var179 = A();
-                           wMem(53195, var179, 53355);
-                           pc(53358, 1);
-                           A(14);
-                           pc(53360, 1);
-                           int var180 = A();
-                           wMem(56301, var180, 53360);
-                           pc(53363, 1);
-                           break label191;
+                           tstates(5);
+                           pc(53339, 1, 13);
+                           int var197 = mem(51316, 53339);
+                           A(var197);
+                           pc(53342, 2, 8);
+                           int var198 = A();
+                           bit(1, var198);
+                           pc(53344, 1, 7);
+                           if(!flag(64, true)) {
+                              pc(53346, 1, 7);
+                              int var199 = A();
+                              int var200 = alu("and", var199, 32);
+                              A(var200);
+                              pc(53348, 1, 7);
+                              int var201 = A();
+                              int var202 = alu("add", var201, 9);
+                              A(var202);
+                              pc(53350, 1, 13);
+                              int var203 = A();
+                              wMem(51316, var203, 53350);
+                              break label236;
+                           }
+
+                           tstates(5);
                         }
 
-                        pc(53310, 1);
+                        pc(53310, 1, 17);
                         $D3EC();
-                        pc(53313, 1);
+                        pc(53313, 1, 10);
                         $D1CE();
                         return;
                      }
                   }
 
-                  pc(53539, 1);
-                  int var136 = mem(51318, 53539);
-                  A(var136);
-                  pc(53542, 1);
-                  int var137 = A();
-                  L(var137);
-                  pc(53543, 1);
-                  int var138 = mem(51316, 53543);
-                  A(var138);
-                  pc(53546, 1);
-                  int var139 = A();
-                  B(var139);
-                  pc(53547, 1);
-                  int var140 = mem(51319, 53547);
-                  A(var140);
-                  pc(53550, 1);
-                  int var141 = A();
-                  H(var141);
-                  pc(53551, 2);
-                  int var142 = B();
-                  bit(2, var142);
-                  pc(53553, 1);
-                  if(!flag(64, true)) {
-                     pc(53555, 1);
-                     int var155 = L();
-                     A(var155);
-                     pc(53556, 1);
-                     int var156 = H();
-                     int var157 = A();
-                     alu("cp", var157, var156);
-                     pc(53557, 1);
-                     if(!flag(64, true)) {
-                        pc(53559, 2);
-                        int var160 = B() | 4;
-                        B(var160);
-                        pc(53561, 1);
-                        L(0);
-                        pc(53563, 1);
-                        int var161 = HL();
-                        push(var161);
-                        pc(53564, 1);
-                        int var162 = mem(53195, 53564);
-                        A(var162);
-                        pc(53567, 1);
-                        $DB01();
-                        pc(53570, 1);
-                        int var163 = pop();
-                        HL(var163);
-                        pc(53571, 1);
-                     } else {
-                        pc(53573, 1);
-                        int var158 = L();
-                        int var159 = alu("inc", var158);
-                        L(var159);
-                        pc(53574, 1);
-                        $D567();
-                        pc(53577, 1);
-                     }
-                  } else {
-                     pc(53579, 1);
-                     int var143 = L();
-                     int var144 = alu("inc", var143);
-                     L(var144);
-                     pc(53580, 1);
-                     $D607();
-                     pc(53583, 1);
-                     int var145 = L();
-                     A(var145);
-                     pc(53584, 1);
-                     int var146 = H();
-                     int var147 = A();
-                     alu("cp", var147, var146);
-                     pc(53585, 1);
-                     if(!flag(64, true)) {
-                        pc(53587, 2);
-                        int var154 = B() & -2;
-                        B(var154);
-                     }
-                  }
-
-                  pc(53589, 2);
-                  int var148 = B();
-                  bit(3, var148);
-                  pc(53591, 1);
-                  if(!flag(64, false)) {
-                     pc(53593, 2);
-                     int var153 = B();
-                     bit(1, var153);
-                     pc(53595, 1);
-                     if(!flag(64, false)) {
-                        pc(53597, 1);
-                        $D4B5();
-                        pc(53600, 1);
-                     } else {
-                        pc(53602, 1);
-                        $D3EC();
-                     }
-                  }
-
-                  pc(53605, 1);
-                  int var149 = B();
-                  A(var149);
-                  pc(53606, 1);
-                  int var150 = A();
-                  wMem(51316, var150, 53606);
-                  pc(53609, 1);
-                  int var151 = L();
-                  A(var151);
-                  pc(53610, 1);
-                  int var152 = A();
-                  wMem(51318, var152, 53610);
-                  pc(53613, 1);
-                  $D1CE();
-                  return;
+                  pc(53353, 1, 7);
+                  A(12);
+                  pc(53355, 1, 13);
+                  int var195 = A();
+                  wMem(53195, var195, 53355);
+                  pc(53358, 1, 7);
+                  A(14);
+                  pc(53360, 1, 13);
+                  int var196 = A();
+                  wMem(56301, var196, 53360);
+                  pc(53363, 1, 10);
                }
 
-               pc(53304, 1);
-               $D4B5();
-               pc(53307, 1);
+               pc(53539, 1, 13);
+               int var153 = mem(51318, 53539);
+               A(var153);
+               pc(53542, 1, 4);
+               int var154 = A();
+               L(var154);
+               pc(53543, 1, 13);
+               int var155 = mem(51316, 53543);
+               A(var155);
+               pc(53546, 1, 4);
+               int var156 = A();
+               B(var156);
+               pc(53547, 1, 13);
+               int var157 = mem(51319, 53547);
+               A(var157);
+               pc(53550, 1, 4);
+               int var158 = A();
+               H(var158);
+               pc(53551, 2, 8);
+               int var159 = B();
+               bit(2, var159);
+               pc(53553, 1, 7);
+               if(flag(64, true)) {
+                  tstates(5);
+                  pc(53579, 1, 4);
+                  int var175 = L();
+                  int var176 = alu("inc", var175);
+                  L(var176);
+                  pc(53580, 1, 17);
+                  $D607();
+                  pc(53583, 1, 4);
+                  int var177 = L();
+                  A(var177);
+                  pc(53584, 1, 4);
+                  int var178 = H();
+                  int var179 = A();
+                  alu("cp", var179, var178);
+                  pc(53585, 1, 7);
+                  if(flag(64, true)) {
+                     tstates(5);
+                  } else {
+                     pc(53587, 2, 8);
+                     int var180 = B() & -2;
+                     B(var180);
+                  }
+               } else {
+                  pc(53555, 1, 4);
+                  int var160 = L();
+                  A(var160);
+                  pc(53556, 1, 4);
+                  int var161 = H();
+                  int var162 = A();
+                  alu("cp", var162, var161);
+                  pc(53557, 1, 7);
+                  if(flag(64, true)) {
+                     tstates(5);
+                     pc(53573, 1, 4);
+                     int var173 = L();
+                     int var174 = alu("inc", var173);
+                     L(var174);
+                     pc(53574, 1, 17);
+                     $D567();
+                     pc(53577, 1, 12);
+                  } else {
+                     pc(53559, 2, 8);
+                     int var163 = B() | 4;
+                     B(var163);
+                     pc(53561, 1, 7);
+                     L(0);
+                     pc(53563, 1, 11);
+                     int var164 = HL();
+                     push(var164);
+                     pc(53564, 1, 13);
+                     int var165 = mem(53195, 53564);
+                     A(var165);
+                     pc(53567, 1, 17);
+                     $DB01();
+                     pc(53570, 1, 10);
+                     int var166 = pop();
+                     HL(var166);
+                     pc(53571, 1, 12);
+                  }
+               }
+
+               pc(53589, 2, 8);
+               int var167 = B();
+               bit(3, var167);
+               pc(53591, 1, 7);
+               if(flag(64, false)) {
+                  tstates(5);
+               } else {
+                  pc(53593, 2, 8);
+                  int var168 = B();
+                  bit(1, var168);
+                  pc(53595, 1, 7);
+                  if(flag(64, false)) {
+                     tstates(5);
+                     pc(53602, 1, 17);
+                     $D3EC();
+                  } else {
+                     pc(53597, 1, 17);
+                     $D4B5();
+                     pc(53600, 1, 12);
+                  }
+               }
+
+               pc(53605, 1, 4);
+               int var169 = B();
+               A(var169);
+               pc(53606, 1, 13);
+               int var170 = A();
+               wMem(51316, var170, 53606);
+               pc(53609, 1, 4);
+               int var171 = L();
+               A(var171);
+               pc(53610, 1, 13);
+               int var172 = A();
+               wMem(51318, var172, 53610);
+               pc(53613, 1, 12);
                $D1CE();
                return;
             }
          }
 
-         pc(56302, 1);
+         pc(56302, 1, 10);
          HL(55946);
-         pc(56305, 2);
+         pc(56305, 2, 15);
          int var5 = HL();
          int var6 = mem(var5, 56305) & -3;
          int var7 = HL();
          wMem(var7, var6, 56305);
-         pc(56307, 1);
+         pc(56307, 1, 10);
          HL(51316);
-         pc(56310, 2);
+         pc(56310, 2, 15);
          int var8 = HL();
          int var9 = mem(var8, 56310) & -33;
          int var10 = HL();
          wMem(var10, var9, 56310);
-         pc(56312, 1);
+         pc(56312, 1, 4);
          int var11 = A();
          int var12 = A();
          int var13 = alu("xor", var12, var11);
          A(var13);
-         pc(56313, 1);
+         pc(56313, 1, 13);
          int var14 = A();
          wMem(51328, var14, 56313);
-         pc(56316, 1);
+         pc(56316, 1, 10);
          HL(56301);
-         pc(56319, 1);
+         pc(56319, 1, 11);
          int var15 = HL();
          int var16 = mem(var15, 56319);
          int var17 = alu("dec", var16);
          int var18 = HL();
          wMem(var18, var17, 56319);
-         pc(56320, 1);
-         if(!flag(64, true)) {
-            pc(56322, 1);
-            HL(61027);
-            pc(56325, 1);
-            $DB0B();
-            pc(56328, 1);
-         } else {
-            pc(56330, 1);
-            int var19 = HL();
-            int var20 = mem(var19, 56330);
-            A(var20);
-            pc(56331, 1);
-            int var21 = A();
-            alu("cp", var21, 15);
-            pc(56333, 1);
+         pc(56320, 1, 7);
+         if(flag(64, true)) {
+            tstates(5);
+            pc(56330, 1, 7);
+            int var58 = HL();
+            int var59 = mem(var58, 56330);
+            A(var59);
+            pc(56331, 1, 7);
+            int var60 = A();
+            alu("cp", var60, 15);
+            pc(56333, 1, 7);
             if(!flag(1, true)) {
-               pc(56335, 1);
-               int var62 = mem(51314, 56335);
-               A(var62);
-               pc(56338, 1);
+               pc(56335, 1, 13);
+               int var61 = mem(51314, 56335);
+               A(var61);
+               pc(56338, 1, 17);
                $D61E();
-               pc(56341, 1);
+               pc(56341, 1, 10);
                $D1CE();
                return;
             }
+
+            tstates(5);
+         } else {
+            pc(56322, 1, 10);
+            HL(61027);
+            pc(56325, 1, 17);
+            $DB0B();
+            pc(56328, 1, 12);
          }
 
-         pc(56344, 1);
-         int var22 = A();
-         alu("cp", var22, 220);
-         pc(56346, 1);
-         if(!flag(64, true)) {
-            pc(56348, 1);
-            A(14);
-            pc(56350, 1);
-            int var46 = A();
-            wMem(56301, var46, 56350);
-            pc(56353, 1);
-            HL(51326);
-            pc(56356, 2);
-            int var47 = HL();
-            int var48 = mem(var47, 56356);
-            bit(6, var48);
-            pc(56358, 1);
-            if(!flag(64, false)) {
-               pc(56360, 2);
-               int var50 = HL();
-               int var51 = mem(var50, 56360);
-               bit(1, var51);
-               pc(56362, 1);
-               if(!flag(64, true)) {
-                  pc(56364, 2);
-                  int var52 = HL();
-                  int var53 = mem(var52, 56364) & -65;
-                  int var54 = HL();
-                  wMem(var54, var53, 56364);
-                  pc(56366, 1);
-                  HL(4118);
-                  pc(56369, 1);
-                  int var55 = HL();
-                  wMem16(51314, var55, 56369);
-                  pc(56372, 1);
-                  HL(51316);
-                  pc(56375, 1);
-                  int var56 = HL();
-                  int var57 = mem(var56, 56375);
-                  A(var57);
-                  pc(56376, 1);
-                  int var58 = A();
-                  int var59 = alu("and", var58, 2);
-                  A(var59);
-                  pc(56378, 1);
-                  int var60 = A();
-                  int var61 = HL();
-                  wMem(var61, var60, 56378);
-                  pc(56379, 1);
-                  A(43);
-                  pc(56381, 1);
-                  $CBBD();
-                  pc(56384, 1);
-                  return;
-               }
-            }
-
-            pc(56385, 1);
-            int var49 = pop();
-            HL(var49);
-            pc(56386, 1);
-            $CDDA();
-         } else {
-            pc(56389, 1);
-            int var23 = mem(56301, 56389);
-            A(var23);
-            pc(56392, 1);
-            int var24 = A();
-            int var25 = alu("cpl", var24);
-            A(var25);
-            pc(56393, 2);
-            int var26 = A();
-            int var27 = alu("srl", var26);
-            A(var27);
-            pc(56395, 1);
-            int var28 = A();
-            alu("cp", var28, 12);
-            pc(56397, 1);
-            if(!flag(1, false)) {
-               pc(56399, 1);
+         pc(56344, 1, 7);
+         int var19 = A();
+         alu("cp", var19, 220);
+         pc(56346, 1, 7);
+         if(flag(64, true)) {
+            tstates(5);
+            pc(56389, 1, 13);
+            int var35 = mem(56301, 56389);
+            A(var35);
+            pc(56392, 1, 4);
+            int var36 = A();
+            int var37 = alu("cpl", var36);
+            A(var37);
+            pc(56393, 2, 8);
+            int var38 = A();
+            int var39 = alu("srl", var38);
+            A(var39);
+            pc(56395, 1, 7);
+            int var40 = A();
+            alu("cp", var40, 12);
+            pc(56397, 1, 7);
+            if(flag(1, false)) {
+               tstates(5);
+            } else {
+               pc(56399, 1, 7);
                A(11);
             }
 
-            pc(56401, 1);
-            int var29 = A();
-            int var30 = A();
-            int var31 = alu("add", var30, var29);
-            A(var31);
-            pc(56402, 1);
-            int var32 = A();
-            int var33 = A();
-            int var34 = alu("add", var33, var32);
-            A(var34);
-            pc(56403, 1);
-            int var35 = A();
-            int var36 = A();
-            int var37 = alu("add", var36, var35);
-            A(var37);
-            pc(56404, 1);
-            int var38 = A();
-            C(var38);
-            pc(56405, 1);
-            B(0);
-            pc(56407, 1);
-            HL(62597);
-            pc(56410, 1);
-            int var39 = BC();
-            int var40 = HL();
-            int var41 = alu("add16", var40, var39);
-            HL(var41);
-            pc(56411, 1);
-            int var42 = mem(51315, 56411);
-            A(var42);
-            pc(56414, 1);
-            int var43 = A();
-            int var44 = alu("inc", var43);
-            A(var44);
-            pc(56415, 1);
+            pc(56401, 1, 4);
+            int var41 = A();
+            int var42 = A();
+            int var43 = alu("add", var42, var41);
+            A(var43);
+            pc(56402, 1, 4);
+            int var44 = A();
             int var45 = A();
-            D(var45);
-            pc(56416, 1);
+            int var46 = alu("add", var45, var44);
+            A(var46);
+            pc(56403, 1, 4);
+            int var47 = A();
+            int var48 = A();
+            int var49 = alu("add", var48, var47);
+            A(var49);
+            pc(56404, 1, 4);
+            int var50 = A();
+            C(var50);
+            pc(56405, 1, 7);
+            B(0);
+            pc(56407, 1, 10);
+            HL(62597);
+            pc(56410, 1, 11);
+            int var51 = BC();
+            int var52 = HL();
+            int var53 = alu("add16", var52, var51);
+            HL(var53);
+            pc(56411, 1, 13);
+            int var54 = mem(51315, 56411);
+            A(var54);
+            pc(56414, 1, 4);
+            int var55 = A();
+            int var56 = alu("inc", var55);
+            A(var56);
+            pc(56415, 1, 4);
+            int var57 = A();
+            D(var57);
+            pc(56416, 1, 7);
             E(18);
-            pc(56418, 1);
+            pc(56418, 1, 10);
             BC(257);
-            pc(56421, 1);
+            pc(56421, 1, 17);
             $E87A();
-            pc(56424, 1);
+            pc(56424, 1, 10);
+         } else {
+            pc(56348, 1, 7);
+            A(14);
+            pc(56350, 1, 13);
+            int var20 = A();
+            wMem(56301, var20, 56350);
+            pc(56353, 1, 10);
+            HL(51326);
+            pc(56356, 2, 12);
+            int var21 = HL();
+            int var22 = mem(var21, 56356);
+            bit(6, var22);
+            pc(56358, 1, 7);
+            if(flag(64, false)) {
+               tstates(5);
+               pc(56385, 1, 10);
+               throw new StackException(56386);
+            } else {
+               pc(56360, 2, 12);
+               int var23 = HL();
+               int var24 = mem(var23, 56360);
+               bit(1, var24);
+               pc(56362, 1, 7);
+               if(flag(64, true)) {
+                  tstates(5);
+                  pc(56385, 1, 10);
+                  throw new StackException(56386);
+               } else {
+                  pc(56364, 2, 15);
+                  int var25 = HL();
+                  int var26 = mem(var25, 56364) & -65;
+                  int var27 = HL();
+                  wMem(var27, var26, 56364);
+                  pc(56366, 1, 10);
+                  HL(4118);
+                  pc(56369, 1, 16);
+                  int var28 = HL();
+                  wMem16(51314, var28, 56369);
+                  pc(56372, 1, 10);
+                  HL(51316);
+                  pc(56375, 1, 7);
+                  int var29 = HL();
+                  int var30 = mem(var29, 56375);
+                  A(var30);
+                  pc(56376, 1, 7);
+                  int var31 = A();
+                  int var32 = alu("and", var31, 2);
+                  A(var32);
+                  pc(56378, 1, 7);
+                  int var33 = A();
+                  int var34 = HL();
+                  wMem(var34, var33, 56378);
+                  pc(56379, 1, 7);
+                  A(43);
+                  pc(56381, 1, 17);
+                  $CBBD();
+                  pc(56384, 1, 10);
+               }
+            }
          }
       }
    }
 
    public void $D1B2() {
-      label21: {
-         pc(53682, 1);
+      label24: {
+         pc(53682, 1, 4);
          int var1 = D();
          A(var1);
-         pc(53683, 1);
+         pc(53683, 1, 7);
          int var2 = A();
          alu("cp", var2, 5);
-         pc(53685, 1);
-         if(!flag(64, true)) {
-            pc(53687, 1);
-            int var11 = E();
-            A(var11);
-            pc(53688, 1);
-            int var12 = A();
-            alu("cp", var12, 72);
-            pc(53690, 1);
+         pc(53685, 1, 7);
+         if(flag(64, true)) {
+            tstates(5);
+         } else {
+            pc(53687, 1, 4);
+            int var3 = E();
+            A(var3);
+            pc(53688, 1, 7);
+            int var4 = A();
+            alu("cp", var4, 72);
+            pc(53690, 1, 7);
             if(!flag(64, true)) {
-               pc(53692, 1);
-               break label21;
+               pc(53692, 1, 12);
+               break label24;
             }
+
+            tstates(5);
          }
 
-         pc(53694, 1);
-         int var3 = D();
-         A(var3);
-         pc(53695, 1);
-         int var4 = A();
-         alu("cp", var4, 45);
-         pc(53697, 1);
+         pc(53694, 1, 4);
+         int var9 = D();
+         A(var9);
+         pc(53695, 1, 7);
+         int var10 = A();
+         alu("cp", var10, 45);
+         pc(53697, 1, 5);
          if(flag(64, true)) {
+            tstates(6);
             return;
          }
 
-         pc(53698, 1);
-         int var5 = E();
-         A(var5);
-         pc(53699, 1);
-         int var6 = A();
-         alu("cp", var6, 64);
-         pc(53701, 1);
+         pc(53698, 1, 4);
+         int var11 = E();
+         A(var11);
+         pc(53699, 1, 7);
+         int var12 = A();
+         alu("cp", var12, 64);
+         pc(53701, 1, 5);
          if(flag(64, true)) {
+            tstates(6);
             return;
          }
       }
 
-      pc(53702, 1);
+      pc(53702, 1, 7);
       C(100);
-      pc(53704, 1);
-      int var7 = B();
+      pc(53704, 1, 4);
+      int var5 = B();
+      A(var5);
+      pc(53705, 1, 7);
+      int var6 = A();
+      int var7 = alu("xor", var6, 1);
       A(var7);
-      pc(53705, 1);
+      pc(53707, 1, 4);
       int var8 = A();
-      int var9 = alu("xor", var8, 1);
-      A(var9);
-      pc(53707, 1);
-      int var10 = A();
-      B(var10);
-      pc(53708, 1);
+      B(var8);
+      pc(53708, 1, 10);
    }
 
    public void $D1CE() {
-      pc(53710, 1);
+      pc(53710, 1, 13);
       int var1 = mem(51328, 53710);
       A(var1);
-      pc(53713, 2);
+      pc(53713, 2, 8);
       int var2 = A();
       bit(0, var2);
-      pc(53715, 1);
-      if(!flag(64, false)) {
-         pc(53717, 1);
-         DE(25302);
-         pc(53720, 1);
-      } else {
-         pc(53722, 1);
-         int var3 = mem(51317, 53722);
-         A(var3);
-         pc(53725, 1);
-         int var4 = A();
-         int var5 = A();
-         int var6 = alu("add", var5, var4);
-         A(var6);
-         pc(53726, 1);
-         int var7 = A();
-         C(var7);
-         pc(53727, 1);
+      pc(53715, 1, 7);
+      if(flag(64, false)) {
+         tstates(5);
+         pc(53722, 1, 13);
+         int var132 = mem(51317, 53722);
+         A(var132);
+         pc(53725, 1, 4);
+         int var133 = A();
+         int var134 = A();
+         int var135 = alu("add", var134, var133);
+         A(var135);
+         pc(53726, 1, 4);
+         int var136 = A();
+         C(var136);
+         pc(53727, 1, 7);
          B(0);
-         pc(53729, 1);
+         pc(53729, 1, 10);
          HL(25386);
-         pc(53732, 1);
-         int var8 = BC();
-         int var9 = HL();
-         int var10 = alu("add16", var9, var8);
-         HL(var10);
-         pc(53733, 1);
-         int var11 = HL();
-         int var12 = mem(var11, 53733);
-         E(var12);
-         pc(53734, 1);
-         int var13 = HL();
-         int var14 = inc16(var13);
-         HL(var14);
-         pc(53735, 1);
-         int var15 = HL();
-         int var16 = mem(var15, 53735);
-         D(var16);
+         pc(53732, 1, 11);
+         int var137 = BC();
+         int var138 = HL();
+         int var139 = alu("add16", var138, var137);
+         HL(var139);
+         pc(53733, 1, 7);
+         int var140 = HL();
+         int var141 = mem(var140, 53733);
+         E(var141);
+         pc(53734, 1, 6);
+         int var142 = HL();
+         int var143 = inc16(var142);
+         HL(var143);
+         pc(53735, 1, 7);
+         int var144 = HL();
+         int var145 = mem(var144, 53735);
+         D(var145);
+      } else {
+         pc(53717, 1, 10);
+         DE(25302);
+         pc(53720, 1, 12);
       }
 
-      pc(53736, 1);
+      pc(53736, 1, 10);
       HL(25302);
-      pc(53739, 1);
+      pc(53739, 1, 4);
       exx();
-      pc(53740, 2);
-      int var17 = mem16(51314, 53740);
-      DE(var17);
-      pc(53744, 1);
-      int var18 = mem(56301, 53744);
-      A(var18);
-      pc(53747, 1);
-      int var19 = A();
-      B(var19);
+      pc(53740, 2, 20);
+      int var3 = mem16(51314, 53740);
+      DE(var3);
+      pc(53744, 1, 13);
+      int var4 = mem(56301, 53744);
+      A(var4);
+      pc(53747, 1, 4);
+      int var5 = A();
+      B(var5);
 
-      do {
-         pc(53748, 1);
-         int var20 = BC();
-         push(var20);
-         pc(53749, 1);
-         int var21 = DE();
-         push(var21);
-         pc(53750, 1);
+      while(true) {
+         pc(53748, 1, 11);
+         int var6 = BC();
+         push(var6);
+         pc(53749, 1, 11);
+         int var7 = DE();
+         push(var7);
+         pc(53750, 1, 17);
          $E8D2();
-         pc(53753, 1);
-         int var22 = DE();
-         push(var22);
-         pc(53754, 1);
+         pc(53753, 1, 11);
+         int var8 = DE();
+         push(var8);
+         pc(53754, 1, 17);
          $E90C();
-         pc(53757, 1);
+         pc(53757, 1, 4);
          exHLDE();
-         pc(53758, 1);
-         int var23 = pop();
-         DE(var23);
-         pc(53759, 1);
+         pc(53758, 1, 10);
+         int var9 = pop();
+         DE(var9);
+         pc(53759, 1, 7);
          C(2);
 
-         do {
-            pc(53761, 1);
-            int var24 = DE();
-            push(var24);
-            pc(53762, 1);
-            int var25 = HL();
-            push(var25);
-            pc(53763, 1);
+         while(true) {
+            pc(53761, 1, 11);
+            int var10 = DE();
+            push(var10);
+            pc(53762, 1, 11);
+            int var11 = HL();
+            push(var11);
+            pc(53763, 1, 7);
             B(3);
 
-            label115:
+            label131:
             while(true) {
                while(true) {
-                  pc(53765, 1);
-                  int var26 = HL();
-                  int var27 = mem(var26, 53765);
-                  A(var27);
-                  pc(53766, 1);
-                  int var28 = A();
-                  alu("cp", var28, 69);
-                  pc(53768, 1);
-                  if(!flag(64, true)) {
-                     pc(53770, 1);
-                     exx();
-                     pc(53771, 1);
-                     int var141 = A();
-                     int var142 = A();
-                     int var143 = alu("xor", var142, var141);
-                     A(var143);
-                     pc(53772, 1);
-                     int var144 = A();
-                     int var145 = HL();
-                     wMem(var145, var144, 53772);
-                     pc(53773, 1);
-                     exx();
-                     pc(53774, 1);
+                  pc(53765, 1, 7);
+                  int var12 = HL();
+                  int var13 = mem(var12, 53765);
+                  A(var13);
+                  pc(53766, 1, 7);
+                  int var14 = A();
+                  alu("cp", var14, 69);
+                  pc(53768, 1, 7);
+                  if(flag(64, true)) {
+                     tstates(5);
+                     pc(53776, 1, 4);
+                     int var94 = A();
+                     int var95 = A();
+                     int var96 = alu("and", var95, var94);
+                     A(var96);
+                     pc(53777, 1, 7);
+                     if(!flag(64, true)) {
+                        pc(53779, 1, 4);
+                        exx();
+                        pc(53780, 1, 12);
+                        break;
+                     }
+
+                     tstates(5);
+                     pc(53782, 1, 7);
+                     int var124 = A();
+                     int var125 = alu("and", var124, 120);
+                     A(var125);
+                     pc(53784, 1, 7);
+                     int var126 = A();
+                     alu("cp", var126, 64);
+                     pc(53786, 1, 7);
+                     if(!flag(64, true)) {
+                        pc(53788, 1, 4);
+                        exx();
+                        pc(53789, 1, 4);
+                        int var127 = A();
+                        int var128 = A();
+                        int var129 = alu("xor", var128, var127);
+                        A(var129);
+                        pc(53790, 1, 7);
+                        int var130 = A();
+                        int var131 = HL();
+                        wMem(var131, var130, 53790);
+                        break;
+                     }
+
+                     tstates(5);
                   } else {
-                     pc(53776, 1);
-                     int var29 = A();
-                     int var30 = A();
-                     int var31 = alu("and", var30, var29);
-                     A(var31);
-                     pc(53777, 1);
-                     if(!flag(64, true)) {
-                        pc(53779, 1);
-                        exx();
-                        pc(53780, 1);
-                        break;
-                     }
-
-                     pc(53782, 1);
-                     int var32 = A();
-                     int var33 = alu("and", var32, 120);
-                     A(var33);
-                     pc(53784, 1);
-                     int var34 = A();
-                     alu("cp", var34, 64);
-                     pc(53786, 1);
-                     if(!flag(64, true)) {
-                        pc(53788, 1);
-                        exx();
-                        pc(53789, 1);
-                        int var109 = A();
-                        int var110 = A();
-                        int var111 = alu("xor", var110, var109);
-                        A(var111);
-                        pc(53790, 1);
-                        int var112 = A();
-                        int var113 = HL();
-                        wMem(var113, var112, 53790);
-                        break;
-                     }
+                     pc(53770, 1, 4);
+                     exx();
+                     pc(53771, 1, 4);
+                     int var15 = A();
+                     int var16 = A();
+                     int var17 = alu("xor", var16, var15);
+                     A(var17);
+                     pc(53772, 1, 7);
+                     int var18 = A();
+                     int var19 = HL();
+                     wMem(var19, var18, 53772);
+                     pc(53773, 1, 4);
+                     exx();
+                     pc(53774, 1, 12);
                   }
 
-                  pc(53816, 1);
+                  pc(53816, 1, 4);
                   exx();
-                  pc(53817, 1);
-                  int var35 = DE();
-                  int var36 = mem(var35, 53817);
-                  A(var36);
-                  pc(53818, 1);
-                  int var37 = HL();
-                  int var38 = mem(var37, 53818);
-                  int var39 = A();
-                  int var40 = alu("or", var39, var38);
-                  A(var40);
-                  pc(53819, 1);
-                  int var41 = DE();
-                  int var42 = inc16(var41);
-                  DE(var42);
-                  pc(53820, 1);
-                  int var43 = HL();
-                  int var44 = inc16(var43);
-                  HL(var44);
-                  pc(53821, 1);
+                  pc(53817, 1, 7);
+                  int var20 = DE();
+                  int var21 = mem(var20, 53817);
+                  A(var21);
+                  pc(53818, 1, 7);
+                  int var22 = HL();
+                  int var23 = mem(var22, 53818);
+                  int var24 = A();
+                  int var25 = alu("or", var24, var23);
+                  A(var25);
+                  pc(53819, 1, 6);
+                  int var26 = DE();
+                  int var27 = inc16(var26);
+                  DE(var27);
+                  pc(53820, 1, 6);
+                  int var28 = HL();
+                  int var29 = inc16(var28);
+                  HL(var29);
+                  pc(53821, 1, 4);
                   exx();
-                  pc(53822, 1);
-                  int var45 = A();
-                  int var46 = DE();
-                  wMem(var46, var45, 53822);
-                  pc(53823, 1);
-                  int var47 = DE();
-                  int var48 = inc16(var47);
-                  DE(var48);
-                  pc(53824, 1);
-                  int var49 = L();
-                  int var50 = alu("inc", var49);
-                  L(var50);
-                  pc(53825, 1);
-                  int var51 = B() - 1 & 255;
-                  B(var51);
+                  pc(53822, 1, 7);
+                  int var30 = A();
+                  int var31 = DE();
+                  wMem(var31, var30, 53822);
+                  pc(53823, 1, 6);
+                  int var32 = DE();
+                  int var33 = inc16(var32);
+                  DE(var33);
+                  pc(53824, 1, 4);
+                  int var34 = L();
+                  int var35 = alu("inc", var34);
+                  L(var35);
+                  pc(53825, 1, 8);
+                  int var36 = B() - 1 & 255;
+                  B(var36);
                   if(B() == 0) {
-                     break label115;
+                     break label131;
                   }
+
+                  tstates(5);
                }
 
-               pc(53791, 1);
-               int var114 = DE();
-               int var115 = mem(var114, 53791);
-               A(var115);
-               pc(53792, 1);
-               int var116 = DE();
-               int var117 = inc16(var116);
-               DE(var117);
-               pc(53793, 1);
-               int var118 = HL();
-               int var119 = inc16(var118);
-               HL(var119);
-               pc(53794, 1);
+               pc(53791, 1, 7);
+               int var97 = DE();
+               int var98 = mem(var97, 53791);
+               A(var98);
+               pc(53792, 1, 6);
+               int var99 = DE();
+               int var100 = inc16(var99);
+               DE(var100);
+               pc(53793, 1, 6);
+               int var101 = HL();
+               int var102 = inc16(var101);
+               HL(var102);
+               pc(53794, 1, 4);
                exx();
-               pc(53795, 1);
+               pc(53795, 1, 4);
                exHLDE();
-               pc(53796, 1);
-               int var120 = AF();
-               push(var120);
-               pc(53797, 1);
-               int var121 = HL();
-               int var122 = mem(var121, 53797);
-               int var123 = A();
-               int var124 = alu("and", var123, var122);
-               A(var124);
-               pc(53798, 1);
-               if(!flag(64, false)) {
-                  pc(53800, 1);
-                  int var137 = DE();
-                  int var138 = mem(var137, 53800);
-                  A(var138);
-                  pc(53801, 2);
-                  int var139 = A() | 128;
-                  A(var139);
-                  pc(53803, 1);
-                  int var140 = A();
-                  wMem(53709, var140, 53803);
+               pc(53796, 1, 11);
+               int var103 = AF();
+               push(var103);
+               pc(53797, 1, 7);
+               int var104 = HL();
+               int var105 = mem(var104, 53797);
+               int var106 = A();
+               int var107 = alu("and", var106, var105);
+               A(var107);
+               pc(53798, 1, 7);
+               if(flag(64, false)) {
+                  tstates(5);
+               } else {
+                  pc(53800, 1, 7);
+                  int var108 = DE();
+                  int var109 = mem(var108, 53800);
+                  A(var109);
+                  pc(53801, 2, 8);
+                  int var110 = A() | 128;
+                  A(var110);
+                  pc(53803, 1, 13);
+                  int var111 = A();
+                  wMem(53709, var111, 53803);
                }
 
-               pc(53806, 1);
-               int var125 = pop();
-               AF(var125);
-               pc(53807, 1);
-               int var126 = HL();
-               int var127 = mem(var126, 53807);
-               int var128 = A();
-               int var129 = alu("or", var128, var127);
-               A(var129);
-               pc(53808, 1);
+               pc(53806, 1, 10);
+               int var112 = pop();
+               AF(var112);
+               pc(53807, 1, 7);
+               int var113 = HL();
+               int var114 = mem(var113, 53807);
+               int var115 = A();
+               int var116 = alu("or", var115, var114);
+               A(var116);
+               pc(53808, 1, 4);
                exHLDE();
-               pc(53809, 1);
-               int var130 = A();
-               int var131 = DE();
-               wMem(var131, var130, 53809);
-               pc(53810, 1);
-               int var132 = DE();
-               int var133 = inc16(var132);
-               DE(var133);
-               pc(53811, 1);
-               int var134 = L();
-               int var135 = alu("inc", var134);
-               L(var135);
-               pc(53812, 1);
-               int var136 = B() - 1 & 255;
-               B(var136);
+               pc(53809, 1, 7);
+               int var117 = A();
+               int var118 = DE();
+               wMem(var118, var117, 53809);
+               pc(53810, 1, 6);
+               int var119 = DE();
+               int var120 = inc16(var119);
+               DE(var120);
+               pc(53811, 1, 4);
+               int var121 = L();
+               int var122 = alu("inc", var121);
+               L(var122);
+               pc(53812, 1, 8);
+               int var123 = B() - 1 & 255;
+               B(var123);
                if(B() == 0) {
-                  pc(53814, 1);
+                  pc(53814, 1, 12);
                   break;
                }
+
+               tstates(5);
             }
 
-            pc(53827, 1);
-            int var52 = pop();
-            HL(var52);
-            pc(53828, 1);
-            int var53 = pop();
-            DE(var53);
-            pc(53829, 1);
-            int var54 = D();
-            int var55 = alu("inc", var54);
-            D(var55);
-            pc(53830, 1);
-            int var56 = C();
-            int var57 = alu("dec", var56);
-            C(var57);
-            pc(53831, 1);
-         } while(flag(64, true));
-
-         pc(53833, 1);
-         int var58 = pop();
-         DE(var58);
-         pc(53834, 1);
-         int var59 = E();
-         int var60 = alu("inc", var59);
-         E(var60);
-         pc(53835, 1);
-         int var61 = E();
-         int var62 = alu("inc", var61);
-         E(var62);
-         pc(53836, 1);
-         int var63 = pop();
-         BC(var63);
-         pc(53837, 1);
-         int var64 = B() - 1 & 255;
-         B(var64);
-      } while(B() != 0);
-
-      pc(53839, 1);
-      HL(53709);
-      pc(53842, 2);
-      int var65 = HL();
-      int var66 = mem(var65, 53842);
-      bit(7, var66);
-      pc(53844, 1);
-      if(!flag(64, false)) {
-         pc(53845, 2);
-         int var67 = HL();
-         int var68 = mem(var67, 53845) & -129;
-         int var69 = HL();
-         wMem(var69, var68, 53845);
-         pc(53847, 1);
-         int var70 = HL();
-         int var71 = mem(var70, 53847);
-         A(var71);
-         pc(53848, 1);
-         int var72 = A();
-         int var73 = A();
-         int var74 = alu("and", var73, var72);
-         A(var74);
-         pc(53849, 1);
-         if(flag(64, false)) {
-            $DE87();
-         } else {
-            pc(53852, 1);
-            int var75 = mem(53194, 53852);
-            A(var75);
-            pc(53855, 1);
-            int var76 = A();
-            alu("cp", var76, 27);
-            pc(53857, 1);
+            pc(53827, 1, 10);
+            int var37 = pop();
+            HL(var37);
+            pc(53828, 1, 10);
+            int var38 = pop();
+            DE(var38);
+            pc(53829, 1, 4);
+            int var39 = D();
+            int var40 = alu("inc", var39);
+            D(var40);
+            pc(53830, 1, 4);
+            int var41 = C();
+            int var42 = alu("dec", var41);
+            C(var42);
+            pc(53831, 1, 7);
             if(!flag(64, true)) {
-               pc(53859, 1);
-               int var106 = mem(53709, 53859);
-               A(var106);
-               pc(53862, 1);
-               int var107 = A();
-               alu("cp", var107, 67);
-               pc(53864, 1);
-               if(flag(64, false)) {
-                  $CD8A();
+               pc(53833, 1, 10);
+               int var43 = pop();
+               DE(var43);
+               pc(53834, 1, 4);
+               int var44 = E();
+               int var45 = alu("inc", var44);
+               E(var45);
+               pc(53835, 1, 4);
+               int var46 = E();
+               int var47 = alu("inc", var46);
+               E(var47);
+               pc(53836, 1, 10);
+               int var48 = pop();
+               BC(var48);
+               pc(53837, 1, 8);
+               int var49 = B() - 1 & 255;
+               B(var49);
+               if(B() == 0) {
+                  pc(53839, 1, 10);
+                  HL(53709);
+                  pc(53842, 2, 12);
+                  int var50 = HL();
+                  int var51 = mem(var50, 53842);
+                  bit(7, var51);
+                  pc(53844, 1, 5);
+                  if(flag(64, false)) {
+                     tstates(6);
+                     return;
+                  }
+
+                  pc(53845, 2, 15);
+                  int var52 = HL();
+                  int var53 = mem(var52, 53845) & -129;
+                  int var54 = HL();
+                  wMem(var54, var53, 53845);
+                  pc(53847, 1, 7);
+                  int var55 = HL();
+                  int var56 = mem(var55, 53847);
+                  A(var56);
+                  pc(53848, 1, 4);
+                  int var57 = A();
+                  int var58 = A();
+                  int var59 = alu("and", var58, var57);
+                  A(var59);
+                  pc(53849, 1, 10);
+                  if(flag(64, false)) {
+                     $DE87();
+                     return;
+                  }
+
+                  pc(53852, 1, 13);
+                  int var60 = mem(53194, 53852);
+                  A(var60);
+                  pc(53855, 1, 7);
+                  int var61 = A();
+                  alu("cp", var61, 27);
+                  pc(53857, 1, 7);
+                  if(flag(64, true)) {
+                     tstates(5);
+                  } else {
+                     pc(53859, 1, 13);
+                     int var62 = mem(53709, 53859);
+                     A(var62);
+                     pc(53862, 1, 7);
+                     int var63 = A();
+                     alu("cp", var63, 67);
+                     pc(53864, 1, 10);
+                     if(flag(64, false)) {
+                        $CD8A();
+                        return;
+                     }
+
+                     pc(53867, 1, 7);
+                     int var64 = A();
+                     alu("cp", var64, 71);
+                     pc(53869, 1, 10);
+                     if(flag(64, false)) {
+                        $CD8A();
+                        return;
+                     }
+                  }
+
+                  pc(53872, 1, 13);
+                  int var65 = mem(51326, 53872);
+                  A(var65);
+                  pc(53875, 2, 8);
+                  int var66 = A();
+                  bit(5, var66);
+                  pc(53877, 1, 7);
+                  if(flag(64, false)) {
+                     tstates(5);
+                     pc(53894, 1, 17);
+                     $CD8A();
+                  } else {
+                     pc(53879, 1, 10);
+                     HL(65137);
+                     pc(53882, 1, 17);
+                     $DB0B();
+                     pc(53885, 1, 7);
+                     A(20);
+                     pc(53887, 1, 10);
+                     HL(51307);
+                     pc(53890, 1, 7);
+                     int var67 = HL();
+                     int var68 = mem(var67, 53890);
+                     int var69 = A();
+                     int var70 = alu("add", var69, var68);
+                     A(var70);
+                     pc(53891, 1, 7);
+                     int var71 = A();
+                     int var72 = HL();
+                     wMem(var72, var71, 53891);
+                     pc(53892, 1, 12);
+                  }
+
+                  pc(53897, 2, 19);
+                  int var73 = IX() + 7;
+                  int var74 = mem(var73, 53897);
+                  L(var74);
+                  pc(53900, 2, 19);
+                  int var75 = IX() + 8;
+                  int var76 = mem(var75, 53900);
+                  H(var76);
+                  pc(53903, 1, 10);
+                  DE(6);
+                  pc(53906, 1, 11);
+                  int var77 = DE();
+                  int var78 = HL();
+                  int var79 = alu("add16", var78, var77);
+                  HL(var79);
+                  pc(53907, 1, 11);
+                  int var80 = HL();
+                  push(var80);
+                  pc(53908, 2, 14);
+                  int var81 = pop();
+                  IY(var81);
+                  pc(53910, 2, 20);
+                  int var82 = mem16(57048, 53910);
+                  BC(var82);
+                  pc(53914, 1, 13);
+                  int var83 = mem(58688, 53914);
+                  A(var83);
+
+                  try {
+                     pc(53917, 1, 17);
+                     $D2BF();
+                  } catch (StackException var146) {
+                     if(var146.getNextPC() == 53999) {
+                        HL(53920);
+                        pc(53999, 1, 10);
+                        return;
+                     }
+
+                     throw var146;
+                  }
+
+                  pc(53920, 2, 20);
+                  int var85 = mem16(57290, 53920);
+                  BC(var85);
+                  pc(53924, 1, 13);
+                  int var86 = mem(58689, 53924);
+                  A(var86);
+
+                  try {
+                     pc(53927, 1, 17);
+                     $D2BF();
+                  } catch (StackException var148) {
+                     if(var148.getNextPC() == 53999) {
+                        HL(53930);
+                        pc(53999, 1, 10);
+                        return;
+                     }
+
+                     throw var148;
+                  }
+
+                  pc(53930, 2, 20);
+                  int var88 = mem16(57532, 53930);
+                  BC(var88);
+                  pc(53934, 1, 13);
+                  int var89 = mem(58690, 53934);
+                  A(var89);
+
+                  try {
+                     pc(53937, 1, 17);
+                     $D2BF();
+                  } catch (StackException var149) {
+                     if(var149.getNextPC() == 53999) {
+                        HL(53940);
+                        pc(53999, 1, 10);
+                        return;
+                     }
+
+                     throw var149;
+                  }
+
+                  pc(53940, 2, 20);
+                  int var91 = mem16(58110, 53940);
+                  BC(var91);
+                  pc(53944, 1, 13);
+                  int var92 = mem(58691, 53944);
+                  A(var92);
+
+                  try {
+                     pc(53947, 1, 17);
+                     $D2BF();
+                  } catch (StackException var147) {
+                     if(var147.getNextPC() == 53999) {
+                        HL(53950);
+                        pc(53999, 1, 10);
+                        return;
+                     }
+
+                     throw var147;
+                  }
+
+                  pc(53950, 1, 10);
                   return;
                }
 
-               pc(53867, 1);
-               int var108 = A();
-               alu("cp", var108, 71);
-               pc(53869, 1);
-               if(flag(64, false)) {
-                  $CD8A();
-                  return;
-               }
+               tstates(5);
+               break;
             }
 
-            pc(53872, 1);
-            int var77 = mem(51326, 53872);
-            A(var77);
-            pc(53875, 2);
-            int var78 = A();
-            bit(5, var78);
-            pc(53877, 1);
-            if(!flag(64, false)) {
-               pc(53879, 1);
-               HL(65137);
-               pc(53882, 1);
-               $DB0B();
-               pc(53885, 1);
-               A(20);
-               pc(53887, 1);
-               HL(51307);
-               pc(53890, 1);
-               int var100 = HL();
-               int var101 = mem(var100, 53890);
-               int var102 = A();
-               int var103 = alu("add", var102, var101);
-               A(var103);
-               pc(53891, 1);
-               int var104 = A();
-               int var105 = HL();
-               wMem(var105, var104, 53891);
-               pc(53892, 1);
-            } else {
-               pc(53894, 1);
-               $CD8A();
-            }
-
-            pc(53897, 2);
-            int var79 = IX() + 7;
-            int var80 = mem(var79, 53897);
-            L(var80);
-            pc(53900, 2);
-            int var81 = IX() + 8;
-            int var82 = mem(var81, 53900);
-            H(var82);
-            pc(53903, 1);
-            DE(6);
-            pc(53906, 1);
-            int var83 = DE();
-            int var84 = HL();
-            int var85 = alu("add16", var84, var83);
-            HL(var85);
-            pc(53907, 1);
-            int var86 = HL();
-            push(var86);
-            pc(53908, 2);
-            int var87 = pop();
-            IY(var87);
-            pc(53910, 2);
-            int var88 = mem16(57048, 53910);
-            BC(var88);
-            pc(53914, 1);
-            int var89 = mem(58688, 53914);
-            A(var89);
-
-            try {
-               pc(53917, 1);
-               $D2BF();
-            } catch (StackException var146) {
-               if(var146.getNextPC() == 53999) {
-                  HL(53920);
-                  pc(53999, 1);
-                  return;
-               }
-
-               throw var146;
-            }
-
-            pc(53920, 2);
-            int var91 = mem16(57290, 53920);
-            BC(var91);
-            pc(53924, 1);
-            int var92 = mem(58689, 53924);
-            A(var92);
-
-            try {
-               pc(53927, 1);
-               $D2BF();
-            } catch (StackException var148) {
-               if(var148.getNextPC() == 53999) {
-                  HL(53930);
-                  pc(53999, 1);
-                  return;
-               }
-
-               throw var148;
-            }
-
-            pc(53930, 2);
-            int var94 = mem16(57532, 53930);
-            BC(var94);
-            pc(53934, 1);
-            int var95 = mem(58690, 53934);
-            A(var95);
-
-            try {
-               pc(53937, 1);
-               $D2BF();
-            } catch (StackException var147) {
-               if(var147.getNextPC() == 53999) {
-                  HL(53940);
-                  pc(53999, 1);
-                  return;
-               }
-
-               throw var147;
-            }
-
-            pc(53940, 2);
-            int var97 = mem16(58110, 53940);
-            BC(var97);
-            pc(53944, 1);
-            int var98 = mem(58691, 53944);
-            A(var98);
-
-            try {
-               pc(53947, 1);
-               $D2BF();
-            } catch (StackException var149) {
-               if(var149.getNextPC() == 53999) {
-                  HL(53950);
-                  pc(53999, 1);
-                  return;
-               }
-
-               throw var149;
-            }
-
-            pc(53950, 1);
+            tstates(5);
          }
       }
    }
 
    public void $D2BF() {
-      pc(53951, 1);
+      pc(53951, 1, 4);
       int var1 = A();
       int var2 = A();
       int var3 = alu("and", var2, var1);
       A(var3);
-      pc(53952, 1);
-      if(!flag(64, false)) {
-         pc(53953, 1);
+      pc(53952, 1, 5);
+      if(flag(64, false)) {
+         tstates(6);
+      } else {
+         pc(53953, 1, 4);
          int var4 = A();
          L(var4);
 
-         do {
-            pc(53954, 1);
+         while(true) {
+            pc(53954, 1, 13);
             int var5 = mem(53709, 53954);
             A(var5);
-            pc(53957, 2);
+            pc(53957, 2, 19);
             int var6 = IY() + 5;
             int var7 = mem(var6, 53957);
             int var8 = A();
             alu("cp", var8, var7);
-            pc(53960, 1);
-            if(!flag(64, true)) {
-               pc(53962, 2);
-               int var14 = IY() + 0;
-               int var15 = mem(var14, 53962);
-               E(var15);
-               pc(53965, 2);
-               int var16 = IY() + 1;
-               int var17 = mem(var16, 53965);
-               D(var17);
-               pc(53968, 1);
+            pc(53960, 1, 7);
+            if(flag(64, true)) {
+               tstates(5);
+            } else {
+               pc(53962, 2, 19);
+               int var9 = IY() + 0;
+               int var10 = mem(var9, 53962);
+               E(var10);
+               pc(53965, 2, 19);
+               int var11 = IY() + 1;
+               int var12 = mem(var11, 53965);
+               D(var12);
+               pc(53968, 1, 17);
                $DB38();
-               pc(53971, 1);
+               pc(53971, 1, 7);
                if(flag(1, false)) {
-                  pc(53982, 2);
+                  tstates(5);
+                  pc(53982, 2, 19);
                   int var18 = IY() + 1;
                   int var19 = mem(var18, 53982);
                   D(var19);
-                  pc(53985, 2);
+                  pc(53985, 2, 19);
                   int var20 = IY() + 0;
                   int var21 = mem(var20, 53985);
                   A(var21);
-                  pc(53988, 1);
+                  pc(53988, 1, 4);
                   int var22 = C();
                   int var23 = A();
                   int var24 = alu("add", var23, var22);
                   A(var24);
-                  pc(53989, 1);
+                  pc(53989, 1, 4);
                   int var25 = A();
                   int var26 = alu("dec", var25);
                   A(var26);
-                  pc(53990, 1);
+                  pc(53990, 1, 4);
                   int var27 = A();
                   E(var27);
-                  pc(53991, 2);
+                  pc(53991, 2, 23);
                   int var28 = IY() + 4;
                   int var29 = mem(var28, 53991) | 64;
                   wMem(var28, var29, 53991);
-                  pc(53995, 1);
+                  pc(53995, 1, 17);
                   $E897();
-                  pc(53998, 1);
+                  pc(53998, 1, 10);
                   throw new StackException(53999);
                }
             }
 
-            pc(53973, 1);
+            pc(53973, 1, 10);
             DE(8);
-            pc(53976, 2);
-            int var9 = DE();
-            int var10 = IY();
-            int var11 = alu("add16", var10, var9);
-            IY(var11);
-            pc(53978, 1);
-            int var12 = L();
-            int var13 = alu("dec", var12);
-            L(var13);
-            pc(53979, 1);
-         } while(flag(64, true));
+            pc(53976, 2, 15);
+            int var13 = DE();
+            int var14 = IY();
+            int var15 = alu("add16", var14, var13);
+            IY(var15);
+            pc(53978, 1, 4);
+            int var16 = L();
+            int var17 = alu("dec", var16);
+            L(var17);
+            pc(53979, 1, 7);
+            if(!flag(64, true)) {
+               pc(53981, 1, 10);
+               return;
+            }
 
-         pc(53981, 1);
+            tstates(5);
+         }
       }
    }
 
    public void $D2EF() {
-      pc(53999, 1);
+      pc(53999, 1, 10);
    }
 
    public void $D378() {
-      pc(54136, 1);
+      pc(54136, 1, 10);
       HL(54188);
-      pc(54139, 1);
+      pc(54139, 1, 17);
       $ED06();
-      pc(54142, 1);
+      pc(54142, 1, 10);
       HL(54228);
-      pc(54145, 1);
+      pc(54145, 1, 17);
       runJumps(61169);
-      pc(54148, 1);
+      pc(54148, 1, 7);
       A(79);
-      pc(54150, 1);
+      pc(54150, 1, 10);
       BC(2049);
-      pc(54153, 1);
+      pc(54153, 1, 10);
       DE(22);
-      pc(54156, 1);
+      pc(54156, 1, 17);
       $E8BA();
-      pc(54159, 1);
+      pc(54159, 1, 10);
       BC(2562);
-      pc(54162, 1);
+      pc(54162, 1, 10);
       DE(2582);
-      pc(54165, 1);
+      pc(54165, 1, 17);
       $E8BA();
-      pc(54168, 1);
+      pc(54168, 1, 10);
       HL(23264);
-      pc(54171, 1);
+      pc(54171, 1, 7);
       B(7);
 
-      do {
-         pc(54173, 1);
+      while(true) {
+         pc(54173, 1, 7);
          int var1 = B();
          int var2 = HL();
          wMem(var2, var1, 54173);
-         pc(54174, 1);
+         pc(54174, 1, 4);
          int var3 = L();
          int var4 = alu("inc", var3);
          L(var4);
-         pc(54175, 1);
+         pc(54175, 1, 8);
          int var5 = B() - 1 & 255;
          B(var5);
-      } while(B() != 0);
+         if(B() == 0) {
+            pc(54177, 1, 7);
+            int var6 = B();
+            int var7 = HL();
+            wMem(var7, var6, 54177);
+            pc(54178, 1, 10);
+            HL(51493);
+            pc(54181, 1, 10);
+            DE(20944);
+            pc(54184, 1, 17);
+            runJumps(61177);
+            pc(54187, 1, 10);
+            return;
+         }
 
-      pc(54177, 1);
-      int var6 = B();
-      int var7 = HL();
-      wMem(var7, var6, 54177);
-      pc(54178, 1);
-      HL(51493);
-      pc(54181, 1);
-      DE(20944);
-      pc(54184, 1);
-      runJumps(61177);
-      pc(54187, 1);
+         tstates(5);
+      }
    }
 
    public void $D3EC() {
-      label56: {
-         label55: {
-            label54: {
-               pc(54252, 1);
+      label69: {
+         label68: {
+            label67: {
+               pc(54252, 1, 4);
                exx();
-               pc(54253, 1);
+               pc(54253, 1, 13);
                int var1 = mem(51317, 54253);
                A(var1);
-               pc(54256, 1);
+               pc(54256, 1, 4);
                int var2 = A();
                H(var2);
-               pc(54257, 1);
+               pc(54257, 1, 13);
                int var3 = mem(51315, 54257);
                A(var3);
-               pc(54260, 1);
+               pc(54260, 1, 4);
                int var4 = A();
                L(var4);
-               pc(54261, 1);
+               pc(54261, 1, 13);
                int var5 = mem(51316, 54261);
                A(var5);
-               pc(54264, 2);
+               pc(54264, 2, 8);
                int var6 = A();
                bit(1, var6);
-               pc(54266, 1);
-               if(!flag(64, false)) {
-                  pc(54268, 2);
-                  int var76 = A() & -3;
-                  A(var76);
-                  pc(54270, 1);
-                  int var77 = A();
-                  wMem(51316, var77, 54270);
-                  pc(54273, 1);
-                  int var78 = H();
-                  A(var78);
-                  pc(54274, 1);
-                  int var79 = A();
-                  alu("cp", var79, 2);
-                  pc(54276, 1);
-                  if(!flag(1, false)) {
-                     pc(54278, 1);
-                     int var87 = H();
-                     int var88 = alu("inc", var87);
-                     H(var88);
-                     pc(54279, 1);
-                     int var89 = H();
-                     int var90 = alu("inc", var89);
-                     H(var90);
-                     pc(54280, 1);
-                     break label55;
-                  }
-
-                  pc(54283, 1);
-                  int var80 = A();
-                  int var81 = alu("add", var80, 6);
-                  A(var81);
-                  pc(54285, 1);
-                  int var82 = A();
-                  H(var82);
-                  pc(54286, 1);
-                  int var83 = L();
-                  int var84 = alu("dec", var83);
-                  L(var84);
-                  pc(54287, 1);
-                  int var85 = L();
-                  A(var85);
-                  pc(54288, 1);
-                  int var86 = A();
-                  alu("cp", var86, 255);
-                  pc(54290, 1);
-                  if(flag(64, false)) {
-                     break label56;
-                  }
-
-                  pc(54292, 1);
-               } else {
-                  pc(54295, 1);
-                  int var7 = H();
-                  A(var7);
-                  pc(54296, 1);
-                  int var8 = A();
-                  alu("cp", var8, 5);
-                  pc(54298, 1);
+               pc(54266, 1, 7);
+               if(flag(64, false)) {
+                  tstates(5);
+                  pc(54295, 1, 4);
+                  int var74 = H();
+                  A(var74);
+                  pc(54296, 1, 7);
+                  int var75 = A();
+                  alu("cp", var75, 5);
+                  pc(54298, 1, 7);
                   if(!flag(64, true)) {
-                     pc(54300, 1);
-                     int var70 = HL();
-                     push(var70);
-                     pc(54301, 1);
-                     int var71 = L();
-                     D(var71);
-                     pc(54302, 1);
+                     pc(54300, 1, 11);
+                     int var76 = HL();
+                     push(var76);
+                     pc(54301, 1, 4);
+                     int var77 = L();
+                     D(var77);
+                     pc(54302, 1, 17);
                      $D951();
-                     pc(54305, 1);
-                     int var72 = pop();
-                     HL(var72);
-                     pc(54306, 1);
+                     pc(54305, 1, 10);
+                     int var78 = pop();
+                     HL(var78);
+                     pc(54306, 1, 7);
                      if(!flag(64, true)) {
-                        pc(54308, 1);
+                        pc(54308, 1, 4);
                         exx();
-                        pc(54309, 2);
-                        int var73 = B() & -9;
-                        B(var73);
-                        pc(54311, 2);
-                        int var74 = B() & -17;
-                        B(var74);
-                        pc(54313, 2);
-                        int var75 = B();
-                        bit(0, var75);
-                        pc(54315, 1);
-                        if(!flag(64, true)) {
-                           pc(54317, 1);
+                        pc(54309, 2, 8);
+                        int var79 = B() & -9;
+                        B(var79);
+                        pc(54311, 2, 8);
+                        int var80 = B() & -17;
+                        B(var80);
+                        pc(54313, 2, 8);
+                        int var81 = B();
+                        bit(0, var81);
+                        pc(54315, 1, 7);
+                        if(flag(64, true)) {
+                           tstates(5);
+                        } else {
+                           pc(54317, 1, 7);
                            L(0);
                         }
 
-                        pc(54319, 1);
+                        pc(54319, 1, 4);
                         exx();
-                        pc(54320, 1);
-                        break label55;
+                        pc(54320, 1, 12);
+                        break label68;
                      }
-                     break label54;
+
+                     tstates(5);
+                     break label67;
                   }
 
-                  pc(54322, 1);
-                  int var9 = A();
-                  alu("cp", var9, 4);
-                  pc(54324, 1);
+                  tstates(5);
+                  pc(54322, 1, 7);
+                  int var84 = A();
+                  alu("cp", var84, 4);
+                  pc(54324, 1, 7);
                   if(flag(64, true)) {
-                     break label54;
+                     tstates(5);
+                     break label67;
                   }
 
-                  pc(54326, 1);
-                  int var16 = L();
-                  A(var16);
-                  pc(54327, 1);
-                  int var17 = A();
-                  int var18 = A();
-                  int var19 = alu("and", var18, var17);
-                  A(var19);
-                  pc(54328, 1);
+                  pc(54326, 1, 4);
+                  int var85 = L();
+                  A(var85);
+                  pc(54327, 1, 4);
+                  int var86 = A();
+                  int var87 = A();
+                  int var88 = alu("and", var87, var86);
+                  A(var88);
+                  pc(54328, 1, 7);
                   if(!flag(64, true)) {
-                     break label56;
+                     break label69;
                   }
 
-                  pc(54411, 1);
-                  int var20 = L();
-                  int var21 = alu("dec", var20);
-                  L(var21);
-                  pc(54412, 1);
+                  tstates(5);
+                  pc(54411, 1, 4);
+                  int var89 = L();
+                  int var90 = alu("dec", var89);
+                  L(var90);
+                  pc(54412, 1, 7);
                   H(7);
+               } else {
+                  pc(54268, 2, 8);
+                  int var7 = A() & -3;
+                  A(var7);
+                  pc(54270, 1, 13);
+                  int var8 = A();
+                  wMem(51316, var8, 54270);
+                  pc(54273, 1, 4);
+                  int var9 = H();
+                  A(var9);
+                  pc(54274, 1, 7);
+                  int var10 = A();
+                  alu("cp", var10, 2);
+                  pc(54276, 1, 7);
+                  if(!flag(1, false)) {
+                     pc(54278, 1, 4);
+                     int var11 = H();
+                     int var12 = alu("inc", var11);
+                     H(var12);
+                     pc(54279, 1, 4);
+                     int var13 = H();
+                     int var14 = alu("inc", var13);
+                     H(var14);
+                     pc(54280, 1, 10);
+                     break label68;
+                  }
+
+                  tstates(5);
+                  pc(54283, 1, 7);
+                  int var19 = A();
+                  int var20 = alu("add", var19, 6);
+                  A(var20);
+                  pc(54285, 1, 4);
+                  int var21 = A();
+                  H(var21);
+                  pc(54286, 1, 4);
+                  int var22 = L();
+                  int var23 = alu("dec", var22);
+                  L(var23);
+                  pc(54287, 1, 4);
+                  int var24 = L();
+                  A(var24);
+                  pc(54288, 1, 7);
+                  int var25 = A();
+                  alu("cp", var25, 255);
+                  pc(54290, 1, 7);
+                  if(flag(64, false)) {
+                     tstates(5);
+                     break label69;
+                  }
+
+                  pc(54292, 1, 10);
                }
 
-               pc(54414, 1);
-               int var22 = HL();
-               push(var22);
-               pc(54415, 1);
+               pc(54414, 1, 11);
+               int var26 = HL();
+               push(var26);
+               pc(54415, 1, 10);
                HL(25302);
-               pc(54418, 1);
+               pc(54418, 1, 10);
                BC(83);
-               pc(54421, 1);
-               int var23 = BC();
-               int var24 = HL();
-               int var25 = alu("add16", var24, var23);
-               HL(var25);
-               pc(54422, 1);
-               int var26 = L();
-               E(var26);
-               pc(54423, 1);
-               int var27 = H();
-               D(var27);
-               pc(54424, 1);
+               pc(54421, 1, 11);
+               int var27 = BC();
                int var28 = HL();
-               int var29 = dec16(var28);
+               int var29 = alu("add16", var28, var27);
                HL(var29);
-               pc(54425, 2);
+               pc(54422, 1, 4);
+               int var30 = L();
+               E(var30);
+               pc(54423, 1, 4);
+               int var31 = H();
+               D(var31);
+               pc(54424, 1, 6);
+               int var32 = HL();
+               int var33 = dec16(var32);
+               HL(var33);
+               pc(54425, 2, 21);
                lddr(54425);
-               pc(54427, 1);
-               int var30 = HL();
-               int var31 = inc16(var30);
-               HL(var31);
-               pc(54428, 2);
-               int var32 = mem16(51314, 54428);
-               DE(var32);
-               pc(54432, 1);
-               int var33 = D();
-               int var34 = alu("dec", var33);
-               D(var34);
-               pc(54433, 1);
-               $D550();
-               pc(54436, 1);
-               int var35 = pop();
+               pc(54427, 1, 6);
+               int var34 = HL();
+               int var35 = inc16(var34);
                HL(var35);
-               break label55;
+               pc(54428, 2, 20);
+               int var36 = mem16(51314, 54428);
+               DE(var36);
+               pc(54432, 1, 4);
+               int var37 = D();
+               int var38 = alu("dec", var37);
+               D(var38);
+               pc(54433, 1, 17);
+               $D550();
+               pc(54436, 1, 10);
+               int var39 = pop();
+               HL(var39);
+               break label68;
             }
 
-            pc(54402, 1);
-            int var10 = H();
-            int var11 = alu("dec", var10);
-            H(var11);
-            pc(54403, 1);
+            pc(54402, 1, 4);
+            int var82 = H();
+            int var83 = alu("dec", var82);
+            H(var83);
+            pc(54403, 1, 10);
             BC(239);
-            pc(54406, 1);
+            pc(54406, 1, 17);
             $D4AF();
-            pc(54409, 1);
+            pc(54409, 1, 12);
          }
 
-         pc(54437, 1);
-         int var12 = H();
-         A(var12);
-         pc(54438, 1);
-         int var13 = A();
-         wMem(51317, var13, 54438);
-         pc(54441, 1);
-         int var14 = L();
-         A(var14);
-         pc(54442, 1);
-         int var15 = A();
-         wMem(51315, var15, 54442);
-         pc(54445, 1);
+         pc(54437, 1, 4);
+         int var15 = H();
+         A(var15);
+         pc(54438, 1, 13);
+         int var16 = A();
+         wMem(51317, var16, 54438);
+         pc(54441, 1, 4);
+         int var17 = L();
+         A(var17);
+         pc(54442, 1, 13);
+         int var18 = A();
+         wMem(51315, var18, 54442);
+         pc(54445, 1, 4);
          exx();
-         pc(54446, 1);
+         pc(54446, 1, 10);
          return;
       }
 
-      pc(54330, 1);
+      pc(54330, 1, 7);
       A(29);
-      pc(54332, 1);
-      int var36 = A();
-      wMem(51315, var36, 54332);
-      pc(54335, 1);
-      A(7);
-      pc(54337, 1);
-      int var37 = A();
-      wMem(51317, var37, 54337);
-      pc(54340, 1);
-      int var38 = mem(53194, 54340);
-      A(var38);
-      pc(54343, 1);
-      int var39 = A();
-      B(var39);
-      pc(54344, 1);
+      pc(54332, 1, 13);
       int var40 = A();
-      int var41 = alu("and", var40, 7);
-      A(var41);
-      pc(54346, 1);
-      int var42 = A();
-      alu("cp", var42, 7);
-      pc(54348, 1);
-      if(!flag(64, true)) {
-         pc(54350, 1);
-         int var67 = B();
-         A(var67);
-         pc(54351, 1);
-         int var68 = A();
-         int var69 = alu("sub", var68, 7);
-         A(var69);
-         pc(54353, 1);
+      wMem(51315, var40, 54332);
+      pc(54335, 1, 7);
+      A(7);
+      pc(54337, 1, 13);
+      int var41 = A();
+      wMem(51317, var41, 54337);
+      pc(54340, 1, 13);
+      int var42 = mem(53194, 54340);
+      A(var42);
+      pc(54343, 1, 4);
+      int var43 = A();
+      B(var43);
+      pc(54344, 1, 7);
+      int var44 = A();
+      int var45 = alu("and", var44, 7);
+      A(var45);
+      pc(54346, 1, 7);
+      int var46 = A();
+      alu("cp", var46, 7);
+      pc(54348, 1, 7);
+      if(flag(64, true)) {
+         tstates(5);
+         pc(54355, 1, 4);
+         int var71 = B();
+         A(var71);
+         pc(54356, 1, 4);
+         int var72 = A();
+         int var73 = alu("inc", var72);
+         A(var73);
       } else {
-         pc(54355, 1);
-         int var43 = B();
-         A(var43);
-         pc(54356, 1);
-         int var44 = A();
-         int var45 = alu("inc", var44);
-         A(var45);
+         pc(54350, 1, 4);
+         int var47 = B();
+         A(var47);
+         pc(54351, 1, 7);
+         int var48 = A();
+         int var49 = alu("sub", var48, 7);
+         A(var49);
+         pc(54353, 1, 12);
       }
 
-      pc(54357, 1);
-      int var46 = AF();
-      push(var46);
-      pc(54358, 1);
+      pc(54357, 1, 11);
+      int var50 = AF();
+      push(var50);
+      pc(54358, 1, 17);
       $CBBD();
-      pc(54361, 1);
-      int var47 = mem(55786, 54361);
-      A(var47);
-      pc(54364, 1);
-      int var48 = A();
-      int var49 = alu("inc", var48);
-      A(var49);
-      pc(54365, 1);
-      int var50 = A();
-      alu("cp", var50, 8);
-      pc(54367, 1);
-      if(!flag(64, true)) {
-         pc(54369, 1);
-         int var64 = A();
-         int var65 = A();
-         int var66 = alu("xor", var65, var64);
-         A(var66);
+      pc(54361, 1, 13);
+      int var51 = mem(55786, 54361);
+      A(var51);
+      pc(54364, 1, 4);
+      int var52 = A();
+      int var53 = alu("inc", var52);
+      A(var53);
+      pc(54365, 1, 7);
+      int var54 = A();
+      alu("cp", var54, 8);
+      pc(54367, 1, 7);
+      if(flag(64, true)) {
+         tstates(5);
+      } else {
+         pc(54369, 1, 4);
+         int var55 = A();
+         int var56 = A();
+         int var57 = alu("xor", var56, var55);
+         A(var57);
       }
 
-      pc(54370, 1);
-      int var51 = pop();
-      BC(var51);
-      pc(54371, 1);
-      int var52 = B();
-      int var53 = A();
-      alu("cp", var53, var52);
-      pc(54372, 1);
-      if(!flag(64, true)) {
-         pc(54374, 1);
-         int var55 = mem(55785, 54374);
-         A(var55);
-         pc(54377, 1);
-         int var56 = A();
-         int var57 = alu("add", var56, 3);
-         A(var57);
-         pc(54379, 1);
-         int var58 = A();
-         alu("cp", var58, 5);
-         pc(54381, 1);
-         if(!flag(1, true)) {
-            pc(54383, 1);
-            int var59 = A();
-            int var60 = alu("add", var59, 27);
-            A(var60);
-            pc(54385, 1);
-            int var61 = A();
-            wMem(55785, var61, 54385);
-            pc(54388, 1);
-            int var62 = B();
-            A(var62);
-            pc(54389, 1);
-            int var63 = A();
-            wMem(55786, var63, 54389);
+      pc(54370, 1, 10);
+      int var58 = pop();
+      BC(var58);
+      pc(54371, 1, 4);
+      int var59 = B();
+      int var60 = A();
+      alu("cp", var60, var59);
+      pc(54372, 1, 7);
+      if(flag(64, true)) {
+         tstates(5);
+      } else {
+         pc(54374, 1, 13);
+         int var61 = mem(55785, 54374);
+         A(var61);
+         pc(54377, 1, 7);
+         int var62 = A();
+         int var63 = alu("add", var62, 3);
+         A(var63);
+         pc(54379, 1, 7);
+         int var64 = A();
+         alu("cp", var64, 5);
+         pc(54381, 1, 7);
+         if(flag(1, true)) {
+            tstates(5);
+         } else {
+            pc(54383, 1, 7);
+            int var65 = A();
+            int var66 = alu("add", var65, 27);
+            A(var66);
+            pc(54385, 1, 13);
+            int var67 = A();
+            wMem(55785, var67, 54385);
+            pc(54388, 1, 4);
+            int var68 = B();
+            A(var68);
+            pc(54389, 1, 13);
+            int var69 = A();
+            wMem(55786, var69, 54389);
          }
       }
 
-      pc(54392, 1);
+      pc(54392, 1, 7);
       A(1);
-      pc(54394, 1);
-      int var54 = A();
-      wMem(55787, var54, 54394);
-      pc(54397, 1);
+      pc(54394, 1, 13);
+      int var70 = A();
+      wMem(55787, var70, 54394);
+      pc(54397, 1, 17);
       $D9EC();
-      pc(54400, 1);
+      pc(54400, 1, 4);
       exx();
-      pc(54401, 1);
+      pc(54401, 1, 10);
    }
 
    public void $D4AF() {
-      do {
-         pc(54447, 1);
+      while(true) {
+         pc(54447, 1, 6);
          int var1 = BC();
          int var2 = dec16(var1);
          BC(var2);
-         pc(54448, 1);
+         pc(54448, 1, 4);
          int var3 = B();
          A(var3);
-         pc(54449, 1);
+         pc(54449, 1, 4);
          int var4 = C();
          int var5 = A();
          int var6 = alu("or", var5, var4);
          A(var6);
-         pc(54450, 1);
-      } while(flag(64, true));
+         pc(54450, 1, 7);
+         if(!flag(64, true)) {
+            pc(54452, 1, 10);
+            return;
+         }
 
-      pc(54452, 1);
+         tstates(5);
+      }
    }
 
    public void $D4B5() {
-      label48: {
-         label45: {
-            label44: {
-               pc(54453, 1);
+      label56: {
+         label55: {
+            label54: {
+               pc(54453, 1, 4);
                exx();
-               pc(54454, 1);
+               pc(54454, 1, 13);
                int var1 = mem(51317, 54454);
                A(var1);
-               pc(54457, 1);
+               pc(54457, 1, 4);
                int var2 = A();
                H(var2);
-               pc(54458, 1);
+               pc(54458, 1, 13);
                int var3 = mem(51315, 54458);
                A(var3);
-               pc(54461, 1);
+               pc(54461, 1, 4);
                int var4 = A();
                L(var4);
-               pc(54462, 1);
+               pc(54462, 1, 13);
                int var5 = mem(51316, 54462);
                A(var5);
-               pc(54465, 2);
+               pc(54465, 2, 8);
                int var6 = A();
                bit(1, var6);
-               pc(54467, 1);
-               if(!flag(64, true)) {
-                  pc(54469, 2);
-                  int var62 = A() | 2;
-                  A(var62);
-                  pc(54471, 1);
-                  int var63 = A();
-                  wMem(51316, var63, 54471);
-                  pc(54474, 1);
-                  int var64 = H();
-                  A(var64);
-                  pc(54475, 1);
-                  int var65 = A();
-                  alu("cp", var65, 6);
-                  pc(54477, 1);
-                  if(!flag(1, true)) {
-                     pc(54479, 1);
-                     int var73 = H();
-                     int var74 = alu("dec", var73);
-                     H(var74);
-                     pc(54480, 1);
-                     int var75 = H();
-                     int var76 = alu("dec", var75);
-                     H(var76);
-                     pc(54481, 1);
-                     break label48;
-                  }
-
-                  pc(54484, 1);
-                  int var66 = A();
-                  int var67 = alu("sub", var66, 6);
-                  A(var67);
-                  pc(54486, 1);
-                  int var68 = A();
-                  H(var68);
-                  pc(54487, 1);
-                  int var69 = L();
-                  int var70 = alu("inc", var69);
-                  L(var70);
-                  pc(54488, 1);
-                  int var71 = L();
-                  A(var71);
-                  pc(54489, 1);
-                  int var72 = A();
-                  alu("cp", var72, 30);
-                  pc(54491, 1);
-                  if(flag(64, false)) {
-                     break label45;
-                  }
-
-                  pc(54493, 1);
-               } else {
-                  pc(54495, 1);
-                  int var7 = H();
-                  A(var7);
-                  pc(54496, 1);
-                  int var8 = A();
-                  alu("cp", var8, 2);
-                  pc(54498, 1);
+               pc(54467, 1, 7);
+               if(flag(64, true)) {
+                  tstates(5);
+                  pc(54495, 1, 4);
+                  int var58 = H();
+                  A(var58);
+                  pc(54496, 1, 7);
+                  int var59 = A();
+                  alu("cp", var59, 2);
+                  pc(54498, 1, 7);
                   if(!flag(64, true)) {
-                     pc(54500, 1);
-                     int var52 = L();
-                     D(var52);
-                     pc(54501, 1);
-                     int var53 = D();
-                     int var54 = alu("inc", var53);
-                     D(var54);
-                     pc(54502, 1);
-                     int var55 = D();
-                     int var56 = alu("inc", var55);
-                     D(var56);
-                     pc(54503, 1);
-                     int var57 = HL();
-                     push(var57);
-                     pc(54504, 1);
+                     pc(54500, 1, 4);
+                     int var60 = L();
+                     D(var60);
+                     pc(54501, 1, 4);
+                     int var61 = D();
+                     int var62 = alu("inc", var61);
+                     D(var62);
+                     pc(54502, 1, 4);
+                     int var63 = D();
+                     int var64 = alu("inc", var63);
+                     D(var64);
+                     pc(54503, 1, 11);
+                     int var65 = HL();
+                     push(var65);
+                     pc(54504, 1, 17);
                      $D951();
-                     pc(54507, 1);
-                     int var58 = pop();
-                     HL(var58);
-                     pc(54508, 1);
+                     pc(54507, 1, 10);
+                     int var66 = pop();
+                     HL(var66);
+                     pc(54508, 1, 7);
                      if(!flag(64, true)) {
-                        pc(54510, 1);
+                        pc(54510, 1, 4);
                         exx();
-                        pc(54511, 2);
-                        int var59 = B() & -9;
-                        B(var59);
-                        pc(54513, 2);
-                        int var60 = B() & -17;
-                        B(var60);
-                        pc(54515, 2);
-                        int var61 = B();
-                        bit(0, var61);
-                        pc(54517, 1);
-                        if(!flag(64, true)) {
-                           pc(54519, 1);
+                        pc(54511, 2, 8);
+                        int var67 = B() & -9;
+                        B(var67);
+                        pc(54513, 2, 8);
+                        int var68 = B() & -17;
+                        B(var68);
+                        pc(54515, 2, 8);
+                        int var69 = B();
+                        bit(0, var69);
+                        pc(54517, 1, 7);
+                        if(flag(64, true)) {
+                           tstates(5);
+                        } else {
+                           pc(54519, 1, 7);
                            L(0);
                         }
 
-                        pc(54521, 1);
+                        pc(54521, 1, 4);
                         exx();
-                        pc(54522, 1);
-                        break label48;
+                        pc(54522, 1, 12);
+                        break label55;
                      }
-                     break label44;
+
+                     tstates(5);
+                     break label54;
                   }
 
-                  pc(54524, 1);
-                  int var9 = A();
-                  alu("cp", var9, 3);
-                  pc(54526, 1);
+                  tstates(5);
+                  pc(54524, 1, 7);
+                  int var72 = A();
+                  alu("cp", var72, 3);
+                  pc(54526, 1, 7);
                   if(flag(64, true)) {
-                     break label44;
+                     tstates(5);
+                     break label54;
                   }
 
-                  pc(54528, 1);
-                  int var16 = L();
-                  A(var16);
-                  pc(54529, 1);
-                  int var17 = A();
-                  alu("cp", var17, 29);
-                  pc(54531, 1);
+                  pc(54528, 1, 4);
+                  int var73 = L();
+                  A(var73);
+                  pc(54529, 1, 7);
+                  int var74 = A();
+                  alu("cp", var74, 29);
+                  pc(54531, 1, 7);
                   if(!flag(64, true)) {
-                     break label45;
+                     break label56;
                   }
 
-                  pc(54569, 1);
-                  int var18 = L();
-                  int var19 = alu("inc", var18);
-                  L(var19);
-                  pc(54570, 1);
+                  tstates(5);
+                  pc(54569, 1, 4);
+                  int var75 = L();
+                  int var76 = alu("inc", var75);
+                  L(var76);
+                  pc(54570, 1, 7);
                   H(0);
+               } else {
+                  pc(54469, 2, 8);
+                  int var7 = A() | 2;
+                  A(var7);
+                  pc(54471, 1, 13);
+                  int var8 = A();
+                  wMem(51316, var8, 54471);
+                  pc(54474, 1, 4);
+                  int var9 = H();
+                  A(var9);
+                  pc(54475, 1, 7);
+                  int var10 = A();
+                  alu("cp", var10, 6);
+                  pc(54477, 1, 7);
+                  if(!flag(1, true)) {
+                     pc(54479, 1, 4);
+                     int var11 = H();
+                     int var12 = alu("dec", var11);
+                     H(var12);
+                     pc(54480, 1, 4);
+                     int var13 = H();
+                     int var14 = alu("dec", var13);
+                     H(var14);
+                     pc(54481, 1, 10);
+                     break label55;
+                  }
+
+                  tstates(5);
+                  pc(54484, 1, 7);
+                  int var19 = A();
+                  int var20 = alu("sub", var19, 6);
+                  A(var20);
+                  pc(54486, 1, 4);
+                  int var21 = A();
+                  H(var21);
+                  pc(54487, 1, 4);
+                  int var22 = L();
+                  int var23 = alu("inc", var22);
+                  L(var23);
+                  pc(54488, 1, 4);
+                  int var24 = L();
+                  A(var24);
+                  pc(54489, 1, 7);
+                  int var25 = A();
+                  alu("cp", var25, 30);
+                  pc(54491, 1, 7);
+                  if(flag(64, false)) {
+                     tstates(5);
+                     break label56;
+                  }
+
+                  pc(54493, 1, 12);
                }
 
-               pc(54572, 1);
-               int var20 = HL();
-               push(var20);
-               pc(54573, 1);
+               pc(54572, 1, 11);
+               int var26 = HL();
+               push(var26);
+               pc(54573, 1, 10);
                HL(25302);
-               pc(54576, 1);
-               int var21 = L();
-               E(var21);
-               pc(54577, 1);
-               int var22 = H();
-               D(var22);
-               pc(54578, 1);
-               int var23 = HL();
-               int var24 = inc16(var23);
-               HL(var24);
-               pc(54579, 1);
-               int var25 = HL();
-               push(var25);
-               pc(54580, 1);
+               pc(54576, 1, 4);
+               int var27 = L();
+               E(var27);
+               pc(54577, 1, 4);
+               int var28 = H();
+               D(var28);
+               pc(54578, 1, 6);
+               int var29 = HL();
+               int var30 = inc16(var29);
+               HL(var30);
+               pc(54579, 1, 11);
+               int var31 = HL();
+               push(var31);
+               pc(54580, 1, 10);
                BC(83);
-               pc(54583, 2);
+               pc(54583, 2, 21);
                ldir(54583);
-               pc(54585, 1);
-               int var26 = pop();
-               HL(var26);
-               pc(54586, 1);
-               int var27 = HL();
-               int var28 = inc16(var27);
-               HL(var28);
-               pc(54587, 2);
-               int var29 = mem16(51314, 54587);
-               DE(var29);
-               pc(54591, 1);
-               int var30 = D();
-               int var31 = alu("inc", var30);
-               D(var31);
-               pc(54592, 1);
-               int var32 = D();
-               int var33 = alu("inc", var32);
-               D(var33);
-               pc(54593, 1);
-               int var34 = D();
-               int var35 = alu("inc", var34);
-               D(var35);
-               pc(54594, 1);
+               pc(54585, 1, 10);
+               int var32 = pop();
+               HL(var32);
+               pc(54586, 1, 6);
+               int var33 = HL();
+               int var34 = inc16(var33);
+               HL(var34);
+               pc(54587, 2, 20);
+               int var35 = mem16(51314, 54587);
+               DE(var35);
+               pc(54591, 1, 4);
+               int var36 = D();
+               int var37 = alu("inc", var36);
+               D(var37);
+               pc(54592, 1, 4);
+               int var38 = D();
+               int var39 = alu("inc", var38);
+               D(var39);
+               pc(54593, 1, 4);
+               int var40 = D();
+               int var41 = alu("inc", var40);
+               D(var41);
+               pc(54594, 1, 17);
                $D550();
-               pc(54597, 1);
-               int var36 = pop();
-               HL(var36);
-               break label48;
+               pc(54597, 1, 10);
+               int var42 = pop();
+               HL(var42);
+               break label55;
             }
 
-            pc(54560, 1);
-            int var10 = H();
-            int var11 = alu("inc", var10);
-            H(var11);
-            pc(54561, 1);
+            pc(54560, 1, 4);
+            int var70 = H();
+            int var71 = alu("inc", var70);
+            H(var71);
+            pc(54561, 1, 10);
             BC(239);
-            pc(54564, 1);
+            pc(54564, 1, 17);
             $D4AF();
-            pc(54567, 1);
-            break label48;
+            pc(54567, 1, 12);
          }
 
-         pc(54533, 1);
-         int var37 = A();
-         int var38 = A();
-         int var39 = alu("xor", var38, var37);
-         A(var39);
-         pc(54534, 1);
-         int var40 = A();
-         wMem(51317, var40, 54534);
-         pc(54537, 1);
-         int var41 = A();
-         wMem(51315, var41, 54537);
-         pc(54540, 1);
-         int var42 = mem(53194, 54540);
-         A(var42);
-         pc(54543, 1);
-         int var43 = A();
-         B(var43);
-         pc(54544, 1);
-         int var44 = A();
-         int var45 = alu("and", var44, 7);
-         A(var45);
-         pc(54546, 1);
-         if(!flag(64, true)) {
-            pc(54548, 1);
-            int var49 = B();
-            A(var49);
-            pc(54549, 1);
-            int var50 = A();
-            int var51 = alu("add", var50, 7);
-            A(var51);
-            pc(54551, 1);
-         } else {
-            pc(54553, 1);
-            int var46 = B();
-            A(var46);
-            pc(54554, 1);
-            int var47 = A();
-            int var48 = alu("dec", var47);
-            A(var48);
-         }
-
-         pc(54555, 1);
-         $CBBD();
-         pc(54558, 1);
+         pc(54598, 1, 4);
+         int var15 = H();
+         A(var15);
+         pc(54599, 1, 13);
+         int var16 = A();
+         wMem(51317, var16, 54599);
+         pc(54602, 1, 4);
+         int var17 = L();
+         A(var17);
+         pc(54603, 1, 13);
+         int var18 = A();
+         wMem(51315, var18, 54603);
+         pc(54606, 1, 4);
          exx();
-         pc(54559, 1);
+         pc(54607, 1, 10);
          return;
       }
 
-      pc(54598, 1);
-      int var12 = H();
-      A(var12);
-      pc(54599, 1);
-      int var13 = A();
-      wMem(51317, var13, 54599);
-      pc(54602, 1);
-      int var14 = L();
-      A(var14);
-      pc(54603, 1);
-      int var15 = A();
-      wMem(51315, var15, 54603);
-      pc(54606, 1);
+      pc(54533, 1, 4);
+      int var43 = A();
+      int var44 = A();
+      int var45 = alu("xor", var44, var43);
+      A(var45);
+      pc(54534, 1, 13);
+      int var46 = A();
+      wMem(51317, var46, 54534);
+      pc(54537, 1, 13);
+      int var47 = A();
+      wMem(51315, var47, 54537);
+      pc(54540, 1, 13);
+      int var48 = mem(53194, 54540);
+      A(var48);
+      pc(54543, 1, 4);
+      int var49 = A();
+      B(var49);
+      pc(54544, 1, 7);
+      int var50 = A();
+      int var51 = alu("and", var50, 7);
+      A(var51);
+      pc(54546, 1, 7);
+      if(flag(64, true)) {
+         tstates(5);
+         pc(54553, 1, 4);
+         int var55 = B();
+         A(var55);
+         pc(54554, 1, 4);
+         int var56 = A();
+         int var57 = alu("dec", var56);
+         A(var57);
+      } else {
+         pc(54548, 1, 4);
+         int var52 = B();
+         A(var52);
+         pc(54549, 1, 7);
+         int var53 = A();
+         int var54 = alu("add", var53, 7);
+         A(var54);
+         pc(54551, 1, 12);
+      }
+
+      pc(54555, 1, 17);
+      $CBBD();
+      pc(54558, 1, 4);
       exx();
-      pc(54607, 1);
+      pc(54559, 1, 10);
    }
 
    public void $D550() {
-      pc(54608, 1);
+      pc(54608, 1, 7);
       C(14);
 
-      do {
-         pc(54610, 1);
+      while(true) {
+         pc(54610, 1, 11);
          int var1 = DE();
          push(var1);
-         pc(54611, 1);
+         pc(54611, 1, 17);
          $E8D2();
-         pc(54614, 1);
+         pc(54614, 1, 7);
          B(2);
 
-         do {
-            pc(54616, 1);
+         while(true) {
+            pc(54616, 1, 7);
             int var2 = DE();
             int var3 = mem(var2, 54616);
             A(var3);
-            pc(54617, 1);
+            pc(54617, 1, 7);
             int var4 = A();
             int var5 = HL();
             wMem(var5, var4, 54617);
-            pc(54618, 1);
+            pc(54618, 1, 4);
             int var6 = D();
             int var7 = alu("inc", var6);
             D(var7);
-            pc(54619, 1);
+            pc(54619, 1, 6);
             int var8 = HL();
             int var9 = inc16(var8);
             HL(var9);
-            pc(54620, 1);
+            pc(54620, 1, 6);
             int var10 = HL();
             int var11 = inc16(var10);
             HL(var11);
-            pc(54621, 1);
+            pc(54621, 1, 6);
             int var12 = HL();
             int var13 = inc16(var12);
             HL(var13);
-            pc(54622, 1);
+            pc(54622, 1, 8);
             int var14 = B() - 1 & 255;
             B(var14);
-         } while(B() != 0);
+            if(B() == 0) {
+               pc(54624, 1, 10);
+               int var15 = pop();
+               DE(var15);
+               pc(54625, 1, 4);
+               int var16 = E();
+               int var17 = alu("inc", var16);
+               E(var17);
+               pc(54626, 1, 4);
+               int var18 = E();
+               int var19 = alu("inc", var18);
+               E(var19);
+               pc(54627, 1, 4);
+               int var20 = C();
+               int var21 = alu("dec", var20);
+               C(var21);
+               pc(54628, 1, 7);
+               if(!flag(64, true)) {
+                  pc(54630, 1, 10);
+                  return;
+               }
 
-         pc(54624, 1);
-         int var15 = pop();
-         DE(var15);
-         pc(54625, 1);
-         int var16 = E();
-         int var17 = alu("inc", var16);
-         E(var17);
-         pc(54626, 1);
-         int var18 = E();
-         int var19 = alu("inc", var18);
-         E(var19);
-         pc(54627, 1);
-         int var20 = C();
-         int var21 = alu("dec", var20);
-         C(var21);
-         pc(54628, 1);
-      } while(flag(64, true));
+               tstates(5);
+               break;
+            }
 
-      pc(54630, 1);
+            tstates(5);
+         }
+      }
    }
 
    public void $D567() {
-      pc(54631, 1);
+      pc(54631, 1, 4);
       exx();
-      pc(54632, 2);
+      pc(54632, 2, 20);
       int var1 = mem16(51314, 54632);
       DE(var1);
-      pc(54636, 1);
+      pc(54636, 1, 17);
       $E909();
-      pc(54639, 1);
+      pc(54639, 1, 13);
       int var2 = mem(51317, 54639);
       A(var2);
-      pc(54642, 1);
+      pc(54642, 1, 7);
       int var3 = A();
       alu("cp", var3, 2);
-      pc(54644, 1);
+      pc(54644, 1, 11);
       int var4 = AF();
       push(var4);
-      pc(54645, 1);
-      if(!flag(1, false)) {
-         pc(54647, 1);
-         int var72 = A();
-         alu("cp", var72, 4);
-         pc(54649, 1);
-         if(!flag(64, false)) {
-            pc(54651, 1);
-            int var73 = E();
-            int var74 = alu("inc", var73);
-            E(var74);
+      pc(54645, 1, 7);
+      if(flag(1, false)) {
+         tstates(5);
+      } else {
+         pc(54647, 1, 7);
+         int var5 = A();
+         alu("cp", var5, 4);
+         pc(54649, 1, 7);
+         if(flag(64, false)) {
+            tstates(5);
+         } else {
+            pc(54651, 1, 4);
+            int var6 = E();
+            int var7 = alu("inc", var6);
+            E(var7);
          }
       }
 
-      label50: {
-         pc(54652, 1);
-         int var5 = DE();
-         int var6 = mem(var5, 54652);
-         A(var6);
-         pc(54653, 1);
-         int var7 = A();
-         B(var7);
-         pc(54654, 1);
-         int var8 = E();
-         int var9 = alu("inc", var8);
-         E(var9);
-         pc(54655, 1);
-         int var10 = DE();
-         int var11 = mem(var10, 54655);
-         A(var11);
-         pc(54656, 1);
-         int var12 = A();
-         C(var12);
-         pc(54657, 1);
-         int var13 = pop();
-         AF(var13);
-         pc(54658, 1);
-         if(!flag(64, false)) {
-            pc(54660, 1);
-            int var71 = A();
-            alu("cp", var71, 5);
-            pc(54662, 1);
+      label60: {
+         pc(54652, 1, 7);
+         int var8 = DE();
+         int var9 = mem(var8, 54652);
+         A(var9);
+         pc(54653, 1, 4);
+         int var10 = A();
+         B(var10);
+         pc(54654, 1, 4);
+         int var11 = E();
+         int var12 = alu("inc", var11);
+         E(var12);
+         pc(54655, 1, 7);
+         int var13 = DE();
+         int var14 = mem(var13, 54655);
+         A(var14);
+         pc(54656, 1, 4);
+         int var15 = A();
+         C(var15);
+         pc(54657, 1, 10);
+         int var16 = pop();
+         AF(var16);
+         pc(54658, 1, 7);
+         if(flag(64, false)) {
+            tstates(5);
+         } else {
+            pc(54660, 1, 7);
+            int var17 = A();
+            alu("cp", var17, 5);
+            pc(54662, 1, 7);
             if(flag(64, true)) {
-               break label50;
+               tstates(5);
+               break label60;
             }
          }
 
-         pc(54664, 1);
-         int var14 = B();
-         C(var14);
+         pc(54664, 1, 4);
+         int var18 = B();
+         C(var18);
       }
 
-      pc(54665, 1);
+      pc(54665, 1, 10);
       HL(53203);
-      pc(54668, 2);
-      int var15 = B();
-      bit(7, var15);
-      pc(54670, 1);
+      pc(54668, 2, 8);
+      int var19 = B();
+      bit(7, var19);
+      pc(54670, 1, 10);
       if(!flag(64, true)) {
-         pc(54673, 2);
-         int var25 = C();
-         bit(7, var25);
-         pc(54675, 1);
+         pc(54673, 2, 8);
+         int var29 = C();
+         bit(7, var29);
+         pc(54675, 1, 10);
          if(!flag(64, true)) {
-            pc(54678, 1);
+            pc(54678, 1, 7);
             D(6);
 
             while(true) {
-               pc(54680, 1);
-               int var26 = HL();
-               int var27 = mem(var26, 54680);
-               E(var27);
-               pc(54681, 1);
+               pc(54680, 1, 7);
+               int var30 = HL();
+               int var31 = mem(var30, 54680);
+               E(var31);
+               pc(54681, 1, 17);
                $D9AA();
-               pc(54684, 1);
-               if(!flag(64, false)) {
-                  pc(54686, 1);
-                  int var31 = HL();
-                  int var32 = inc16(var31);
-                  HL(var32);
-                  pc(54687, 1);
-                  int var33 = D();
-                  int var34 = alu("dec", var33);
-                  D(var34);
-                  pc(54688, 1);
-                  if(flag(64, true)) {
-                     continue;
-                  }
+               pc(54684, 1, 7);
+               if(flag(64, false)) {
+                  tstates(5);
+                  pc(54776, 1, 4);
+                  exx();
+                  pc(54777, 2, 8);
+                  int var72 = B() & -2;
+                  B(var72);
+                  pc(54779, 2, 8);
+                  int var73 = B() & -17;
+                  B(var73);
+                  pc(54781, 1, 7);
+                  L(0);
+                  pc(54783, 1, 4);
+                  exx();
+                  pc(54784, 1, 7);
+                  A(13);
+                  pc(54786, 1, 13);
+                  int var74 = A();
+                  wMem(56301, var74, 54786);
+                  break;
+               }
 
-                  pc(54690, 1);
-                  int var35 = mem(51314, 54690);
-                  A(var35);
-                  pc(54693, 1);
-                  int var36 = A();
+               pc(54686, 1, 6);
+               int var32 = HL();
+               int var33 = inc16(var32);
+               HL(var33);
+               pc(54687, 1, 4);
+               int var34 = D();
+               int var35 = alu("dec", var34);
+               D(var35);
+               pc(54688, 1, 7);
+               if(!flag(64, true)) {
+                  pc(54690, 1, 13);
+                  int var36 = mem(51314, 54690);
+                  A(var36);
+                  pc(54693, 1, 4);
                   int var37 = A();
-                  int var38 = alu("and", var37, var36);
-                  A(var38);
-                  pc(54694, 1);
+                  int var38 = A();
+                  int var39 = alu("and", var38, var37);
+                  A(var39);
+                  pc(54694, 1, 7);
                   if(!flag(64, true)) {
-                     pc(54696, 1);
+                     pc(54696, 1, 7);
                      A(130);
-                     pc(54698, 1);
-                     int var67 = A();
-                     wMem(51314, var67, 54698);
-                     pc(54701, 1);
-                     int var68 = mem(53194, 54701);
-                     A(var68);
-                     pc(54704, 1);
-                     int var69 = A();
-                     int var70 = alu("add", var69, 8);
-                     A(var70);
-                     pc(54706, 1);
+                     pc(54698, 1, 13);
+                     int var40 = A();
+                     wMem(51314, var40, 54698);
+                     pc(54701, 1, 13);
+                     int var41 = mem(53194, 54701);
+                     A(var41);
+                     pc(54704, 1, 7);
+                     int var42 = A();
+                     int var43 = alu("add", var42, 8);
+                     A(var43);
+                     pc(54706, 1, 17);
                      $CBBD();
-                     pc(54709, 1);
+                     pc(54709, 1, 4);
                      exx();
-                     pc(54710, 1);
+                     pc(54710, 1, 10);
                      return;
                   }
 
-                  pc(54711, 1);
-                  int var39 = A();
-                  int var40 = alu("dec", var39);
-                  A(var40);
-                  pc(54712, 1);
-                  int var41 = A();
-                  int var42 = alu("dec", var41);
-                  A(var42);
-                  pc(54713, 1);
-                  int var43 = A();
-                  wMem(51314, var43, 54713);
-                  pc(54716, 1);
-                  int var44 = mem(51327, 54716);
-                  A(var44);
-                  pc(54719, 2);
-                  int var45 = A();
-                  bit(0, var45);
-                  pc(54721, 1);
-                  if(!flag(64, true)) {
-                     pc(54723, 1);
-                     int var60 = mem(51323, 54723);
-                     A(var60);
-                     pc(54726, 2);
-                     int var61 = A();
-                     bit(2, var61);
-                     pc(54728, 1);
-                     if(!flag(64, true)) {
-                        pc(54730, 1);
-                        int var62 = mem(53195, 54730);
-                        A(var62);
-                        pc(54733, 1);
-                        int var63 = A();
-                        int var64 = alu("inc", var63);
-                        A(var64);
-                        pc(54734, 1);
-                        int var65 = A();
-                        alu("cp", var65, 53);
-                        pc(54736, 1);
-                        if(!flag(64, true)) {
-                           pc(54738, 1);
+                  tstates(5);
+                  pc(54711, 1, 4);
+                  int var44 = A();
+                  int var45 = alu("dec", var44);
+                  A(var45);
+                  pc(54712, 1, 4);
+                  int var46 = A();
+                  int var47 = alu("dec", var46);
+                  A(var47);
+                  pc(54713, 1, 13);
+                  int var48 = A();
+                  wMem(51314, var48, 54713);
+                  pc(54716, 1, 13);
+                  int var49 = mem(51327, 54716);
+                  A(var49);
+                  pc(54719, 2, 8);
+                  int var50 = A();
+                  bit(0, var50);
+                  pc(54721, 1, 7);
+                  if(flag(64, true)) {
+                     tstates(5);
+                  } else {
+                     pc(54723, 1, 13);
+                     int var51 = mem(51323, 54723);
+                     A(var51);
+                     pc(54726, 2, 8);
+                     int var52 = A();
+                     bit(2, var52);
+                     pc(54728, 1, 7);
+                     if(flag(64, true)) {
+                        tstates(5);
+                     } else {
+                        pc(54730, 1, 13);
+                        int var53 = mem(53195, 54730);
+                        A(var53);
+                        pc(54733, 1, 4);
+                        int var54 = A();
+                        int var55 = alu("inc", var54);
+                        A(var55);
+                        pc(54734, 1, 7);
+                        int var56 = A();
+                        alu("cp", var56, 53);
+                        pc(54736, 1, 7);
+                        if(flag(64, true)) {
+                           tstates(5);
+                        } else {
+                           pc(54738, 1, 7);
                            A(40);
                         }
 
-                        pc(54740, 1);
-                        int var66 = A();
-                        wMem(53195, var66, 54740);
-                        pc(54743, 1);
+                        pc(54740, 1, 13);
+                        int var57 = A();
+                        wMem(53195, var57, 54740);
+                        pc(54743, 1, 17);
                         $DB01();
                      }
                   }
 
-                  pc(54746, 1);
+                  pc(54746, 1, 10);
                   HL(25302);
-                  pc(54749, 1);
+                  pc(54749, 1, 10);
                   BC(83);
-                  pc(54752, 1);
-                  int var46 = BC();
-                  int var47 = HL();
-                  int var48 = alu("add16", var47, var46);
-                  HL(var48);
-                  pc(54753, 1);
-                  int var49 = HL();
-                  push(var49);
-                  pc(54754, 1);
+                  pc(54752, 1, 11);
+                  int var58 = BC();
+                  int var59 = HL();
+                  int var60 = alu("add16", var59, var58);
+                  HL(var60);
+                  pc(54753, 1, 11);
+                  int var61 = HL();
+                  push(var61);
+                  pc(54754, 1, 10);
                   BC(6);
-                  pc(54757, 1);
-                  int var50 = A();
-                  int var51 = A();
-                  int var52 = alu("and", var51, var50);
-                  A(var52);
-                  pc(54758, 2);
-                  int var53 = BC();
-                  int var54 = HL();
-                  int var55 = alu("sbc16", var54, var53);
-                  HL(var55);
-                  pc(54760, 1);
-                  int var56 = pop();
-                  DE(var56);
-                  pc(54761, 1);
+                  pc(54757, 1, 4);
+                  int var62 = A();
+                  int var63 = A();
+                  int var64 = alu("and", var63, var62);
+                  A(var64);
+                  pc(54758, 2, 15);
+                  int var65 = BC();
+                  int var66 = HL();
+                  int var67 = alu("sbc16", var66, var65);
+                  HL(var67);
+                  pc(54760, 1, 10);
+                  int var68 = pop();
+                  DE(var68);
+                  pc(54761, 1, 10);
                   BC(78);
-                  pc(54764, 2);
+                  pc(54764, 2, 21);
                   lddr(54764);
-                  pc(54766, 2);
-                  int var57 = mem16(51314, 54766);
-                  DE(var57);
-                  pc(54770, 1);
-                  int var58 = HL();
-                  int var59 = inc16(var58);
-                  HL(var59);
-                  pc(54771, 1);
+                  pc(54766, 2, 20);
+                  int var69 = mem16(51314, 54766);
+                  DE(var69);
+                  pc(54770, 1, 6);
+                  int var70 = HL();
+                  int var71 = inc16(var70);
+                  HL(var71);
+                  pc(54771, 1, 17);
                   $D655();
-                  pc(54774, 1);
+                  pc(54774, 1, 12);
                   break;
                }
 
-               pc(54776, 1);
-               exx();
-               pc(54777, 2);
-               int var28 = B() & -2;
-               B(var28);
-               pc(54779, 2);
-               int var29 = B() & -17;
-               B(var29);
-               pc(54781, 1);
-               L(0);
-               pc(54783, 1);
-               exx();
-               pc(54784, 1);
-               A(13);
-               pc(54786, 1);
-               int var30 = A();
-               wMem(56301, var30, 54786);
-               break;
+               tstates(5);
             }
 
-            pc(54789, 1);
+            pc(54789, 1, 4);
             exx();
-            pc(54790, 1);
+            pc(54790, 1, 10);
             return;
          }
       }
 
-      pc(56820, 1);
+      pc(56820, 1, 10);
       DE(1286);
-      pc(56823, 1);
+      pc(56823, 1, 10);
       BC(771);
-      pc(56826, 1);
+      pc(56826, 1, 17);
       $E897();
-      pc(56829, 1);
+      pc(56829, 1, 7);
       A(200);
-      pc(56831, 1);
+      pc(56831, 1, 10);
       HL(51307);
-      pc(56834, 1);
-      int var16 = HL();
-      int var17 = mem(var16, 56834);
-      int var18 = A();
-      int var19 = alu("add", var18, var17);
-      A(var19);
-      pc(56835, 1);
-      int var20 = A();
-      int var21 = HL();
-      wMem(var21, var20, 56835);
-      pc(56836, 1);
+      pc(56834, 1, 7);
+      int var20 = HL();
+      int var21 = mem(var20, 56834);
+      int var22 = A();
+      int var23 = alu("add", var22, var21);
+      A(var23);
+      pc(56835, 1, 7);
+      int var24 = A();
+      int var25 = HL();
+      wMem(var25, var24, 56835);
+      pc(56836, 1, 10);
       HL(51326);
-      pc(56839, 2);
-      int var22 = HL();
-      int var23 = mem(var22, 56839) | 2;
-      int var24 = HL();
-      wMem(var24, var23, 56839);
-      pc(56841, 1);
+      pc(56839, 2, 15);
+      int var26 = HL();
+      int var27 = mem(var26, 56839) | 2;
+      int var28 = HL();
+      wMem(var28, var27, 56839);
+      pc(56841, 1, 4);
       exx();
-      pc(56842, 1);
+      pc(56842, 1, 10);
    }
 
    public void $D607() {
-      pc(54791, 1);
+      pc(54791, 1, 4);
       exx();
-      pc(54792, 1);
+      pc(54792, 1, 13);
       int var1 = mem(51314, 54792);
       A(var1);
-      pc(54795, 1);
+      pc(54795, 1, 7);
       int var2 = A();
       alu("cp", var2, 132);
-      pc(54797, 1);
+      pc(54797, 1, 7);
       if(flag(64, true)) {
+         tstates(5);
          $D61E();
       } else {
-         pc(54799, 1);
+         pc(54799, 1, 7);
          A(2);
-         pc(54801, 1);
+         pc(54801, 1, 13);
          int var3 = A();
          wMem(51314, var3, 54801);
-         pc(54804, 1);
+         pc(54804, 1, 13);
          int var4 = mem(53194, 54804);
          A(var4);
-         pc(54807, 1);
+         pc(54807, 1, 7);
          int var5 = A();
          int var6 = alu("sub", var5, 8);
          A(var6);
-         pc(54809, 1);
+         pc(54809, 1, 17);
          $CBBD();
-         pc(54812, 1);
+         pc(54812, 1, 4);
          exx();
-         pc(54813, 1);
+         pc(54813, 1, 10);
       }
    }
 
    public void $D61E() {
-      pc(54814, 1);
+      pc(54814, 1, 4);
       int var1 = A();
       int var2 = alu("inc", var1);
       A(var2);
-      pc(54815, 1);
+      pc(54815, 1, 4);
       int var3 = A();
       int var4 = alu("inc", var3);
       A(var4);
-      pc(54816, 1);
+      pc(54816, 1, 13);
       int var5 = A();
       wMem(51314, var5, 54816);
-      pc(54819, 1);
+      pc(54819, 1, 13);
       int var6 = mem(51323, 54819);
       A(var6);
-      pc(54822, 2);
+      pc(54822, 2, 8);
       int var7 = A();
       bit(2, var7);
-      pc(54824, 1);
-      if(!flag(64, true)) {
-         pc(54826, 1);
-         int var18 = mem(53195, 54826);
-         A(var18);
-         pc(54829, 1);
-         int var19 = A();
-         int var20 = alu("dec", var19);
-         A(var20);
-         pc(54830, 1);
-         int var21 = A();
-         int var22 = A();
-         int var23 = alu("and", var22, var21);
-         A(var23);
-         pc(54831, 1);
-         if(!flag(64, true)) {
-            pc(54833, 1);
+      pc(54824, 1, 7);
+      if(flag(64, true)) {
+         tstates(5);
+      } else {
+         pc(54826, 1, 13);
+         int var8 = mem(53195, 54826);
+         A(var8);
+         pc(54829, 1, 4);
+         int var9 = A();
+         int var10 = alu("dec", var9);
+         A(var10);
+         pc(54830, 1, 4);
+         int var11 = A();
+         int var12 = A();
+         int var13 = alu("and", var12, var11);
+         A(var13);
+         pc(54831, 1, 7);
+         if(flag(64, true)) {
+            tstates(5);
+         } else {
+            pc(54833, 1, 7);
             A(12);
          }
 
-         pc(54835, 1);
-         int var24 = A();
-         wMem(53195, var24, 54835);
-         pc(54838, 1);
+         pc(54835, 1, 13);
+         int var14 = A();
+         wMem(53195, var14, 54835);
+         pc(54838, 1, 17);
          $DB01();
       }
 
-      pc(54841, 1);
+      pc(54841, 1, 10);
       HL(25302);
-      pc(54844, 1);
-      int var8 = HL();
-      push(var8);
-      pc(54845, 1);
+      pc(54844, 1, 11);
+      int var15 = HL();
+      push(var15);
+      pc(54845, 1, 10);
       BC(6);
-      pc(54848, 1);
-      int var9 = BC();
-      int var10 = HL();
-      int var11 = alu("add16", var10, var9);
-      HL(var11);
-      pc(54849, 1);
-      int var12 = pop();
-      DE(var12);
-      pc(54850, 1);
+      pc(54848, 1, 11);
+      int var16 = BC();
+      int var17 = HL();
+      int var18 = alu("add16", var17, var16);
+      HL(var18);
+      pc(54849, 1, 10);
+      int var19 = pop();
+      DE(var19);
+      pc(54850, 1, 10);
       BC(78);
-      pc(54853, 2);
+      pc(54853, 2, 21);
       ldir(54853);
-      pc(54855, 1);
+      pc(54855, 1, 4);
       exHLDE();
-      pc(54856, 2);
-      int var13 = mem16(51314, 54856);
-      DE(var13);
-      pc(54860, 1);
+      pc(54856, 2, 20);
+      int var20 = mem16(51314, 54856);
+      DE(var20);
+      pc(54860, 1, 7);
       A(26);
-      pc(54862, 1);
-      int var14 = E();
-      int var15 = A();
-      int var16 = alu("add", var15, var14);
-      A(var16);
-      pc(54863, 1);
-      int var17 = A();
-      E(var17);
-      pc(54864, 1);
+      pc(54862, 1, 4);
+      int var21 = E();
+      int var22 = A();
+      int var23 = alu("add", var22, var21);
+      A(var23);
+      pc(54863, 1, 4);
+      int var24 = A();
+      E(var24);
+      pc(54864, 1, 17);
       $D655();
-      pc(54867, 1);
+      pc(54867, 1, 4);
       exx();
-      pc(54868, 1);
+      pc(54868, 1, 10);
    }
 
    public void $D655() {
-      pc(54869, 1);
+      pc(54869, 1, 17);
       $E8D2();
-      pc(54872, 1);
+      pc(54872, 1, 7);
       C(2);
 
-      do {
-         pc(54874, 1);
+      while(true) {
+         pc(54874, 1, 11);
          int var1 = DE();
          push(var1);
-         pc(54875, 1);
+         pc(54875, 1, 7);
          B(3);
 
-         do {
-            pc(54877, 1);
+         while(true) {
+            pc(54877, 1, 7);
             int var2 = DE();
             int var3 = mem(var2, 54877);
             A(var3);
-            pc(54878, 1);
+            pc(54878, 1, 7);
             int var4 = A();
             int var5 = HL();
             wMem(var5, var4, 54878);
-            pc(54879, 1);
+            pc(54879, 1, 6);
             int var6 = HL();
             int var7 = inc16(var6);
             HL(var7);
-            pc(54880, 1);
+            pc(54880, 1, 4);
             int var8 = E();
             int var9 = alu("inc", var8);
             E(var9);
-            pc(54881, 1);
+            pc(54881, 1, 8);
             int var10 = B() - 1 & 255;
             B(var10);
-         } while(B() != 0);
+            if(B() == 0) {
+               pc(54883, 1, 10);
+               int var11 = pop();
+               DE(var11);
+               pc(54884, 1, 4);
+               int var12 = D();
+               int var13 = alu("inc", var12);
+               D(var13);
+               pc(54885, 1, 4);
+               int var14 = C();
+               int var15 = alu("dec", var14);
+               C(var15);
+               pc(54886, 1, 7);
+               if(!flag(64, true)) {
+                  pc(54888, 1, 10);
+                  return;
+               }
 
-         pc(54883, 1);
-         int var11 = pop();
-         DE(var11);
-         pc(54884, 1);
-         int var12 = D();
-         int var13 = alu("inc", var12);
-         D(var13);
-         pc(54885, 1);
-         int var14 = C();
-         int var15 = alu("dec", var14);
-         C(var15);
-         pc(54886, 1);
-      } while(flag(64, true));
+               tstates(5);
+               break;
+            }
 
-      pc(54888, 1);
+            tstates(5);
+         }
+      }
    }
 
    public void $D669() {
-      pc(54889, 1);
+      pc(54889, 1, 4);
       int var1 = A();
       int var2 = A();
       int var3 = alu("add", var2, var1);
       A(var3);
-      pc(54890, 1);
+      pc(54890, 1, 4);
       int var4 = A();
       E(var4);
-      pc(54891, 1);
+      pc(54891, 1, 7);
       D(0);
-      pc(54893, 1);
+      pc(54893, 1, 10);
       HL(44640);
-      pc(54896, 1);
+      pc(54896, 1, 11);
       int var5 = DE();
       int var6 = HL();
       int var7 = alu("add16", var6, var5);
       HL(var7);
-      pc(54897, 1);
+      pc(54897, 1, 7);
       int var8 = HL();
       int var9 = mem(var8, 54897);
       E(var9);
-      pc(54898, 1);
+      pc(54898, 1, 6);
       int var10 = HL();
       int var11 = inc16(var10);
       HL(var11);
-      pc(54899, 1);
+      pc(54899, 1, 7);
       int var12 = HL();
       int var13 = mem(var12, 54899);
       D(var13);
-      pc(54900, 1);
+      pc(54900, 1, 10);
    }
 
    public void $D677() {
-      pc(54903, 1);
+      pc(54903, 1, 7);
       int var1 = DE();
       int var2 = mem(var1, 54903);
       A(var2);
-      pc(54904, 1);
+      pc(54904, 1, 7);
       int var3 = A();
       int var4 = alu("and", var3, 12);
       A(var4);
-      pc(54906, 1);
+      pc(54906, 1, 4);
       int var5 = A();
       int var6 = alu("rrca", var5);
       A(var6);
-      pc(54907, 1);
+      pc(54907, 1, 4);
       int var7 = A();
       int var8 = alu("rrca", var7);
       A(var8);
-      pc(54908, 1);
+      pc(54908, 1, 4);
       int var9 = A();
       C(var9);
-      pc(54909, 1);
+      pc(54909, 1, 4);
       int var10 = A();
       int var11 = alu("inc", var10);
       A(var11);
-      pc(54910, 1);
+      pc(54910, 1, 7);
       int var12 = A();
       int var13 = HL();
       wMem(var13, var12, 54910);
-      pc(54911, 1);
+      pc(54911, 1, 6);
       int var14 = HL();
       int var15 = inc16(var14);
       HL(var15);
-      pc(54912, 1);
+      pc(54912, 1, 7);
       int var16 = DE();
       int var17 = mem(var16, 54912);
       A(var17);
-      pc(54913, 1);
+      pc(54913, 1, 7);
       int var18 = A();
       int var19 = alu("and", var18, 3);
       A(var19);
-      pc(54915, 1);
+      pc(54915, 1, 4);
       int var20 = A();
       B(var20);
-      pc(54916, 1);
+      pc(54916, 1, 7);
       int var21 = A();
       int var22 = HL();
       wMem(var22, var21, 54916);
-      pc(54917, 2);
+      pc(54917, 2, 8);
       int var23 = C();
       int var24 = alu("sla", var23);
       C(var24);
-      pc(54919, 2);
+      pc(54919, 2, 8);
       int var25 = C();
       int var26 = alu("sla", var25);
       C(var26);
-      pc(54921, 2);
+      pc(54921, 2, 8);
       int var27 = C();
       int var28 = alu("sla", var27);
       C(var28);
-      pc(54923, 1);
+      pc(54923, 1, 4);
       int var29 = A();
       int var30 = A();
       int var31 = alu("xor", var30, var29);
       A(var31);
 
-      do {
-         pc(54924, 1);
+      while(true) {
+         pc(54924, 1, 4);
          int var32 = C();
          int var33 = A();
          int var34 = alu("add", var33, var32);
          A(var34);
-         pc(54925, 1);
+         pc(54925, 1, 8);
          int var35 = B() - 1 & 255;
          B(var35);
-      } while(B() != 0);
+         if(B() == 0) {
+            pc(54927, 1, 4);
+            int var36 = A();
+            C(var36);
+            pc(54928, 1, 7);
+            B(0);
+            pc(54930, 2, 20);
+            int var37 = BC();
+            wMem16(54901, var37, 54930);
+            pc(54934, 1, 6);
+            int var38 = HL();
+            int var39 = inc16(var38);
+            HL(var39);
+            pc(54935, 1, 11);
+            int var40 = HL();
+            push(var40);
+            pc(54936, 1, 7);
+            B(240);
+            pc(54938, 1, 4);
+            int var41 = A();
+            int var42 = A();
+            int var43 = alu("xor", var42, var41);
+            A(var43);
 
-      pc(54927, 1);
-      int var36 = A();
-      C(var36);
-      pc(54928, 1);
-      B(0);
-      pc(54930, 2);
-      int var37 = BC();
-      wMem16(54901, var37, 54930);
-      pc(54934, 1);
-      int var38 = HL();
-      int var39 = inc16(var38);
-      HL(var39);
-      pc(54935, 1);
-      int var40 = HL();
-      push(var40);
-      pc(54936, 1);
-      B(240);
-      pc(54938, 1);
-      int var41 = A();
-      int var42 = A();
-      int var43 = alu("xor", var42, var41);
-      A(var43);
+            while(true) {
+               pc(54939, 1, 7);
+               int var44 = A();
+               int var45 = HL();
+               wMem(var45, var44, 54939);
+               pc(54940, 1, 6);
+               int var46 = HL();
+               int var47 = inc16(var46);
+               HL(var47);
+               pc(54941, 1, 8);
+               int var48 = B() - 1 & 255;
+               B(var48);
+               if(B() == 0) {
+                  pc(54943, 1, 10);
+                  int var49 = pop();
+                  HL(var49);
+                  pc(54944, 1, 11);
+                  int var50 = HL();
+                  push(var50);
+                  pc(54945, 1, 10);
+                  BC(24);
+                  pc(54948, 1, 11);
+                  int var51 = BC();
+                  int var52 = HL();
+                  int var53 = alu("add16", var52, var51);
+                  HL(var53);
+                  pc(54949, 1, 6);
+                  int var54 = DE();
+                  int var55 = inc16(var54);
+                  DE(var55);
+                  pc(54950, 1, 4);
+                  exHLDE();
+                  pc(54951, 2, 20);
+                  int var56 = mem16(54901, 54951);
+                  BC(var56);
+                  pc(54955, 2, 21);
+                  ldir(54955);
+                  pc(54957, 1, 4);
+                  exHLDE();
+                  pc(54958, 1, 10);
+                  int var57 = pop();
+                  HL(var57);
+                  pc(54959, 1, 10);
+                  BC(144);
+                  pc(54962, 1, 11);
+                  int var58 = BC();
+                  int var59 = HL();
+                  int var60 = alu("add16", var59, var58);
+                  HL(var60);
+                  pc(54963, 1, 4);
+                  exHLDE();
+                  pc(54964, 2, 20);
+                  int var61 = mem16(54901, 54964);
+                  BC(var61);
+                  pc(54968, 2, 21);
+                  ldir(54968);
+                  pc(54970, 1, 10);
+                  return;
+               }
 
-      do {
-         pc(54939, 1);
-         int var44 = A();
-         int var45 = HL();
-         wMem(var45, var44, 54939);
-         pc(54940, 1);
-         int var46 = HL();
-         int var47 = inc16(var46);
-         HL(var47);
-         pc(54941, 1);
-         int var48 = B() - 1 & 255;
-         B(var48);
-      } while(B() != 0);
+               tstates(5);
+            }
+         }
 
-      pc(54943, 1);
-      int var49 = pop();
-      HL(var49);
-      pc(54944, 1);
-      int var50 = HL();
-      push(var50);
-      pc(54945, 1);
-      BC(24);
-      pc(54948, 1);
-      int var51 = BC();
-      int var52 = HL();
-      int var53 = alu("add16", var52, var51);
-      HL(var53);
-      pc(54949, 1);
-      int var54 = DE();
-      int var55 = inc16(var54);
-      DE(var55);
-      pc(54950, 1);
-      exHLDE();
-      pc(54951, 2);
-      int var56 = mem16(54901, 54951);
-      BC(var56);
-      pc(54955, 2);
-      ldir(54955);
-      pc(54957, 1);
-      exHLDE();
-      pc(54958, 1);
-      int var57 = pop();
-      HL(var57);
-      pc(54959, 1);
-      BC(144);
-      pc(54962, 1);
-      int var58 = BC();
-      int var59 = HL();
-      int var60 = alu("add16", var59, var58);
-      HL(var60);
-      pc(54963, 1);
-      exHLDE();
-      pc(54964, 2);
-      int var61 = mem16(54901, 54964);
-      BC(var61);
-      pc(54968, 2);
-      ldir(54968);
-      pc(54970, 1);
+         tstates(5);
+      }
    }
 
    public void $D6BF() {
-      pc(54975, 1);
+      pc(54975, 1, 4);
       int var1 = A();
       int var2 = A();
       int var3 = alu("and", var2, var1);
       A(var3);
-      pc(54976, 1);
-      if(!flag(64, false)) {
-         pc(54977, 1);
+      pc(54976, 1, 5);
+      if(flag(64, false)) {
+         tstates(6);
+      } else {
+         pc(54977, 1, 4);
          int var4 = A();
          B(var4);
 
-         do {
-            pc(54978, 1);
+         while(true) {
+            pc(54978, 1, 11);
             int var5 = BC();
             push(var5);
-            pc(54979, 2);
+            pc(54979, 2, 19);
             int var6 = IY() + 4;
             int var7 = mem(var6, 54979);
             D(var7);
-            pc(54982, 2);
+            pc(54982, 2, 19);
             int var8 = IY() + 0;
             int var9 = mem(var8, 54982);
             E(var9);
-            pc(54985, 2);
+            pc(54985, 2, 23);
             int var10 = IY() + 6;
             int var11 = mem(var10, 54985);
             int var12 = alu("dec", var11);
             wMem(var10, var12, 54985);
-            pc(54988, 1);
-            if(!flag(64, true)) {
-               pc(54990, 2);
-               int var29 = IY() + 7;
-               int var30 = mem(var29, 54990);
-               A(var30);
-               pc(54993, 2);
-               int var31 = IY() + 6;
-               int var32 = A();
-               wMem(var31, var32, 54993);
-               pc(54996, 2);
-               int var33 = D();
-               bit(7, var33);
-               pc(54998, 1);
-               if(!flag(64, true)) {
-                  pc(55000, 1);
-                  int var48 = D();
-                  A(var48);
-                  pc(55001, 1);
-                  int var49 = A();
-                  int var50 = alu("and", var49, 7);
-                  A(var50);
-                  pc(55003, 1);
-                  if(!flag(64, false)) {
-                     pc(55005, 1);
-                     int var66 = D();
-                     int var67 = alu("dec", var66);
-                     D(var67);
-                     pc(55006, 1);
-                  } else {
-                     pc(55008, 1);
-                     int var51 = E();
-                     A(var51);
-                     pc(55009, 2);
-                     int var52 = IY() + 2;
-                     int var53 = mem(var52, 55009);
-                     int var54 = A();
-                     alu("cp", var54, var53);
-                     pc(55012, 1);
-                     if(!flag(64, true)) {
-                        pc(55014, 1);
-                        D(129);
-                        pc(55016, 1);
-                     } else {
-                        pc(55018, 1);
-                        int var55 = DE();
-                        push(var55);
-                        pc(55019, 1);
-                        int var56 = mem(54971, 55019);
-                        A(var56);
-                        pc(55022, 1);
-                        int var57 = A();
-                        int var58 = alu("dec", var57);
-                        A(var58);
-                        pc(55023, 1);
-                        int var59 = E();
-                        int var60 = A();
-                        int var61 = alu("add", var60, var59);
-                        A(var61);
-                        pc(55024, 1);
-                        int var62 = A();
-                        E(var62);
-                        pc(55025, 1);
+            pc(54988, 1, 7);
+            if(flag(64, true)) {
+               tstates(5);
+            } else {
+               pc(54990, 2, 19);
+               int var13 = IY() + 7;
+               int var14 = mem(var13, 54990);
+               A(var14);
+               pc(54993, 2, 19);
+               int var15 = IY() + 6;
+               int var16 = A();
+               wMem(var15, var16, 54993);
+               pc(54996, 2, 8);
+               int var17 = D();
+               bit(7, var17);
+               pc(54998, 1, 7);
+               if(flag(64, true)) {
+                  tstates(5);
+                  pc(55034, 1, 4);
+                  int var54 = D();
+                  A(var54);
+                  pc(55035, 1, 7);
+                  int var55 = A();
+                  int var56 = alu("and", var55, 7);
+                  A(var56);
+                  pc(55037, 1, 7);
+                  int var57 = A();
+                  alu("cp", var57, 4);
+                  pc(55039, 1, 7);
+                  if(flag(64, false)) {
+                     tstates(5);
+                     pc(55044, 1, 4);
+                     int var60 = E();
+                     A(var60);
+                     pc(55045, 2, 19);
+                     int var61 = IY() + 3;
+                     int var62 = mem(var61, 55045);
+                     int var63 = A();
+                     alu("cp", var63, var62);
+                     pc(55048, 1, 7);
+                     if(flag(64, true)) {
+                        tstates(5);
+                        pc(55054, 1, 11);
+                        int var64 = DE();
+                        push(var64);
+                        pc(55055, 1, 17);
                         $D7D6();
-                        pc(55028, 1);
-                        int var63 = pop();
-                        DE(var63);
-                        pc(55029, 1);
-                        int var64 = E();
-                        int var65 = alu("dec", var64);
-                        E(var65);
-                        pc(55030, 1);
+                        pc(55058, 1, 10);
+                        int var65 = pop();
+                        DE(var65);
+                        pc(55059, 1, 7);
+                        D(129);
+                        pc(55061, 1, 4);
+                        int var66 = E();
+                        int var67 = alu("inc", var66);
+                        E(var67);
+                     } else {
+                        pc(55050, 1, 7);
                         D(3);
-                        pc(55032, 1);
+                        pc(55052, 1, 12);
                      }
+                  } else {
+                     pc(55041, 1, 4);
+                     int var58 = D();
+                     int var59 = alu("inc", var58);
+                     D(var59);
+                     pc(55042, 1, 12);
                   }
                } else {
-                  pc(55034, 1);
-                  int var34 = D();
-                  A(var34);
-                  pc(55035, 1);
-                  int var35 = A();
-                  int var36 = alu("and", var35, 7);
-                  A(var36);
-                  pc(55037, 1);
-                  int var37 = A();
-                  alu("cp", var37, 4);
-                  pc(55039, 1);
-                  if(!flag(64, false)) {
-                     pc(55041, 1);
-                     int var46 = D();
-                     int var47 = alu("inc", var46);
-                     D(var47);
-                     pc(55042, 1);
-                  } else {
-                     pc(55044, 1);
-                     int var38 = E();
-                     A(var38);
-                     pc(55045, 2);
-                     int var39 = IY() + 3;
-                     int var40 = mem(var39, 55045);
-                     int var41 = A();
-                     alu("cp", var41, var40);
-                     pc(55048, 1);
-                     if(!flag(64, true)) {
-                        pc(55050, 1);
-                        D(3);
-                        pc(55052, 1);
-                     } else {
-                        pc(55054, 1);
-                        int var42 = DE();
-                        push(var42);
-                        pc(55055, 1);
+                  pc(55000, 1, 4);
+                  int var18 = D();
+                  A(var18);
+                  pc(55001, 1, 7);
+                  int var19 = A();
+                  int var20 = alu("and", var19, 7);
+                  A(var20);
+                  pc(55003, 1, 7);
+                  if(flag(64, false)) {
+                     tstates(5);
+                     pc(55008, 1, 4);
+                     int var39 = E();
+                     A(var39);
+                     pc(55009, 2, 19);
+                     int var40 = IY() + 2;
+                     int var41 = mem(var40, 55009);
+                     int var42 = A();
+                     alu("cp", var42, var41);
+                     pc(55012, 1, 7);
+                     if(flag(64, true)) {
+                        tstates(5);
+                        pc(55018, 1, 11);
+                        int var43 = DE();
+                        push(var43);
+                        pc(55019, 1, 13);
+                        int var44 = mem(54971, 55019);
+                        A(var44);
+                        pc(55022, 1, 4);
+                        int var45 = A();
+                        int var46 = alu("dec", var45);
+                        A(var46);
+                        pc(55023, 1, 4);
+                        int var47 = E();
+                        int var48 = A();
+                        int var49 = alu("add", var48, var47);
+                        A(var49);
+                        pc(55024, 1, 4);
+                        int var50 = A();
+                        E(var50);
+                        pc(55025, 1, 17);
                         $D7D6();
-                        pc(55058, 1);
-                        int var43 = pop();
-                        DE(var43);
-                        pc(55059, 1);
+                        pc(55028, 1, 10);
+                        int var51 = pop();
+                        DE(var51);
+                        pc(55029, 1, 4);
+                        int var52 = E();
+                        int var53 = alu("dec", var52);
+                        E(var53);
+                        pc(55030, 1, 7);
+                        D(3);
+                        pc(55032, 1, 12);
+                     } else {
+                        pc(55014, 1, 7);
                         D(129);
-                        pc(55061, 1);
-                        int var44 = E();
-                        int var45 = alu("inc", var44);
-                        E(var45);
+                        pc(55016, 1, 12);
                      }
+                  } else {
+                     pc(55005, 1, 4);
+                     int var21 = D();
+                     int var22 = alu("dec", var21);
+                     D(var22);
+                     pc(55006, 1, 12);
                   }
                }
             }
 
-            pc(55062, 2);
-            int var13 = IY() + 0;
-            int var14 = E();
-            wMem(var13, var14, 55062);
-            pc(55065, 2);
-            int var15 = IY() + 4;
-            int var16 = mem(var15, 55065);
-            A(var16);
-            pc(55068, 1);
-            int var17 = A();
-            int var18 = alu("and", var17, 64);
-            A(var18);
-            pc(55070, 1);
-            int var19 = D();
-            int var20 = A();
-            int var21 = alu("or", var20, var19);
-            A(var21);
-            pc(55071, 2);
-            int var22 = IY() + 4;
-            int var23 = A();
-            wMem(var22, var23, 55071);
-            pc(55074, 1);
+            pc(55062, 2, 19);
+            int var23 = IY() + 0;
+            int var24 = E();
+            wMem(var23, var24, 55062);
+            pc(55065, 2, 19);
+            int var25 = IY() + 4;
+            int var26 = mem(var25, 55065);
+            A(var26);
+            pc(55068, 1, 7);
+            int var27 = A();
+            int var28 = alu("and", var27, 64);
+            A(var28);
+            pc(55070, 1, 4);
+            int var29 = D();
+            int var30 = A();
+            int var31 = alu("or", var30, var29);
+            A(var31);
+            pc(55071, 2, 19);
+            int var32 = IY() + 4;
+            int var33 = A();
+            wMem(var32, var33, 55071);
+            pc(55074, 1, 17);
             $D7E7();
-            pc(55077, 1);
-            int var24 = pop();
-            BC(var24);
-            pc(55078, 1);
+            pc(55077, 1, 10);
+            int var34 = pop();
+            BC(var34);
+            pc(55078, 1, 10);
             DE(8);
-            pc(55081, 2);
-            int var25 = DE();
-            int var26 = IY();
-            int var27 = alu("add16", var26, var25);
-            IY(var27);
-            pc(55083, 1);
-            int var28 = B() - 1 & 255;
-            B(var28);
-         } while(B() != 0);
+            pc(55081, 2, 15);
+            int var35 = DE();
+            int var36 = IY();
+            int var37 = alu("add16", var36, var35);
+            IY(var37);
+            pc(55083, 1, 8);
+            int var38 = B() - 1 & 255;
+            B(var38);
+            if(B() == 0) {
+               pc(55085, 1, 10);
+               return;
+            }
 
-         pc(55085, 1);
+            tstates(5);
+         }
       }
    }
 
    public void $D732() {
-      pc(55090, 1);
+      pc(55090, 1, 4);
       int var1 = A();
       int var2 = A();
       int var3 = alu("and", var2, var1);
       A(var3);
-      pc(55091, 1);
-      if(!flag(64, false)) {
-         pc(55092, 1);
+      pc(55091, 1, 5);
+      if(flag(64, false)) {
+         tstates(6);
+      } else {
+         pc(55092, 1, 4);
          int var4 = A();
          B(var4);
 
-         do {
-            pc(55093, 1);
+         while(true) {
+            pc(55093, 1, 11);
             int var5 = BC();
             push(var5);
-            pc(55094, 2);
+            pc(55094, 2, 19);
             int var6 = IY() + 4;
             int var7 = mem(var6, 55094);
             E(var7);
-            pc(55097, 2);
+            pc(55097, 2, 19);
             int var8 = IY() + 1;
             int var9 = mem(var8, 55097);
             D(var9);
-            pc(55100, 2);
+            pc(55100, 2, 23);
             int var10 = IY() + 6;
             int var11 = mem(var10, 55100);
             int var12 = alu("dec", var11);
             wMem(var10, var12, 55100);
-            pc(55103, 1);
-            if(!flag(64, true)) {
-               pc(55105, 2);
-               int var29 = IY() + 7;
-               int var30 = mem(var29, 55105);
-               A(var30);
-               pc(55108, 2);
-               int var31 = IY() + 6;
-               int var32 = A();
-               wMem(var31, var32, 55108);
-               pc(55111, 2);
-               int var33 = E();
-               bit(7, var33);
-               pc(55113, 1);
-               if(!flag(64, true)) {
-                  pc(55115, 1);
-                  int var48 = E();
-                  A(var48);
-                  pc(55116, 1);
-                  int var49 = A();
-                  int var50 = alu("and", var49, 7);
-                  A(var50);
-                  pc(55118, 1);
-                  int var51 = A();
-                  alu("cp", var51, 7);
-                  pc(55120, 1);
-                  if(!flag(64, false)) {
-                     pc(55122, 1);
-                     int var65 = E();
-                     int var66 = alu("inc", var65);
-                     E(var66);
-                     pc(55123, 1);
-                  } else {
-                     pc(55125, 1);
-                     int var52 = D();
-                     A(var52);
-                     pc(55126, 2);
-                     int var53 = IY() + 2;
-                     int var54 = mem(var53, 55126);
-                     int var55 = A();
-                     alu("cp", var55, var54);
-                     pc(55129, 1);
-                     if(!flag(64, true)) {
-                        pc(55131, 1);
-                        E(128);
-                        pc(55133, 1);
-                     } else {
-                        pc(55135, 1);
-                        int var56 = D();
-                        int var57 = alu("dec", var56);
-                        D(var57);
-                        pc(55136, 1);
-                        int var58 = DE();
-                        push(var58);
-                        pc(55137, 1);
-                        int var59 = mem(55087, 55137);
-                        A(var59);
-                        pc(55140, 1);
-                        int var60 = D();
-                        int var61 = A();
-                        int var62 = alu("add", var61, var60);
-                        A(var62);
-                        pc(55141, 1);
-                        int var63 = A();
-                        D(var63);
-                        pc(55142, 1);
+            pc(55103, 1, 7);
+            if(flag(64, true)) {
+               tstates(5);
+            } else {
+               pc(55105, 2, 19);
+               int var13 = IY() + 7;
+               int var14 = mem(var13, 55105);
+               A(var14);
+               pc(55108, 2, 19);
+               int var15 = IY() + 6;
+               int var16 = A();
+               wMem(var15, var16, 55108);
+               pc(55111, 2, 8);
+               int var17 = E();
+               bit(7, var17);
+               pc(55113, 1, 7);
+               if(flag(64, true)) {
+                  tstates(5);
+                  pc(55150, 1, 4);
+                  int var53 = E();
+                  A(var53);
+                  pc(55151, 1, 7);
+                  int var54 = A();
+                  int var55 = alu("and", var54, 7);
+                  A(var55);
+                  pc(55153, 1, 7);
+                  int var56 = A();
+                  alu("cp", var56, 3);
+                  pc(55155, 1, 7);
+                  if(flag(64, false)) {
+                     tstates(5);
+                     pc(55160, 1, 4);
+                     int var59 = D();
+                     A(var59);
+                     pc(55161, 2, 19);
+                     int var60 = IY() + 3;
+                     int var61 = mem(var60, 55161);
+                     int var62 = A();
+                     alu("cp", var62, var61);
+                     pc(55164, 1, 7);
+                     if(flag(64, true)) {
+                        tstates(5);
+                        pc(55170, 1, 11);
+                        int var63 = DE();
+                        push(var63);
+                        pc(55171, 1, 17);
                         $D7A2();
-                        pc(55145, 1);
+                        pc(55174, 1, 10);
                         int var64 = pop();
                         DE(var64);
-                        pc(55146, 1);
+                        pc(55175, 1, 7);
+                        E(128);
+                        pc(55177, 1, 4);
+                        int var65 = D();
+                        int var66 = alu("inc", var65);
+                        D(var66);
+                     } else {
+                        pc(55166, 1, 7);
                         E(4);
-                        pc(55148, 1);
+                        pc(55168, 1, 12);
                      }
+                  } else {
+                     pc(55157, 1, 4);
+                     int var57 = E();
+                     int var58 = alu("inc", var57);
+                     E(var58);
+                     pc(55158, 1, 12);
                   }
                } else {
-                  pc(55150, 1);
-                  int var34 = E();
-                  A(var34);
-                  pc(55151, 1);
-                  int var35 = A();
-                  int var36 = alu("and", var35, 7);
-                  A(var36);
-                  pc(55153, 1);
-                  int var37 = A();
-                  alu("cp", var37, 3);
-                  pc(55155, 1);
-                  if(!flag(64, false)) {
-                     pc(55157, 1);
-                     int var46 = E();
-                     int var47 = alu("inc", var46);
-                     E(var47);
-                     pc(55158, 1);
-                  } else {
-                     pc(55160, 1);
-                     int var38 = D();
-                     A(var38);
-                     pc(55161, 2);
-                     int var39 = IY() + 3;
-                     int var40 = mem(var39, 55161);
-                     int var41 = A();
-                     alu("cp", var41, var40);
-                     pc(55164, 1);
-                     if(!flag(64, true)) {
-                        pc(55166, 1);
-                        E(4);
-                        pc(55168, 1);
-                     } else {
-                        pc(55170, 1);
-                        int var42 = DE();
-                        push(var42);
-                        pc(55171, 1);
-                        $D7A2();
-                        pc(55174, 1);
-                        int var43 = pop();
-                        DE(var43);
-                        pc(55175, 1);
-                        E(128);
-                        pc(55177, 1);
+                  pc(55115, 1, 4);
+                  int var18 = E();
+                  A(var18);
+                  pc(55116, 1, 7);
+                  int var19 = A();
+                  int var20 = alu("and", var19, 7);
+                  A(var20);
+                  pc(55118, 1, 7);
+                  int var21 = A();
+                  alu("cp", var21, 7);
+                  pc(55120, 1, 7);
+                  if(flag(64, false)) {
+                     tstates(5);
+                     pc(55125, 1, 4);
+                     int var40 = D();
+                     A(var40);
+                     pc(55126, 2, 19);
+                     int var41 = IY() + 2;
+                     int var42 = mem(var41, 55126);
+                     int var43 = A();
+                     alu("cp", var43, var42);
+                     pc(55129, 1, 7);
+                     if(flag(64, true)) {
+                        tstates(5);
+                        pc(55135, 1, 4);
                         int var44 = D();
-                        int var45 = alu("inc", var44);
+                        int var45 = alu("dec", var44);
                         D(var45);
+                        pc(55136, 1, 11);
+                        int var46 = DE();
+                        push(var46);
+                        pc(55137, 1, 13);
+                        int var47 = mem(55087, 55137);
+                        A(var47);
+                        pc(55140, 1, 4);
+                        int var48 = D();
+                        int var49 = A();
+                        int var50 = alu("add", var49, var48);
+                        A(var50);
+                        pc(55141, 1, 4);
+                        int var51 = A();
+                        D(var51);
+                        pc(55142, 1, 17);
+                        $D7A2();
+                        pc(55145, 1, 10);
+                        int var52 = pop();
+                        DE(var52);
+                        pc(55146, 1, 7);
+                        E(4);
+                        pc(55148, 1, 12);
+                     } else {
+                        pc(55131, 1, 7);
+                        E(128);
+                        pc(55133, 1, 12);
                      }
+                  } else {
+                     pc(55122, 1, 4);
+                     int var22 = E();
+                     int var23 = alu("inc", var22);
+                     E(var23);
+                     pc(55123, 1, 12);
                   }
                }
             }
 
-            pc(55178, 2);
-            int var13 = IY() + 1;
-            int var14 = D();
-            wMem(var13, var14, 55178);
-            pc(55181, 2);
-            int var15 = IY() + 4;
-            int var16 = mem(var15, 55181);
-            A(var16);
-            pc(55184, 1);
-            int var17 = A();
-            int var18 = alu("and", var17, 64);
-            A(var18);
-            pc(55186, 1);
-            int var19 = E();
-            int var20 = A();
-            int var21 = alu("or", var20, var19);
-            A(var21);
-            pc(55187, 2);
-            int var22 = IY() + 4;
-            int var23 = A();
-            wMem(var22, var23, 55187);
-            pc(55190, 1);
+            pc(55178, 2, 19);
+            int var24 = IY() + 1;
+            int var25 = D();
+            wMem(var24, var25, 55178);
+            pc(55181, 2, 19);
+            int var26 = IY() + 4;
+            int var27 = mem(var26, 55181);
+            A(var27);
+            pc(55184, 1, 7);
+            int var28 = A();
+            int var29 = alu("and", var28, 64);
+            A(var29);
+            pc(55186, 1, 4);
+            int var30 = E();
+            int var31 = A();
+            int var32 = alu("or", var31, var30);
+            A(var32);
+            pc(55187, 2, 19);
+            int var33 = IY() + 4;
+            int var34 = A();
+            wMem(var33, var34, 55187);
+            pc(55190, 1, 17);
             $D7B7();
-            pc(55193, 1);
-            int var24 = pop();
-            BC(var24);
-            pc(55194, 1);
+            pc(55193, 1, 10);
+            int var35 = pop();
+            BC(var35);
+            pc(55194, 1, 10);
             DE(8);
-            pc(55197, 2);
-            int var25 = DE();
-            int var26 = IY();
-            int var27 = alu("add16", var26, var25);
-            IY(var27);
-            pc(55199, 1);
-            int var28 = B() - 1 & 255;
-            B(var28);
-         } while(B() != 0);
+            pc(55197, 2, 15);
+            int var36 = DE();
+            int var37 = IY();
+            int var38 = alu("add16", var37, var36);
+            IY(var38);
+            pc(55199, 1, 8);
+            int var39 = B() - 1 & 255;
+            B(var39);
+            if(B() == 0) {
+               pc(55201, 1, 10);
+               return;
+            }
 
-         pc(55201, 1);
+            tstates(5);
+         }
       }
    }
 
    public void $D7A2() {
-      pc(55202, 2);
+      pc(55202, 2, 19);
       int var1 = IY() + 0;
       int var2 = mem(var1, 55202);
       E(var2);
-      pc(55205, 1);
+      pc(55205, 1, 17);
       $E8E3();
-      pc(55208, 1);
+      pc(55208, 1, 4);
       exHLDE();
-      pc(55209, 1);
+      pc(55209, 1, 10);
       DE(32);
-      pc(55212, 1);
+      pc(55212, 1, 13);
       int var3 = mem(55086, 55212);
       A(var3);
-      pc(55215, 1);
+      pc(55215, 1, 4);
       int var4 = A();
       B(var4);
-      pc(55216, 1);
+      pc(55216, 1, 7);
       A(69);
 
-      do {
-         pc(55218, 1);
+      while(true) {
+         pc(55218, 1, 7);
          int var5 = A();
          int var6 = HL();
          wMem(var6, var5, 55218);
-         pc(55219, 1);
+         pc(55219, 1, 11);
          int var7 = DE();
          int var8 = HL();
          int var9 = alu("add16", var8, var7);
          HL(var9);
-         pc(55220, 1);
+         pc(55220, 1, 8);
          int var10 = B() - 1 & 255;
          B(var10);
-      } while(B() != 0);
+         if(B() == 0) {
+            pc(55222, 1, 10);
+            return;
+         }
 
-      pc(55222, 1);
+         tstates(5);
+      }
    }
 
    public void $D7B7() {
-      pc(55223, 1);
+      pc(55223, 1, 4);
       int var1 = E();
       A(var1);
-      pc(55224, 1);
+      pc(55224, 1, 7);
       int var2 = A();
       int var3 = alu("and", var2, 7);
       A(var3);
-      pc(55226, 1);
+      pc(55226, 1, 4);
       int var4 = A();
       int var5 = A();
       int var6 = alu("add", var5, var4);
       A(var6);
-      pc(55227, 1);
+      pc(55227, 1, 4);
       int var7 = A();
       int var8 = A();
       int var9 = alu("add", var8, var7);
       A(var9);
-      pc(55228, 1);
+      pc(55228, 1, 4);
       int var10 = A();
       int var11 = A();
       int var12 = alu("add", var11, var10);
       A(var12);
-      pc(55229, 1);
+      pc(55229, 1, 4);
       int var13 = A();
       C(var13);
-      pc(55230, 1);
+      pc(55230, 1, 7);
       B(0);
-      pc(55232, 1);
+      pc(55232, 1, 4);
       int var14 = A();
       L(var14);
-      pc(55233, 1);
+      pc(55233, 1, 4);
       int var15 = B();
       H(var15);
-      pc(55234, 1);
+      pc(55234, 1, 11);
       int var16 = HL();
       int var17 = HL();
       int var18 = alu("add16", var17, var16);
       HL(var18);
-      pc(55235, 1);
+      pc(55235, 1, 11);
       int var19 = HL();
       int var20 = HL();
       int var21 = alu("add16", var20, var19);
       HL(var21);
-      pc(55236, 1);
+      pc(55236, 1, 11);
       int var22 = HL();
       int var23 = HL();
       int var24 = alu("add16", var23, var22);
       HL(var24);
-      pc(55237, 1);
+      pc(55237, 1, 11);
       int var25 = BC();
       int var26 = HL();
       int var27 = alu("add16", var26, var25);
       HL(var27);
-      pc(55238, 2);
+      pc(55238, 2, 20);
       int var28 = mem16(55088, 55238);
       BC(var28);
-      pc(55242, 1);
+      pc(55242, 1, 11);
       int var29 = BC();
       int var30 = HL();
       int var31 = alu("add16", var30, var29);
       HL(var31);
-      pc(55243, 2);
+      pc(55243, 2, 19);
       int var32 = IY() + 0;
       int var33 = mem(var32, 55243);
       E(var33);
-      pc(55246, 2);
+      pc(55246, 2, 20);
       int var34 = mem16(55086, 55246);
       BC(var34);
-      pc(55250, 1);
+      pc(55250, 1, 17);
       $E96B();
-      pc(55253, 1);
+      pc(55253, 1, 10);
    }
 
    public void $D7D6() {
-      pc(55254, 2);
+      pc(55254, 2, 19);
       int var1 = IY() + 1;
       int var2 = mem(var1, 55254);
       D(var2);
-      pc(55257, 1);
+      pc(55257, 1, 17);
       $E8E3();
-      pc(55260, 1);
+      pc(55260, 1, 13);
       int var3 = mem(54972, 55260);
       A(var3);
-      pc(55263, 1);
+      pc(55263, 1, 4);
       int var4 = A();
       B(var4);
-      pc(55264, 1);
+      pc(55264, 1, 7);
       A(69);
 
-      do {
-         pc(55266, 1);
+      while(true) {
+         pc(55266, 1, 7);
          int var5 = A();
          int var6 = DE();
          wMem(var6, var5, 55266);
-         pc(55267, 1);
+         pc(55267, 1, 4);
          int var7 = E();
          int var8 = alu("inc", var7);
          E(var8);
-         pc(55268, 1);
+         pc(55268, 1, 8);
          int var9 = B() - 1 & 255;
          B(var9);
-      } while(B() != 0);
+         if(B() == 0) {
+            pc(55270, 1, 10);
+            return;
+         }
 
-      pc(55270, 1);
+         tstates(5);
+      }
    }
 
    public void $D7E7() {
-      pc(55271, 1);
+      pc(55271, 1, 13);
       int var1 = mem(54972, 55271);
       A(var1);
-      pc(55274, 1);
+      pc(55274, 1, 4);
       int var2 = A();
       B(var2);
-      pc(55275, 1);
+      pc(55275, 1, 16);
       int var3 = mem16(54973, 55275);
       HL(var3);
-      pc(55278, 1);
+      pc(55278, 1, 4);
       int var4 = D();
       A(var4);
-      pc(55279, 1);
+      pc(55279, 1, 7);
       int var5 = A();
       int var6 = alu("and", var5, 7);
       A(var6);
-      pc(55281, 1);
+      pc(55281, 1, 4);
       int var7 = A();
       int var8 = A();
       int var9 = alu("add", var8, var7);
       A(var9);
-      pc(55282, 1);
+      pc(55282, 1, 4);
       int var10 = A();
       C(var10);
-      pc(55283, 1);
+      pc(55283, 1, 4);
       int var11 = A();
       int var12 = A();
       int var13 = alu("xor", var12, var11);
       A(var13);
 
-      do {
-         pc(55284, 1);
+      while(true) {
+         pc(55284, 1, 4);
          int var14 = C();
          int var15 = A();
          int var16 = alu("add", var15, var14);
          A(var16);
-         pc(55285, 1);
+         pc(55285, 1, 8);
          int var17 = B() - 1 & 255;
          B(var17);
-      } while(B() != 0);
+         if(B() == 0) {
+            pc(55287, 1, 4);
+            int var18 = A();
+            C(var18);
+            pc(55288, 2, 8);
+            int var19 = D();
+            bit(0, var19);
+            pc(55290, 1, 7);
+            if(flag(64, true)) {
+               tstates(5);
+               pc(55299, 1, 7);
+               A(144);
+               pc(55301, 1, 4);
+               int var30 = C();
+               int var31 = A();
+               int var32 = alu("sub", var31, var30);
+               A(var32);
+               pc(55302, 1, 4);
+               int var33 = A();
+               C(var33);
+               pc(55303, 1, 11);
+               int var34 = BC();
+               int var35 = HL();
+               int var36 = alu("add16", var35, var34);
+               HL(var36);
+            } else {
+               pc(55292, 1, 7);
+               A(24);
+               pc(55294, 1, 4);
+               int var20 = C();
+               int var21 = A();
+               int var22 = alu("sub", var21, var20);
+               A(var22);
+               pc(55295, 1, 4);
+               int var23 = A();
+               C(var23);
+               pc(55296, 1, 11);
+               int var24 = BC();
+               int var25 = HL();
+               int var26 = alu("add16", var25, var24);
+               HL(var26);
+               pc(55297, 1, 12);
+            }
 
-      pc(55287, 1);
-      int var18 = A();
-      C(var18);
-      pc(55288, 2);
-      int var19 = D();
-      bit(0, var19);
-      pc(55290, 1);
-      if(!flag(64, true)) {
-         pc(55292, 1);
-         A(24);
-         pc(55294, 1);
-         int var30 = C();
-         int var31 = A();
-         int var32 = alu("sub", var31, var30);
-         A(var32);
-         pc(55295, 1);
-         int var33 = A();
-         C(var33);
-         pc(55296, 1);
-         int var34 = BC();
-         int var35 = HL();
-         int var36 = alu("add16", var35, var34);
-         HL(var36);
-         pc(55297, 1);
-      } else {
-         pc(55299, 1);
-         A(144);
-         pc(55301, 1);
-         int var20 = C();
-         int var21 = A();
-         int var22 = alu("sub", var21, var20);
-         A(var22);
-         pc(55302, 1);
-         int var23 = A();
-         C(var23);
-         pc(55303, 1);
-         int var24 = BC();
-         int var25 = HL();
-         int var26 = alu("add16", var25, var24);
-         HL(var26);
+            pc(55304, 2, 19);
+            int var27 = IY() + 1;
+            int var28 = mem(var27, 55304);
+            D(var28);
+            pc(55307, 2, 20);
+            int var29 = mem16(54971, 55307);
+            BC(var29);
+            pc(55311, 1, 17);
+            $E96B();
+            pc(55314, 1, 10);
+            return;
+         }
+
+         tstates(5);
       }
-
-      pc(55304, 2);
-      int var27 = IY() + 1;
-      int var28 = mem(var27, 55304);
-      D(var28);
-      pc(55307, 2);
-      int var29 = mem16(54971, 55307);
-      BC(var29);
-      pc(55311, 1);
-      $E96B();
-      pc(55314, 1);
    }
 
    public void $D815() {
-      pc(55317, 1);
+      pc(55317, 1, 7);
       int var1 = DE();
       int var2 = mem(var1, 55317);
       A(var2);
-      pc(55318, 1);
+      pc(55318, 1, 7);
       int var3 = A();
       int var4 = alu("and", var3, 12);
       A(var4);
-      pc(55320, 1);
+      pc(55320, 1, 4);
       int var5 = A();
       int var6 = alu("rrca", var5);
       A(var6);
-      pc(55321, 1);
+      pc(55321, 1, 4);
       int var7 = A();
       int var8 = alu("rrca", var7);
       A(var8);
-      pc(55322, 1);
+      pc(55322, 1, 4);
       int var9 = A();
       C(var9);
-      pc(55323, 1);
+      pc(55323, 1, 7);
       int var10 = A();
       int var11 = HL();
       wMem(var11, var10, 55323);
-      pc(55324, 1);
+      pc(55324, 1, 6);
       int var12 = HL();
       int var13 = inc16(var12);
       HL(var13);
-      pc(55325, 1);
+      pc(55325, 1, 7);
       int var14 = DE();
       int var15 = mem(var14, 55325);
       A(var15);
-      pc(55326, 1);
+      pc(55326, 1, 7);
       int var16 = A();
       int var17 = alu("and", var16, 3);
       A(var17);
-      pc(55328, 1);
+      pc(55328, 1, 4);
       int var18 = A();
       int var19 = alu("inc", var18);
       A(var19);
-      pc(55329, 1);
+      pc(55329, 1, 4);
       int var20 = A();
       B(var20);
-      pc(55330, 1);
+      pc(55330, 1, 7);
       int var21 = A();
       int var22 = HL();
       wMem(var22, var21, 55330);
-      pc(55331, 2);
+      pc(55331, 2, 20);
       int var23 = BC();
       wMem16(55086, var23, 55331);
-      pc(55335, 1);
+      pc(55335, 1, 4);
       int var24 = C();
       A(var24);
-      pc(55336, 1);
+      pc(55336, 1, 4);
       int var25 = A();
       int var26 = A();
       int var27 = alu("add", var26, var25);
       A(var27);
-      pc(55337, 1);
+      pc(55337, 1, 4);
       int var28 = A();
       int var29 = A();
       int var30 = alu("add", var29, var28);
       A(var30);
-      pc(55338, 1);
+      pc(55338, 1, 4);
       int var31 = A();
       int var32 = A();
       int var33 = alu("add", var32, var31);
       A(var33);
-      pc(55339, 1);
+      pc(55339, 1, 13);
       int var34 = A();
       wMem(55315, var34, 55339);
-      pc(55342, 1);
+      pc(55342, 1, 4);
       int var35 = A();
       C(var35);
-      pc(55343, 1);
+      pc(55343, 1, 4);
       int var36 = A();
       int var37 = A();
       int var38 = alu("xor", var37, var36);
       A(var38);
 
-      do {
-         pc(55344, 1);
+      while(true) {
+         pc(55344, 1, 4);
          int var39 = C();
          int var40 = A();
          int var41 = alu("add", var40, var39);
          A(var41);
-         pc(55345, 1);
+         pc(55345, 1, 8);
          int var42 = B() - 1 & 255;
          B(var42);
-      } while(B() != 0);
+         if(B() == 0) {
+            pc(55347, 1, 13);
+            int var43 = A();
+            wMem(55316, var43, 55347);
+            pc(55350, 1, 6);
+            int var44 = DE();
+            int var45 = inc16(var44);
+            DE(var45);
+            pc(55351, 1, 11);
+            int var46 = DE();
+            push(var46);
+            pc(55352, 1, 6);
+            int var47 = HL();
+            int var48 = inc16(var47);
+            HL(var48);
+            pc(55353, 1, 16);
+            int var49 = HL();
+            wMem16(55088, var49, 55353);
+            pc(55356, 1, 4);
+            int var50 = L();
+            E(var50);
+            pc(55357, 1, 4);
+            int var51 = H();
+            D(var51);
+            pc(55358, 1, 6);
+            int var52 = DE();
+            int var53 = inc16(var52);
+            DE(var53);
+            pc(55359, 1, 10);
+            int var54 = HL();
+            wMem(var54, 0, 55359);
+            pc(55361, 1, 10);
+            BC(575);
+            pc(55364, 2, 21);
+            ldir(55364);
+            pc(55366, 1, 10);
+            int var55 = pop();
+            DE(var55);
+            pc(55367, 1, 7);
+            A(4);
+            pc(55369, 1, 16);
+            int var56 = mem16(55088, 55369);
+            HL(var56);
+            pc(55372, 1, 10);
+            BC(72);
 
-      pc(55347, 1);
-      int var43 = A();
-      wMem(55316, var43, 55347);
-      pc(55350, 1);
-      int var44 = DE();
-      int var45 = inc16(var44);
-      DE(var45);
-      pc(55351, 1);
-      int var46 = DE();
-      push(var46);
-      pc(55352, 1);
-      int var47 = HL();
-      int var48 = inc16(var47);
-      HL(var48);
-      pc(55353, 1);
-      int var49 = HL();
-      wMem16(55088, var49, 55353);
-      pc(55356, 1);
-      int var50 = L();
-      E(var50);
-      pc(55357, 1);
-      int var51 = H();
-      D(var51);
-      pc(55358, 1);
-      int var52 = DE();
-      int var53 = inc16(var52);
-      DE(var53);
-      pc(55359, 1);
-      int var54 = HL();
-      wMem(var54, 0, 55359);
-      pc(55361, 1);
-      BC(575);
-      pc(55364, 2);
-      ldir(55364);
-      pc(55366, 1);
-      int var55 = pop();
-      DE(var55);
-      pc(55367, 1);
-      A(4);
-      pc(55369, 1);
-      int var56 = mem16(55088, 55369);
-      HL(var56);
-      pc(55372, 1);
-      BC(72);
+            while(true) {
+               pc(55375, 1, 4);
+               int var57 = AF();
+               exAF(var57);
+               pc(55376, 1, 11);
+               int var58 = BC();
+               push(var58);
+               pc(55377, 1, 11);
+               int var59 = HL();
+               push(var59);
+               pc(55378, 1, 17);
+               $DB83();
+               pc(55381, 1, 10);
+               int var60 = pop();
+               HL(var60);
+               pc(55382, 1, 10);
+               int var61 = pop();
+               BC(var61);
+               pc(55383, 1, 11);
+               int var62 = BC();
+               int var63 = HL();
+               int var64 = alu("add16", var63, var62);
+               HL(var64);
+               pc(55384, 1, 4);
+               int var65 = AF();
+               exAF(var65);
+               pc(55385, 1, 4);
+               int var66 = A();
+               int var67 = alu("dec", var66);
+               A(var67);
+               pc(55386, 1, 7);
+               if(!flag(64, true)) {
+                  pc(55388, 1, 10);
+                  BC(72);
+                  pc(55391, 1, 16);
+                  int var68 = mem16(55088, 55391);
+                  HL(var68);
+                  pc(55394, 1, 7);
+                  A(2);
 
-      do {
-         pc(55375, 1);
-         int var57 = AF();
-         exAF(var57);
-         pc(55376, 1);
-         int var58 = BC();
-         push(var58);
-         pc(55377, 1);
-         int var59 = HL();
-         push(var59);
-         pc(55378, 1);
-         $DB83();
-         pc(55381, 1);
-         int var60 = pop();
-         HL(var60);
-         pc(55382, 1);
-         int var61 = pop();
-         BC(var61);
-         pc(55383, 1);
-         int var62 = BC();
-         int var63 = HL();
-         int var64 = alu("add16", var63, var62);
-         HL(var64);
-         pc(55384, 1);
-         int var65 = AF();
-         exAF(var65);
-         pc(55385, 1);
-         int var66 = A();
-         int var67 = alu("dec", var66);
-         A(var67);
-         pc(55386, 1);
-      } while(flag(64, true));
+                  while(true) {
+                     pc(55396, 1, 4);
+                     int var69 = AF();
+                     exAF(var69);
+                     pc(55397, 1, 11);
+                     int var70 = BC();
+                     push(var70);
+                     pc(55398, 1, 11);
+                     int var71 = HL();
+                     push(var71);
+                     pc(55399, 1, 17);
+                     $DB9B();
+                     pc(55402, 1, 10);
+                     int var72 = pop();
+                     HL(var72);
+                     pc(55403, 1, 10);
+                     int var73 = pop();
+                     BC(var73);
+                     pc(55404, 1, 11);
+                     int var74 = BC();
+                     int var75 = HL();
+                     int var76 = alu("add16", var75, var74);
+                     HL(var76);
+                     pc(55405, 1, 4);
+                     int var77 = AF();
+                     exAF(var77);
+                     pc(55406, 1, 7);
+                     int var78 = A();
+                     int var79 = alu("add", var78, 2);
+                     A(var79);
+                     pc(55408, 1, 7);
+                     int var80 = A();
+                     alu("cp", var80, 10);
+                     pc(55410, 1, 7);
+                     if(!flag(64, true)) {
+                        pc(55412, 1, 7);
+                        A(4);
+                        pc(55414, 1, 16);
+                        int var81 = mem16(55088, 55414);
+                        HL(var81);
+                        pc(55417, 1, 4);
+                        int var82 = H();
+                        D(var82);
+                        pc(55418, 1, 4);
+                        int var83 = L();
+                        E(var83);
+                        pc(55419, 1, 10);
+                        BC(288);
+                        pc(55422, 1, 11);
+                        int var84 = BC();
+                        int var85 = HL();
+                        int var86 = alu("add16", var85, var84);
+                        HL(var86);
+                        pc(55423, 1, 10);
+                        BC(72);
 
-      pc(55388, 1);
-      BC(72);
-      pc(55391, 1);
-      int var68 = mem16(55088, 55391);
-      HL(var68);
-      pc(55394, 1);
-      A(2);
+                        while(true) {
+                           pc(55426, 1, 4);
+                           int var87 = AF();
+                           exAF(var87);
+                           pc(55427, 1, 11);
+                           int var88 = BC();
+                           push(var88);
+                           pc(55428, 1, 11);
+                           int var89 = DE();
+                           push(var89);
+                           pc(55429, 1, 11);
+                           int var90 = HL();
+                           push(var90);
+                           pc(55430, 1, 17);
+                           $D9B0();
+                           pc(55433, 1, 10);
+                           int var91 = pop();
+                           HL(var91);
+                           pc(55434, 1, 10);
+                           int var92 = pop();
+                           DE(var92);
+                           pc(55435, 1, 10);
+                           int var93 = pop();
+                           BC(var93);
+                           pc(55436, 1, 11);
+                           int var94 = BC();
+                           int var95 = HL();
+                           int var96 = alu("add16", var95, var94);
+                           HL(var96);
+                           pc(55437, 1, 4);
+                           exHLDE();
+                           pc(55438, 1, 11);
+                           int var97 = BC();
+                           int var98 = HL();
+                           int var99 = alu("add16", var98, var97);
+                           HL(var99);
+                           pc(55439, 1, 4);
+                           exHLDE();
+                           pc(55440, 1, 4);
+                           int var100 = AF();
+                           exAF(var100);
+                           pc(55441, 1, 4);
+                           int var101 = A();
+                           int var102 = alu("dec", var101);
+                           A(var102);
+                           pc(55442, 1, 7);
+                           if(!flag(64, true)) {
+                              pc(55444, 1, 10);
+                              return;
+                           }
 
-      do {
-         pc(55396, 1);
-         int var69 = AF();
-         exAF(var69);
-         pc(55397, 1);
-         int var70 = BC();
-         push(var70);
-         pc(55398, 1);
-         int var71 = HL();
-         push(var71);
-         pc(55399, 1);
-         $DB9B();
-         pc(55402, 1);
-         int var72 = pop();
-         HL(var72);
-         pc(55403, 1);
-         int var73 = pop();
-         BC(var73);
-         pc(55404, 1);
-         int var74 = BC();
-         int var75 = HL();
-         int var76 = alu("add16", var75, var74);
-         HL(var76);
-         pc(55405, 1);
-         int var77 = AF();
-         exAF(var77);
-         pc(55406, 1);
-         int var78 = A();
-         int var79 = alu("add", var78, 2);
-         A(var79);
-         pc(55408, 1);
-         int var80 = A();
-         alu("cp", var80, 10);
-         pc(55410, 1);
-      } while(flag(64, true));
+                           tstates(5);
+                        }
+                     }
 
-      pc(55412, 1);
-      A(4);
-      pc(55414, 1);
-      int var81 = mem16(55088, 55414);
-      HL(var81);
-      pc(55417, 1);
-      int var82 = H();
-      D(var82);
-      pc(55418, 1);
-      int var83 = L();
-      E(var83);
-      pc(55419, 1);
-      BC(288);
-      pc(55422, 1);
-      int var84 = BC();
-      int var85 = HL();
-      int var86 = alu("add16", var85, var84);
-      HL(var86);
-      pc(55423, 1);
-      BC(72);
+                     tstates(5);
+                  }
+               }
 
-      do {
-         pc(55426, 1);
-         int var87 = AF();
-         exAF(var87);
-         pc(55427, 1);
-         int var88 = BC();
-         push(var88);
-         pc(55428, 1);
-         int var89 = DE();
-         push(var89);
-         pc(55429, 1);
-         int var90 = HL();
-         push(var90);
-         pc(55430, 1);
-         $D9B0();
-         pc(55433, 1);
-         int var91 = pop();
-         HL(var91);
-         pc(55434, 1);
-         int var92 = pop();
-         DE(var92);
-         pc(55435, 1);
-         int var93 = pop();
-         BC(var93);
-         pc(55436, 1);
-         int var94 = BC();
-         int var95 = HL();
-         int var96 = alu("add16", var95, var94);
-         HL(var96);
-         pc(55437, 1);
-         exHLDE();
-         pc(55438, 1);
-         int var97 = BC();
-         int var98 = HL();
-         int var99 = alu("add16", var98, var97);
-         HL(var99);
-         pc(55439, 1);
-         exHLDE();
-         pc(55440, 1);
-         int var100 = AF();
-         exAF(var100);
-         pc(55441, 1);
-         int var101 = A();
-         int var102 = alu("dec", var101);
-         A(var102);
-         pc(55442, 1);
-      } while(flag(64, true));
+               tstates(5);
+            }
+         }
 
-      pc(55444, 1);
+         tstates(5);
+      }
    }
 
    public void $D895() {
-      label100: {
-         label99: {
-            label98: {
-               pc(55445, 1);
+      label121: {
+         label120: {
+            label119: {
+               pc(55445, 1, 13);
                int var1 = mem(51323, 55445);
                A(var1);
-               pc(55448, 2);
+               pc(55448, 2, 8);
                int var2 = A();
                bit(2, var2);
-               pc(55450, 1);
+               pc(55450, 1, 10);
                if(!flag(64, true)) {
-                  pc(55453, 2);
+                  pc(55453, 2, 20);
                   int var13 = mem16(51314, 55453);
                   DE(var13);
-                  pc(55457, 1);
+                  pc(55457, 1, 7);
                   A(26);
-                  pc(55459, 1);
+                  pc(55459, 1, 4);
                   int var14 = E();
                   int var15 = A();
                   int var16 = alu("add", var15, var14);
                   A(var16);
-                  pc(55460, 1);
+                  pc(55460, 1, 4);
                   int var17 = A();
                   E(var17);
-                  pc(55461, 1);
+                  pc(55461, 1, 17);
                   $E909();
-                  pc(55464, 1);
+                  pc(55464, 1, 13);
                   int var18 = mem(51317, 55464);
                   A(var18);
-                  pc(55467, 1);
+                  pc(55467, 1, 7);
                   int var19 = A();
                   alu("cp", var19, 4);
-                  pc(55469, 1);
-                  if(!flag(64, false)) {
-                     pc(55471, 1);
-                     int var118 = A();
-                     alu("cp", var118, 3);
-                     pc(55473, 1);
-                     if(!flag(1, false)) {
-                        pc(55475, 1);
-                        int var119 = E();
-                        int var120 = alu("inc", var119);
-                        E(var120);
+                  pc(55469, 1, 7);
+                  if(flag(64, false)) {
+                     tstates(5);
+                  } else {
+                     pc(55471, 1, 7);
+                     int var20 = A();
+                     alu("cp", var20, 3);
+                     pc(55473, 1, 7);
+                     if(flag(1, false)) {
+                        tstates(5);
+                     } else {
+                        pc(55475, 1, 4);
+                        int var21 = E();
+                        int var22 = alu("inc", var21);
+                        E(var22);
                      }
                   }
 
-                  pc(55476, 1);
-                  int var20 = DE();
-                  int var21 = mem(var20, 55476);
-                  A(var21);
-                  pc(55477, 1);
-                  int var22 = A();
-                  B(var22);
-                  pc(55478, 1);
-                  int var23 = E();
-                  int var24 = alu("inc", var23);
-                  E(var24);
-                  pc(55479, 1);
-                  int var25 = DE();
-                  int var26 = mem(var25, 55479);
-                  A(var26);
-                  pc(55480, 1);
-                  int var27 = A();
-                  C(var27);
-                  pc(55481, 1);
+                  pc(55476, 1, 7);
+                  int var23 = DE();
+                  int var24 = mem(var23, 55476);
+                  A(var24);
+                  pc(55477, 1, 4);
+                  int var25 = A();
+                  B(var25);
+                  pc(55478, 1, 4);
+                  int var26 = E();
+                  int var27 = alu("inc", var26);
+                  E(var27);
+                  pc(55479, 1, 7);
+                  int var28 = DE();
+                  int var29 = mem(var28, 55479);
+                  A(var29);
+                  pc(55480, 1, 4);
+                  int var30 = A();
+                  C(var30);
+                  pc(55481, 1, 10);
                   HL(53196);
-                  pc(55484, 1);
+                  pc(55484, 1, 7);
                   D(7);
 
                   while(true) {
-                     pc(55486, 1);
-                     int var28 = HL();
-                     int var29 = mem(var28, 55486);
-                     E(var29);
-                     pc(55487, 1);
+                     pc(55486, 1, 7);
+                     int var31 = HL();
+                     int var32 = mem(var31, 55486);
+                     E(var32);
+                     pc(55487, 1, 17);
                      $D9AA();
-                     pc(55490, 1);
+                     pc(55490, 1, 7);
                      if(flag(64, false)) {
-                        pc(55575, 1);
+                        tstates(5);
+                        pc(55575, 1, 7);
                         A(14);
                         break;
                      }
 
-                     pc(55492, 1);
-                     int var38 = HL();
-                     int var39 = inc16(var38);
-                     HL(var39);
-                     pc(55493, 1);
-                     int var40 = D();
-                     int var41 = alu("dec", var40);
-                     D(var41);
-                     pc(55494, 1);
+                     pc(55492, 1, 6);
+                     int var33 = HL();
+                     int var34 = inc16(var33);
+                     HL(var34);
+                     pc(55493, 1, 4);
+                     int var35 = D();
+                     int var36 = alu("dec", var35);
+                     D(var36);
+                     pc(55494, 1, 7);
                      if(!flag(64, true)) {
-                        pc(55496, 1);
-                        int var42 = mem(53193, 55496);
-                        A(var42);
-                        pc(55499, 1);
-                        int var43 = A();
-                        E(var43);
-                        pc(55500, 1);
+                        pc(55496, 1, 13);
+                        int var37 = mem(53193, 55496);
+                        A(var37);
+                        pc(55499, 1, 4);
+                        int var38 = A();
+                        E(var38);
+                        pc(55500, 1, 17);
                         $D9AA();
-                        pc(55503, 1);
+                        pc(55503, 1, 10);
                         if(flag(64, false)) {
                            $DBB8();
                            return;
                         }
 
-                        pc(55506, 1);
+                        pc(55506, 1, 7);
                         E(56);
-                        pc(55508, 1);
+                        pc(55508, 1, 17);
                         $D9AA();
-                        pc(55511, 1);
+                        pc(55511, 1, 10);
                         if(flag(64, false)) {
                            $DE0B();
                            return;
                         }
 
-                        pc(55514, 1);
+                        pc(55514, 1, 7);
                         E(104);
-                        pc(55516, 1);
+                        pc(55516, 1, 17);
                         $D9AA();
-                        pc(55519, 1);
+                        pc(55519, 1, 10);
                         if(flag(64, false)) {
                            $DE1B();
                            return;
                         }
 
-                        pc(55522, 1);
+                        pc(55522, 1, 7);
                         E(96);
-                        pc(55524, 1);
+                        pc(55524, 1, 17);
                         $D9AA();
-                        pc(55527, 1);
+                        pc(55527, 1, 10);
                         if(flag(64, false)) {
                            $DE28();
                            return;
                         }
 
-                        pc(55530, 1);
+                        pc(55530, 1, 7);
                         E(2);
-                        pc(55532, 1);
+                        pc(55532, 1, 17);
                         $D9AA();
-                        pc(55535, 1);
+                        pc(55535, 1, 7);
                         if(flag(64, true)) {
-                           pc(55550, 1);
+                           tstates(5);
+                           pc(55550, 1, 7);
                            E(79);
-                           pc(55552, 1);
+                           pc(55552, 1, 17);
                            $D9AA();
-                           pc(55555, 1);
-                           if(!flag(64, false)) {
-                              pc(55557, 1);
-                              int var47 = mem(51316, 55557);
-                              A(var47);
-                              pc(55560, 1);
-                              int var48 = A();
-                              B(var48);
-                              pc(55561, 1);
-                              int var49 = A();
-                              int var50 = alu("and", var49, 81);
-                              A(var50);
-                              pc(55563, 1);
-                              if(!flag(64, true)) {
-                                 pc(55565, 1);
+                           pc(55555, 1, 7);
+                           if(flag(64, false)) {
+                              tstates(5);
+                              pc(55608, 1, 7);
+                              A(13);
+                              pc(55610, 1, 13);
+                              int var118 = A();
+                              wMem(56301, var118, 55610);
+                              pc(55613, 1, 13);
+                              int var119 = mem(51316, 55613);
+                              A(var119);
+                              pc(55616, 2, 8);
+                              int var120 = A() | 128;
+                              A(var120);
+                              pc(55618, 1, 12);
+                           } else {
+                              pc(55557, 1, 13);
+                              int var111 = mem(51316, 55557);
+                              A(var111);
+                              pc(55560, 1, 4);
+                              int var112 = A();
+                              B(var112);
+                              pc(55561, 1, 7);
+                              int var113 = A();
+                              int var114 = alu("and", var113, 81);
+                              A(var114);
+                              pc(55563, 1, 7);
+                              if(flag(64, true)) {
+                                 tstates(5);
+                              } else {
+                                 pc(55565, 1, 7);
                                  A(24);
-                                 pc(55567, 1);
-                                 int var53 = A();
-                                 wMem(53195, var53, 55567);
+                                 pc(55567, 1, 13);
+                                 int var115 = A();
+                                 wMem(53195, var115, 55567);
                               }
 
-                              pc(55570, 1);
-                              int var51 = B();
-                              A(var51);
-                              pc(55571, 2);
-                              int var52 = A() | 64;
-                              A(var52);
-                              pc(55573, 1);
-                           } else {
-                              pc(55608, 1);
-                              A(13);
-                              pc(55610, 1);
-                              int var44 = A();
-                              wMem(56301, var44, 55610);
-                              pc(55613, 1);
-                              int var45 = mem(51316, 55613);
-                              A(var45);
-                              pc(55616, 2);
-                              int var46 = A() | 128;
-                              A(var46);
-                              pc(55618, 1);
+                              pc(55570, 1, 4);
+                              int var116 = B();
+                              A(var116);
+                              pc(55571, 2, 8);
+                              int var117 = A() | 64;
+                              A(var117);
+                              pc(55573, 1, 12);
                            }
-                           break label99;
+                           break label120;
                         }
 
-                        pc(55537, 1);
-                        int var54 = mem(53194, 55537);
-                        A(var54);
-                        pc(55540, 1);
-                        int var55 = A();
-                        alu("cp", var55, 8);
-                        pc(55542, 1);
+                        pc(55537, 1, 13);
+                        int var39 = mem(53194, 55537);
+                        A(var39);
+                        pc(55540, 1, 7);
+                        int var40 = A();
+                        alu("cp", var40, 8);
+                        pc(55542, 1, 10);
                         if(flag(1, true)) {
-                           pc(54000, 1);
-                           int var56 = mem(51314, 54000);
-                           A(var56);
-                           pc(54003, 1);
-                           int var57 = A();
-                           int var58 = alu("and", var57, 7);
-                           A(var58);
-                           pc(54005, 1);
-                           int var59 = A();
-                           int var60 = A();
-                           int var61 = alu("and", var60, var59);
-                           A(var61);
-                           pc(54006, 1);
+                           pc(54000, 1, 13);
+                           int var41 = mem(51314, 54000);
+                           A(var41);
+                           pc(54003, 1, 7);
+                           int var42 = A();
+                           int var43 = alu("and", var42, 7);
+                           A(var43);
+                           pc(54005, 1, 4);
+                           int var44 = A();
+                           int var45 = A();
+                           int var46 = alu("and", var45, var44);
+                           A(var46);
+                           pc(54006, 1, 10);
                            if(!flag(64, true)) {
-                              pc(54009, 1);
-                              int var62 = mem(51318, 54009);
-                              A(var62);
-                              pc(54012, 1);
-                              int var63 = A();
-                              L(var63);
-                              pc(54013, 1);
-                              int var64 = mem(51316, 54013);
-                              A(var64);
-                              pc(54016, 1);
-                              int var65 = A();
-                              B(var65);
-                              pc(54017, 1);
-                              int var66 = L();
-                              A(var66);
-                              pc(54018, 1);
-                              int var67 = A();
-                              alu("cp", var67, 3);
-                              pc(54020, 1);
-                              if(!flag(1, true)) {
-                                 pc(54022, 1);
-                                 int var110 = mem(51316, 54022);
-                                 A(var110);
-                                 pc(54025, 1);
-                                 int var111 = A();
-                                 int var112 = alu("and", var111, 34);
-                                 A(var112);
-                                 pc(54027, 1);
-                                 int var113 = A();
-                                 wMem(51316, var113, 54027);
-                                 pc(54030, 1);
-                                 int var114 = A();
-                                 int var115 = A();
-                                 int var116 = alu("xor", var115, var114);
-                                 A(var116);
-                                 pc(54031, 1);
-                                 int var117 = A();
-                                 wMem(51318, var117, 54031);
-                                 pc(54034, 1);
-                                 $D567();
-                                 pc(54037, 1);
-                                 throw new StackException(54038);
-                              }
-
-                              pc(54041, 1);
-                              int var68 = HL();
-                              push(var68);
-                              pc(54042, 1);
-                              int var69 = DE();
-                              push(var69);
-                              pc(54043, 1);
-                              int var70 = BC();
-                              push(var70);
-                              pc(54044, 1);
-                              $E9BC();
-                              pc(54047, 1);
-                              int var71 = C();
-                              A(var71);
-                              pc(54048, 1);
-                              int var72 = pop();
-                              BC(var72);
-                              pc(54049, 1);
-                              int var73 = pop();
-                              DE(var73);
-                              pc(54050, 1);
-                              int var74 = pop();
-                              HL(var74);
-                              pc(54051, 1);
-                              int var75 = A();
-                              C(var75);
-                              pc(54052, 2);
-                              int var76 = C();
-                              bit(0, var76);
-                              pc(54054, 1);
-                              if(!flag(64, false)) {
-                                 pc(54056, 2);
-                                 int var105 = L();
-                                 int var106 = alu("srl", var105);
-                                 L(var106);
-                                 pc(54058, 1);
-                                 int var107 = L();
-                                 int var108 = alu("inc", var107);
-                                 L(var108);
-                                 pc(54059, 1);
-                                 int var109 = L();
-                                 A(var109);
-                                 pc(54060, 1);
-                              } else {
-                                 pc(54062, 1);
-                                 int var77 = L();
-                                 A(var77);
-                                 pc(54063, 2);
-                                 int var78 = A();
-                                 int var79 = alu("srl", var78);
-                                 A(var79);
-                                 pc(54065, 1);
-                                 int var80 = L();
-                                 int var81 = A();
-                                 int var82 = alu("add", var81, var80);
-                                 A(var82);
-                              }
-
-                              label66: {
-                                 pc(54066, 1);
-                                 int var83 = A();
-                                 wMem(51321, var83, 54066);
-                                 pc(54069, 2);
-                                 int var84 = C();
-                                 bit(2, var84);
-                                 pc(54071, 2);
-                                 int var85 = B() & -9;
-                                 B(var85);
-                                 pc(54073, 1);
-                                 if(!flag(64, true)) {
-                                    pc(54075, 2);
-                                    int var96 = B() | 8;
-                                    B(var96);
-                                    pc(54077, 2);
-                                    int var97 = C();
-                                    bit(1, var97);
-                                    pc(54079, 1);
-                                    if(!flag(64, true)) {
-                                       pc(54081, 2);
-                                       int var104 = B();
-                                       bit(1, var104);
-                                       pc(54083, 1);
-                                       if(!flag(64, true)) {
-                                          pc(54085, 1);
-                                          $D4B5();
-                                          pc(54088, 1);
-                                          break label66;
-                                       }
-                                    } else {
-                                       pc(54090, 2);
-                                       int var98 = B();
-                                       bit(1, var98);
-                                       pc(54092, 1);
-                                       if(!flag(64, false)) {
-                                          pc(54094, 1);
-                                          $D3EC();
-                                          break label66;
-                                       }
-                                    }
+                              pc(54009, 1, 13);
+                              int var47 = mem(51318, 54009);
+                              A(var47);
+                              pc(54012, 1, 4);
+                              int var48 = A();
+                              L(var48);
+                              pc(54013, 1, 13);
+                              int var49 = mem(51316, 54013);
+                              A(var49);
+                              pc(54016, 1, 4);
+                              int var50 = A();
+                              B(var50);
+                              pc(54017, 1, 4);
+                              int var51 = L();
+                              A(var51);
+                              pc(54018, 1, 7);
+                              int var52 = A();
+                              alu("cp", var52, 3);
+                              pc(54020, 1, 7);
+                              if(flag(1, true)) {
+                                 tstates(5);
+                                 pc(54041, 1, 11);
+                                 int var61 = HL();
+                                 push(var61);
+                                 pc(54042, 1, 11);
+                                 int var62 = DE();
+                                 push(var62);
+                                 pc(54043, 1, 11);
+                                 int var63 = BC();
+                                 push(var63);
+                                 pc(54044, 1, 17);
+                                 $E9BC();
+                                 pc(54047, 1, 4);
+                                 int var64 = C();
+                                 A(var64);
+                                 pc(54048, 1, 10);
+                                 int var65 = pop();
+                                 BC(var65);
+                                 pc(54049, 1, 10);
+                                 int var66 = pop();
+                                 DE(var66);
+                                 pc(54050, 1, 10);
+                                 int var67 = pop();
+                                 HL(var67);
+                                 pc(54051, 1, 4);
+                                 int var68 = A();
+                                 C(var68);
+                                 pc(54052, 2, 8);
+                                 int var69 = C();
+                                 bit(0, var69);
+                                 pc(54054, 1, 7);
+                                 if(flag(64, false)) {
+                                    tstates(5);
+                                    pc(54062, 1, 4);
+                                    int var97 = L();
+                                    A(var97);
+                                    pc(54063, 2, 8);
+                                    int var98 = A();
+                                    int var99 = alu("srl", var98);
+                                    A(var99);
+                                    pc(54065, 1, 4);
+                                    int var100 = L();
+                                    int var101 = A();
+                                    int var102 = alu("add", var101, var100);
+                                    A(var102);
+                                 } else {
+                                    pc(54056, 2, 8);
+                                    int var70 = L();
+                                    int var71 = alu("srl", var70);
+                                    L(var71);
+                                    pc(54058, 1, 4);
+                                    int var72 = L();
+                                    int var73 = alu("inc", var72);
+                                    L(var73);
+                                    pc(54059, 1, 4);
+                                    int var74 = L();
+                                    A(var74);
+                                    pc(54060, 1, 12);
                                  }
 
-                                 pc(54113, 2);
-                                 int var86 = B() | 16;
-                                 B(var86);
-                                 pc(54115, 2);
-                                 int var87 = B() & -5;
-                                 B(var87);
-                                 pc(54117, 1);
-                                 int var88 = B();
-                                 A(var88);
-                                 pc(54118, 1);
-                                 int var89 = A();
-                                 wMem(51316, var89, 54118);
-                                 pc(54121, 1);
-                                 int var90 = A();
-                                 int var91 = A();
-                                 int var92 = alu("xor", var91, var90);
-                                 A(var92);
-                                 pc(54122, 1);
-                                 int var93 = A();
-                                 wMem(51318, var93, 54122);
-                                 pc(54125, 1);
-                                 A(12);
-                                 pc(54127, 1);
-                                 int var94 = A();
-                                 wMem(53195, var94, 54127);
-                                 pc(54130, 1);
-                                 A(14);
-                                 pc(54132, 1);
-                                 int var95 = A();
-                                 wMem(56301, var95, 54132);
-                                 pc(54135, 1);
+                                 label84: {
+                                    pc(54066, 1, 13);
+                                    int var75 = A();
+                                    wMem(51321, var75, 54066);
+                                    pc(54069, 2, 8);
+                                    int var76 = C();
+                                    bit(2, var76);
+                                    pc(54071, 2, 8);
+                                    int var77 = B() & -9;
+                                    B(var77);
+                                    pc(54073, 1, 7);
+                                    if(flag(64, true)) {
+                                       tstates(5);
+                                    } else {
+                                       pc(54075, 2, 8);
+                                       int var78 = B() | 8;
+                                       B(var78);
+                                       pc(54077, 2, 8);
+                                       int var79 = C();
+                                       bit(1, var79);
+                                       pc(54079, 1, 7);
+                                       if(flag(64, true)) {
+                                          tstates(5);
+                                          pc(54090, 2, 8);
+                                          int var96 = B();
+                                          bit(1, var96);
+                                          pc(54092, 1, 7);
+                                          if(!flag(64, false)) {
+                                             pc(54094, 1, 17);
+                                             $D3EC();
+                                             break label84;
+                                          }
+
+                                          tstates(5);
+                                       } else {
+                                          pc(54081, 2, 8);
+                                          int var80 = B();
+                                          bit(1, var80);
+                                          pc(54083, 1, 7);
+                                          if(!flag(64, true)) {
+                                             pc(54085, 1, 17);
+                                             $D4B5();
+                                             pc(54088, 1, 12);
+                                             break label84;
+                                          }
+
+                                          tstates(5);
+                                       }
+                                    }
+
+                                    pc(54113, 2, 8);
+                                    int var86 = B() | 16;
+                                    B(var86);
+                                    pc(54115, 2, 8);
+                                    int var87 = B() & -5;
+                                    B(var87);
+                                    pc(54117, 1, 4);
+                                    int var88 = B();
+                                    A(var88);
+                                    pc(54118, 1, 13);
+                                    int var89 = A();
+                                    wMem(51316, var89, 54118);
+                                    pc(54121, 1, 4);
+                                    int var90 = A();
+                                    int var91 = A();
+                                    int var92 = alu("xor", var91, var90);
+                                    A(var92);
+                                    pc(54122, 1, 13);
+                                    int var93 = A();
+                                    wMem(51318, var93, 54122);
+                                    pc(54125, 1, 7);
+                                    A(12);
+                                    pc(54127, 1, 13);
+                                    int var94 = A();
+                                    wMem(53195, var94, 54127);
+                                    pc(54130, 1, 7);
+                                    A(14);
+                                    pc(54132, 1, 13);
+                                    int var95 = A();
+                                    wMem(56301, var95, 54132);
+                                    pc(54135, 1, 10);
+                                    return;
+                                 }
+
+                                 pc(54097, 1, 13);
+                                 int var81 = mem(51316, 54097);
+                                 A(var81);
+                                 pc(54100, 1, 7);
+                                 int var82 = A();
+                                 int var83 = alu("and", var82, 34);
+                                 A(var83);
+                                 pc(54102, 1, 13);
+                                 int var84 = A();
+                                 wMem(51316, var84, 54102);
+                                 pc(54105, 1, 7);
+                                 A(9);
+                                 pc(54107, 1, 13);
+                                 int var85 = A();
+                                 wMem(51318, var85, 54107);
+                                 pc(54110, 1, 10);
+                                 $D1CE();
                                  return;
                               }
 
-                              pc(54097, 1);
-                              int var99 = mem(51316, 54097);
-                              A(var99);
-                              pc(54100, 1);
-                              int var100 = A();
-                              int var101 = alu("and", var100, 34);
-                              A(var101);
-                              pc(54102, 1);
-                              int var102 = A();
-                              wMem(51316, var102, 54102);
-                              pc(54105, 1);
-                              A(9);
-                              pc(54107, 1);
-                              int var103 = A();
-                              wMem(51318, var103, 54107);
-                              pc(54110, 1);
-                              $D1CE();
-                              return;
+                              pc(54022, 1, 13);
+                              int var53 = mem(51316, 54022);
+                              A(var53);
+                              pc(54025, 1, 7);
+                              int var54 = A();
+                              int var55 = alu("and", var54, 34);
+                              A(var55);
+                              pc(54027, 1, 13);
+                              int var56 = A();
+                              wMem(51316, var56, 54027);
+                              pc(54030, 1, 4);
+                              int var57 = A();
+                              int var58 = A();
+                              int var59 = alu("xor", var58, var57);
+                              A(var59);
+                              pc(54031, 1, 13);
+                              int var60 = A();
+                              wMem(51318, var60, 54031);
+                              pc(54034, 1, 17);
+                              $D567();
+                              pc(54037, 1, 10);
+                              throw new StackException(54038);
                            }
-                           break label100;
+                           break label121;
                         }
 
-                        pc(55545, 1);
+                        pc(55545, 1, 7);
                         A(13);
-                        pc(55547, 1);
+                        pc(55547, 1, 10);
                         break;
                      }
+
+                     tstates(5);
                   }
 
-                  pc(55577, 1);
-                  int var30 = A();
-                  wMem(56301, var30, 55577);
-                  pc(55580, 1);
-                  int var31 = mem(51314, 55580);
-                  A(var31);
-                  pc(55583, 1);
-                  int var32 = A();
-                  int var33 = alu("and", var32, 7);
-                  A(var33);
-                  pc(55585, 1);
-                  int var34 = A();
-                  alu("cp", var34, 6);
-                  pc(55587, 1);
+                  pc(55577, 1, 13);
+                  int var103 = A();
+                  wMem(56301, var103, 55577);
+                  pc(55580, 1, 13);
+                  int var104 = mem(51314, 55580);
+                  A(var104);
+                  pc(55583, 1, 7);
+                  int var105 = A();
+                  int var106 = alu("and", var105, 7);
+                  A(var106);
+                  pc(55585, 1, 7);
+                  int var107 = A();
+                  alu("cp", var107, 6);
+                  pc(55587, 1, 7);
                   if(flag(64, true)) {
-                     break label100;
+                     tstates(5);
+                     break label121;
                   }
 
-                  pc(55589, 1);
-                  int var35 = mem(51316, 55589);
-                  A(var35);
-                  pc(55592, 1);
-                  int var36 = A();
-                  int var37 = alu("and", var36, 17);
-                  A(var37);
-                  pc(55594, 1);
+                  pc(55589, 1, 13);
+                  int var108 = mem(51316, 55589);
+                  A(var108);
+                  pc(55592, 1, 7);
+                  int var109 = A();
+                  int var110 = alu("and", var109, 17);
+                  A(var110);
+                  pc(55594, 1, 7);
                   if(flag(64, true)) {
-                     break label98;
+                     tstates(5);
+                     break label119;
                   }
                }
 
-               pc(55596, 1);
+               pc(55596, 1, 13);
                int var3 = mem(51318, 55596);
                A(var3);
-               pc(55599, 1);
+               pc(55599, 1, 7);
                int var4 = A();
                alu("cp", var4, 28);
-               pc(55601, 1);
-               if(!flag(1, false)) {
-                  pc(55603, 1);
+               pc(55601, 1, 7);
+               if(flag(1, false)) {
+                  tstates(5);
+               } else {
+                  pc(55603, 1, 17);
                   $CD8A();
-                  pc(55606, 1);
+                  pc(55606, 1, 12);
                }
             }
 
-            pc(55620, 1);
+            pc(55620, 1, 4);
             int var5 = A();
             int var6 = A();
             int var7 = alu("xor", var6, var5);
             A(var7);
-            pc(55621, 1);
+            pc(55621, 1, 13);
             int var8 = A();
             wMem(51318, var8, 55621);
-            pc(55624, 1);
+            pc(55624, 1, 13);
             int var9 = mem(51316, 55624);
             A(var9);
-            pc(55627, 1);
+            pc(55627, 1, 7);
             int var10 = A();
             int var11 = alu("and", var10, 34);
             A(var11);
          }
 
-         pc(55629, 1);
+         pc(55629, 1, 13);
          int var12 = A();
          wMem(51316, var12, 55629);
       }
 
-      pc(55632, 1);
+      pc(55632, 1, 10);
    }
 
    public void $D951() {
-      pc(55633, 1);
+      pc(55633, 1, 13);
       int var1 = mem(51314, 55633);
       A(var1);
-      pc(55636, 1);
+      pc(55636, 1, 4);
       int var2 = A();
       E(var2);
-      pc(55637, 1);
+      pc(55637, 1, 4);
       int var3 = E();
       int var4 = alu("inc", var3);
       E(var4);
-      pc(55638, 1);
+      pc(55638, 1, 4);
       int var5 = E();
       int var6 = alu("inc", var5);
       E(var6);
-      pc(55639, 1);
+      pc(55639, 1, 17);
       $E909();
-      pc(55642, 1);
+      pc(55642, 1, 4);
       exHLDE();
-      pc(55643, 1);
+      pc(55643, 1, 10);
       DE(32);
-      pc(55646, 1);
+      pc(55646, 1, 13);
       int var7 = mem(51318, 55646);
       A(var7);
-      pc(55649, 1);
+      pc(55649, 1, 7);
       int var8 = A();
       alu("cp", var8, 5);
-      pc(55651, 1);
-      if(!flag(1, false)) {
-         pc(55653, 1);
-         int var31 = mem(51314, 55653);
-         A(var31);
-         pc(55656, 1);
-         int var32 = A();
-         int var33 = alu("and", var32, 7);
-         A(var33);
-         pc(55658, 1);
-         int var34 = A();
-         alu("cp", var34, 6);
-         pc(55660, 1);
-         if(!flag(64, false)) {
-            pc(55662, 1);
-            int var35 = DE();
-            int var36 = HL();
-            int var37 = alu("add16", var36, var35);
-            HL(var37);
+      pc(55651, 1, 7);
+      if(flag(1, false)) {
+         tstates(5);
+      } else {
+         pc(55653, 1, 13);
+         int var9 = mem(51314, 55653);
+         A(var9);
+         pc(55656, 1, 7);
+         int var10 = A();
+         int var11 = alu("and", var10, 7);
+         A(var11);
+         pc(55658, 1, 7);
+         int var12 = A();
+         alu("cp", var12, 6);
+         pc(55660, 1, 7);
+         if(flag(64, false)) {
+            tstates(5);
+         } else {
+            pc(55662, 1, 11);
+            int var13 = DE();
+            int var14 = HL();
+            int var15 = alu("add16", var14, var13);
+            HL(var15);
          }
       }
 
-      pc(55663, 1);
-      int var9 = HL();
-      int var10 = mem(var9, 55663);
-      B(var10);
-      pc(55664, 1);
-      int var11 = DE();
-      int var12 = HL();
-      int var13 = alu("add16", var12, var11);
-      HL(var13);
-      pc(55665, 1);
-      int var14 = HL();
-      int var15 = mem(var14, 55665);
-      C(var15);
-      pc(55666, 1);
-      int var16 = DE();
-      int var17 = HL();
-      int var18 = alu("add16", var17, var16);
-      HL(var18);
-      pc(55667, 1);
+      pc(55663, 1, 7);
+      int var16 = HL();
+      int var17 = mem(var16, 55663);
+      B(var17);
+      pc(55664, 1, 11);
+      int var18 = DE();
       int var19 = HL();
-      int var20 = mem(var19, 55667);
-      D(var20);
-      pc(55668, 1);
+      int var20 = alu("add16", var19, var18);
+      HL(var20);
+      pc(55665, 1, 7);
+      int var21 = HL();
+      int var22 = mem(var21, 55665);
+      C(var22);
+      pc(55666, 1, 11);
+      int var23 = DE();
+      int var24 = HL();
+      int var25 = alu("add16", var24, var23);
+      HL(var25);
+      pc(55667, 1, 7);
+      int var26 = HL();
+      int var27 = mem(var26, 55667);
+      D(var27);
+      pc(55668, 1, 10);
       HL(53203);
-      pc(55671, 1);
+      pc(55671, 1, 7);
       A(6);
 
-      do {
-         pc(55673, 1);
-         int var21 = AF();
-         exAF(var21);
-         pc(55674, 1);
-         int var22 = HL();
-         int var23 = mem(var22, 55674);
-         E(var23);
-         pc(55675, 1);
+      while(true) {
+         pc(55673, 1, 4);
+         int var28 = AF();
+         exAF(var28);
+         pc(55674, 1, 7);
+         int var29 = HL();
+         int var30 = mem(var29, 55674);
+         E(var30);
+         pc(55675, 1, 17);
          $D9A7();
-         pc(55678, 1);
+         pc(55678, 1, 5);
          if(flag(64, false)) {
+            tstates(6);
             return;
          }
 
-         pc(55679, 1);
-         int var24 = HL();
-         int var25 = inc16(var24);
-         HL(var25);
-         pc(55680, 1);
-         int var26 = AF();
-         exAF(var26);
-         pc(55681, 1);
-         int var27 = A();
-         int var28 = alu("dec", var27);
-         A(var28);
-         pc(55682, 1);
-      } while(flag(64, true));
-
-      pc(55684, 1);
-      E(56);
-      pc(55686, 1);
-      $D9A7();
-      pc(55689, 1);
-      if(flag(64, false)) {
-         $DE0B();
-      } else {
-         pc(55692, 1);
-         E(104);
-         pc(55694, 1);
-         $D9A7();
-         pc(55697, 1);
-         if(flag(64, false)) {
-            $DE1B();
-         } else {
-            pc(55700, 1);
-            E(96);
-            pc(55702, 1);
+         pc(55679, 1, 6);
+         int var31 = HL();
+         int var32 = inc16(var31);
+         HL(var32);
+         pc(55680, 1, 4);
+         int var33 = AF();
+         exAF(var33);
+         pc(55681, 1, 4);
+         int var34 = A();
+         int var35 = alu("dec", var34);
+         A(var35);
+         pc(55682, 1, 7);
+         if(!flag(64, true)) {
+            pc(55684, 1, 7);
+            E(56);
+            pc(55686, 1, 17);
             $D9A7();
-            pc(55705, 1);
+            pc(55689, 1, 10);
+            if(flag(64, false)) {
+               $DE0B();
+               return;
+            }
+
+            pc(55692, 1, 7);
+            E(104);
+            pc(55694, 1, 17);
+            $D9A7();
+            pc(55697, 1, 10);
+            if(flag(64, false)) {
+               $DE1B();
+               return;
+            }
+
+            pc(55700, 1, 7);
+            E(96);
+            pc(55702, 1, 17);
+            $D9A7();
+            pc(55705, 1, 10);
             if(flag(64, false)) {
                $DE28();
-            } else {
-               pc(55708, 1);
-               int var29 = mem(53193, 55708);
-               A(var29);
-               pc(55711, 1);
-               int var30 = A();
-               E(var30);
-               pc(55712, 1);
-               $D9A7();
-               pc(55715, 1);
-               if(flag(64, false)) {
-                  $DBB8();
-               } else {
-                  pc(55718, 1);
-               }
+               return;
             }
+
+            pc(55708, 1, 13);
+            int var36 = mem(53193, 55708);
+            A(var36);
+            pc(55711, 1, 4);
+            int var37 = A();
+            E(var37);
+            pc(55712, 1, 17);
+            $D9A7();
+            pc(55715, 1, 10);
+            if(flag(64, false)) {
+               $DBB8();
+               return;
+            }
+
+            pc(55718, 1, 10);
+            return;
          }
+
+         tstates(5);
       }
    }
 
    public void $D9A7() {
-      pc(55719, 1);
+      pc(55719, 1, 4);
       int var1 = D();
       A(var1);
-      pc(55720, 1);
+      pc(55720, 1, 4);
       int var2 = E();
       int var3 = A();
       alu("cp", var3, var2);
-      pc(55721, 1);
-      if(!flag(64, false)) {
+      pc(55721, 1, 5);
+      if(flag(64, false)) {
+         tstates(6);
+      } else {
          $D9AA();
       }
    }
 
    public void $D9AA() {
-      pc(55722, 1);
+      pc(55722, 1, 4);
       int var1 = C();
       A(var1);
-      pc(55723, 1);
+      pc(55723, 1, 4);
       int var2 = E();
       int var3 = A();
       alu("cp", var3, var2);
-      pc(55724, 1);
-      if(!flag(64, false)) {
-         pc(55725, 1);
+      pc(55724, 1, 5);
+      if(flag(64, false)) {
+         tstates(6);
+      } else {
+         pc(55725, 1, 4);
          int var4 = B();
          A(var4);
-         pc(55726, 1);
+         pc(55726, 1, 4);
          int var5 = E();
          int var6 = A();
          alu("cp", var6, var5);
-         pc(55727, 1);
+         pc(55727, 1, 10);
       }
    }
 
    public void $D9B0() {
-      pc(55728, 1);
+      pc(55728, 1, 11);
       int var1 = HL();
       push(var1);
-      pc(55729, 1);
+      pc(55729, 1, 13);
       int var2 = mem(55087, 55729);
       A(var2);
-      pc(55732, 1);
+      pc(55732, 1, 4);
       int var3 = A();
       B(var3);
-      pc(55733, 1);
+      pc(55733, 1, 11);
       int var4 = HL();
       push(var4);
-      pc(55734, 1);
+      pc(55734, 1, 4);
       exx();
-      pc(55735, 1);
+      pc(55735, 1, 10);
       int var5 = pop();
       HL(var5);
-      pc(55736, 1);
+      pc(55736, 1, 4);
       int var6 = A();
       C(var6);
-      pc(55737, 1);
+      pc(55737, 1, 7);
       B(0);
-      pc(55739, 1);
+      pc(55739, 1, 11);
       int var7 = BC();
       int var8 = HL();
       int var9 = alu("add16", var8, var7);
       HL(var9);
-      pc(55740, 1);
+      pc(55740, 1, 6);
       int var10 = HL();
       int var11 = dec16(var10);
       HL(var11);
-      pc(55741, 1);
+      pc(55741, 1, 11);
       int var12 = HL();
       push(var12);
-      pc(55742, 1);
+      pc(55742, 1, 4);
       exx();
-      pc(55743, 1);
+      pc(55743, 1, 10);
       int var13 = pop();
       HL(var13);
-      pc(55744, 1);
+      pc(55744, 1, 13);
       int var14 = mem(55315, 55744);
       A(var14);
-      pc(55747, 1);
+      pc(55747, 1, 4);
       int var15 = A();
       C(var15);
 
-      do {
-         pc(55748, 1);
+      while(true) {
+         pc(55748, 1, 11);
          int var16 = BC();
          push(var16);
 
-         do {
-            pc(55749, 1);
+         while(true) {
+            pc(55749, 1, 7);
             int var17 = DE();
             int var18 = mem(var17, 55749);
             A(var18);
-            pc(55750, 1);
+            pc(55750, 1, 7);
             int var19 = A();
             int var20 = HL();
             wMem(var20, var19, 55750);
-            pc(55751, 1);
+            pc(55751, 1, 6);
             int var21 = HL();
             int var22 = dec16(var21);
             HL(var22);
-            pc(55752, 1);
+            pc(55752, 1, 6);
             int var23 = DE();
             int var24 = inc16(var23);
             DE(var24);
-            pc(55753, 1);
+            pc(55753, 1, 8);
             int var25 = B() - 1 & 255;
             B(var25);
-         } while(B() != 0);
+            if(B() == 0) {
+               pc(55755, 1, 4);
+               exx();
+               pc(55756, 1, 11);
+               int var26 = BC();
+               int var27 = HL();
+               int var28 = alu("add16", var27, var26);
+               HL(var28);
+               pc(55757, 1, 11);
+               int var29 = HL();
+               push(var29);
+               pc(55758, 1, 4);
+               exx();
+               pc(55759, 1, 10);
+               int var30 = pop();
+               HL(var30);
+               pc(55760, 1, 10);
+               int var31 = pop();
+               BC(var31);
+               pc(55761, 1, 4);
+               int var32 = C();
+               int var33 = alu("dec", var32);
+               C(var33);
+               pc(55762, 1, 7);
+               if(!flag(64, true)) {
+                  pc(55764, 1, 10);
+                  int var34 = pop();
+                  HL(var34);
+                  pc(55765, 1, 13);
+                  int var35 = mem(55316, 55765);
+                  A(var35);
+                  pc(55768, 1, 4);
+                  int var36 = A();
+                  C(var36);
+                  pc(55769, 1, 7);
+                  E(8);
 
-         pc(55755, 1);
-         exx();
-         pc(55756, 1);
-         int var26 = BC();
-         int var27 = HL();
-         int var28 = alu("add16", var27, var26);
-         HL(var28);
-         pc(55757, 1);
-         int var29 = HL();
-         push(var29);
-         pc(55758, 1);
-         exx();
-         pc(55759, 1);
-         int var30 = pop();
-         HL(var30);
-         pc(55760, 1);
-         int var31 = pop();
-         BC(var31);
-         pc(55761, 1);
-         int var32 = C();
-         int var33 = alu("dec", var32);
-         C(var33);
-         pc(55762, 1);
-      } while(flag(64, true));
+                  while(true) {
+                     pc(55771, 1, 4);
+                     int var37 = E();
+                     B(var37);
+                     pc(55772, 1, 7);
+                     int var38 = HL();
+                     int var39 = mem(var38, 55772);
+                     A(var39);
 
-      pc(55764, 1);
-      int var34 = pop();
-      HL(var34);
-      pc(55765, 1);
-      int var35 = mem(55316, 55765);
-      A(var35);
-      pc(55768, 1);
-      int var36 = A();
-      C(var36);
-      pc(55769, 1);
-      E(8);
+                     while(true) {
+                        pc(55773, 1, 4);
+                        int var40 = A();
+                        int var41 = alu("rra", var40);
+                        A(var41);
+                        pc(55774, 2, 8);
+                        int var42 = D();
+                        int var43 = alu("rl", var42);
+                        D(var43);
+                        pc(55776, 1, 8);
+                        int var44 = B() - 1 & 255;
+                        B(var44);
+                        if(B() == 0) {
+                           pc(55778, 1, 7);
+                           int var45 = D();
+                           int var46 = HL();
+                           wMem(var46, var45, 55778);
+                           pc(55779, 1, 6);
+                           int var47 = HL();
+                           int var48 = inc16(var47);
+                           HL(var48);
+                           pc(55780, 1, 4);
+                           int var49 = C();
+                           int var50 = alu("dec", var49);
+                           C(var50);
+                           pc(55781, 1, 7);
+                           if(!flag(64, true)) {
+                              pc(55783, 1, 10);
+                              return;
+                           }
 
-      do {
-         pc(55771, 1);
-         int var37 = E();
-         B(var37);
-         pc(55772, 1);
-         int var38 = HL();
-         int var39 = mem(var38, 55772);
-         A(var39);
+                           tstates(5);
+                           break;
+                        }
 
-         do {
-            pc(55773, 1);
-            int var40 = A();
-            int var41 = alu("rra", var40);
-            A(var41);
-            pc(55774, 2);
-            int var42 = D();
-            int var43 = alu("rl", var42);
-            D(var43);
-            pc(55776, 1);
-            int var44 = B() - 1 & 255;
-            B(var44);
-         } while(B() != 0);
+                        tstates(5);
+                     }
+                  }
+               }
 
-         pc(55778, 1);
-         int var45 = D();
-         int var46 = HL();
-         wMem(var46, var45, 55778);
-         pc(55779, 1);
-         int var47 = HL();
-         int var48 = inc16(var47);
-         HL(var48);
-         pc(55780, 1);
-         int var49 = C();
-         int var50 = alu("dec", var49);
-         C(var50);
-         pc(55781, 1);
-      } while(flag(64, true));
+               tstates(5);
+               break;
+            }
 
-      pc(55783, 1);
+            tstates(5);
+         }
+      }
    }
 
    public void $D9EC() {
-      label74: {
-         pc(55788, 1);
+      label89: {
+         pc(55788, 1, 13);
          int var1 = mem(55786, 55788);
          A(var1);
-         pc(55791, 1);
+         pc(55791, 1, 4);
          int var2 = A();
          B(var2);
-         pc(55792, 1);
+         pc(55792, 1, 13);
          int var3 = mem(53194, 55792);
          A(var3);
-         pc(55795, 1);
+         pc(55795, 1, 4);
          int var4 = A();
          C(var4);
-         pc(55796, 2);
+         pc(55796, 2, 20);
          int var5 = mem16(55784, 55796);
          DE(var5);
-         pc(55800, 1);
+         pc(55800, 1, 10);
          HL(55787);
-         pc(55803, 1);
+         pc(55803, 1, 11);
          int var6 = HL();
          int var7 = mem(var6, 55803);
          int var8 = alu("dec", var7);
          int var9 = HL();
          wMem(var9, var8, 55803);
-         pc(55804, 1);
-         if(!flag(64, true)) {
-            pc(55806, 1);
-            int var92 = HL();
-            wMem(var92, 3, 55806);
-            pc(55808, 1);
-            int var93 = E();
-            int var94 = alu("inc", var93);
-            E(var94);
-            pc(55809, 1);
-            int var95 = E();
-            A(var95);
-            pc(55810, 1);
-            int var96 = A();
-            alu("cp", var96, 4);
-            pc(55812, 1);
+         pc(55804, 1, 7);
+         if(flag(64, true)) {
+            tstates(5);
+         } else {
+            pc(55806, 1, 10);
+            int var10 = HL();
+            wMem(var10, 3, 55806);
+            pc(55808, 1, 4);
+            int var11 = E();
+            int var12 = alu("inc", var11);
+            E(var12);
+            pc(55809, 1, 4);
+            int var13 = E();
+            A(var13);
+            pc(55810, 1, 7);
+            int var14 = A();
+            alu("cp", var14, 4);
+            pc(55812, 1, 7);
             if(flag(64, true)) {
-               break label74;
+               tstates(5);
+               break label89;
             }
 
-            pc(55814, 1);
+            pc(55814, 1, 7);
             E(0);
-            pc(55816, 1);
-            int var97 = D();
-            int var98 = alu("dec", var97);
-            D(var98);
-            pc(55817, 1);
-            int var99 = D();
-            A(var99);
-            pc(55818, 1);
-            int var100 = A();
-            alu("cp", var100, 252);
-            pc(55820, 1);
+            pc(55816, 1, 4);
+            int var15 = D();
+            int var16 = alu("dec", var15);
+            D(var16);
+            pc(55817, 1, 4);
+            int var17 = D();
+            A(var17);
+            pc(55818, 1, 7);
+            int var18 = A();
+            alu("cp", var18, 252);
+            pc(55820, 1, 7);
             if(flag(64, true)) {
-               break label74;
+               tstates(5);
+               break label89;
             }
 
-            pc(55822, 1);
+            pc(55822, 1, 7);
             D(28);
-            pc(55824, 1);
-            int var101 = B();
-            int var102 = alu("inc", var101);
-            B(var102);
-            pc(55825, 1);
-            int var103 = B();
-            A(var103);
-            pc(55826, 1);
-            int var104 = A();
-            int var105 = alu("and", var104, 7);
-            A(var105);
-            pc(55828, 1);
-            int var106 = A();
-            B(var106);
-            pc(55829, 1);
-            int var107 = C();
-            A(var107);
-            pc(55830, 1);
-            int var108 = B();
-            int var109 = A();
-            alu("cp", var109, var108);
-            pc(55831, 1);
-            if(!flag(64, true)) {
-               pc(55833, 1);
+            pc(55824, 1, 4);
+            int var19 = B();
+            int var20 = alu("inc", var19);
+            B(var20);
+            pc(55825, 1, 4);
+            int var21 = B();
+            A(var21);
+            pc(55826, 1, 7);
+            int var22 = A();
+            int var23 = alu("and", var22, 7);
+            A(var23);
+            pc(55828, 1, 4);
+            int var24 = A();
+            B(var24);
+            pc(55829, 1, 4);
+            int var25 = C();
+            A(var25);
+            pc(55830, 1, 4);
+            int var26 = B();
+            int var27 = A();
+            alu("cp", var27, var26);
+            pc(55831, 1, 7);
+            if(flag(64, true)) {
+               tstates(5);
+            } else {
+               pc(55833, 1, 7);
                D(31);
             }
          }
 
-         pc(55835, 1);
-         int var10 = C();
-         A(var10);
-         pc(55836, 1);
-         int var11 = A();
-         alu("cp", var11, 8);
-         pc(55838, 1);
-         if(!flag(1, true)) {
-            label71: {
-               pc(55840, 1);
-               int var75 = A();
-               int var76 = alu("inc", var75);
-               A(var76);
-               pc(55841, 1);
-               int var77 = B();
-               int var78 = A();
-               alu("cp", var78, var77);
-               pc(55842, 1);
-               if(!flag(1, false)) {
-                  pc(55844, 1);
-                  int var85 = B();
-                  A(var85);
-                  pc(55845, 1);
-                  int var86 = A();
-                  alu("cp", var86, 2);
-                  pc(55847, 1);
+         pc(55835, 1, 4);
+         int var28 = C();
+         A(var28);
+         pc(55836, 1, 7);
+         int var29 = A();
+         alu("cp", var29, 8);
+         pc(55838, 1, 7);
+         if(flag(1, true)) {
+            tstates(5);
+         } else {
+            label86: {
+               pc(55840, 1, 4);
+               int var30 = A();
+               int var31 = alu("inc", var30);
+               A(var31);
+               pc(55841, 1, 4);
+               int var32 = B();
+               int var33 = A();
+               alu("cp", var33, var32);
+               pc(55842, 1, 7);
+               if(flag(1, false)) {
+                  tstates(5);
+               } else {
+                  pc(55844, 1, 4);
+                  int var34 = B();
+                  A(var34);
+                  pc(55845, 1, 7);
+                  int var35 = A();
+                  alu("cp", var35, 2);
+                  pc(55847, 1, 7);
                   if(flag(1, false)) {
-                     break label71;
+                     tstates(5);
+                     break label86;
                   }
 
-                  pc(55849, 1);
-                  int var87 = C();
-                  A(var87);
-                  pc(55850, 1);
-                  int var88 = A();
-                  int var89 = alu("dec", var88);
-                  A(var89);
-                  pc(55851, 1);
-                  int var90 = B();
-                  int var91 = A();
-                  alu("cp", var91, var90);
-                  pc(55852, 1);
+                  pc(55849, 1, 4);
+                  int var36 = C();
+                  A(var36);
+                  pc(55850, 1, 4);
+                  int var37 = A();
+                  int var38 = alu("dec", var37);
+                  A(var38);
+                  pc(55851, 1, 4);
+                  int var39 = B();
+                  int var40 = A();
+                  alu("cp", var40, var39);
+                  pc(55852, 1, 7);
                   if(flag(1, false)) {
-                     break label71;
+                     tstates(5);
+                     break label86;
                   }
                }
 
-               pc(55854, 1);
-               int var79 = C();
-               A(var79);
-               pc(55855, 1);
-               int var80 = A();
-               int var81 = alu("dec", var80);
-               A(var81);
-               pc(55856, 1);
-               int var82 = A();
-               int var83 = alu("and", var82, 7);
-               A(var83);
-               pc(55858, 1);
-               int var84 = A();
-               B(var84);
+               pc(55854, 1, 4);
+               int var41 = C();
+               A(var41);
+               pc(55855, 1, 4);
+               int var42 = A();
+               int var43 = alu("dec", var42);
+               A(var43);
+               pc(55856, 1, 7);
+               int var44 = A();
+               int var45 = alu("and", var44, 7);
+               A(var45);
+               pc(55858, 1, 4);
+               int var46 = A();
+               B(var46);
             }
          }
 
-         pc(55859, 1);
-         int var12 = B();
-         A(var12);
-         pc(55860, 1);
-         int var13 = A();
-         wMem(55786, var13, 55860);
+         pc(55859, 1, 4);
+         int var47 = B();
+         A(var47);
+         pc(55860, 1, 13);
+         int var48 = A();
+         wMem(55786, var48, 55860);
       }
 
-      pc(55863, 2);
-      int var14 = DE();
-      wMem16(55784, var14, 55863);
-      pc(55867, 1);
-      int var15 = C();
-      A(var15);
-      pc(55868, 1);
-      int var16 = B();
-      int var17 = A();
-      alu("cp", var17, var16);
-      pc(55869, 1);
-      if(!flag(64, true)) {
-         pc(55870, 1);
-         int var18 = E();
-         A(var18);
-         pc(55871, 1);
-         int var19 = A();
-         int var20 = A();
-         int var21 = alu("add", var20, var19);
-         A(var21);
-         pc(55872, 1);
-         int var22 = A();
-         int var23 = A();
-         int var24 = alu("add", var23, var22);
-         A(var24);
-         pc(55873, 1);
-         int var25 = A();
-         int var26 = A();
-         int var27 = alu("add", var26, var25);
-         A(var27);
-         pc(55874, 1);
-         int var28 = A();
-         int var29 = A();
-         int var30 = alu("add", var29, var28);
-         A(var30);
-         pc(55875, 1);
-         int var31 = A();
-         int var32 = A();
-         int var33 = alu("add", var32, var31);
-         A(var33);
-         pc(55876, 1);
-         int var34 = A();
-         C(var34);
-         pc(55877, 1);
+      pc(55863, 2, 20);
+      int var49 = DE();
+      wMem16(55784, var49, 55863);
+      pc(55867, 1, 4);
+      int var50 = C();
+      A(var50);
+      pc(55868, 1, 4);
+      int var51 = B();
+      int var52 = A();
+      alu("cp", var52, var51);
+      pc(55869, 1, 5);
+      if(flag(64, true)) {
+         tstates(6);
+      } else {
+         pc(55870, 1, 4);
+         int var53 = E();
+         A(var53);
+         pc(55871, 1, 4);
+         int var54 = A();
+         int var55 = A();
+         int var56 = alu("add", var55, var54);
+         A(var56);
+         pc(55872, 1, 4);
+         int var57 = A();
+         int var58 = A();
+         int var59 = alu("add", var58, var57);
+         A(var59);
+         pc(55873, 1, 4);
+         int var60 = A();
+         int var61 = A();
+         int var62 = alu("add", var61, var60);
+         A(var62);
+         pc(55874, 1, 4);
+         int var63 = A();
+         int var64 = A();
+         int var65 = alu("add", var64, var63);
+         A(var65);
+         pc(55875, 1, 4);
+         int var66 = A();
+         int var67 = A();
+         int var68 = alu("add", var67, var66);
+         A(var68);
+         pc(55876, 1, 4);
+         int var69 = A();
+         C(var69);
+         pc(55877, 1, 7);
          B(0);
-         pc(55879, 1);
+         pc(55879, 1, 10);
          HL(26777);
-         pc(55882, 1);
-         int var35 = BC();
-         int var36 = HL();
-         int var37 = alu("add16", var36, var35);
-         HL(var37);
-         pc(55883, 1);
-         int var38 = D();
-         C(var38);
-         pc(55884, 1);
+         pc(55882, 1, 11);
+         int var70 = BC();
+         int var71 = HL();
+         int var72 = alu("add16", var71, var70);
+         HL(var72);
+         pc(55883, 1, 4);
+         int var73 = D();
+         C(var73);
+         pc(55884, 1, 10);
          DE(20544);
-         pc(55887, 1);
+         pc(55887, 1, 4);
          exHLDE();
-         pc(55888, 1);
-         int var39 = C();
-         A(var39);
-         pc(55889, 1);
-         int var40 = A();
-         alu("cp", var40, 32);
-         pc(55891, 1);
-         if(!flag(1, true)) {
-            pc(55893, 1);
-            int var72 = BC();
-            int var73 = HL();
-            int var74 = alu("add16", var73, var72);
-            HL(var74);
+         pc(55888, 1, 4);
+         int var74 = C();
+         A(var74);
+         pc(55889, 1, 7);
+         int var75 = A();
+         alu("cp", var75, 32);
+         pc(55891, 1, 7);
+         if(flag(1, true)) {
+            tstates(5);
+         } else {
+            pc(55893, 1, 11);
+            int var76 = BC();
+            int var77 = HL();
+            int var78 = alu("add16", var77, var76);
+            HL(var78);
          }
 
-         pc(55894, 1);
+         pc(55894, 1, 7);
          B(4);
 
-         do {
-            pc(55896, 1);
-            int var41 = C();
-            A(var41);
-            pc(55897, 1);
-            int var42 = A();
-            alu("cp", var42, 32);
-            pc(55899, 1);
+         while(true) {
+            pc(55896, 1, 4);
+            int var79 = C();
+            A(var79);
+            pc(55897, 1, 7);
+            int var80 = A();
+            alu("cp", var80, 32);
+            pc(55899, 1, 7);
             if(!flag(1, false)) {
-               pc(55901, 1);
-               int var67 = HL();
-               push(var67);
-               pc(55902, 1);
+               pc(55901, 1, 11);
+               int var81 = HL();
+               push(var81);
+               pc(55902, 1, 10);
                HL(8);
-               pc(55905, 1);
-               int var68 = DE();
-               int var69 = HL();
-               int var70 = alu("add16", var69, var68);
-               HL(var70);
-               pc(55906, 1);
+               pc(55905, 1, 11);
+               int var82 = DE();
+               int var83 = HL();
+               int var84 = alu("add16", var83, var82);
+               HL(var84);
+               pc(55906, 1, 4);
                exHLDE();
-               pc(55907, 1);
-               int var71 = pop();
-               HL(var71);
-               pc(55908, 1);
+               pc(55907, 1, 10);
+               int var85 = pop();
+               HL(var85);
+               pc(55908, 1, 12);
             } else {
-               pc(55910, 1);
-               int var43 = BC();
-               push(var43);
-               pc(55911, 1);
-               int var44 = HL();
-               push(var44);
-               pc(55912, 1);
+               tstates(5);
+               pc(55910, 1, 11);
+               int var93 = BC();
+               push(var93);
+               pc(55911, 1, 11);
+               int var94 = HL();
+               push(var94);
+               pc(55912, 1, 7);
                B(8);
 
-               do {
-                  pc(55914, 1);
-                  int var45 = DE();
-                  int var46 = mem(var45, 55914);
-                  A(var46);
-                  pc(55915, 1);
-                  int var47 = A();
-                  int var48 = HL();
-                  wMem(var48, var47, 55915);
-                  pc(55916, 1);
-                  int var49 = H();
-                  int var50 = alu("inc", var49);
-                  H(var50);
-                  pc(55917, 1);
-                  int var51 = DE();
-                  int var52 = inc16(var51);
-                  DE(var52);
-                  pc(55918, 1);
-                  int var53 = B() - 1 & 255;
-                  B(var53);
-               } while(B() != 0);
+               while(true) {
+                  pc(55914, 1, 7);
+                  int var95 = DE();
+                  int var96 = mem(var95, 55914);
+                  A(var96);
+                  pc(55915, 1, 7);
+                  int var97 = A();
+                  int var98 = HL();
+                  wMem(var98, var97, 55915);
+                  pc(55916, 1, 4);
+                  int var99 = H();
+                  int var100 = alu("inc", var99);
+                  H(var100);
+                  pc(55917, 1, 6);
+                  int var101 = DE();
+                  int var102 = inc16(var101);
+                  DE(var102);
+                  pc(55918, 1, 8);
+                  int var103 = B() - 1 & 255;
+                  B(var103);
+                  if(B() == 0) {
+                     pc(55920, 1, 10);
+                     int var104 = pop();
+                     HL(var104);
+                     pc(55921, 1, 10);
+                     int var105 = pop();
+                     BC(var105);
+                     pc(55922, 1, 7);
+                     H(90);
+                     pc(55924, 1, 7);
+                     A(2);
+                     pc(55926, 1, 7);
+                     int var106 = A();
+                     int var107 = HL();
+                     wMem(var107, var106, 55926);
+                     pc(55927, 1, 7);
+                     H(80);
+                     pc(55929, 1, 4);
+                     int var108 = L();
+                     int var109 = alu("inc", var108);
+                     L(var109);
+                     break;
+                  }
 
-               pc(55920, 1);
-               int var54 = pop();
-               HL(var54);
-               pc(55921, 1);
-               int var55 = pop();
-               BC(var55);
-               pc(55922, 1);
-               H(90);
-               pc(55924, 1);
-               A(2);
-               pc(55926, 1);
-               int var56 = A();
-               int var57 = HL();
-               wMem(var57, var56, 55926);
-               pc(55927, 1);
-               H(80);
-               pc(55929, 1);
-               int var58 = L();
-               int var59 = alu("inc", var58);
-               L(var59);
+                  tstates(5);
+               }
             }
 
-            pc(55930, 1);
-            int var60 = C();
-            int var61 = alu("inc", var60);
-            C(var61);
-            pc(55931, 1);
-            int var62 = B() - 1 & 255;
-            B(var62);
-         } while(B() != 0);
+            pc(55930, 1, 4);
+            int var86 = C();
+            int var87 = alu("inc", var86);
+            C(var87);
+            pc(55931, 1, 8);
+            int var88 = B() - 1 & 255;
+            B(var88);
+            if(B() == 0) {
+               pc(55933, 1, 4);
+               int var89 = C();
+               A(var89);
+               pc(55934, 1, 7);
+               int var90 = A();
+               alu("cp", var90, 32);
+               pc(55936, 1, 5);
+               if(flag(1, true)) {
+                  tstates(6);
+                  return;
+               }
 
-         pc(55933, 1);
-         int var63 = C();
-         A(var63);
-         pc(55934, 1);
-         int var64 = A();
-         alu("cp", var64, 32);
-         pc(55936, 1);
-         if(!flag(1, true)) {
-            pc(55937, 1);
-            H(90);
-            pc(55939, 1);
-            A(69);
-            pc(55941, 1);
-            int var65 = A();
-            int var66 = HL();
-            wMem(var66, var65, 55941);
-            pc(55942, 1);
+               pc(55937, 1, 7);
+               H(90);
+               pc(55939, 1, 7);
+               A(69);
+               pc(55941, 1, 7);
+               int var91 = A();
+               int var92 = HL();
+               wMem(var92, var91, 55941);
+               pc(55942, 1, 10);
+               return;
+            }
+
+            tstates(5);
          }
       }
    }
 
    public void $DA8D() {
-      pc(55949, 1);
+      pc(55949, 1, 13);
       int var1 = mem(55946, 55949);
       A(var1);
-      pc(55952, 2);
+      pc(55952, 2, 8);
       int var2 = A();
       bit(1, var2);
-      pc(55954, 1);
+      pc(55954, 1, 10);
       if(!flag(64, true)) {
-         pc(55957, 2);
+         pc(55957, 2, 8);
          int var16 = A();
          bit(0, var16);
-         pc(55959, 1);
+         pc(55959, 1, 10);
          if(!flag(64, true)) {
-            pc(55962, 1);
+            pc(55962, 1, 16);
             int var44 = mem16(55947, 55962);
             HL(var44);
-            pc(55965, 1);
+            pc(55965, 1, 4);
             if(HL() == 56008) {
-               pc(56008, 1);
+               pc(56008, 1, 10);
                HL(56058);
-               pc(56011, 1);
+               pc(56011, 1, 16);
                int var45 = HL();
                wMem16(55947, var45, 56011);
-               pc(56014, 1);
+               pc(56014, 1, 10);
                DE(10);
-               pc(56017, 1);
+               pc(56017, 1, 7);
                B(30);
-               pc(56019, 1);
+               pc(56019, 1, 17);
                $DAB2();
-               pc(56022, 1);
+               pc(56022, 1, 10);
                BC(1856);
-               pc(56025, 1);
+               pc(56025, 1, 17);
                $D4AF();
-               pc(56028, 1);
+               pc(56028, 1, 10);
                DE(20);
-               pc(56031, 1);
+               pc(56031, 1, 7);
                B(20);
-               pc(56033, 1);
+               pc(56033, 1, 17);
                $DAB2();
-               pc(56036, 1);
+               pc(56036, 1, 10);
                return;
             }
 
@@ -8452,725 +9013,781 @@ public class DynamiteDan extends MiniZX {
                return;
             }
 
-            pc(55966, 1);
+            pc(55966, 1, 10);
             HL(56058);
-            pc(55969, 1);
+            pc(55969, 1, 16);
             int var46 = HL();
             wMem16(55947, var46, 55969);
-            pc(55972, 1);
+            pc(55972, 1, 13);
             int var47 = mem(55943, 55972);
             A(var47);
          } else {
-            pc(56087, 1);
+            pc(56087, 1, 16);
             int var17 = mem16(55944, 56087);
             HL(var17);
-            pc(56090, 1);
+            pc(56090, 1, 7);
             int var18 = HL();
             int var19 = mem(var18, 56090);
             A(var19);
-            pc(56091, 1);
+            pc(56091, 1, 6);
             int var20 = HL();
             int var21 = inc16(var20);
             HL(var21);
-            pc(56092, 1);
+            pc(56092, 1, 16);
             int var22 = HL();
             wMem16(55944, var22, 56092);
-            pc(56095, 1);
+            pc(56095, 1, 7);
             int var23 = A();
             alu("cp", var23, 255);
-            pc(56097, 1);
+            pc(56097, 1, 7);
             if(flag(64, false)) {
-               pc(56105, 1);
+               tstates(5);
+               pc(56105, 1, 10);
                HL(56058);
-               pc(56108, 1);
-               int var24 = HL();
-               wMem16(55947, var24, 56108);
-               pc(56111, 1);
-               int var25 = mem(55946, 56111);
-               A(var25);
-               pc(56114, 2);
-               int var26 = A() & -2;
-               A(var26);
-               pc(56116, 1);
-               int var27 = A();
-               wMem(55946, var27, 56116);
-               pc(56119, 1);
+               pc(56108, 1, 16);
+               int var40 = HL();
+               wMem16(55947, var40, 56108);
+               pc(56111, 1, 13);
+               int var41 = mem(55946, 56111);
+               A(var41);
+               pc(56114, 2, 8);
+               int var42 = A() & -2;
+               A(var42);
+               pc(56116, 1, 13);
+               int var43 = A();
+               wMem(55946, var43, 56116);
+               pc(56119, 1, 10);
                return;
             }
 
-            pc(56099, 1);
-            int var28 = A();
-            int var29 = A();
-            int var30 = alu("and", var29, var28);
-            A(var30);
-            pc(56100, 1);
+            pc(56099, 1, 4);
+            int var24 = A();
+            int var25 = A();
+            int var26 = alu("and", var25, var24);
+            A(var26);
+            pc(56100, 1, 7);
             if(flag(64, false)) {
+               tstates(5);
                $DAFA();
                return;
             }
 
-            pc(56102, 1);
+            pc(56102, 1, 10);
          }
 
-         pc(55975, 1);
-         int var31 = A();
-         int var32 = A();
-         int var33 = alu("add", var32, var31);
-         A(var33);
-         pc(55976, 1);
-         int var34 = A();
-         E(var34);
-         pc(55977, 1);
+         pc(55975, 1, 4);
+         int var27 = A();
+         int var28 = A();
+         int var29 = alu("add", var28, var27);
+         A(var29);
+         pc(55976, 1, 4);
+         int var30 = A();
+         E(var30);
+         pc(55977, 1, 7);
          D(0);
-         pc(55979, 1);
+         pc(55979, 1, 10);
          HL(26905);
-         pc(55982, 1);
-         int var35 = DE();
+         pc(55982, 1, 11);
+         int var31 = DE();
+         int var32 = HL();
+         int var33 = alu("add16", var32, var31);
+         HL(var33);
+         pc(55983, 1, 7);
+         int var34 = HL();
+         int var35 = mem(var34, 55983);
+         E(var35);
+         pc(55984, 1, 6);
          int var36 = HL();
-         int var37 = alu("add16", var36, var35);
+         int var37 = inc16(var36);
          HL(var37);
-         pc(55983, 1);
+         pc(55985, 1, 7);
          int var38 = HL();
-         int var39 = mem(var38, 55983);
-         E(var39);
-         pc(55984, 1);
-         int var40 = HL();
-         int var41 = inc16(var40);
-         HL(var41);
-         pc(55985, 1);
-         int var42 = HL();
-         int var43 = mem(var42, 55985);
-         B(var43);
+         int var39 = mem(var38, 55985);
+         B(var39);
          $DAB2();
       } else {
-         pc(56037, 1);
+         pc(56037, 1, 10);
          HL(60980);
-         pc(56040, 1);
+         pc(56040, 1, 7);
          B(9);
 
-         do {
-            pc(56042, 1);
+         while(true) {
+            pc(56042, 1, 7);
             int var3 = HL();
             int var4 = mem(var3, 56042);
             E(var4);
-            pc(56043, 1);
+            pc(56043, 1, 7);
             D(0);
-            pc(56045, 1);
+            pc(56045, 1, 6);
             int var5 = HL();
             int var6 = inc16(var5);
             HL(var6);
-            pc(56046, 1);
+            pc(56046, 1, 7);
             int var7 = HL();
             int var8 = mem(var7, 56046);
             B(var8);
-            pc(56047, 1);
+            pc(56047, 1, 11);
             int var9 = HL();
             push(var9);
-            pc(56048, 1);
+            pc(56048, 1, 11);
             int var10 = BC();
             push(var10);
-            pc(56049, 1);
+            pc(56049, 1, 17);
             $DAB2();
-            pc(56052, 1);
+            pc(56052, 1, 10);
             int var11 = pop();
             BC(var11);
-            pc(56053, 1);
+            pc(56053, 1, 10);
             int var12 = pop();
             HL(var12);
-            pc(56054, 1);
+            pc(56054, 1, 6);
             int var13 = HL();
             int var14 = inc16(var13);
             HL(var14);
-            pc(56055, 1);
+            pc(56055, 1, 8);
             int var15 = B() - 1 & 255;
             B(var15);
-         } while(B() != 0);
+            if(B() == 0) {
+               pc(56057, 1, 10);
+               return;
+            }
 
-         pc(56057, 1);
+            tstates(5);
+         }
       }
    }
 
    public void $DAB2() {
-      pc(55986, 1);
+      pc(55986, 1, 13);
       int var1 = mem(59392, 55986);
       A(var1);
 
-      do {
-         pc(55989, 1);
+      while(true) {
+         pc(55989, 1, 11);
          int var2 = DE();
          push(var2);
-         pc(55990, 1);
+         pc(55990, 1, 7);
          int var3 = A();
          int var4 = alu("xor", var3, 16);
          A(var4);
-         pc(55992, 1);
-         pc(55994, 1);
-         int var5 = A();
-         C(var5);
+         pc(55992, 1, 11);
+         int var5 = A() << 8 | 7166;
+         int var6 = A();
+         out(var5, var6);
+         pc(55994, 1, 4);
+         int var7 = A();
+         C(var7);
 
-         do {
-            pc(55995, 1);
-            int var6 = DE();
-            int var7 = dec16(var6);
-            DE(var7);
-            pc(55996, 1);
-            int var8 = D();
-            A(var8);
-            pc(55997, 1);
-            int var9 = E();
-            int var10 = A();
-            int var11 = alu("or", var10, var9);
-            A(var11);
-            pc(55998, 1);
-         } while(flag(64, true));
+         while(true) {
+            pc(55995, 1, 6);
+            int var8 = DE();
+            int var9 = dec16(var8);
+            DE(var9);
+            pc(55996, 1, 4);
+            int var10 = D();
+            A(var10);
+            pc(55997, 1, 4);
+            int var11 = E();
+            int var12 = A();
+            int var13 = alu("or", var12, var11);
+            A(var13);
+            pc(55998, 1, 7);
+            if(!flag(64, true)) {
+               pc(56000, 1, 10);
+               int var14 = pop();
+               DE(var14);
+               pc(56001, 1, 4);
+               int var15 = C();
+               A(var15);
+               pc(56002, 1, 8);
+               int var16 = B() - 1 & 255;
+               B(var16);
+               if(B() == 0) {
+                  pc(56004, 1, 13);
+                  int var17 = A();
+                  wMem(59392, var17, 56004);
+                  pc(56007, 1, 10);
+                  return;
+               }
 
-         pc(56000, 1);
-         int var12 = pop();
-         DE(var12);
-         pc(56001, 1);
-         int var13 = C();
-         A(var13);
-         pc(56002, 1);
-         int var14 = B() - 1 & 255;
-         B(var14);
-      } while(B() != 0);
+               tstates(5);
+               break;
+            }
 
-      pc(56004, 1);
-      int var15 = A();
-      wMem(59392, var15, 56004);
-      pc(56007, 1);
+            tstates(5);
+         }
+      }
    }
 
    public void $DAFA() {
-      pc(56058, 1);
+      pc(56058, 1, 10);
       BC(2692);
-      pc(56061, 1);
+      pc(56061, 1, 17);
       $D4AF();
-      pc(56064, 1);
+      pc(56064, 1, 10);
    }
 
    public void $DB01() {
-      pc(56065, 1);
+      pc(56065, 1, 13);
       int var1 = A();
       wMem(55943, var1, 56065);
-      pc(56068, 1);
+      pc(56068, 1, 10);
       HL(55966);
-      pc(56071, 1);
+      pc(56071, 1, 16);
       int var2 = HL();
       wMem16(55947, var2, 56071);
-      pc(56074, 1);
+      pc(56074, 1, 10);
    }
 
    public void $DB0B() {
-      pc(56075, 1);
+      pc(56075, 1, 16);
       int var1 = HL();
       wMem16(55944, var1, 56075);
-      pc(56078, 1);
+      pc(56078, 1, 13);
       int var2 = mem(55946, 56078);
       A(var2);
-      pc(56081, 2);
+      pc(56081, 2, 8);
       int var3 = A() | 1;
       A(var3);
-      pc(56083, 1);
+      pc(56083, 1, 13);
       int var4 = A();
       wMem(55946, var4, 56083);
-      pc(56086, 1);
+      pc(56086, 1, 10);
    }
 
    public void $DB38() {
-      pc(56120, 1);
+      pc(56120, 1, 11);
       int var1 = HL();
       push(var1);
-      pc(56121, 1);
+      pc(56121, 1, 16);
       int var2 = mem16(51314, 56121);
       HL(var2);
-      pc(56124, 1);
+      pc(56124, 1, 4);
       int var3 = H();
       A(var3);
-      pc(56125, 1);
+      pc(56125, 1, 4);
       int var4 = D();
       int var5 = A();
       int var6 = alu("sub", var5, var4);
       A(var6);
-      pc(56126, 1);
+      pc(56126, 1, 7);
       int var7 = A();
       int var8 = alu("add", var7, 3);
       A(var8);
-      pc(56128, 1);
+      pc(56128, 1, 7);
       int var9 = A();
       alu("cp", var9, 7);
-      pc(56130, 1);
-      if(!flag(1, true)) {
-         pc(56132, 1);
-         int var11 = L();
-         A(var11);
-         pc(56133, 2);
-         int var12 = A();
-         int var13 = alu("srl", var12);
-         A(var13);
-         pc(56135, 2);
-         int var14 = A();
-         int var15 = alu("srl", var14);
-         A(var15);
-         pc(56137, 2);
-         int var16 = A();
-         int var17 = alu("srl", var16);
-         A(var17);
-         pc(56139, 1);
-         int var18 = E();
-         int var19 = A();
-         int var20 = alu("sub", var19, var18);
-         A(var20);
-         pc(56140, 1);
-         int var21 = A();
-         int var22 = alu("add", var21, 3);
-         A(var22);
-         pc(56142, 1);
-         int var23 = A();
-         alu("cp", var23, 7);
+      pc(56130, 1, 7);
+      if(flag(1, true)) {
+         tstates(5);
+      } else {
+         pc(56132, 1, 4);
+         int var10 = L();
+         A(var10);
+         pc(56133, 2, 8);
+         int var11 = A();
+         int var12 = alu("srl", var11);
+         A(var12);
+         pc(56135, 2, 8);
+         int var13 = A();
+         int var14 = alu("srl", var13);
+         A(var14);
+         pc(56137, 2, 8);
+         int var15 = A();
+         int var16 = alu("srl", var15);
+         A(var16);
+         pc(56139, 1, 4);
+         int var17 = E();
+         int var18 = A();
+         int var19 = alu("sub", var18, var17);
+         A(var19);
+         pc(56140, 1, 7);
+         int var20 = A();
+         int var21 = alu("add", var20, 3);
+         A(var21);
+         pc(56142, 1, 7);
+         int var22 = A();
+         alu("cp", var22, 7);
       }
 
-      pc(56144, 1);
-      int var10 = pop();
-      HL(var10);
-      pc(56145, 1);
+      pc(56144, 1, 10);
+      int var23 = pop();
+      HL(var23);
+      pc(56145, 1, 10);
    }
 
    public void $DB83() {
-      pc(56195, 1);
+      pc(56195, 1, 13);
       int var1 = mem(55087, 56195);
       A(var1);
-      pc(56198, 1);
+      pc(56198, 1, 4);
       int var2 = A();
       int var3 = alu("dec", var2);
       A(var3);
-      pc(56199, 1);
+      pc(56199, 1, 4);
       int var4 = A();
       B(var4);
-      pc(56200, 1);
+      pc(56200, 1, 13);
       int var5 = mem(55315, 56200);
       A(var5);
-      pc(56203, 1);
+      pc(56203, 1, 4);
       int var6 = A();
       C(var6);
 
-      do {
-         pc(56204, 1);
+      while(true) {
+         pc(56204, 1, 11);
          int var7 = BC();
          push(var7);
 
-         do {
-            pc(56205, 1);
+         while(true) {
+            pc(56205, 1, 7);
             int var8 = DE();
             int var9 = mem(var8, 56205);
             A(var9);
-            pc(56206, 1);
+            pc(56206, 1, 7);
             int var10 = A();
             int var11 = HL();
             wMem(var11, var10, 56206);
-            pc(56207, 1);
+            pc(56207, 1, 6);
             int var12 = HL();
             int var13 = inc16(var12);
             HL(var13);
-            pc(56208, 1);
+            pc(56208, 1, 6);
             int var14 = DE();
             int var15 = inc16(var14);
             DE(var15);
-            pc(56209, 1);
+            pc(56209, 1, 8);
             int var16 = B() - 1 & 255;
             B(var16);
-         } while(B() != 0);
+            if(B() == 0) {
+               pc(56211, 1, 6);
+               int var17 = HL();
+               int var18 = inc16(var17);
+               HL(var18);
+               pc(56212, 1, 4);
+               int var19 = A();
+               int var20 = A();
+               int var21 = alu("xor", var20, var19);
+               A(var21);
+               pc(56213, 1, 7);
+               int var22 = A();
+               int var23 = HL();
+               wMem(var23, var22, 56213);
+               pc(56214, 1, 10);
+               int var24 = pop();
+               BC(var24);
+               pc(56215, 1, 4);
+               int var25 = C();
+               int var26 = alu("dec", var25);
+               C(var26);
+               pc(56216, 1, 7);
+               if(!flag(64, true)) {
+                  pc(56218, 1, 10);
+                  return;
+               }
 
-         pc(56211, 1);
-         int var17 = HL();
-         int var18 = inc16(var17);
-         HL(var18);
-         pc(56212, 1);
-         int var19 = A();
-         int var20 = A();
-         int var21 = alu("xor", var20, var19);
-         A(var21);
-         pc(56213, 1);
-         int var22 = A();
-         int var23 = HL();
-         wMem(var23, var22, 56213);
-         pc(56214, 1);
-         int var24 = pop();
-         BC(var24);
-         pc(56215, 1);
-         int var25 = C();
-         int var26 = alu("dec", var25);
-         C(var26);
-         pc(56216, 1);
-      } while(flag(64, true));
+               tstates(5);
+               break;
+            }
 
-      pc(56218, 1);
+            tstates(5);
+         }
+      }
    }
 
    public void $DB9B() {
-      pc(56219, 1);
+      pc(56219, 1, 13);
       int var1 = mem(55087, 56219);
       A(var1);
-      pc(56222, 1);
+      pc(56222, 1, 4);
       int var2 = A();
       D(var2);
-      pc(56223, 1);
+      pc(56223, 1, 13);
       int var3 = mem(55315, 56223);
       A(var3);
-      pc(56226, 1);
+      pc(56226, 1, 4);
       int var4 = A();
       C(var4);
-      pc(56227, 1);
+      pc(56227, 1, 4);
       int var5 = AF();
       exAF(var5);
-      pc(56228, 1);
+      pc(56228, 1, 4);
       int var6 = A();
       E(var6);
-      pc(56229, 1);
+      pc(56229, 1, 4);
       int var7 = AF();
       exAF(var7);
 
-      do {
-         pc(56230, 1);
+      label29:
+      while(true) {
+         pc(56230, 1, 11);
          int var8 = HL();
          push(var8);
-         pc(56231, 1);
+         pc(56231, 1, 11);
          int var9 = BC();
          push(var9);
 
-         do {
-            pc(56232, 1);
+         while(true) {
+            pc(56232, 1, 4);
             int var10 = A();
             int var11 = A();
             int var12 = alu("and", var11, var10);
             A(var12);
-            pc(56233, 1);
+            pc(56233, 1, 4);
             int var13 = D();
             B(var13);
 
-            do {
-               pc(56234, 2);
+            while(true) {
+               pc(56234, 2, 15);
                int var14 = HL();
                int var15 = mem(var14, 56234);
                int var16 = alu("rr", var15);
                int var17 = HL();
                wMem(var17, var16, 56234);
-               pc(56236, 1);
+               pc(56236, 1, 6);
                int var18 = HL();
                int var19 = inc16(var18);
                HL(var19);
-               pc(56237, 1);
+               pc(56237, 1, 8);
                int var20 = B() - 1 & 255;
                B(var20);
-            } while(B() != 0);
+               if(B() == 0) {
+                  pc(56239, 1, 4);
+                  int var21 = C();
+                  int var22 = alu("dec", var21);
+                  C(var22);
+                  pc(56240, 1, 7);
+                  if(!flag(64, true)) {
+                     pc(56242, 1, 10);
+                     int var23 = pop();
+                     BC(var23);
+                     pc(56243, 1, 10);
+                     int var24 = pop();
+                     HL(var24);
+                     pc(56244, 1, 4);
+                     int var25 = E();
+                     int var26 = alu("dec", var25);
+                     E(var26);
+                     pc(56245, 1, 7);
+                     if(!flag(64, true)) {
+                        pc(56247, 1, 10);
+                        return;
+                     }
 
-            pc(56239, 1);
-            int var21 = C();
-            int var22 = alu("dec", var21);
-            C(var22);
-            pc(56240, 1);
-         } while(flag(64, true));
+                     tstates(5);
+                     continue label29;
+                  }
 
-         pc(56242, 1);
-         int var23 = pop();
-         BC(var23);
-         pc(56243, 1);
-         int var24 = pop();
-         HL(var24);
-         pc(56244, 1);
-         int var25 = E();
-         int var26 = alu("dec", var25);
-         E(var26);
-         pc(56245, 1);
-      } while(flag(64, true));
+                  tstates(5);
+                  break;
+               }
 
-      pc(56247, 1);
+               tstates(5);
+            }
+         }
+      }
    }
 
    public void $DBB8() {
-      pc(56248, 2);
+      pc(56248, 2, 19);
       int var1 = IX() + 5;
       int var2 = mem(var1, 56248);
       E(var2);
-      pc(56251, 2);
+      pc(56251, 2, 19);
       int var3 = IX() + 6;
       int var4 = mem(var3, 56251);
       D(var4);
-      pc(56254, 2);
+      pc(56254, 2, 23);
       int var5 = IX() + 4;
       int var6 = mem(var5, 56254) & -9;
       wMem(var5, var6, 56254);
-      pc(56258, 2);
+      pc(56258, 2, 19);
       int var7 = IX() + 4;
       int var8 = mem(var7, 56258);
       A(var8);
-      pc(56261, 1);
+      pc(56261, 1, 7);
       int var9 = A();
       int var10 = alu("and", var9, 7);
       A(var10);
-      pc(56263, 1);
+      pc(56263, 1, 11);
       int var11 = AF();
       push(var11);
-      pc(56264, 1);
+      pc(56264, 1, 17);
       $DCE8();
-      pc(56267, 1);
+      pc(56267, 1, 7);
       int var12 = HL();
       int var13 = mem(var12, 56267);
       B(var13);
-      pc(56268, 1);
+      pc(56268, 1, 6);
       int var14 = HL();
       int var15 = inc16(var14);
       HL(var15);
-      pc(56269, 1);
+      pc(56269, 1, 7);
       int var16 = HL();
       int var17 = mem(var16, 56269);
       C(var17);
-      pc(56270, 1);
+      pc(56270, 1, 17);
       $E897();
-      pc(56273, 1);
+      pc(56273, 1, 10);
       int var18 = pop();
       AF(var18);
-      pc(56274, 1);
+      pc(56274, 1, 4);
       int var19 = A();
       int var20 = alu("inc", var19);
       A(var20);
-      pc(56275, 1);
+      pc(56275, 1, 4);
       int var21 = A();
       B(var21);
-      pc(56276, 1);
+      pc(56276, 1, 4);
       int var22 = A();
       int var23 = A();
       int var24 = alu("add", var23, var22);
       A(var24);
-      pc(56277, 1);
+      pc(56277, 1, 4);
       int var25 = A();
       int var26 = A();
       int var27 = alu("add", var26, var25);
       A(var27);
-      pc(56278, 1);
+      pc(56278, 1, 4);
       int var28 = B();
       int var29 = A();
       int var30 = alu("add", var29, var28);
       A(var30);
-      pc(56279, 1);
+      pc(56279, 1, 10);
       HL(51307);
-      pc(56282, 1);
+      pc(56282, 1, 7);
       int var31 = HL();
       int var32 = mem(var31, 56282);
       int var33 = A();
       int var34 = alu("add", var33, var32);
       A(var34);
-      pc(56283, 1);
+      pc(56283, 1, 7);
       int var35 = A();
       int var36 = HL();
       wMem(var36, var35, 56283);
-      pc(56284, 1);
+      pc(56284, 1, 10);
       HL(60998);
-      pc(56287, 1);
+      pc(56287, 1, 17);
       $DB0B();
-      pc(56290, 1);
+      pc(56290, 1, 7);
       A(8);
-      pc(56292, 1);
+      pc(56292, 1, 13);
       int var37 = A();
       wMem(51309, var37, 56292);
-      pc(56295, 1);
+      pc(56295, 1, 7);
       A(200);
-      pc(56297, 1);
+      pc(56297, 1, 13);
       int var38 = A();
       wMem(51311, var38, 56297);
-      pc(56300, 1);
+      pc(56300, 1, 10);
    }
 
    public void $DC71() {
-      pc(56433, 2);
+      pc(56433, 2, 20);
       int var1 = mem16(51324, 56433);
       DE(var1);
-      pc(56437, 1);
+      pc(56437, 1, 16);
       int var2 = mem16(51314, 56437);
       HL(var2);
-      pc(56440, 1);
+      pc(56440, 1, 13);
       int var3 = mem(51323, 56440);
       A(var3);
-      pc(56443, 1);
+      pc(56443, 1, 7);
       int var4 = A();
       int var5 = alu("and", var4, 1);
       A(var5);
-      pc(56445, 1);
+      pc(56445, 1, 4);
       int var6 = A();
       C(var6);
-      pc(56446, 1);
+      pc(56446, 1, 13);
       int var7 = mem(53194, 56446);
       A(var7);
-      pc(56449, 1);
+      pc(56449, 1, 4);
       int var8 = D();
       int var9 = A();
       alu("cp", var9, var8);
-      pc(56450, 1);
-      if(!flag(64, true)) {
-         pc(56452, 1);
-         int var12 = L();
+      pc(56450, 1, 7);
+      if(flag(64, true)) {
+         tstates(5);
+      } else {
+         pc(56452, 1, 4);
+         int var10 = L();
+         A(var10);
+         pc(56453, 1, 7);
+         int var11 = A();
+         int var12 = alu("add", var11, 26);
          A(var12);
-         pc(56453, 1);
-         int var13 = A();
-         int var14 = alu("add", var13, 26);
-         A(var14);
-         pc(56455, 1);
-         int var15 = E();
-         int var16 = A();
-         alu("cp", var16, var15);
-         pc(56456, 1);
-         if(!flag(64, true)) {
-            pc(56458, 1);
-            int var17 = H();
+         pc(56455, 1, 4);
+         int var13 = E();
+         int var14 = A();
+         alu("cp", var14, var13);
+         pc(56456, 1, 7);
+         if(flag(64, true)) {
+            tstates(5);
+         } else {
+            pc(56458, 1, 4);
+            int var15 = H();
+            A(var15);
+            pc(56459, 1, 7);
+            int var16 = A();
+            int var17 = alu("sub", var16, 13);
             A(var17);
-            pc(56459, 1);
+            pc(56461, 1, 7);
             int var18 = A();
-            int var19 = alu("sub", var18, 13);
-            A(var19);
-            pc(56461, 1);
-            int var20 = A();
-            alu("cp", var20, 5);
-            pc(56463, 1);
-            if(!flag(1, true)) {
-               label29: {
-                  pc(56465, 2);
-                  int var21 = C() | 2;
-                  C(var21);
-                  pc(56467, 1);
-                  int var22 = H();
-                  A(var22);
-                  pc(56468, 1);
-                  int var23 = A();
-                  alu("cp", var23, 15);
-                  pc(56470, 1);
-                  if(!flag(64, false)) {
-                     pc(56472, 1);
+            alu("cp", var18, 5);
+            pc(56463, 1, 7);
+            if(flag(1, true)) {
+               tstates(5);
+            } else {
+               label40: {
+                  pc(56465, 2, 8);
+                  int var19 = C() | 2;
+                  C(var19);
+                  pc(56467, 1, 4);
+                  int var20 = H();
+                  A(var20);
+                  pc(56468, 1, 7);
+                  int var21 = A();
+                  alu("cp", var21, 15);
+                  pc(56470, 1, 7);
+                  if(flag(64, false)) {
+                     tstates(5);
+                  } else {
+                     pc(56472, 1, 10);
                      HL(56425);
-                     pc(56475, 1);
-                     int var26 = A();
-                     alu("cp", var26, 14);
-                     pc(56477, 1);
-                     if(!flag(64, false)) {
-                        pc(56479, 1);
+                     pc(56475, 1, 7);
+                     int var22 = A();
+                     alu("cp", var22, 14);
+                     pc(56477, 1, 7);
+                     if(flag(64, false)) {
+                        tstates(5);
+                     } else {
+                        pc(56479, 1, 10);
                         HL(56429);
-                        pc(56482, 1);
-                        int var34 = A();
-                        alu("cp", var34, 16);
-                        pc(56484, 1);
+                        pc(56482, 1, 7);
+                        int var23 = A();
+                        alu("cp", var23, 16);
+                        pc(56484, 1, 7);
                         if(!flag(64, false)) {
-                           pc(56486, 1);
-                           break label29;
+                           pc(56486, 1, 12);
+                           break label40;
                         }
+
+                        tstates(5);
                      }
 
-                     pc(56488, 1);
+                     pc(56488, 1, 7);
                      B(4);
-                     pc(56490, 1);
-                     int var27 = mem(51317, 56490);
-                     A(var27);
+                     pc(56490, 1, 13);
+                     int var26 = mem(51317, 56490);
+                     A(var26);
 
                      while(true) {
-                        pc(56493, 1);
-                        int var28 = HL();
-                        int var29 = mem(var28, 56493);
-                        int var30 = A();
-                        alu("cp", var30, var29);
-                        pc(56494, 1);
+                        pc(56493, 1, 7);
+                        int var27 = HL();
+                        int var28 = mem(var27, 56493);
+                        int var29 = A();
+                        alu("cp", var29, var28);
+                        pc(56494, 1, 7);
                         if(flag(64, false)) {
+                           tstates(5);
                            break;
                         }
 
-                        pc(56496, 1);
-                        int var31 = HL();
-                        int var32 = inc16(var31);
-                        HL(var32);
-                        pc(56497, 1);
-                        int var33 = B() - 1 & 255;
-                        B(var33);
+                        pc(56496, 1, 6);
+                        int var30 = HL();
+                        int var31 = inc16(var30);
+                        HL(var31);
+                        pc(56497, 1, 8);
+                        int var32 = B() - 1 & 255;
+                        B(var32);
                         if(B() == 0) {
-                           pc(56499, 1);
-                           break label29;
+                           pc(56499, 1, 12);
+                           break label40;
                         }
+
+                        tstates(5);
                      }
                   }
 
-                  pc(56501, 2);
-                  int var24 = C() | 4;
-                  C(var24);
-                  pc(56503, 1);
+                  pc(56501, 2, 8);
+                  int var33 = C() | 4;
+                  C(var33);
+                  pc(56503, 1, 7);
                   A(13);
-                  pc(56505, 1);
-                  int var25 = A();
-                  wMem(56301, var25, 56505);
+                  pc(56505, 1, 13);
+                  int var34 = A();
+                  wMem(56301, var34, 56505);
                }
             }
          }
       }
 
-      pc(56508, 1);
-      int var10 = C();
-      A(var10);
-      pc(56509, 1);
-      int var11 = A();
-      wMem(51323, var11, 56509);
-      pc(56512, 1);
+      pc(56508, 1, 4);
+      int var24 = C();
+      A(var24);
+      pc(56509, 1, 13);
+      int var25 = A();
+      wMem(51323, var25, 56509);
+      pc(56512, 1, 10);
    }
 
    public void $DCC1() {
-      pc(56513, 2);
+      pc(56513, 2, 19);
       int var1 = IX() + 4;
       int var2 = mem(var1, 56513);
       A(var2);
-      pc(56516, 2);
+      pc(56516, 2, 8);
       int var3 = A();
       bit(3, var3);
-      pc(56518, 1);
+      pc(56518, 1, 7);
       if(flag(64, true)) {
+         tstates(5);
          $DCCC();
       } else {
-         pc(56520, 1);
+         pc(56520, 1, 7);
          A(255);
-         pc(56522, 1);
+         pc(56522, 1, 12);
          $DCE4();
       }
    }
 
    public void $DCCC() {
-      pc(56524, 1);
+      pc(56524, 1, 7);
       int var1 = A();
       int var2 = alu("and", var1, 7);
       A(var2);
-      pc(56526, 1);
+      pc(56526, 1, 11);
       int var3 = AF();
       push(var3);
-      pc(56527, 1);
+      pc(56527, 1, 17);
       $DCE8();
-      pc(56530, 2);
+      pc(56530, 2, 19);
       int var4 = IX() + 5;
       int var5 = mem(var4, 56530);
       E(var5);
-      pc(56533, 2);
+      pc(56533, 2, 19);
       int var6 = IX() + 6;
       int var7 = mem(var6, 56533);
       D(var7);
-      pc(56536, 1);
+      pc(56536, 1, 17);
       $E84E();
-      pc(56539, 1);
+      pc(56539, 1, 10);
       int var8 = pop();
       AF(var8);
-      pc(56540, 1);
+      pc(56540, 1, 4);
       int var9 = A();
       C(var9);
-      pc(56541, 1);
+      pc(56541, 1, 7);
       B(0);
-      pc(56543, 1);
+      pc(56543, 1, 10);
       HL(26090);
-      pc(56546, 1);
+      pc(56546, 1, 11);
       int var10 = BC();
       int var11 = HL();
       int var12 = alu("add16", var11, var10);
       HL(var12);
-      pc(56547, 1);
+      pc(56547, 1, 7);
       int var13 = HL();
       int var14 = mem(var13, 56547);
       A(var14);
@@ -9178,793 +9795,830 @@ public class DynamiteDan extends MiniZX {
    }
 
    public void $DCE4() {
-      pc(56548, 1);
+      pc(56548, 1, 13);
       int var1 = A();
       wMem(53193, var1, 56548);
-      pc(56551, 1);
+      pc(56551, 1, 10);
    }
 
    public void $DCE8() {
-      pc(56552, 1);
+      pc(56552, 1, 4);
       int var1 = A();
       int var2 = A();
       int var3 = alu("add", var2, var1);
       A(var3);
-      pc(56553, 1);
+      pc(56553, 1, 4);
       int var4 = A();
       C(var4);
-      pc(56554, 1);
+      pc(56554, 1, 7);
       B(0);
-      pc(56556, 1);
+      pc(56556, 1, 10);
       HL(26074);
-      pc(56559, 1);
+      pc(56559, 1, 11);
       int var5 = BC();
       int var6 = HL();
       int var7 = alu("add16", var6, var5);
       HL(var7);
-      pc(56560, 1);
+      pc(56560, 1, 7);
       int var8 = HL();
       int var9 = mem(var8, 56560);
       A(var9);
-      pc(56561, 1);
+      pc(56561, 1, 6);
       int var10 = HL();
       int var11 = inc16(var10);
       HL(var11);
-      pc(56562, 1);
+      pc(56562, 1, 7);
       int var12 = HL();
       int var13 = mem(var12, 56562);
       H(var13);
-      pc(56563, 1);
+      pc(56563, 1, 4);
       int var14 = A();
       L(var14);
-      pc(56564, 1);
+      pc(56564, 1, 10);
    }
 
    public void $DD8D() {
-      pc(56717, 1);
+      pc(56717, 1, 10);
       HL(62693);
-      pc(56720, 1);
+      pc(56720, 1, 17);
       runJumps(61169);
-      pc(56723, 1);
+      pc(56723, 1, 10);
       HL(62718);
-      pc(56726, 1);
+      pc(56726, 1, 17);
       $ED06();
-      pc(56729, 1);
+      pc(56729, 1, 10);
       BC(5633);
-      pc(56732, 1);
+      pc(56732, 1, 10);
       DE(1303);
-      pc(56735, 1);
+      pc(56735, 1, 7);
       A(176);
-      pc(56737, 1);
+      pc(56737, 1, 17);
       $E8BA();
-      pc(56740, 1);
+      pc(56740, 1, 10);
       HL(59097);
-      pc(56743, 1);
+      pc(56743, 1, 10);
       int var1 = HL();
       wMem(var1, 127, 56743);
-      pc(56745, 1);
+      pc(56745, 1, 6);
       int var2 = HL();
       int var3 = inc16(var2);
       HL(var3);
-      pc(56746, 1);
+      pc(56746, 1, 10);
       int var4 = HL();
       wMem(var4, 0, 56746);
-      pc(56748, 2);
+      pc(56748, 2, 14);
       IY(62876);
 
-      do {
-         pc(56752, 1);
+      while(true) {
+         pc(56752, 1, 13);
          int var5 = mem(56565, 56752);
          A(var5);
-         pc(56755, 1);
+         pc(56755, 1, 4);
          int var6 = A();
          int var7 = A();
          int var8 = alu("and", var7, var6);
          A(var8);
-         pc(56756, 1);
-         if(!flag(64, false)) {
-            pc(56758, 1);
+         pc(56756, 1, 7);
+         if(flag(64, false)) {
+            tstates(5);
+         } else {
+            pc(56758, 1, 17);
             $EF7C();
-            pc(56761, 1);
+            pc(56761, 1, 17);
             $DAFA();
-            pc(56764, 1);
+            pc(56764, 1, 17);
             $E93F();
          }
 
-         pc(56767, 1);
+         pc(56767, 1, 17);
          $CB9C();
-         pc(56770, 1);
-      } while(flag(64, true));
+         pc(56770, 1, 7);
+         if(!flag(64, true)) {
+            while(true) {
+               pc(56772, 1, 17);
+               $E6F6();
+               pc(56775, 1, 17);
+               $DA8D();
+               pc(56778, 1, 17);
+               $DAFA();
+               pc(56781, 1, 13);
+               int var9 = mem(56565, 56781);
+               A(var9);
+               pc(56784, 1, 4);
+               int var10 = A();
+               int var11 = A();
+               int var12 = alu("and", var11, var10);
+               A(var12);
+               pc(56785, 1, 7);
+               if(flag(64, false)) {
+                  tstates(5);
+               } else {
+                  pc(56787, 1, 17);
+                  $E93F();
+                  pc(56790, 1, 17);
+                  $EF7C();
+               }
 
-      do {
-         pc(56772, 1);
-         $E6F6();
-         pc(56775, 1);
-         $DA8D();
-         pc(56778, 1);
-         $DAFA();
-         pc(56781, 1);
-         int var9 = mem(56565, 56781);
-         A(var9);
-         pc(56784, 1);
-         int var10 = A();
-         int var11 = A();
-         int var12 = alu("and", var11, var10);
-         A(var12);
-         pc(56785, 1);
-         if(!flag(64, false)) {
-            pc(56787, 1);
-            $E93F();
-            pc(56790, 1);
-            $EF7C();
+               pc(56793, 1, 13);
+               int var13 = mem(59098, 56793);
+               A(var13);
+               pc(56796, 1, 4);
+               int var14 = A();
+               int var15 = A();
+               int var16 = alu("and", var15, var14);
+               A(var16);
+               pc(56797, 1, 7);
+               if(!flag(64, true)) {
+                  pc(56799, 1, 10);
+                  return;
+               }
+
+               tstates(5);
+            }
          }
 
-         pc(56793, 1);
-         int var13 = mem(59098, 56793);
-         A(var13);
-         pc(56796, 1);
-         int var14 = A();
-         int var15 = A();
-         int var16 = alu("and", var15, var14);
-         A(var16);
-         pc(56797, 1);
-      } while(flag(64, true));
-
-      pc(56799, 1);
+         tstates(5);
+      }
    }
 
    public void $DDE0() {
-      pc(56800, 1);
+      pc(56800, 1, 17);
       runJumps(61169);
-      pc(56803, 1);
+      pc(56803, 1, 10);
       DE(255);
-      pc(56806, 1);
+      pc(56806, 1, 7);
       B(170);
-      pc(56808, 1);
+      pc(56808, 1, 17);
       $DAB2();
-      pc(56811, 1);
+      pc(56811, 1, 10);
       DE(255);
-      pc(56814, 1);
+      pc(56814, 1, 7);
       B(255);
-      pc(56816, 1);
+      pc(56816, 1, 17);
       $DAB2();
-      pc(56819, 1);
+      pc(56819, 1, 10);
    }
 
    public void $DE0B() {
-      pc(56843, 2);
+      pc(56843, 2, 23);
       int var1 = IX() + 11;
       int var2 = mem(var1, 56843) & -2;
       wMem(var1, var2, 56843);
-      pc(56847, 1);
+      pc(56847, 1, 10);
       HL(51326);
-      pc(56850, 2);
+      pc(56850, 2, 15);
       int var3 = HL();
       int var4 = mem(var3, 56850) | 64;
       int var5 = HL();
       wMem(var5, var4, 56850);
-      pc(56852, 1);
+      pc(56852, 1, 7);
       A(75);
-      pc(56854, 1);
+      pc(56854, 1, 10);
       DE(65067);
-      pc(56857, 1);
+      pc(56857, 1, 12);
       $DE3A();
    }
 
    public void $DE1B() {
-      pc(56859, 2);
+      pc(56859, 2, 23);
       int var1 = IX() + 11;
       int var2 = mem(var1, 56859) & -3;
       wMem(var1, var2, 56859);
-      pc(56863, 2);
+      pc(56863, 2, 9);
       int var3 = ldAR();
       A(var3);
-      pc(56865, 1);
+      pc(56865, 1, 7);
       int var4 = A();
       int var5 = alu("and", var4, 127);
       A(var5);
-      pc(56867, 1);
+      pc(56867, 1, 10);
       DE(65093);
-      pc(56870, 1);
+      pc(56870, 1, 12);
       $DE3A();
    }
 
    public void $DE28() {
-      pc(56872, 2);
+      pc(56872, 2, 23);
       int var1 = IX() + 11;
       int var2 = mem(var1, 56872) & -5;
       wMem(var1, var2, 56872);
-      pc(56876, 1);
+      pc(56876, 1, 4);
       int var3 = A();
       int var4 = A();
       int var5 = alu("xor", var4, var3);
       A(var5);
-      pc(56877, 1);
+      pc(56877, 1, 13);
       int var6 = A();
       wMem(56913, var6, 56877);
-      pc(56880, 1);
+      pc(56880, 1, 10);
       HL(51326);
-      pc(56883, 2);
+      pc(56883, 2, 15);
       int var7 = HL();
       int var8 = mem(var7, 56883) | 32;
       int var9 = HL();
       wMem(var9, var8, 56883);
-      pc(56885, 1);
+      pc(56885, 1, 7);
       A(25);
-      pc(56887, 1);
+      pc(56887, 1, 10);
       DE(65125);
       $DE3A();
    }
 
    public void $DE3A() {
-      pc(56890, 1);
+      pc(56890, 1, 10);
       HL(51307);
-      pc(56893, 1);
+      pc(56893, 1, 7);
       int var1 = HL();
       int var2 = mem(var1, 56893);
       int var3 = A();
       int var4 = alu("add", var3, var2);
       A(var4);
-      pc(56894, 1);
+      pc(56894, 1, 7);
       int var5 = A();
       int var6 = HL();
       wMem(var6, var5, 56894);
-      pc(56895, 1);
+      pc(56895, 1, 4);
       exHLDE();
-      pc(56896, 1);
+      pc(56896, 1, 17);
       $DB0B();
-      pc(56899, 1);
+      pc(56899, 1, 13);
       int var7 = mem(53194, 56899);
       A(var7);
-      pc(56902, 1);
+      pc(56902, 1, 17);
       $F3E0();
-      pc(56905, 1);
+      pc(56905, 1, 10);
       BC(514);
-      pc(56908, 1);
+      pc(56908, 1, 17);
       $E897();
-      pc(56911, 1);
+      pc(56911, 1, 4);
       int var8 = A();
       int var9 = A();
       int var10 = alu("or", var9, var8);
       A(var10);
-      pc(56912, 1);
+      pc(56912, 1, 10);
    }
 
    public void $DE52() {
-      pc(56914, 1);
+      pc(56914, 1, 10);
       HL(51326);
-      pc(56917, 2);
+      pc(56917, 2, 12);
       int var1 = HL();
       int var2 = mem(var1, 56917);
       bit(5, var2);
-      pc(56919, 1);
-      if(!flag(64, false)) {
-         pc(56920, 2);
+      pc(56919, 1, 5);
+      if(flag(64, false)) {
+         tstates(6);
+      } else {
+         pc(56920, 2, 12);
          int var3 = HL();
          int var4 = mem(var3, 56920);
          bit(7, var4);
-         pc(56922, 1);
-         if(!flag(64, true)) {
-            pc(56923, 1);
+         pc(56922, 1, 5);
+         if(flag(64, true)) {
+            tstates(6);
+         } else {
+            pc(56923, 1, 4);
             exHLDE();
-            pc(56924, 1);
+            pc(56924, 1, 10);
             HL(56913);
-            pc(56927, 1);
+            pc(56927, 1, 11);
             int var5 = HL();
             int var6 = mem(var5, 56927);
             int var7 = alu("dec", var6);
             int var8 = HL();
             wMem(var8, var7, 56927);
-            pc(56928, 1);
+            pc(56928, 1, 7);
             int var9 = HL();
             int var10 = mem(var9, 56928);
             A(var10);
-            pc(56929, 1);
+            pc(56929, 1, 4);
             int var11 = A();
             int var12 = A();
             int var13 = alu("and", var12, var11);
             A(var13);
-            pc(56930, 1);
-            if(!flag(64, true)) {
-               pc(56932, 1);
+            pc(56930, 1, 7);
+            if(flag(64, true)) {
+               tstates(5);
+            } else {
+               pc(56932, 1, 4);
                exHLDE();
-               pc(56933, 2);
-               int var31 = HL();
-               int var32 = mem(var31, 56933) & -33;
-               int var33 = HL();
-               wMem(var33, var32, 56933);
+               pc(56933, 2, 15);
+               int var14 = HL();
+               int var15 = mem(var14, 56933) & -33;
+               int var16 = HL();
+               wMem(var16, var15, 56933);
             }
 
-            pc(56935, 1);
-            int var14 = A();
-            int var15 = alu("and", var14, 7);
-            A(var15);
-            pc(56937, 1);
-            int var16 = A();
-            C(var16);
-            pc(56938, 1);
-            int var17 = mem(59392, 56938);
-            A(var17);
-            pc(56941, 1);
-            int var18 = A();
-            int var19 = alu("and", var18, 248);
-            A(var19);
-            pc(56943, 1);
-            int var20 = C();
+            pc(56935, 1, 7);
+            int var17 = A();
+            int var18 = alu("and", var17, 7);
+            A(var18);
+            pc(56937, 1, 4);
+            int var19 = A();
+            C(var19);
+            pc(56938, 1, 13);
+            int var20 = mem(59392, 56938);
+            A(var20);
+            pc(56941, 1, 7);
             int var21 = A();
-            int var22 = alu("or", var21, var20);
+            int var22 = alu("and", var21, 248);
             A(var22);
-            pc(56944, 1);
-            pc(56946, 1);
-            int var23 = A();
-            wMem(59392, var23, 56946);
-            pc(56949, 1);
-            int var24 = C();
-            A(var24);
-            pc(56950, 1);
-            int var25 = A();
-            int var26 = alu("and", var25, 4);
-            A(var26);
-            pc(56952, 1);
+            pc(56943, 1, 4);
+            int var23 = C();
+            int var24 = A();
+            int var25 = alu("or", var24, var23);
+            A(var25);
+            pc(56944, 1, 11);
+            int var26 = A() << 8 | 7166;
             int var27 = A();
-            int var28 = alu("rra", var27);
-            A(var28);
-            pc(56953, 1);
-            int var29 = A();
-            int var30 = alu("add", var29, 5);
-            A(var30);
-            pc(56955, 1);
+            out(var26, var27);
+            pc(56946, 1, 13);
+            int var28 = A();
+            wMem(59392, var28, 56946);
+            pc(56949, 1, 4);
+            int var29 = C();
+            A(var29);
+            pc(56950, 1, 7);
+            int var30 = A();
+            int var31 = alu("and", var30, 4);
+            A(var31);
+            pc(56952, 1, 4);
+            int var32 = A();
+            int var33 = alu("rra", var32);
+            A(var33);
+            pc(56953, 1, 7);
+            int var34 = A();
+            int var35 = alu("add", var34, 5);
+            A(var35);
+            pc(56955, 1, 17);
             $DB01();
-            pc(56958, 1);
+            pc(56958, 1, 10);
          }
       }
    }
 
    public void $DE87() {
-      pc(56967, 2);
+      pc(56967, 2, 19);
       int var1 = IX() + 9;
       int var2 = mem(var1, 56967);
       E(var2);
-      pc(56970, 2);
+      pc(56970, 2, 19);
       int var3 = IX() + 10;
       int var4 = mem(var3, 56970);
       D(var4);
-      pc(56973, 1);
+      pc(56973, 1, 4);
       int var5 = E();
       int var6 = alu("dec", var5);
       E(var6);
-      pc(56974, 1);
+      pc(56974, 1, 4);
       int var7 = E();
       int var8 = alu("dec", var7);
       E(var8);
-      pc(56975, 1);
+      pc(56975, 1, 17);
       $DB38();
-      pc(56978, 1);
-      if(!flag(1, true)) {
-         pc(56980, 2);
-         int var20 = IX() + 4;
-         int var21 = mem(var20, 56980) & -33;
-         wMem(var20, var21, 56980);
-         pc(56984, 1);
-         int var22 = E();
-         int var23 = alu("inc", var22);
-         E(var23);
-         pc(56985, 1);
-         int var24 = E();
-         int var25 = alu("inc", var24);
-         E(var25);
-         pc(56986, 1);
-         BC(513);
-         pc(56989, 1);
-         $E897();
-         pc(56992, 1);
-         HL(51320);
-         pc(56995, 1);
-         int var26 = HL();
-         int var27 = mem(var26, 56995);
-         A(var27);
-         pc(56996, 1);
-         int var28 = HL();
-         int var29 = mem(var28, 56996);
-         int var30 = alu("inc", var29);
-         int var31 = HL();
-         wMem(var31, var30, 56996);
-         pc(56997, 1);
-         E(23);
-         pc(56999, 1);
-         int var32 = A();
-         D(var32);
-         pc(57000, 1);
-         BC(257);
-         pc(57003, 1);
-         HL(56959);
-         pc(57006, 1);
-         $E87A();
-         pc(57009, 1);
-         A(100);
-         pc(57011, 1);
-         HL(61067);
-         pc(57014, 1);
-      } else {
-         pc(57016, 2);
-         int var9 = IX() + 2;
-         int var10 = mem(var9, 57016);
-         E(var10);
-         pc(57019, 2);
-         int var11 = IX() + 3;
-         int var12 = mem(var11, 57019);
-         D(var12);
-         pc(57022, 1);
+      pc(56978, 1, 7);
+      if(flag(1, true)) {
+         tstates(5);
+         pc(57016, 2, 19);
+         int var23 = IX() + 2;
+         int var24 = mem(var23, 57016);
+         E(var24);
+         pc(57019, 2, 19);
+         int var25 = IX() + 3;
+         int var26 = mem(var25, 57019);
+         D(var26);
+         pc(57022, 1, 10);
          BC(258);
-         pc(57025, 1);
+         pc(57025, 1, 17);
          $E897();
-         pc(57028, 2);
-         int var13 = IX() + 4;
-         int var14 = mem(var13, 57028) & -17;
-         wMem(var13, var14, 57028);
-         pc(57032, 1);
+         pc(57028, 2, 23);
+         int var27 = IX() + 4;
+         int var28 = mem(var27, 57028) & -17;
+         wMem(var27, var28, 57028);
+         pc(57032, 1, 10);
          HL(51308);
-         pc(57035, 1);
-         int var15 = HL();
-         int var16 = mem(var15, 57035);
-         int var17 = alu("inc", var16);
-         int var18 = HL();
-         wMem(var18, var17, 57035);
-         pc(57036, 1);
+         pc(57035, 1, 11);
+         int var29 = HL();
+         int var30 = mem(var29, 57035);
+         int var31 = alu("inc", var30);
+         int var32 = HL();
+         wMem(var32, var31, 57035);
+         pc(57036, 1, 7);
          A(50);
-         pc(57038, 1);
+         pc(57038, 1, 10);
          HL(61117);
+      } else {
+         pc(56980, 2, 23);
+         int var9 = IX() + 4;
+         int var10 = mem(var9, 56980) & -33;
+         wMem(var9, var10, 56980);
+         pc(56984, 1, 4);
+         int var11 = E();
+         int var12 = alu("inc", var11);
+         E(var12);
+         pc(56985, 1, 4);
+         int var13 = E();
+         int var14 = alu("inc", var13);
+         E(var14);
+         pc(56986, 1, 10);
+         BC(513);
+         pc(56989, 1, 17);
+         $E897();
+         pc(56992, 1, 10);
+         HL(51320);
+         pc(56995, 1, 7);
+         int var15 = HL();
+         int var16 = mem(var15, 56995);
+         A(var16);
+         pc(56996, 1, 11);
+         int var17 = HL();
+         int var18 = mem(var17, 56996);
+         int var19 = alu("inc", var18);
+         int var20 = HL();
+         wMem(var20, var19, 56996);
+         pc(56997, 1, 7);
+         E(23);
+         pc(56999, 1, 4);
+         int var21 = A();
+         D(var21);
+         pc(57000, 1, 10);
+         BC(257);
+         pc(57003, 1, 10);
+         HL(56959);
+         pc(57006, 1, 17);
+         $E87A();
+         pc(57009, 1, 7);
+         A(100);
+         pc(57011, 1, 10);
+         HL(61067);
+         pc(57014, 1, 12);
       }
 
-      pc(57041, 1);
-      int var19 = A();
-      wMem(51307, var19, 57041);
-      pc(57044, 1);
+      pc(57041, 1, 13);
+      int var22 = A();
+      wMem(51307, var22, 57041);
+      pc(57044, 1, 17);
       $DB0B();
-      pc(57047, 1);
+      pc(57047, 1, 10);
    }
 
    public void $E544() {
-      pc(58692, 2);
+      pc(58692, 2, 19);
       int var1 = IX() + 7;
       int var2 = mem(var1, 58692);
       L(var2);
-      pc(58695, 2);
+      pc(58695, 2, 19);
       int var3 = IX() + 8;
       int var4 = mem(var3, 58695);
       H(var4);
-      pc(58698, 1);
+      pc(58698, 1, 11);
       int var5 = HL();
       push(var5);
-      pc(58699, 2);
+      pc(58699, 2, 14);
       int var6 = pop();
       IY(var6);
       $E54D();
    }
 
    public void $E54D() {
-      pc(58701, 2);
+      pc(58701, 2, 19);
       int var1 = IY() + 0;
       int var2 = mem(var1, 58701);
       A(var2);
-      pc(58704, 1);
+      pc(58704, 1, 17);
       $D669();
-      pc(58707, 1);
+      pc(58707, 1, 10);
       HL(57048);
-      pc(58710, 1);
+      pc(58710, 1, 17);
       $D677();
-      pc(58713, 2);
+      pc(58713, 2, 19);
       int var3 = IY() + 1;
       int var4 = mem(var3, 58713);
       A(var4);
-      pc(58716, 1);
+      pc(58716, 1, 17);
       $D669();
-      pc(58719, 1);
+      pc(58719, 1, 10);
       HL(57290);
-      pc(58722, 1);
+      pc(58722, 1, 17);
       $D677();
-      pc(58725, 2);
+      pc(58725, 2, 19);
       int var5 = IY() + 2;
       int var6 = mem(var5, 58725);
       A(var6);
-      pc(58728, 1);
+      pc(58728, 1, 17);
       $D669();
-      pc(58731, 1);
+      pc(58731, 1, 10);
       HL(57532);
-      pc(58734, 1);
+      pc(58734, 1, 17);
       $D815();
-      pc(58737, 2);
+      pc(58737, 2, 19);
       int var7 = IY() + 3;
       int var8 = mem(var7, 58737);
       A(var8);
-      pc(58740, 1);
+      pc(58740, 1, 17);
       $D669();
-      pc(58743, 1);
+      pc(58743, 1, 10);
       HL(58110);
-      pc(58746, 1);
+      pc(58746, 1, 17);
       $D815();
-      pc(58749, 2);
+      pc(58749, 2, 19);
       int var9 = IY() + 4;
       int var10 = mem(var9, 58749);
       A(var10);
-      pc(58752, 1);
+      pc(58752, 1, 17);
       $E9F8();
-      pc(58755, 2);
+      pc(58755, 2, 20);
       int var11 = BC();
       wMem16(58688, var11, 58755);
-      pc(58759, 2);
+      pc(58759, 2, 19);
       int var12 = IY() + 5;
       int var13 = mem(var12, 58759);
       A(var13);
-      pc(58762, 1);
+      pc(58762, 1, 17);
       $E9F8();
-      pc(58765, 2);
+      pc(58765, 2, 20);
       int var14 = BC();
       wMem16(58690, var14, 58765);
-      pc(58769, 1);
+      pc(58769, 1, 10);
    }
 
    public void $E592() {
-      pc(58770, 2);
+      pc(58770, 2, 19);
       int var1 = IX() + 7;
       int var2 = mem(var1, 58770);
       L(var2);
-      pc(58773, 2);
+      pc(58773, 2, 19);
       int var3 = IX() + 8;
       int var4 = mem(var3, 58773);
       H(var4);
-      pc(58776, 1);
+      pc(58776, 1, 10);
       DE(6);
-      pc(58779, 1);
+      pc(58779, 1, 11);
       int var5 = DE();
       int var6 = HL();
       int var7 = alu("add16", var6, var5);
       HL(var7);
-      pc(58780, 1);
+      pc(58780, 1, 11);
       int var8 = HL();
       push(var8);
-      pc(58781, 2);
+      pc(58781, 2, 14);
       int var9 = pop();
       IY(var9);
       $E59F();
    }
 
    public void $E59F() {
-      pc(58783, 1);
+      pc(58783, 1, 16);
       int var1 = mem16(57048, 58783);
       HL(var1);
-      pc(58786, 1);
+      pc(58786, 1, 16);
       int var2 = HL();
       wMem16(54971, var2, 58786);
-      pc(58789, 1);
+      pc(58789, 1, 10);
       HL(57050);
-      pc(58792, 1);
+      pc(58792, 1, 16);
       int var3 = HL();
       wMem16(54973, var3, 58792);
-      pc(58795, 1);
+      pc(58795, 1, 13);
       int var4 = mem(58688, 58795);
       A(var4);
-      pc(58798, 1);
+      pc(58798, 1, 17);
       $D6BF();
-      pc(58801, 1);
+      pc(58801, 1, 16);
       int var5 = mem16(57290, 58801);
       HL(var5);
-      pc(58804, 1);
+      pc(58804, 1, 16);
       int var6 = HL();
       wMem16(54971, var6, 58804);
-      pc(58807, 1);
+      pc(58807, 1, 10);
       HL(57292);
-      pc(58810, 1);
+      pc(58810, 1, 16);
       int var7 = HL();
       wMem16(54973, var7, 58810);
-      pc(58813, 1);
+      pc(58813, 1, 13);
       int var8 = mem(58689, 58813);
       A(var8);
-      pc(58816, 1);
+      pc(58816, 1, 17);
       $D6BF();
-      pc(58819, 1);
+      pc(58819, 1, 16);
       int var9 = mem16(57532, 58819);
       HL(var9);
-      pc(58822, 1);
+      pc(58822, 1, 16);
       int var10 = HL();
       wMem16(55086, var10, 58822);
-      pc(58825, 1);
+      pc(58825, 1, 10);
       HL(57534);
-      pc(58828, 1);
+      pc(58828, 1, 16);
       int var11 = HL();
       wMem16(55088, var11, 58828);
-      pc(58831, 1);
+      pc(58831, 1, 13);
       int var12 = mem(58690, 58831);
       A(var12);
-      pc(58834, 1);
+      pc(58834, 1, 17);
       $D732();
-      pc(58837, 1);
+      pc(58837, 1, 16);
       int var13 = mem16(58110, 58837);
       HL(var13);
-      pc(58840, 1);
+      pc(58840, 1, 16);
       int var14 = HL();
       wMem16(55086, var14, 58840);
-      pc(58843, 1);
+      pc(58843, 1, 10);
       HL(58112);
-      pc(58846, 1);
+      pc(58846, 1, 16);
       int var15 = HL();
       wMem16(55088, var15, 58846);
-      pc(58849, 1);
+      pc(58849, 1, 13);
       int var16 = mem(58691, 58849);
       A(var16);
-      pc(58852, 1);
+      pc(58852, 1, 17);
       $D732();
-      pc(58855, 1);
+      pc(58855, 1, 10);
    }
 
    public void $E5E8() {
-      pc(58856, 1);
+      pc(58856, 1, 10);
       HL(51326);
-      pc(58859, 2);
+      pc(58859, 2, 12);
       int var1 = HL();
       int var2 = mem(var1, 58859);
       bit(7, var2);
-      pc(58861, 1);
+      pc(58861, 1, 7);
       if(flag(64, true)) {
-         pc(58927, 1);
-         int var3 = HL();
-         int var4 = mem(var3, 58927);
-         int var5 = alu("inc", var4);
-         int var6 = HL();
-         wMem(var6, var5, 58927);
-         pc(58928, 2);
-         int var7 = HL();
-         int var8 = mem(var7, 58928);
-         bit(6, var8);
-         pc(58930, 1);
-         if(!flag(64, false)) {
-            pc(58932, 1);
-            $E801();
-            pc(58935, 1);
-            HL(65143);
-            pc(58938, 1);
-            runJumps(61169);
-            pc(58941, 1);
-            $DD8D();
-            pc(58944, 1);
-            throw new StackException(58945);
-         } else {
-            pc(58948, 1);
+         tstates(5);
+         pc(58927, 1, 11);
+         int var31 = HL();
+         int var32 = mem(var31, 58927);
+         int var33 = alu("inc", var32);
+         int var34 = HL();
+         wMem(var34, var33, 58927);
+         pc(58928, 2, 12);
+         int var35 = HL();
+         int var36 = mem(var35, 58928);
+         bit(6, var36);
+         pc(58930, 1, 7);
+         if(flag(64, false)) {
+            tstates(5);
+            pc(58948, 1, 17);
             $E916();
-            pc(58951, 1);
-            int var9 = mem(51326, 58951);
-            A(var9);
-            pc(58954, 1);
-            int var10 = A();
-            int var11 = alu("and", var10, 7);
-            A(var11);
-            pc(58956, 1);
-            if(!flag(64, true)) {
-               pc(58957, 1);
+            pc(58951, 1, 13);
+            int var37 = mem(51326, 58951);
+            A(var37);
+            pc(58954, 1, 7);
+            int var38 = A();
+            int var39 = alu("and", var38, 7);
+            A(var39);
+            pc(58956, 1, 5);
+            if(flag(64, true)) {
+               tstates(6);
+            } else {
+               pc(58957, 1, 10);
                HL(22560);
-               pc(58960, 1);
+               pc(58960, 1, 10);
                DE(22528);
-               pc(58963, 1);
+               pc(58963, 1, 10);
                BC(192);
-               pc(58966, 2);
+               pc(58966, 2, 21);
                ldir(58966);
-               pc(58968, 1);
+               pc(58968, 1, 10);
                HL(51320);
-               pc(58971, 1);
+               pc(58971, 1, 7);
                A(8);
-               pc(58973, 1);
-               int var12 = HL();
-               int var13 = mem(var12, 58973);
-               int var14 = A();
-               alu("cp", var14, var13);
-               pc(58974, 1);
+               pc(58973, 1, 7);
+               int var40 = HL();
+               int var41 = mem(var40, 58973);
+               int var42 = A();
+               alu("cp", var42, var41);
+               pc(58974, 1, 10);
                if(flag(1, false)) {
                   untranslated(0);
                } else {
-                  pc(58977, 1);
+                  pc(58977, 1, 10);
                }
             }
+         } else {
+            pc(58932, 1, 17);
+            $E801();
+            pc(58935, 1, 10);
+            HL(65143);
+            pc(58938, 1, 17);
+            runJumps(61169);
+            pc(58941, 1, 17);
+            $DD8D();
+            pc(58944, 1, 10);
+            throw new StackException(58945);
          }
       } else {
-         pc(58863, 1);
-         int var15 = mem(53194, 58863);
-         A(var15);
-         pc(58866, 1);
-         int var16 = A();
-         alu("cp", var16, 43);
-         pc(58868, 1);
-         if(!flag(64, true)) {
-            pc(58869, 1);
+         pc(58863, 1, 13);
+         int var3 = mem(53194, 58863);
+         A(var3);
+         pc(58866, 1, 7);
+         int var4 = A();
+         alu("cp", var4, 43);
+         pc(58868, 1, 5);
+         if(flag(64, true)) {
+            tstates(6);
+         } else {
+            pc(58869, 1, 7);
             A(2);
-            pc(58871, 1);
-            int var17 = A();
-            wMem(53203, var17, 58871);
-            pc(58874, 1);
-            int var18 = mem(51314, 58874);
-            A(var18);
-            pc(58877, 1);
-            int var19 = A();
-            alu("cp", var19, 22);
-            pc(58879, 1);
-            if(!flag(64, true)) {
-               pc(58880, 1);
-               int var20 = mem(51315, 58880);
-               A(var20);
-               pc(58883, 1);
-               int var21 = A();
-               int var22 = alu("sub", var21, 12);
-               A(var22);
-               pc(58885, 1);
-               int var23 = A();
-               alu("cp", var23, 8);
-               pc(58887, 1);
-               if(!flag(1, true)) {
-                  pc(58888, 2);
-                  int var24 = HL();
-                  int var25 = mem(var24, 58888);
-                  bit(1, var25);
-                  pc(58890, 1);
-                  if(!flag(64, false)) {
-                     pc(58891, 1);
-                     int var26 = HL();
-                     wMem(var26, 128, 58891);
-                     pc(58893, 1);
+            pc(58871, 1, 13);
+            int var5 = A();
+            wMem(53203, var5, 58871);
+            pc(58874, 1, 13);
+            int var6 = mem(51314, 58874);
+            A(var6);
+            pc(58877, 1, 7);
+            int var7 = A();
+            alu("cp", var7, 22);
+            pc(58879, 1, 5);
+            if(flag(64, true)) {
+               tstates(6);
+            } else {
+               pc(58880, 1, 13);
+               int var8 = mem(51315, 58880);
+               A(var8);
+               pc(58883, 1, 7);
+               int var9 = A();
+               int var10 = alu("sub", var9, 12);
+               A(var10);
+               pc(58885, 1, 7);
+               int var11 = A();
+               alu("cp", var11, 8);
+               pc(58887, 1, 5);
+               if(flag(1, true)) {
+                  tstates(6);
+               } else {
+                  pc(58888, 2, 12);
+                  int var12 = HL();
+                  int var13 = mem(var12, 58888);
+                  bit(1, var13);
+                  pc(58890, 1, 5);
+                  if(flag(64, false)) {
+                     tstates(6);
+                  } else {
+                     pc(58891, 1, 10);
+                     int var14 = HL();
+                     wMem(var14, 128, 58891);
+                     pc(58893, 1, 10);
                      HL(16560);
-                     pc(58896, 1);
+                     pc(58896, 1, 7);
                      B(8);
-                     pc(58898, 1);
+                     pc(58898, 1, 7);
                      A(255);
 
-                     do {
-                        pc(58900, 1);
-                        int var27 = HL();
-                        push(var27);
-                        pc(58901, 1);
-                        int var28 = A();
-                        int var29 = HL();
-                        wMem(var29, var28, 58901);
-                        pc(58902, 1);
-                        int var30 = L();
-                        int var31 = alu("inc", var30);
-                        L(var31);
-                        pc(58903, 1);
-                        int var32 = A();
-                        int var33 = HL();
-                        wMem(var33, var32, 58903);
-                        pc(58904, 1);
-                        int var34 = L();
-                        int var35 = alu("inc", var34);
-                        L(var35);
-                        pc(58905, 1);
-                        int var36 = A();
-                        int var37 = HL();
-                        wMem(var37, var36, 58905);
-                        pc(58906, 1);
-                        int var38 = pop();
-                        HL(var38);
-                        pc(58907, 1);
-                        int var39 = H();
-                        int var40 = alu("inc", var39);
-                        H(var40);
-                        pc(58908, 1);
-                        int var41 = B() - 1 & 255;
-                        B(var41);
-                     } while(B() != 0);
+                     while(true) {
+                        pc(58900, 1, 11);
+                        int var15 = HL();
+                        push(var15);
+                        pc(58901, 1, 7);
+                        int var16 = A();
+                        int var17 = HL();
+                        wMem(var17, var16, 58901);
+                        pc(58902, 1, 4);
+                        int var18 = L();
+                        int var19 = alu("inc", var18);
+                        L(var19);
+                        pc(58903, 1, 7);
+                        int var20 = A();
+                        int var21 = HL();
+                        wMem(var21, var20, 58903);
+                        pc(58904, 1, 4);
+                        int var22 = L();
+                        int var23 = alu("inc", var22);
+                        L(var23);
+                        pc(58905, 1, 7);
+                        int var24 = A();
+                        int var25 = HL();
+                        wMem(var25, var24, 58905);
+                        pc(58906, 1, 10);
+                        int var26 = pop();
+                        HL(var26);
+                        pc(58907, 1, 4);
+                        int var27 = H();
+                        int var28 = alu("inc", var27);
+                        H(var28);
+                        pc(58908, 1, 8);
+                        int var29 = B() - 1 & 255;
+                        B(var29);
+                        if(B() == 0) {
+                           pc(58910, 1, 10);
+                           HL(22613);
+                           pc(58913, 1, 10);
+                           int var30 = HL();
+                           wMem(var30, 6, 58913);
+                           pc(58915, 1, 10);
+                           BC(2308);
+                           pc(58918, 1, 10);
+                           DE(3077);
+                           pc(58921, 1, 7);
+                           A(5);
+                           pc(58923, 1, 17);
+                           $E8BA();
+                           pc(58926, 1, 10);
+                           return;
+                        }
 
-                     pc(58910, 1);
-                     HL(22613);
-                     pc(58913, 1);
-                     int var42 = HL();
-                     wMem(var42, 6, 58913);
-                     pc(58915, 1);
-                     BC(2308);
-                     pc(58918, 1);
-                     DE(3077);
-                     pc(58921, 1);
-                     A(5);
-                     pc(58923, 1);
-                     $E8BA();
-                     pc(58926, 1);
+                        tstates(5);
+                     }
                   }
                }
             }
@@ -9972,610 +10626,636 @@ public class DynamiteDan extends MiniZX {
       }
    }
 
-   public void $E641() {
-      pc(58945, 1);
-      runJumps(51204);
-   }
-
    public void $E663() {
-      pc(58979, 2);
+      pc(58979, 2, 14);
       IY(60860);
-      pc(58983, 1);
+      pc(58983, 1, 7);
       B(10);
-      pc(58985, 1);
+      pc(58985, 1, 13);
       int var1 = mem(53194, 58985);
       A(var1);
 
-      do {
-         pc(58988, 2);
+      while(true) {
+         pc(58988, 2, 19);
          int var2 = IY() + 0;
          int var3 = mem(var2, 58988);
          int var4 = A();
          alu("cp", var4, var3);
-         pc(58991, 1);
+         pc(58991, 1, 7);
          if(flag(64, false)) {
-            pc(59001, 1);
+            tstates(5);
+            pc(59001, 1, 10);
             HL(58978);
-            pc(59004, 1);
-            int var5 = HL();
-            int var6 = mem(var5, 59004);
-            int var7 = alu("inc", var6);
-            int var8 = HL();
-            wMem(var8, var7, 59004);
-            pc(59005, 1);
+            pc(59004, 1, 11);
             int var9 = HL();
-            int var10 = mem(var9, 59005);
-            A(var10);
-            pc(59006, 2);
-            int var11 = IY() + 1;
-            int var12 = mem(var11, 59006);
-            L(var12);
-            pc(59009, 2);
-            int var13 = IY() + 2;
-            int var14 = mem(var13, 59009);
-            H(var14);
-            pc(59012, 1);
+            int var10 = mem(var9, 59004);
+            int var11 = alu("inc", var10);
+            int var12 = HL();
+            wMem(var12, var11, 59004);
+            pc(59005, 1, 7);
+            int var13 = HL();
+            int var14 = mem(var13, 59005);
+            A(var14);
+            pc(59006, 2, 19);
+            int var15 = IY() + 1;
+            int var16 = mem(var15, 59006);
+            L(var16);
+            pc(59009, 2, 19);
+            int var17 = IY() + 2;
+            int var18 = mem(var17, 59009);
+            H(var18);
+            pc(59012, 1, 7);
             B(4);
 
-            do {
-               pc(59014, 1);
-               int var15 = A();
-               int var16 = alu("and", var15, 7);
-               A(var16);
-               pc(59016, 1);
-               if(!flag(64, true)) {
-                  pc(59018, 1);
-                  int var60 = A();
-                  int var61 = alu("inc", var60);
-                  A(var61);
-               }
-
-               pc(59019, 1);
-               int var17 = A();
-               int var18 = HL();
-               wMem(var18, var17, 59019);
-               pc(59020, 1);
+            while(true) {
+               pc(59014, 1, 7);
                int var19 = A();
-               int var20 = alu("inc", var19);
+               int var20 = alu("and", var19, 7);
                A(var20);
-               pc(59021, 1);
-               int var21 = L();
-               int var22 = alu("inc", var21);
-               L(var22);
-               pc(59022, 1);
-               int var23 = B() - 1 & 255;
-               B(var23);
-            } while(B() != 0);
-
-            pc(59024, 1);
-            int var24 = A();
-            int var25 = alu("dec", var24);
-            A(var25);
-            pc(59025, 1);
-            int var26 = A();
-            C(var26);
-            pc(59026, 1);
-            int var27 = mem(58978, 59026);
-            A(var27);
-            pc(59029, 1);
-            int var28 = A();
-            alu("cp", var28, 200);
-            pc(59031, 1);
-            if(flag(1, false)) {
-               return;
-            } else {
-               pc(59032, 2);
-               int var29 = A();
-               bit(1, var29);
-               pc(59034, 1);
-               if(!flag(64, true)) {
-                  pc(59036, 1);
-                  A(69);
-                  pc(59038, 1);
+               pc(59016, 1, 7);
+               if(flag(64, true)) {
+                  tstates(5);
                } else {
-                  pc(59040, 1);
-                  int var30 = C();
-                  A(var30);
-                  pc(59041, 1);
-                  int var31 = A();
-                  int var32 = alu("rlca", var31);
-                  A(var32);
-                  pc(59042, 1);
-                  int var33 = A();
-                  int var34 = alu("rlca", var33);
-                  A(var34);
-                  pc(59043, 1);
-                  int var35 = A();
-                  int var36 = alu("rlca", var35);
-                  A(var36);
+                  pc(59018, 1, 4);
+                  int var21 = A();
+                  int var22 = alu("inc", var21);
+                  A(var22);
                }
 
-               pc(59044, 1);
-               $ECA4();
-               pc(59047, 1);
-               int var37 = A();
-               C(var37);
-               pc(59048, 1);
-               int var38 = A();
-               int var39 = alu("rrca", var38);
-               A(var39);
-               pc(59049, 1);
-               $DB01();
-               pc(59052, 2);
-               int var40 = mem16(51314, 59052);
-               DE(var40);
-               pc(59056, 1);
-               $E909();
-               pc(59059, 1);
-               exHLDE();
-               pc(59060, 1);
-               DE(64);
-               pc(59063, 1);
-               int var41 = DE();
-               int var42 = HL();
-               int var43 = alu("add16", var42, var41);
-               HL(var43);
-               pc(59064, 1);
-               int var44 = L();
-               int var45 = alu("inc", var44);
-               L(var45);
-               pc(59065, 1);
-               int var46 = mem(58978, 59065);
-               A(var46);
-               pc(59068, 1);
-               int var47 = A();
-               alu("cp", var47, 255);
-               pc(59070, 1);
-               if(flag(64, true)) {
-                  return;
-               } else {
-                  pc(59071, 1);
-                  int var48 = HL();
-                  int var49 = mem(var48, 59071);
-                  A(var49);
-                  pc(59072, 1);
-                  int var50 = C();
-                  int var51 = A();
-                  alu("cp", var51, var50);
-                  pc(59073, 1);
+               pc(59019, 1, 7);
+               int var23 = A();
+               int var24 = HL();
+               wMem(var24, var23, 59019);
+               pc(59020, 1, 4);
+               int var25 = A();
+               int var26 = alu("inc", var25);
+               A(var26);
+               pc(59021, 1, 4);
+               int var27 = L();
+               int var28 = alu("inc", var27);
+               L(var28);
+               pc(59022, 1, 8);
+               int var29 = B() - 1 & 255;
+               B(var29);
+               if(B() == 0) {
+                  pc(59024, 1, 4);
+                  int var30 = A();
+                  int var31 = alu("dec", var30);
+                  A(var31);
+                  pc(59025, 1, 4);
+                  int var32 = A();
+                  C(var32);
+                  pc(59026, 1, 13);
+                  int var33 = mem(58978, 59026);
+                  A(var33);
+                  pc(59029, 1, 7);
+                  int var34 = A();
+                  alu("cp", var34, 200);
+                  pc(59031, 1, 5);
+                  if(flag(1, false)) {
+                     tstates(6);
+                     return;
+                  }
+
+                  pc(59032, 2, 8);
+                  int var35 = A();
+                  bit(1, var35);
+                  pc(59034, 1, 7);
+                  if(flag(64, true)) {
+                     tstates(5);
+                     pc(59040, 1, 4);
+                     int var59 = C();
+                     A(var59);
+                     pc(59041, 1, 4);
+                     int var60 = A();
+                     int var61 = alu("rlca", var60);
+                     A(var61);
+                     pc(59042, 1, 4);
+                     int var62 = A();
+                     int var63 = alu("rlca", var62);
+                     A(var63);
+                     pc(59043, 1, 4);
+                     int var64 = A();
+                     int var65 = alu("rlca", var64);
+                     A(var65);
+                  } else {
+                     pc(59036, 1, 7);
+                     A(69);
+                     pc(59038, 1, 12);
+                  }
+
+                  pc(59044, 1, 17);
+                  $ECA4();
+                  pc(59047, 1, 4);
+                  int var36 = A();
+                  C(var36);
+                  pc(59048, 1, 4);
+                  int var37 = A();
+                  int var38 = alu("rrca", var37);
+                  A(var38);
+                  pc(59049, 1, 17);
+                  $DB01();
+                  pc(59052, 2, 20);
+                  int var39 = mem16(51314, 59052);
+                  DE(var39);
+                  pc(59056, 1, 17);
+                  $E909();
+                  pc(59059, 1, 4);
+                  exHLDE();
+                  pc(59060, 1, 10);
+                  DE(64);
+                  pc(59063, 1, 11);
+                  int var40 = DE();
+                  int var41 = HL();
+                  int var42 = alu("add16", var41, var40);
+                  HL(var42);
+                  pc(59064, 1, 4);
+                  int var43 = L();
+                  int var44 = alu("inc", var43);
+                  L(var44);
+                  pc(59065, 1, 13);
+                  int var45 = mem(58978, 59065);
+                  A(var45);
+                  pc(59068, 1, 7);
+                  int var46 = A();
+                  alu("cp", var46, 255);
+                  pc(59070, 1, 5);
+                  if(flag(64, true)) {
+                     tstates(6);
+                     return;
+                  }
+
+                  pc(59071, 1, 7);
+                  int var47 = HL();
+                  int var48 = mem(var47, 59071);
+                  A(var48);
+                  pc(59072, 1, 4);
+                  int var49 = C();
+                  int var50 = A();
+                  alu("cp", var50, var49);
+                  pc(59073, 1, 7);
                   A(69);
-                  pc(59075, 1);
+                  pc(59075, 1, 10);
                   if(flag(64, true)) {
                      $ECA4();
                      return;
-                  } else {
-                     pc(59078, 2);
-                     int var52 = IY() + 4;
-                     int var53 = mem(var52, 59078);
-                     A(var53);
-                     pc(59081, 1);
-                     int var54 = A();
-                     wMem(51314, var54, 59081);
-                     pc(59084, 2);
-                     int var55 = IY() + 5;
-                     int var56 = mem(var55, 59084);
-                     A(var56);
-                     pc(59087, 1);
-                     int var57 = A();
-                     wMem(51315, var57, 59087);
-                     pc(59090, 2);
-                     int var58 = IY() + 3;
-                     int var59 = mem(var58, 59090);
-                     A(var59);
-                     pc(59093, 1);
-                     $CBBD();
-                     pc(59096, 1);
-                     return;
                   }
+
+                  pc(59078, 2, 19);
+                  int var51 = IY() + 4;
+                  int var52 = mem(var51, 59078);
+                  A(var52);
+                  pc(59081, 1, 13);
+                  int var53 = A();
+                  wMem(51314, var53, 59081);
+                  pc(59084, 2, 19);
+                  int var54 = IY() + 5;
+                  int var55 = mem(var54, 59084);
+                  A(var55);
+                  pc(59087, 1, 13);
+                  int var56 = A();
+                  wMem(51315, var56, 59087);
+                  pc(59090, 2, 19);
+                  int var57 = IY() + 3;
+                  int var58 = mem(var57, 59090);
+                  A(var58);
+                  pc(59093, 1, 17);
+                  $CBBD();
+                  pc(59096, 1, 10);
+                  return;
                }
+
+               tstates(5);
             }
          }
 
-         pc(58993, 1);
+         pc(58993, 1, 10);
          DE(6);
-         pc(58996, 2);
-         int var62 = DE();
-         int var63 = IY();
-         int var64 = alu("add16", var63, var62);
-         IY(var64);
-         pc(58998, 1);
-         int var65 = B() - 1 & 255;
-         B(var65);
-      } while(B() != 0);
-
-      pc(59000, 1);
-   }
-
-   public void $E6DC() {
-      pc(59100, 2);
-      IY(60920);
-      pc(59104, 1);
-      B(15);
-      pc(59106, 1);
-      int var1 = mem(53194, 59106);
-      A(var1);
-
-      do {
-         pc(59109, 2);
-         int var2 = IY() + 0;
-         int var3 = mem(var2, 59109);
-         int var4 = A();
-         alu("cp", var4, var3);
-         pc(59112, 1);
-         if(flag(64, false)) {
-            $E6F6();
-            return;
-         }
-
-         pc(59114, 1);
-         DE(4);
-         pc(59117, 2);
+         pc(58996, 2, 15);
          int var5 = DE();
          int var6 = IY();
          int var7 = alu("add16", var6, var5);
          IY(var7);
-         pc(59119, 1);
+         pc(58998, 1, 8);
          int var8 = B() - 1 & 255;
          B(var8);
-      } while(B() != 0);
+         if(B() == 0) {
+            pc(59000, 1, 10);
+            return;
+         }
 
-      pc(59121, 1);
-      C(20);
-      pc(59123, 1);
-      $E7D7();
+         tstates(5);
+      }
+   }
+
+   public void $E6DC() {
+      pc(59100, 2, 14);
+      IY(60920);
+      pc(59104, 1, 7);
+      B(15);
+      pc(59106, 1, 13);
+      int var1 = mem(53194, 59106);
+      A(var1);
+
+      while(true) {
+         pc(59109, 2, 19);
+         int var2 = IY() + 0;
+         int var3 = mem(var2, 59109);
+         int var4 = A();
+         alu("cp", var4, var3);
+         pc(59112, 1, 7);
+         if(flag(64, false)) {
+            tstates(5);
+            $E6F6();
+            return;
+         }
+
+         pc(59114, 1, 10);
+         DE(4);
+         pc(59117, 2, 15);
+         int var5 = DE();
+         int var6 = IY();
+         int var7 = alu("add16", var6, var5);
+         IY(var7);
+         pc(59119, 1, 8);
+         int var8 = B() - 1 & 255;
+         B(var8);
+         if(B() == 0) {
+            pc(59121, 1, 7);
+            C(20);
+            pc(59123, 1, 10);
+            $E7D7();
+            return;
+         }
+
+         tstates(5);
+      }
    }
 
    public void $E6F6() {
-      pc(59126, 2);
+      pc(59126, 2, 19);
       int var1 = IY() + 3;
       int var2 = mem(var1, 59126);
       C(var2);
-      pc(59129, 1);
+      pc(59129, 1, 10);
       HL(59097);
-      pc(59132, 1);
+      pc(59132, 1, 11);
       int var3 = HL();
       int var4 = mem(var3, 59132);
       int var5 = alu("inc", var4);
       int var6 = HL();
       wMem(var6, var5, 59132);
-      pc(59133, 2);
+      pc(59133, 2, 12);
       int var7 = HL();
       int var8 = mem(var7, 59133);
       bit(7, var8);
-      pc(59135, 1);
+      pc(59135, 1, 10);
       if(flag(64, false)) {
          $E7D7();
       } else {
-         pc(59138, 1);
+         pc(59138, 1, 7);
          int var9 = HL();
          int var10 = mem(var9, 59138);
          A(var10);
-         pc(59139, 1);
+         pc(59139, 1, 7);
          int var11 = A();
          int var12 = alu("and", var11, 3);
          A(var12);
-         pc(59141, 1);
+         pc(59141, 1, 4);
          int var13 = A();
          B(var13);
-         pc(59142, 1);
+         pc(59142, 1, 4);
          int var14 = A();
          int var15 = A();
          int var16 = alu("add", var15, var14);
          A(var16);
-         pc(59143, 1);
+         pc(59143, 1, 4);
          int var17 = A();
          int var18 = A();
          int var19 = alu("add", var18, var17);
          A(var19);
-         pc(59144, 1);
+         pc(59144, 1, 4);
          int var20 = A();
          int var21 = A();
          int var22 = alu("add", var21, var20);
          A(var22);
-         pc(59145, 1);
+         pc(59145, 1, 4);
          int var23 = A();
          E(var23);
-         pc(59146, 1);
+         pc(59146, 1, 7);
          D(0);
-         pc(59148, 1);
+         pc(59148, 1, 10);
          HL(60605);
-         pc(59151, 1);
+         pc(59151, 1, 11);
          int var24 = DE();
          int var25 = HL();
          int var26 = alu("add16", var25, var24);
          HL(var26);
-         pc(59152, 1);
+         pc(59152, 1, 4);
          exHLDE();
-         pc(59153, 1);
+         pc(59153, 1, 4);
          int var27 = B();
          A(var27);
-         pc(59154, 1);
+         pc(59154, 1, 7);
          int var28 = A();
          int var29 = alu("add", var28, 3);
          A(var29);
-         pc(59156, 1);
+         pc(59156, 1, 13);
          int var30 = A();
          wMem(59099, var30, 59156);
-         pc(59159, 1);
+         pc(59159, 1, 10);
          HL(59098);
-         pc(59162, 2);
+         pc(59162, 2, 12);
          int var31 = HL();
          int var32 = mem(var31, 59162);
          bit(7, var32);
-         pc(59164, 1);
-         if(!flag(64, false)) {
-            pc(59166, 1);
-            int var112 = HL();
-            int var113 = mem(var112, 59166);
-            int var114 = alu("dec", var113);
-            int var115 = HL();
-            wMem(var115, var114, 59166);
-            pc(59167, 1);
+         pc(59164, 1, 7);
+         if(flag(64, false)) {
+            tstates(5);
+            pc(59202, 1, 11);
+            int var120 = HL();
+            int var121 = mem(var120, 59202);
+            int var122 = alu("inc", var121);
+            int var123 = HL();
+            wMem(var123, var122, 59202);
+            pc(59203, 1, 17);
             $ECF4();
-            pc(59170, 1);
+            pc(59206, 1, 17);
             $E775();
-            pc(59173, 1);
-            int var116 = HL();
-            int var117 = mem(var116, 59173);
-            A(var117);
-            pc(59174, 1);
-            int var118 = A();
-            int var119 = alu("and", var118, 63);
-            A(var119);
-            pc(59176, 1);
+            pc(59209, 1, 7);
+            int var124 = HL();
+            int var125 = mem(var124, 59209);
+            A(var125);
+            pc(59210, 1, 7);
+            int var126 = A();
+            int var127 = alu("and", var126, 63);
+            A(var127);
+            pc(59212, 1, 4);
+            int var128 = C();
+            int var129 = A();
+            alu("cp", var129, var128);
+            pc(59213, 1, 7);
+            if(flag(64, true)) {
+               tstates(5);
+            } else {
+               pc(59215, 2, 15);
+               int var130 = HL();
+               int var131 = mem(var130, 59215) | 128;
+               int var132 = HL();
+               wMem(var132, var131, 59215);
+            }
+
+            pc(59217, 1, 17);
+            $E756();
+            pc(59220, 1, 12);
+         } else {
+            pc(59166, 1, 11);
+            int var33 = HL();
+            int var34 = mem(var33, 59166);
+            int var35 = alu("dec", var34);
+            int var36 = HL();
+            wMem(var36, var35, 59166);
+            pc(59167, 1, 17);
+            $ECF4();
+            pc(59170, 1, 17);
+            $E775();
+            pc(59173, 1, 7);
+            int var37 = HL();
+            int var38 = mem(var37, 59173);
+            A(var38);
+            pc(59174, 1, 7);
+            int var39 = A();
+            int var40 = alu("and", var39, 63);
+            A(var40);
+            pc(59176, 1, 7);
             if(!flag(64, true)) {
-               pc(59178, 1);
-               int var120 = A();
-               int var121 = A();
-               int var122 = alu("xor", var121, var120);
-               A(var122);
-               pc(59179, 1);
-               int var123 = A();
-               int var124 = HL();
-               wMem(var124, var123, 59179);
-               pc(59180, 1);
-               int var125 = HL();
-               int var126 = dec16(var125);
-               HL(var126);
-               pc(59181, 1);
-               int var127 = A();
-               int var128 = HL();
-               wMem(var128, var127, 59181);
-               pc(59182, 2);
-               int var129 = IY() + 1;
-               int var130 = mem(var129, 59182);
-               L(var130);
-               pc(59185, 2);
-               int var131 = IY() + 2;
-               int var132 = mem(var131, 59185);
-               H(var132);
-               pc(59188, 1);
+               pc(59178, 1, 4);
+               int var41 = A();
+               int var42 = A();
+               int var43 = alu("xor", var42, var41);
+               A(var43);
+               pc(59179, 1, 7);
+               int var44 = A();
+               int var45 = HL();
+               wMem(var45, var44, 59179);
+               pc(59180, 1, 6);
+               int var46 = HL();
+               int var47 = dec16(var46);
+               HL(var47);
+               pc(59181, 1, 7);
+               int var48 = A();
+               int var49 = HL();
+               wMem(var49, var48, 59181);
+               pc(59182, 2, 19);
+               int var50 = IY() + 1;
+               int var51 = mem(var50, 59182);
+               L(var51);
+               pc(59185, 2, 19);
+               int var52 = IY() + 2;
+               int var53 = mem(var52, 59185);
+               H(var53);
+               pc(59188, 1, 17);
                $E76C();
-               pc(59191, 1);
+               pc(59191, 1, 10);
                $E7D7();
                return;
             }
 
-            pc(59194, 1);
+            tstates(5);
+            pc(59194, 1, 17);
             $E756();
-            pc(59197, 1);
+            pc(59197, 1, 17);
             $E76C();
-            pc(59200, 1);
-         } else {
-            pc(59202, 1);
-            int var33 = HL();
-            int var34 = mem(var33, 59202);
-            int var35 = alu("inc", var34);
-            int var36 = HL();
-            wMem(var36, var35, 59202);
-            pc(59203, 1);
-            $ECF4();
-            pc(59206, 1);
-            $E775();
-            pc(59209, 1);
-            int var37 = HL();
-            int var38 = mem(var37, 59209);
-            A(var38);
-            pc(59210, 1);
-            int var39 = A();
-            int var40 = alu("and", var39, 63);
-            A(var40);
-            pc(59212, 1);
-            int var41 = C();
-            int var42 = A();
-            alu("cp", var42, var41);
-            pc(59213, 1);
-            if(!flag(64, true)) {
-               pc(59215, 2);
-               int var109 = HL();
-               int var110 = mem(var109, 59215) | 128;
-               int var111 = HL();
-               wMem(var111, var110, 59215);
-            }
-
-            pc(59217, 1);
-            $E756();
-            pc(59220, 1);
+            pc(59200, 1, 12);
          }
 
-         pc(59266, 1);
-         int var43 = mem(51327, 59266);
-         A(var43);
-         pc(59269, 2);
-         int var44 = A();
-         bit(7, var44);
-         pc(59271, 1);
-         if(!flag(64, true)) {
-            pc(59272, 2);
-            int var45 = IY() + 1;
-            int var46 = mem(var45, 59272);
-            A(var46);
-            pc(59275, 1);
-            int var47 = A();
-            int var48 = alu("and", var47, 31);
-            A(var48);
-            pc(59277, 1);
-            int var49 = A();
-            int var50 = alu("dec", var49);
-            A(var50);
-            pc(59278, 1);
-            int var51 = A();
-            B(var51);
-            pc(59279, 1);
-            int var52 = mem(59098, 59279);
-            A(var52);
-            pc(59282, 1);
-            int var53 = A();
-            int var54 = alu("and", var53, 63);
-            A(var54);
-            pc(59284, 1);
-            int var55 = B();
-            int var56 = A();
-            int var57 = alu("add", var56, var55);
+         pc(59266, 1, 13);
+         int var54 = mem(51327, 59266);
+         A(var54);
+         pc(59269, 2, 8);
+         int var55 = A();
+         bit(7, var55);
+         pc(59271, 1, 5);
+         if(flag(64, true)) {
+            tstates(6);
+         } else {
+            pc(59272, 2, 19);
+            int var56 = IY() + 1;
+            int var57 = mem(var56, 59272);
             A(var57);
-            pc(59285, 1);
+            pc(59275, 1, 7);
             int var58 = A();
-            L(var58);
-            pc(59286, 1);
-            int var59 = mem(51315, 59286);
+            int var59 = alu("and", var58, 31);
             A(var59);
-            pc(59289, 1);
+            pc(59277, 1, 4);
             int var60 = A();
-            H(var60);
-            pc(59290, 1);
-            int var61 = L();
+            int var61 = alu("dec", var60);
+            A(var61);
+            pc(59278, 1, 4);
             int var62 = A();
-            alu("cp", var62, var61);
-            pc(59291, 1);
+            B(var62);
+            pc(59279, 1, 13);
+            int var63 = mem(59098, 59279);
+            A(var63);
+            pc(59282, 1, 7);
+            int var64 = A();
+            int var65 = alu("and", var64, 63);
+            A(var65);
+            pc(59284, 1, 4);
+            int var66 = B();
+            int var67 = A();
+            int var68 = alu("add", var67, var66);
+            A(var68);
+            pc(59285, 1, 4);
+            int var69 = A();
+            L(var69);
+            pc(59286, 1, 13);
+            int var70 = mem(51315, 59286);
+            A(var70);
+            pc(59289, 1, 4);
+            int var71 = A();
+            H(var71);
+            pc(59290, 1, 4);
+            int var72 = L();
+            int var73 = A();
+            alu("cp", var73, var72);
+            pc(59291, 1, 7);
             if(flag(64, false)) {
+               tstates(5);
                $E7D7();
             } else {
-               pc(59293, 1);
-               int var63 = B();
-               A(var63);
-               pc(59294, 1);
-               int var64 = A();
-               int var65 = alu("dec", var64);
-               A(var65);
-               pc(59295, 1);
-               int var66 = H();
-               int var67 = A();
-               alu("cp", var67, var66);
-               pc(59296, 1);
+               pc(59293, 1, 4);
+               int var74 = B();
+               A(var74);
+               pc(59294, 1, 4);
+               int var75 = A();
+               int var76 = alu("dec", var75);
+               A(var76);
+               pc(59295, 1, 4);
+               int var77 = H();
+               int var78 = A();
+               alu("cp", var78, var77);
+               pc(59296, 1, 7);
                if(flag(1, true)) {
+                  tstates(5);
                   $E7D7();
                } else {
-                  pc(59298, 1);
-                  int var68 = L();
-                  A(var68);
-                  pc(59299, 1);
-                  int var69 = H();
-                  int var70 = A();
-                  alu("cp", var70, var69);
-                  pc(59300, 1);
+                  pc(59298, 1, 4);
+                  int var79 = L();
+                  A(var79);
+                  pc(59299, 1, 4);
+                  int var80 = H();
+                  int var81 = A();
+                  alu("cp", var81, var80);
+                  pc(59300, 1, 7);
                   if(flag(1, false)) {
+                     tstates(5);
                      $E7D7();
                   } else {
-                     pc(59302, 1);
-                     int var71 = C();
-                     A(var71);
-                     pc(59303, 1);
-                     int var72 = H();
-                     int var73 = A();
-                     alu("cp", var73, var72);
-                     pc(59304, 1);
+                     pc(59302, 1, 4);
+                     int var82 = C();
+                     A(var82);
+                     pc(59303, 1, 4);
+                     int var83 = H();
+                     int var84 = A();
+                     alu("cp", var84, var83);
+                     pc(59304, 1, 7);
                      if(flag(64, false)) {
+                        tstates(5);
                         $E7D7();
                      } else {
-                        pc(59306, 2);
-                        int var74 = IY() + 2;
-                        int var75 = mem(var74, 59306);
-                        A(var75);
-                        pc(59309, 1);
-                        int var76 = A();
-                        int var77 = alu("and", var76, 3);
-                        A(var77);
-                        pc(59311, 1);
-                        int var78 = A();
-                        int var79 = alu("rrca", var78);
-                        A(var79);
-                        pc(59312, 1);
-                        int var80 = A();
-                        int var81 = alu("rrca", var80);
-                        A(var81);
-                        pc(59313, 1);
-                        int var82 = A();
-                        B(var82);
-                        pc(59314, 2);
-                        int var83 = IY() + 1;
-                        int var84 = mem(var83, 59314);
-                        A(var84);
-                        pc(59317, 1);
-                        int var85 = A();
-                        int var86 = alu("and", var85, 224);
+                        pc(59306, 2, 19);
+                        int var85 = IY() + 2;
+                        int var86 = mem(var85, 59306);
                         A(var86);
-                        pc(59319, 1);
+                        pc(59309, 1, 7);
                         int var87 = A();
-                        int var88 = alu("rrca", var87);
+                        int var88 = alu("and", var87, 3);
                         A(var88);
-                        pc(59320, 1);
+                        pc(59311, 1, 4);
                         int var89 = A();
                         int var90 = alu("rrca", var89);
                         A(var90);
-                        pc(59321, 1);
-                        int var91 = B();
-                        int var92 = A();
-                        int var93 = alu("add", var92, var91);
-                        A(var93);
-                        pc(59322, 1);
-                        int var94 = A();
-                        B(var94);
-                        pc(59323, 1);
-                        int var95 = mem(51314, 59323);
+                        pc(59312, 1, 4);
+                        int var91 = A();
+                        int var92 = alu("rrca", var91);
+                        A(var92);
+                        pc(59313, 1, 4);
+                        int var93 = A();
+                        B(var93);
+                        pc(59314, 2, 19);
+                        int var94 = IY() + 1;
+                        int var95 = mem(var94, 59314);
                         A(var95);
-                        pc(59326, 1);
+                        pc(59317, 1, 7);
                         int var96 = A();
-                        int var97 = alu("add", var96, 26);
+                        int var97 = alu("and", var96, 224);
                         A(var97);
-                        pc(59328, 1);
-                        int var98 = B();
-                        int var99 = A();
-                        alu("cp", var99, var98);
-                        pc(59329, 1);
+                        pc(59319, 1, 4);
+                        int var98 = A();
+                        int var99 = alu("rrca", var98);
+                        A(var99);
+                        pc(59320, 1, 4);
+                        int var100 = A();
+                        int var101 = alu("rrca", var100);
+                        A(var101);
+                        pc(59321, 1, 4);
+                        int var102 = B();
+                        int var103 = A();
+                        int var104 = alu("add", var103, var102);
+                        A(var104);
+                        pc(59322, 1, 4);
+                        int var105 = A();
+                        B(var105);
+                        pc(59323, 1, 13);
+                        int var106 = mem(51314, 59323);
+                        A(var106);
+                        pc(59326, 1, 7);
+                        int var107 = A();
+                        int var108 = alu("add", var107, 26);
+                        A(var108);
+                        pc(59328, 1, 4);
+                        int var109 = B();
+                        int var110 = A();
+                        alu("cp", var110, var109);
+                        pc(59329, 1, 7);
                         if(flag(1, false)) {
+                           tstates(5);
                            $E7D7();
                         } else {
-                           pc(59331, 1);
-                           int var100 = A();
-                           int var101 = alu("sub", var100, 32);
-                           A(var101);
-                           pc(59333, 1);
-                           int var102 = B();
-                           int var103 = A();
-                           alu("cp", var103, var102);
-                           pc(59334, 1);
+                           pc(59331, 1, 7);
+                           int var111 = A();
+                           int var112 = alu("sub", var111, 32);
+                           A(var112);
+                           pc(59333, 1, 4);
+                           int var113 = B();
+                           int var114 = A();
+                           alu("cp", var114, var113);
+                           pc(59334, 1, 7);
                            if(flag(1, true)) {
+                              tstates(5);
                               $E7D7();
                            } else {
-                              pc(59336, 1);
+                              pc(59336, 1, 10);
                               HL(51316);
-                              pc(59339, 2);
-                              int var104 = HL();
-                              int var105 = mem(var104, 59339);
-                              bit(5, var105);
-                              pc(59341, 1);
+                              pc(59339, 2, 12);
+                              int var115 = HL();
+                              int var116 = mem(var115, 59339);
+                              bit(5, var116);
+                              pc(59341, 1, 7);
                               if(flag(64, true)) {
+                                 tstates(5);
                                  $E7D7();
                               } else {
-                                 pc(59343, 1);
+                                 pc(59343, 1, 17);
                                  $CD8A();
-                                 pc(59346, 1);
+                                 pc(59346, 1, 10);
                                  HL(59098);
-                                 pc(59349, 2);
-                                 int var106 = HL();
-                                 int var107 = mem(var106, 59349) | 128;
-                                 int var108 = HL();
-                                 wMem(var108, var107, 59349);
+                                 pc(59349, 2, 15);
+                                 int var117 = HL();
+                                 int var118 = mem(var117, 59349) | 128;
+                                 int var119 = HL();
+                                 wMem(var119, var118, 59349);
                                  $E7D7();
                               }
                            }
@@ -10589,1021 +11269,1097 @@ public class DynamiteDan extends MiniZX {
    }
 
    public void $E756() {
-      pc(59222, 1);
+      pc(59222, 1, 4);
       int var1 = A();
       B(var1);
-      pc(59223, 1);
+      pc(59223, 1, 4);
       int var2 = C();
       A(var2);
-      pc(59224, 1);
+      pc(59224, 1, 4);
       int var3 = B();
       int var4 = A();
       int var5 = alu("sub", var4, var3);
       A(var5);
-      pc(59225, 1);
+      pc(59225, 1, 4);
       int var6 = A();
       C(var6);
-      pc(59226, 2);
+      pc(59226, 2, 19);
       int var7 = IY() + 1;
       int var8 = mem(var7, 59226);
       L(var8);
-      pc(59229, 2);
+      pc(59229, 2, 19);
       int var9 = IY() + 2;
       int var10 = mem(var9, 59229);
       H(var10);
 
-      do {
-         pc(59232, 1);
+      while(true) {
+         pc(59232, 1, 11);
          int var11 = BC();
          push(var11);
-         pc(59233, 1);
+         pc(59233, 1, 13);
          int var12 = mem(59099, 59233);
          A(var12);
-         pc(59236, 1);
+         pc(59236, 1, 17);
          $ECDD();
-         pc(59239, 1);
+         pc(59239, 1, 4);
          int var13 = L();
          int var14 = alu("inc", var13);
          L(var14);
-         pc(59240, 1);
+         pc(59240, 1, 10);
          int var15 = pop();
          BC(var15);
-         pc(59241, 1);
+         pc(59241, 1, 8);
          int var16 = B() - 1 & 255;
          B(var16);
-      } while(B() != 0);
+         if(B() == 0) {
+            pc(59243, 1, 10);
+            return;
+         }
 
-      pc(59243, 1);
+         tstates(5);
+      }
    }
 
    public void $E76C() {
-      pc(59244, 1);
+      pc(59244, 1, 7);
       A(69);
-      pc(59246, 1);
+      pc(59246, 1, 10);
       DE(15616);
-      pc(59249, 1);
+      pc(59249, 1, 17);
       $ECDD();
-      pc(59252, 1);
+      pc(59252, 1, 10);
    }
 
    public void $E775() {
-      pc(59253, 1);
+      pc(59253, 1, 13);
       int var1 = mem(59099, 59253);
       A(var1);
-      pc(59256, 1);
+      pc(59256, 1, 4);
       int var2 = A();
       int var3 = A();
       int var4 = alu("add", var3, var2);
       A(var4);
-      pc(59257, 1);
+      pc(59257, 1, 7);
       int var5 = HL();
       int var6 = mem(var5, 59257);
       int var7 = A();
       int var8 = alu("add", var7, var6);
       A(var8);
-      pc(59258, 2);
+      pc(59258, 2, 8);
       int var9 = A() & -129;
       A(var9);
-      pc(59260, 1);
+      pc(59260, 1, 11);
       int var10 = HL();
       push(var10);
-      pc(59261, 1);
+      pc(59261, 1, 17);
       $DB01();
-      pc(59264, 1);
+      pc(59264, 1, 10);
       int var11 = pop();
       HL(var11);
-      pc(59265, 1);
+      pc(59265, 1, 10);
    }
 
    public void $E7D7() {
-      do {
-         pc(59351, 1);
+      while(true) {
+         pc(59351, 1, 4);
          int var1 = C();
          A(var1);
-         pc(59352, 1);
+         pc(59352, 1, 4);
          int var2 = A();
          int var3 = A();
          int var4 = alu("and", var3, var2);
          A(var4);
-         pc(59353, 1);
+         pc(59353, 1, 5);
          if(flag(64, false)) {
+            tstates(6);
             return;
          }
 
-         pc(59354, 1);
+         pc(59354, 1, 7);
          B(31);
 
-         do {
-            pc(59356, 1);
+         while(true) {
+            pc(59356, 1, 8);
             int var5 = B() - 1 & 255;
             B(var5);
-         } while(B() != 0);
+            if(B() == 0) {
+               pc(59358, 1, 4);
+               int var6 = C();
+               int var7 = alu("dec", var6);
+               C(var7);
+               pc(59359, 1, 7);
+               if(!flag(64, true)) {
+                  pc(59361, 1, 10);
+                  return;
+               }
 
-         pc(59358, 1);
-         int var6 = C();
-         int var7 = alu("dec", var6);
-         C(var7);
-         pc(59359, 1);
-      } while(flag(64, true));
+               tstates(5);
+               break;
+            }
 
-      pc(59361, 1);
+            tstates(5);
+         }
+      }
    }
 
    public void $E801() {
-      pc(59393, 1);
+      pc(59393, 1, 10);
       HL(16384);
-      pc(59396, 1);
+      pc(59396, 1, 10);
       BC(6144);
-      pc(59399, 1);
+      pc(59399, 1, 7);
       int var1 = L();
       int var2 = HL();
       wMem(var2, var1, 59399);
-      pc(59400, 1);
+      pc(59400, 1, 4);
       int var3 = H();
       D(var3);
-      pc(59401, 1);
+      pc(59401, 1, 7);
       E(1);
-      pc(59403, 2);
+      pc(59403, 2, 21);
       ldir(59403);
-      pc(59405, 1);
+      pc(59405, 1, 7);
       A(69);
-      pc(59407, 1);
+      pc(59407, 1, 7);
       int var4 = A();
       int var5 = HL();
       wMem(var5, var4, 59407);
-      pc(59408, 1);
+      pc(59408, 1, 10);
       BC(767);
-      pc(59411, 2);
+      pc(59411, 2, 21);
       ldir(59411);
-      pc(59413, 1);
+      pc(59413, 1, 13);
       int var6 = mem(59392, 59413);
       A(var6);
-      pc(59416, 1);
+      pc(59416, 1, 7);
       int var7 = A();
       int var8 = alu("and", var7, 248);
       A(var8);
-      pc(59418, 1);
-      pc(59420, 1);
-      int var9 = A();
-      wMem(59392, var9, 59420);
-      pc(59423, 1);
+      pc(59418, 1, 11);
+      int var9 = A() << 8 | 7166;
+      int var10 = A();
+      out(var9, var10);
+      pc(59420, 1, 13);
+      int var11 = A();
+      wMem(59392, var11, 59420);
+      pc(59423, 1, 10);
    }
 
    public void $E820() {
-      pc(59424, 1);
+      pc(59424, 1, 10);
       HL(16384);
-      pc(59427, 1);
+      pc(59427, 1, 10);
       BC(4096);
-      pc(59430, 1);
+      pc(59430, 1, 7);
       int var1 = L();
       int var2 = HL();
       wMem(var2, var1, 59430);
-      pc(59431, 1);
+      pc(59431, 1, 4);
       int var3 = H();
       D(var3);
-      pc(59432, 1);
+      pc(59432, 1, 7);
       E(1);
-      pc(59434, 2);
+      pc(59434, 2, 21);
       ldir(59434);
-      pc(59436, 1);
+      pc(59436, 1, 4);
       int var4 = A();
       int var5 = A();
       int var6 = alu("xor", var5, var4);
       A(var6);
-      pc(59437, 1);
+      pc(59437, 1, 7);
       B(8);
 
-      do {
-         pc(59439, 1);
+      while(true) {
+         pc(59439, 1, 11);
          int var7 = BC();
          push(var7);
-         pc(59440, 1);
+         pc(59440, 1, 11);
          int var8 = HL();
          push(var8);
-         pc(59441, 1);
+         pc(59441, 1, 11);
          int var9 = DE();
          push(var9);
-         pc(59442, 1);
+         pc(59442, 1, 7);
          int var10 = A();
          int var11 = HL();
          wMem(var11, var10, 59442);
-         pc(59443, 1);
+         pc(59443, 1, 10);
          BC(127);
-         pc(59446, 2);
+         pc(59446, 2, 21);
          ldir(59446);
-         pc(59448, 1);
+         pc(59448, 1, 10);
          int var12 = pop();
          DE(var12);
-         pc(59449, 1);
+         pc(59449, 1, 10);
          int var13 = pop();
          HL(var13);
-         pc(59450, 1);
+         pc(59450, 1, 4);
          int var14 = D();
          int var15 = alu("inc", var14);
          D(var15);
-         pc(59451, 1);
+         pc(59451, 1, 4);
          int var16 = H();
          int var17 = alu("inc", var16);
          H(var17);
-         pc(59452, 1);
+         pc(59452, 1, 10);
          int var18 = pop();
          BC(var18);
-         pc(59453, 1);
+         pc(59453, 1, 8);
          int var19 = B() - 1 & 255;
          B(var19);
-      } while(B() != 0);
+         if(B() == 0) {
+            pc(59455, 1, 10);
+            HL(22528);
+            pc(59458, 1, 4);
+            int var20 = H();
+            D(var20);
+            pc(59459, 1, 7);
+            E(1);
+            pc(59461, 1, 7);
+            A(69);
+            pc(59463, 1, 7);
+            int var21 = A();
+            int var22 = HL();
+            wMem(var22, var21, 59463);
+            pc(59464, 1, 10);
+            BC(639);
+            pc(59467, 2, 21);
+            ldir(59467);
+            pc(59469, 1, 10);
+            return;
+         }
 
-      pc(59455, 1);
-      HL(22528);
-      pc(59458, 1);
-      int var20 = H();
-      D(var20);
-      pc(59459, 1);
-      E(1);
-      pc(59461, 1);
-      A(69);
-      pc(59463, 1);
-      int var21 = A();
-      int var22 = HL();
-      wMem(var22, var21, 59463);
-      pc(59464, 1);
-      BC(639);
-      pc(59467, 2);
-      ldir(59467);
-      pc(59469, 1);
+         tstates(5);
+      }
    }
 
    public void $E84E() {
-      pc(59470, 1);
+      pc(59470, 1, 7);
       int var1 = HL();
       int var2 = mem(var1, 59470);
       B(var2);
-      pc(59471, 1);
+      pc(59471, 1, 6);
       int var3 = HL();
       int var4 = inc16(var3);
       HL(var4);
-      pc(59472, 1);
+      pc(59472, 1, 7);
       int var5 = HL();
       int var6 = mem(var5, 59472);
       C(var6);
-      pc(59473, 1);
+      pc(59473, 1, 6);
       int var7 = HL();
       int var8 = inc16(var7);
       HL(var8);
-      pc(59474, 1);
+      pc(59474, 1, 11);
       int var9 = BC();
       push(var9);
-      pc(59475, 1);
+      pc(59475, 1, 11);
       int var10 = DE();
       push(var10);
-      pc(59476, 1);
+      pc(59476, 1, 17);
       $E87A();
-      pc(59479, 1);
+      pc(59479, 1, 10);
       int var11 = pop();
       DE(var11);
-      pc(59480, 1);
+      pc(59480, 1, 10);
       int var12 = pop();
       BC(var12);
-      pc(59481, 1);
+      pc(59481, 1, 7);
       int var13 = HL();
       int var14 = mem(var13, 59481);
       A(var14);
-      pc(59482, 1);
+      pc(59482, 1, 4);
       int var15 = A();
       int var16 = A();
       int var17 = alu("and", var16, var15);
       A(var17);
-      pc(59483, 1);
+      pc(59483, 1, 7);
       if(!flag(64, true)) {
-         pc(59485, 1);
-         int var39 = HL();
-         int var40 = inc16(var39);
-         HL(var40);
-         pc(59486, 1);
-         int var41 = HL();
-         int var42 = mem(var41, 59486);
-         A(var42);
-         pc(59487, 1);
+         pc(59485, 1, 6);
+         int var18 = HL();
+         int var19 = inc16(var18);
+         HL(var19);
+         pc(59486, 1, 7);
+         int var20 = HL();
+         int var21 = mem(var20, 59486);
+         A(var21);
+         pc(59487, 1, 10);
          $E8BA();
       } else {
-         pc(59490, 1);
+         tstates(5);
+         pc(59490, 1, 17);
          $E8E3();
-         pc(59493, 1);
+         pc(59493, 1, 4);
          exHLDE();
 
-         do {
-            pc(59494, 1);
-            int var18 = BC();
-            push(var18);
-            pc(59495, 1);
-            int var19 = HL();
-            push(var19);
+         while(true) {
+            pc(59494, 1, 11);
+            int var22 = BC();
+            push(var22);
+            pc(59495, 1, 11);
+            int var23 = HL();
+            push(var23);
 
-            do {
-               pc(59496, 1);
-               int var20 = DE();
-               int var21 = mem(var20, 59496);
-               A(var21);
-               pc(59497, 1);
-               int var22 = A();
-               int var23 = HL();
-               wMem(var23, var22, 59497);
-               pc(59498, 1);
-               int var24 = L();
-               int var25 = alu("inc", var24);
-               L(var25);
-               pc(59499, 1);
-               int var26 = DE();
-               int var27 = inc16(var26);
-               DE(var27);
-               pc(59500, 1);
-               int var28 = B() - 1 & 255;
-               B(var28);
-            } while(B() != 0);
+            while(true) {
+               pc(59496, 1, 7);
+               int var24 = DE();
+               int var25 = mem(var24, 59496);
+               A(var25);
+               pc(59497, 1, 7);
+               int var26 = A();
+               int var27 = HL();
+               wMem(var27, var26, 59497);
+               pc(59498, 1, 4);
+               int var28 = L();
+               int var29 = alu("inc", var28);
+               L(var29);
+               pc(59499, 1, 6);
+               int var30 = DE();
+               int var31 = inc16(var30);
+               DE(var31);
+               pc(59500, 1, 8);
+               int var32 = B() - 1 & 255;
+               B(var32);
+               if(B() == 0) {
+                  pc(59502, 1, 10);
+                  int var33 = pop();
+                  HL(var33);
+                  pc(59503, 1, 10);
+                  BC(32);
+                  pc(59506, 1, 4);
+                  int var34 = A();
+                  int var35 = A();
+                  int var36 = alu("and", var35, var34);
+                  A(var36);
+                  pc(59507, 2, 15);
+                  int var37 = BC();
+                  int var38 = HL();
+                  int var39 = alu("sbc16", var38, var37);
+                  HL(var39);
+                  pc(59509, 1, 10);
+                  int var40 = pop();
+                  BC(var40);
+                  pc(59510, 1, 4);
+                  int var41 = C();
+                  int var42 = alu("dec", var41);
+                  C(var42);
+                  pc(59511, 1, 7);
+                  if(!flag(64, true)) {
+                     pc(59513, 1, 10);
+                     return;
+                  }
 
-            pc(59502, 1);
-            int var29 = pop();
-            HL(var29);
-            pc(59503, 1);
-            BC(32);
-            pc(59506, 1);
-            int var30 = A();
-            int var31 = A();
-            int var32 = alu("and", var31, var30);
-            A(var32);
-            pc(59507, 2);
-            int var33 = BC();
-            int var34 = HL();
-            int var35 = alu("sbc16", var34, var33);
-            HL(var35);
-            pc(59509, 1);
-            int var36 = pop();
-            BC(var36);
-            pc(59510, 1);
-            int var37 = C();
-            int var38 = alu("dec", var37);
-            C(var38);
-            pc(59511, 1);
-         } while(flag(64, true));
+                  tstates(5);
+                  break;
+               }
 
-         pc(59513, 1);
+               tstates(5);
+            }
+         }
       }
    }
 
    public void $E87A() {
-      pc(59514, 1);
+      pc(59514, 1, 4);
       int var1 = C();
       A(var1);
 
-      do {
-         pc(59515, 1);
+      label29:
+      while(true) {
+         pc(59515, 1, 4);
          int var2 = AF();
          exAF(var2);
-         pc(59516, 1);
+         pc(59516, 1, 7);
          C(8);
-         pc(59518, 1);
+         pc(59518, 1, 11);
          int var3 = DE();
          push(var3);
-         pc(59519, 1);
+         pc(59519, 1, 17);
          $E8F1();
 
-         do {
-            pc(59522, 1);
+         while(true) {
+            pc(59522, 1, 11);
             int var4 = BC();
             push(var4);
-            pc(59523, 1);
+            pc(59523, 1, 11);
             int var5 = DE();
             push(var5);
 
-            do {
-               pc(59524, 1);
+            while(true) {
+               pc(59524, 1, 7);
                int var6 = HL();
                int var7 = mem(var6, 59524);
                A(var7);
-               pc(59525, 1);
+               pc(59525, 1, 7);
                int var8 = A();
                int var9 = DE();
                wMem(var9, var8, 59525);
-               pc(59526, 1);
+               pc(59526, 1, 4);
                int var10 = E();
                int var11 = alu("inc", var10);
                E(var11);
-               pc(59527, 1);
+               pc(59527, 1, 6);
                int var12 = HL();
                int var13 = inc16(var12);
                HL(var13);
-               pc(59528, 1);
+               pc(59528, 1, 8);
                int var14 = B() - 1 & 255;
                B(var14);
-            } while(B() != 0);
+               if(B() == 0) {
+                  pc(59530, 1, 10);
+                  int var15 = pop();
+                  DE(var15);
+                  pc(59531, 1, 4);
+                  int var16 = D();
+                  int var17 = alu("inc", var16);
+                  D(var17);
+                  pc(59532, 1, 10);
+                  int var18 = pop();
+                  BC(var18);
+                  pc(59533, 1, 4);
+                  int var19 = C();
+                  int var20 = alu("dec", var19);
+                  C(var20);
+                  pc(59534, 1, 7);
+                  if(!flag(64, true)) {
+                     pc(59536, 1, 10);
+                     int var21 = pop();
+                     DE(var21);
+                     pc(59537, 1, 4);
+                     int var22 = E();
+                     int var23 = alu("dec", var22);
+                     E(var23);
+                     pc(59538, 1, 4);
+                     int var24 = AF();
+                     exAF(var24);
+                     pc(59539, 1, 4);
+                     int var25 = A();
+                     int var26 = alu("dec", var25);
+                     A(var26);
+                     pc(59540, 1, 7);
+                     if(!flag(64, true)) {
+                        pc(59542, 1, 10);
+                        return;
+                     }
 
-            pc(59530, 1);
-            int var15 = pop();
-            DE(var15);
-            pc(59531, 1);
-            int var16 = D();
-            int var17 = alu("inc", var16);
-            D(var17);
-            pc(59532, 1);
-            int var18 = pop();
-            BC(var18);
-            pc(59533, 1);
-            int var19 = C();
-            int var20 = alu("dec", var19);
-            C(var20);
-            pc(59534, 1);
-         } while(flag(64, true));
+                     tstates(5);
+                     continue label29;
+                  }
 
-         pc(59536, 1);
-         int var21 = pop();
-         DE(var21);
-         pc(59537, 1);
-         int var22 = E();
-         int var23 = alu("dec", var22);
-         E(var23);
-         pc(59538, 1);
-         int var24 = AF();
-         exAF(var24);
-         pc(59539, 1);
-         int var25 = A();
-         int var26 = alu("dec", var25);
-         A(var26);
-         pc(59540, 1);
-      } while(flag(64, true));
+                  tstates(5);
+                  break;
+               }
 
-      pc(59542, 1);
+               tstates(5);
+            }
+         }
+      }
    }
 
    public void $E897() {
-      pc(59543, 1);
+      pc(59543, 1, 11);
       int var1 = DE();
       push(var1);
-      pc(59544, 1);
+      pc(59544, 1, 11);
       int var2 = BC();
       push(var2);
-      pc(59545, 1);
+      pc(59545, 1, 4);
       int var3 = C();
       H(var3);
 
-      do {
-         pc(59546, 1);
+      label29:
+      while(true) {
+         pc(59546, 1, 11);
          int var4 = DE();
          push(var4);
-         pc(59547, 1);
+         pc(59547, 1, 17);
          $E8F1();
-         pc(59550, 1);
+         pc(59550, 1, 7);
          C(8);
-         pc(59552, 1);
+         pc(59552, 1, 4);
          int var5 = A();
          int var6 = A();
          int var7 = alu("xor", var6, var5);
          A(var7);
 
-         do {
-            pc(59553, 1);
+         while(true) {
+            pc(59553, 1, 11);
             int var8 = BC();
             push(var8);
-            pc(59554, 1);
+            pc(59554, 1, 11);
             int var9 = DE();
             push(var9);
 
-            do {
-               pc(59555, 1);
+            while(true) {
+               pc(59555, 1, 7);
                int var10 = A();
                int var11 = DE();
                wMem(var11, var10, 59555);
-               pc(59556, 1);
+               pc(59556, 1, 4);
                int var12 = E();
                int var13 = alu("inc", var12);
                E(var13);
-               pc(59557, 1);
+               pc(59557, 1, 8);
                int var14 = B() - 1 & 255;
                B(var14);
-            } while(B() != 0);
+               if(B() == 0) {
+                  pc(59559, 1, 10);
+                  int var15 = pop();
+                  DE(var15);
+                  pc(59560, 1, 4);
+                  int var16 = D();
+                  int var17 = alu("inc", var16);
+                  D(var17);
+                  pc(59561, 1, 10);
+                  int var18 = pop();
+                  BC(var18);
+                  pc(59562, 1, 4);
+                  int var19 = C();
+                  int var20 = alu("dec", var19);
+                  C(var20);
+                  pc(59563, 1, 7);
+                  if(!flag(64, true)) {
+                     pc(59565, 1, 10);
+                     int var21 = pop();
+                     DE(var21);
+                     pc(59566, 1, 4);
+                     int var22 = E();
+                     int var23 = alu("dec", var22);
+                     E(var23);
+                     pc(59567, 1, 4);
+                     int var24 = H();
+                     int var25 = alu("dec", var24);
+                     H(var25);
+                     pc(59568, 1, 7);
+                     if(!flag(64, true)) {
+                        pc(59570, 1, 10);
+                        int var26 = pop();
+                        BC(var26);
+                        pc(59571, 1, 10);
+                        int var27 = pop();
+                        DE(var27);
+                        pc(59572, 1, 7);
+                        A(69);
+                        pc(59574, 1, 17);
+                        $E8BA();
+                        pc(59577, 1, 10);
+                        return;
+                     }
 
-            pc(59559, 1);
-            int var15 = pop();
-            DE(var15);
-            pc(59560, 1);
-            int var16 = D();
-            int var17 = alu("inc", var16);
-            D(var17);
-            pc(59561, 1);
-            int var18 = pop();
-            BC(var18);
-            pc(59562, 1);
-            int var19 = C();
-            int var20 = alu("dec", var19);
-            C(var20);
-            pc(59563, 1);
-         } while(flag(64, true));
+                     tstates(5);
+                     continue label29;
+                  }
 
-         pc(59565, 1);
-         int var21 = pop();
-         DE(var21);
-         pc(59566, 1);
-         int var22 = E();
-         int var23 = alu("dec", var22);
-         E(var23);
-         pc(59567, 1);
-         int var24 = H();
-         int var25 = alu("dec", var24);
-         H(var25);
-         pc(59568, 1);
-      } while(flag(64, true));
+                  tstates(5);
+                  break;
+               }
 
-      pc(59570, 1);
-      int var26 = pop();
-      BC(var26);
-      pc(59571, 1);
-      int var27 = pop();
-      DE(var27);
-      pc(59572, 1);
-      A(69);
-      pc(59574, 1);
-      $E8BA();
-      pc(59577, 1);
+               tstates(5);
+            }
+         }
+      }
    }
 
    public void $E8BA() {
-      pc(59578, 1);
+      pc(59578, 1, 4);
       int var1 = A();
       L(var1);
-      pc(59579, 1);
+      pc(59579, 1, 17);
       $E8E3();
-      pc(59582, 1);
+      pc(59582, 1, 4);
       int var2 = L();
       A(var2);
-      pc(59583, 1);
+      pc(59583, 1, 4);
       exHLDE();
-      pc(59584, 1);
+      pc(59584, 1, 10);
       DE(32);
 
-      do {
-         pc(59587, 1);
+      while(true) {
+         pc(59587, 1, 11);
          int var3 = BC();
          push(var3);
-         pc(59588, 1);
+         pc(59588, 1, 11);
          int var4 = HL();
          push(var4);
 
-         do {
-            pc(59589, 1);
+         while(true) {
+            pc(59589, 1, 7);
             int var5 = A();
             int var6 = HL();
             wMem(var6, var5, 59589);
-            pc(59590, 1);
+            pc(59590, 1, 4);
             int var7 = L();
             int var8 = alu("inc", var7);
             L(var8);
-            pc(59591, 1);
+            pc(59591, 1, 8);
             int var9 = B() - 1 & 255;
             B(var9);
-         } while(B() != 0);
+            if(B() == 0) {
+               pc(59593, 1, 10);
+               int var10 = pop();
+               HL(var10);
+               pc(59594, 1, 4);
+               int var11 = A();
+               int var12 = A();
+               int var13 = alu("and", var12, var11);
+               A(var13);
+               pc(59595, 2, 15);
+               int var14 = DE();
+               int var15 = HL();
+               int var16 = alu("sbc16", var15, var14);
+               HL(var16);
+               pc(59597, 1, 10);
+               int var17 = pop();
+               BC(var17);
+               pc(59598, 1, 4);
+               int var18 = C();
+               int var19 = alu("dec", var18);
+               C(var19);
+               pc(59599, 1, 7);
+               if(!flag(64, true)) {
+                  pc(59601, 1, 10);
+                  return;
+               }
 
-         pc(59593, 1);
-         int var10 = pop();
-         HL(var10);
-         pc(59594, 1);
-         int var11 = A();
-         int var12 = A();
-         int var13 = alu("and", var12, var11);
-         A(var13);
-         pc(59595, 2);
-         int var14 = DE();
-         int var15 = HL();
-         int var16 = alu("sbc16", var15, var14);
-         HL(var16);
-         pc(59597, 1);
-         int var17 = pop();
-         BC(var17);
-         pc(59598, 1);
-         int var18 = C();
-         int var19 = alu("dec", var18);
-         C(var19);
-         pc(59599, 1);
-      } while(flag(64, true));
+               tstates(5);
+               break;
+            }
 
-      pc(59601, 1);
+            tstates(5);
+         }
+      }
    }
 
    public void $E8D2() {
-      pc(59602, 1);
+      pc(59602, 1, 4);
       int var1 = E();
       A(var1);
-      pc(59603, 1);
+      pc(59603, 1, 7);
       int var2 = A();
       int var3 = alu("and", var2, 7);
       A(var3);
-      pc(59605, 1);
+      pc(59605, 1, 4);
       int var4 = A();
       B(var4);
-      pc(59606, 2);
+      pc(59606, 2, 8);
       int var5 = E();
       int var6 = alu("srl", var5);
       E(var6);
-      pc(59608, 2);
+      pc(59608, 2, 8);
       int var7 = E();
       int var8 = alu("srl", var7);
       E(var8);
-      pc(59610, 2);
+      pc(59610, 2, 8);
       int var9 = E();
       int var10 = alu("srl", var9);
       E(var10);
-      pc(59612, 1);
+      pc(59612, 1, 17);
       $E8F1();
-      pc(59615, 1);
+      pc(59615, 1, 4);
       int var11 = B();
       A(var11);
-      pc(59616, 1);
+      pc(59616, 1, 4);
       int var12 = D();
       int var13 = A();
       int var14 = alu("add", var13, var12);
       A(var14);
-      pc(59617, 1);
+      pc(59617, 1, 4);
       int var15 = A();
       D(var15);
-      pc(59618, 1);
+      pc(59618, 1, 10);
    }
 
    public void $E8E3() {
-      pc(59619, 1);
+      pc(59619, 1, 4);
       int var1 = E();
       A(var1);
-      pc(59620, 1);
+      pc(59620, 1, 7);
       int var2 = A();
       int var3 = alu("and", var2, 24);
       A(var3);
-      pc(59622, 2);
+      pc(59622, 2, 8);
       int var4 = A();
       int var5 = alu("sra", var4);
       A(var5);
-      pc(59624, 2);
+      pc(59624, 2, 8);
       int var6 = A();
       int var7 = alu("sra", var6);
       A(var7);
-      pc(59626, 2);
+      pc(59626, 2, 8);
       int var8 = A();
       int var9 = alu("sra", var8);
       A(var9);
-      pc(59628, 1);
+      pc(59628, 1, 7);
       int var10 = A();
       int var11 = alu("add", var10, 88);
       A(var11);
-      pc(59630, 1);
+      pc(59630, 1, 11);
       int var12 = AF();
       push(var12);
-      pc(59631, 1);
+      pc(59631, 1, 12);
       $E8F7();
    }
 
    public void $E8F1() {
-      pc(59633, 1);
+      pc(59633, 1, 4);
       int var1 = E();
       A(var1);
-      pc(59634, 1);
+      pc(59634, 1, 7);
       int var2 = A();
       int var3 = alu("and", var2, 24);
       A(var3);
-      pc(59636, 1);
+      pc(59636, 1, 7);
       int var4 = A();
       int var5 = alu("add", var4, 64);
       A(var5);
-      pc(59638, 1);
+      pc(59638, 1, 11);
       int var6 = AF();
       push(var6);
       $E8F7();
    }
 
    public void $E8F7() {
-      pc(59639, 1);
+      pc(59639, 1, 4);
       int var1 = E();
       A(var1);
-      pc(59640, 1);
+      pc(59640, 1, 7);
       int var2 = A();
       int var3 = alu("and", var2, 7);
       A(var3);
-      pc(59642, 2);
+      pc(59642, 2, 8);
       int var4 = A();
       int var5 = alu("sla", var4);
       A(var5);
-      pc(59644, 2);
+      pc(59644, 2, 8);
       int var6 = A();
       int var7 = alu("sla", var6);
       A(var7);
-      pc(59646, 2);
+      pc(59646, 2, 8);
       int var8 = A();
       int var9 = alu("sla", var8);
       A(var9);
-      pc(59648, 2);
+      pc(59648, 2, 8);
       int var10 = A();
       int var11 = alu("sla", var10);
       A(var11);
-      pc(59650, 2);
+      pc(59650, 2, 8);
       int var12 = A();
       int var13 = alu("sla", var12);
       A(var13);
-      pc(59652, 1);
+      pc(59652, 1, 4);
       int var14 = D();
       int var15 = A();
       int var16 = alu("add", var15, var14);
       A(var16);
-      pc(59653, 1);
+      pc(59653, 1, 4);
       int var17 = A();
       E(var17);
-      pc(59654, 1);
+      pc(59654, 1, 10);
       int var18 = pop();
       AF(var18);
-      pc(59655, 1);
+      pc(59655, 1, 4);
       int var19 = A();
       D(var19);
-      pc(59656, 1);
+      pc(59656, 1, 10);
    }
 
    public void $E909() {
-      pc(59657, 1);
+      pc(59657, 1, 17);
       $E8D2();
       $E90C();
    }
 
    public void $E90C() {
-      pc(59660, 1);
+      pc(59660, 1, 4);
       int var1 = D();
       A(var1);
-      pc(59661, 1);
+      pc(59661, 1, 4);
       int var2 = A();
       int var3 = alu("rrca", var2);
       A(var3);
-      pc(59662, 1);
+      pc(59662, 1, 4);
       int var4 = A();
       int var5 = alu("rrca", var4);
       A(var5);
-      pc(59663, 1);
+      pc(59663, 1, 4);
       int var6 = A();
       int var7 = alu("rrca", var6);
       A(var7);
-      pc(59664, 1);
+      pc(59664, 1, 7);
       int var8 = A();
       int var9 = alu("and", var8, 3);
       A(var9);
-      pc(59666, 1);
+      pc(59666, 1, 7);
       int var10 = A();
       int var11 = alu("or", var10, 88);
       A(var11);
-      pc(59668, 1);
+      pc(59668, 1, 4);
       int var12 = A();
       D(var12);
-      pc(59669, 1);
+      pc(59669, 1, 10);
    }
 
    public void $E916() {
-      pc(59670, 1);
+      pc(59670, 1, 10);
       DE(16384);
-      pc(59673, 1);
+      pc(59673, 1, 7);
       B(8);
 
       while(true) {
-         pc(59675, 1);
+         pc(59675, 1, 11);
          int var1 = BC();
          push(var1);
-         pc(59676, 1);
+         pc(59676, 1, 11);
          int var2 = DE();
          push(var2);
-         pc(59677, 1);
+         pc(59677, 1, 7);
          B(7);
 
-         do {
-            pc(59679, 1);
+         while(true) {
+            pc(59679, 1, 4);
             int var3 = E();
             L(var3);
-            pc(59680, 1);
+            pc(59680, 1, 4);
             int var4 = D();
             H(var4);
-            pc(59681, 1);
+            pc(59681, 1, 4);
             int var5 = H();
             int var6 = alu("inc", var5);
             H(var6);
-            pc(59682, 1);
+            pc(59682, 1, 11);
             int var7 = HL();
             push(var7);
-            pc(59683, 1);
+            pc(59683, 1, 11);
             int var8 = BC();
             push(var8);
-            pc(59684, 1);
+            pc(59684, 1, 10);
             BC(32);
-            pc(59687, 2);
+            pc(59687, 2, 21);
             ldir(59687);
-            pc(59689, 1);
+            pc(59689, 1, 4);
             exHLDE();
-            pc(59690, 1);
+            pc(59690, 1, 10);
             int var9 = pop();
             BC(var9);
-            pc(59691, 1);
+            pc(59691, 1, 10);
             int var10 = pop();
             DE(var10);
-            pc(59692, 1);
+            pc(59692, 1, 8);
             int var11 = B() - 1 & 255;
             B(var11);
-         } while(B() != 0);
+            if(B() == 0) {
+               pc(59694, 1, 10);
+               int var12 = pop();
+               HL(var12);
+               pc(59695, 1, 10);
+               int var13 = pop();
+               BC(var13);
+               pc(59696, 1, 4);
+               int var14 = B();
+               int var15 = alu("dec", var14);
+               B(var15);
+               pc(59697, 1, 5);
+               if(flag(64, false)) {
+                  tstates(6);
+                  return;
+               }
 
-         pc(59694, 1);
-         int var12 = pop();
-         HL(var12);
-         pc(59695, 1);
-         int var13 = pop();
-         BC(var13);
-         pc(59696, 1);
-         int var14 = B();
-         int var15 = alu("dec", var14);
-         B(var15);
-         pc(59697, 1);
-         if(flag(64, false)) {
-            return;
+               pc(59698, 1, 11);
+               int var16 = BC();
+               push(var16);
+               pc(59699, 1, 10);
+               BC(32);
+               pc(59702, 1, 11);
+               int var17 = BC();
+               int var18 = HL();
+               int var19 = alu("add16", var18, var17);
+               HL(var19);
+               pc(59703, 1, 11);
+               int var20 = HL();
+               push(var20);
+               pc(59704, 2, 21);
+               ldir(59704);
+               pc(59706, 1, 10);
+               int var21 = pop();
+               DE(var21);
+               pc(59707, 1, 10);
+               int var22 = pop();
+               BC(var22);
+               pc(59708, 1, 12);
+               break;
+            }
+
+            tstates(5);
          }
-
-         pc(59698, 1);
-         int var16 = BC();
-         push(var16);
-         pc(59699, 1);
-         BC(32);
-         pc(59702, 1);
-         int var17 = BC();
-         int var18 = HL();
-         int var19 = alu("add16", var18, var17);
-         HL(var19);
-         pc(59703, 1);
-         int var20 = HL();
-         push(var20);
-         pc(59704, 2);
-         ldir(59704);
-         pc(59706, 1);
-         int var21 = pop();
-         DE(var21);
-         pc(59707, 1);
-         int var22 = pop();
-         BC(var22);
-         pc(59708, 1);
       }
    }
 
    public void $E93F() {
-      pc(59711, 2);
+      pc(59711, 2, 20);
       int var1 = IX() + 4;
       int var2 = mem(var1, 59711);
       bit(5, var2);
-      pc(59715, 1);
-      if(!flag(64, false)) {
-         pc(59717, 2);
-         int var22 = IX() + 9;
-         int var23 = mem(var22, 59717);
-         E(var23);
-         pc(59720, 2);
-         int var24 = IX() + 10;
-         int var25 = mem(var24, 59720);
-         D(var25);
-         pc(59723, 1);
+      pc(59715, 1, 7);
+      if(flag(64, false)) {
+         tstates(5);
+      } else {
+         pc(59717, 2, 19);
+         int var3 = IX() + 9;
+         int var4 = mem(var3, 59717);
+         E(var4);
+         pc(59720, 2, 19);
+         int var5 = IX() + 10;
+         int var6 = mem(var5, 59720);
+         D(var6);
+         pc(59723, 1, 17);
          $E8E3();
-         pc(59726, 1);
-         int var26 = A();
-         int var27 = A();
-         int var28 = alu("xor", var27, var26);
-         A(var28);
-         pc(59727, 1);
-         int var29 = A();
-         int var30 = DE();
-         wMem(var30, var29, 59727);
-         pc(59728, 1);
-         int var31 = E();
-         int var32 = alu("inc", var31);
-         E(var32);
-         pc(59729, 1);
-         int var33 = A();
-         int var34 = DE();
-         wMem(var34, var33, 59729);
+         pc(59726, 1, 4);
+         int var7 = A();
+         int var8 = A();
+         int var9 = alu("xor", var8, var7);
+         A(var9);
+         pc(59727, 1, 7);
+         int var10 = A();
+         int var11 = DE();
+         wMem(var11, var10, 59727);
+         pc(59728, 1, 4);
+         int var12 = E();
+         int var13 = alu("inc", var12);
+         E(var13);
+         pc(59729, 1, 7);
+         int var14 = A();
+         int var15 = DE();
+         wMem(var15, var14, 59729);
       }
 
-      pc(59730, 2);
-      int var3 = IX() + 4;
-      int var4 = mem(var3, 59730);
-      bit(4, var4);
-      pc(59734, 1);
-      if(!flag(64, false)) {
-         pc(59735, 2);
-         int var5 = IX() + 2;
-         int var6 = mem(var5, 59735);
-         E(var6);
-         pc(59738, 2);
-         int var7 = IX() + 3;
-         int var8 = mem(var7, 59738);
-         D(var8);
-         pc(59741, 1);
+      pc(59730, 2, 20);
+      int var16 = IX() + 4;
+      int var17 = mem(var16, 59730);
+      bit(4, var17);
+      pc(59734, 1, 5);
+      if(flag(64, false)) {
+         tstates(6);
+      } else {
+         pc(59735, 2, 19);
+         int var18 = IX() + 2;
+         int var19 = mem(var18, 59735);
+         E(var19);
+         pc(59738, 2, 19);
+         int var20 = IX() + 3;
+         int var21 = mem(var20, 59738);
+         D(var21);
+         pc(59741, 1, 17);
          $E8E3();
-         pc(59744, 1);
+         pc(59744, 1, 4);
          exHLDE();
-         pc(59745, 1);
-         int var9 = A();
-         int var10 = A();
-         int var11 = alu("xor", var10, var9);
-         A(var11);
-         pc(59746, 1);
-         int var12 = A();
-         int var13 = HL();
-         wMem(var13, var12, 59746);
-         pc(59747, 1);
+         pc(59745, 1, 4);
+         int var22 = A();
+         int var23 = A();
+         int var24 = alu("xor", var23, var22);
+         A(var24);
+         pc(59746, 1, 7);
+         int var25 = A();
+         int var26 = HL();
+         wMem(var26, var25, 59746);
+         pc(59747, 1, 10);
          BC(32);
-         pc(59750, 1);
-         int var14 = A();
-         int var15 = A();
-         int var16 = alu("and", var15, var14);
-         A(var16);
-         pc(59751, 2);
-         int var17 = BC();
-         int var18 = HL();
-         int var19 = alu("sbc16", var18, var17);
-         HL(var19);
-         pc(59753, 1);
-         int var20 = A();
-         int var21 = HL();
-         wMem(var21, var20, 59753);
-         pc(59754, 1);
+         pc(59750, 1, 4);
+         int var27 = A();
+         int var28 = A();
+         int var29 = alu("and", var28, var27);
+         A(var29);
+         pc(59751, 2, 15);
+         int var30 = BC();
+         int var31 = HL();
+         int var32 = alu("sbc16", var31, var30);
+         HL(var32);
+         pc(59753, 1, 7);
+         int var33 = A();
+         int var34 = HL();
+         wMem(var34, var33, 59753);
+         pc(59754, 1, 10);
       }
    }
 
    public void $E96B() {
-      pc(59755, 1);
+      pc(59755, 1, 11);
       int var1 = BC();
       push(var1);
-      pc(59756, 2);
+      pc(59756, 2, 20);
       int var2 = IY() + 4;
       int var3 = mem(var2, 59756);
       bit(6, var3);
-      pc(59760, 1);
-      if(!flag(64, false)) {
-         pc(59762, 1);
-         BC(30590);
-         pc(59765, 1);
-      } else {
-         pc(59767, 1);
+      pc(59760, 1, 7);
+      if(flag(64, false)) {
+         tstates(5);
+         pc(59767, 1, 10);
          BC(4727);
+      } else {
+         pc(59762, 1, 10);
+         BC(30590);
+         pc(59765, 1, 12);
       }
 
-      pc(59770, 1);
+      pc(59770, 1, 4);
       int var4 = B();
       A(var4);
-      pc(59771, 1);
+      pc(59771, 1, 13);
       int var5 = A();
       wMem(59792, var5, 59771);
-      pc(59774, 1);
+      pc(59774, 1, 4);
       int var6 = C();
       A(var6);
-      pc(59775, 1);
+      pc(59775, 1, 13);
       int var7 = A();
       wMem(59823, var7, 59775);
-      pc(59778, 1);
+      pc(59778, 1, 10);
       int var8 = pop();
       BC(var8);
-      pc(59779, 1);
+      pc(59779, 1, 11);
       int var9 = DE();
       push(var9);
-      pc(59780, 1);
+      pc(59780, 1, 11);
       int var10 = BC();
       push(var10);
-      pc(59781, 1);
+      pc(59781, 1, 4);
       int var11 = C();
       A(var11);
 
-      do {
-         pc(59782, 1);
+      label79:
+      while(true) {
+         pc(59782, 1, 4);
          int var12 = AF();
          exAF(var12);
-         pc(59783, 1);
+         pc(59783, 1, 11);
          int var13 = DE();
          push(var13);
-         pc(59784, 1);
+         pc(59784, 1, 17);
          $E8F1();
-         pc(59787, 1);
+         pc(59787, 1, 7);
          C(8);
 
-         do {
-            pc(59789, 1);
+         while(true) {
+            pc(59789, 1, 11);
             int var14 = BC();
             push(var14);
-            pc(59790, 1);
+            pc(59790, 1, 11);
             int var15 = DE();
             push(var15);
 
-            do {
-               pc(59791, 1);
+            while(true) {
+               pc(59791, 1, 7);
                int var16 = HL();
                int var17 = mem(var16, 59791);
                A(var17);
-               pc(59792, 1);
+               pc(59792, 1, 0);
                int var18 = codeHash(59792, 1);
                if(var18 == 49) {
+                  tstates(7);
                   int var61 = A();
                   int var62 = DE();
                   wMem(var62, var61, 59792);
                } else if(var18 == 150) {
+                  tstates(7);
                   int var59 = A();
                   int var60 = HL();
                   wMem(var60, var59, 59792);
@@ -11618,197 +12374,228 @@ public class DynamiteDan extends MiniZX {
                   }
                }
 
-               pc(59793, 1);
+               pc(59793, 1, 4);
                int var20 = E();
                int var21 = alu("inc", var20);
                E(var21);
-               pc(59794, 1);
+               pc(59794, 1, 6);
                int var22 = HL();
                int var23 = inc16(var22);
                HL(var23);
-               pc(59795, 1);
+               pc(59795, 1, 8);
                int var24 = B() - 1 & 255;
                B(var24);
-            } while(B() != 0);
+               if(B() == 0) {
+                  pc(59797, 1, 10);
+                  int var25 = pop();
+                  DE(var25);
+                  pc(59798, 1, 4);
+                  int var26 = D();
+                  int var27 = alu("inc", var26);
+                  D(var27);
+                  pc(59799, 1, 10);
+                  int var28 = pop();
+                  BC(var28);
+                  pc(59800, 1, 4);
+                  int var29 = C();
+                  int var30 = alu("dec", var29);
+                  C(var30);
+                  pc(59801, 1, 7);
+                  if(!flag(64, true)) {
+                     pc(59803, 1, 10);
+                     int var31 = pop();
+                     DE(var31);
+                     pc(59804, 1, 4);
+                     int var32 = E();
+                     int var33 = alu("inc", var32);
+                     E(var33);
+                     pc(59805, 1, 4);
+                     int var34 = AF();
+                     exAF(var34);
+                     pc(59806, 1, 4);
+                     int var35 = A();
+                     int var36 = alu("dec", var35);
+                     A(var36);
+                     pc(59807, 1, 7);
+                     if(!flag(64, true)) {
+                        pc(59809, 1, 10);
+                        int var37 = pop();
+                        BC(var37);
+                        pc(59810, 1, 10);
+                        int var38 = pop();
+                        DE(var38);
+                        pc(59811, 1, 17);
+                        $E8E3();
+                        pc(59814, 1, 4);
+                        exHLDE();
+                        pc(59815, 1, 10);
+                        DE(32);
+                        pc(59818, 2, 19);
+                        int var39 = IY() + 5;
+                        int var40 = mem(var39, 59818);
+                        A(var40);
 
-            pc(59797, 1);
-            int var25 = pop();
-            DE(var25);
-            pc(59798, 1);
-            int var26 = D();
-            int var27 = alu("inc", var26);
-            D(var27);
-            pc(59799, 1);
-            int var28 = pop();
-            BC(var28);
-            pc(59800, 1);
-            int var29 = C();
-            int var30 = alu("dec", var29);
-            C(var30);
-            pc(59801, 1);
-         } while(flag(64, true));
+                        while(true) {
+                           pc(59821, 1, 11);
+                           int var41 = HL();
+                           push(var41);
+                           pc(59822, 1, 11);
+                           int var42 = BC();
+                           push(var42);
 
-         pc(59803, 1);
-         int var31 = pop();
-         DE(var31);
-         pc(59804, 1);
-         int var32 = E();
-         int var33 = alu("inc", var32);
-         E(var33);
-         pc(59805, 1);
-         int var34 = AF();
-         exAF(var34);
-         pc(59806, 1);
-         int var35 = A();
-         int var36 = alu("dec", var35);
-         A(var36);
-         pc(59807, 1);
-      } while(flag(64, true));
+                           while(true) {
+                              pc(59823, 1, 0);
+                              int var43 = codeHash(59823, 1);
+                              if(var43 == 150) {
+                                 tstates(7);
+                                 int var57 = A();
+                                 int var58 = HL();
+                                 wMem(var58, var57, 59823);
+                              } else if(var43 == 157) {
+                                 tstates(7);
+                                 int var55 = HL();
+                                 int var56 = mem(var55, 59823);
+                                 A(var56);
+                              } else {
+                                 int var44 = executeMutantCode(59823);
+                                 if(var44 != 59824) {
+                                    if(var44 != -1) {
+                                       jump(var44);
+                                    }
 
-      pc(59809, 1);
-      int var37 = pop();
-      BC(var37);
-      pc(59810, 1);
-      int var38 = pop();
-      DE(var38);
-      pc(59811, 1);
-      $E8E3();
-      pc(59814, 1);
-      exHLDE();
-      pc(59815, 1);
-      DE(32);
-      pc(59818, 2);
-      int var39 = IY() + 5;
-      int var40 = mem(var39, 59818);
-      A(var40);
+                                    return;
+                                 }
+                              }
 
-      do {
-         pc(59821, 1);
-         int var41 = HL();
-         push(var41);
-         pc(59822, 1);
-         int var42 = BC();
-         push(var42);
+                              pc(59824, 1, 4);
+                              int var45 = L();
+                              int var46 = alu("inc", var45);
+                              L(var46);
+                              pc(59825, 1, 8);
+                              int var47 = B() - 1 & 255;
+                              B(var47);
+                              if(B() == 0) {
+                                 pc(59827, 1, 10);
+                                 int var48 = pop();
+                                 BC(var48);
+                                 pc(59828, 1, 10);
+                                 int var49 = pop();
+                                 HL(var49);
+                                 pc(59829, 1, 11);
+                                 int var50 = DE();
+                                 int var51 = HL();
+                                 int var52 = alu("add16", var51, var50);
+                                 HL(var52);
+                                 pc(59830, 1, 4);
+                                 int var53 = C();
+                                 int var54 = alu("dec", var53);
+                                 C(var54);
+                                 pc(59831, 1, 7);
+                                 if(!flag(64, true)) {
+                                    pc(59833, 1, 10);
+                                    return;
+                                 }
 
-         do {
-            pc(59823, 1);
-            int var43 = codeHash(59823, 1);
-            if(var43 == 150) {
-               int var57 = A();
-               int var58 = HL();
-               wMem(var58, var57, 59823);
-            } else if(var43 == 157) {
-               int var55 = HL();
-               int var56 = mem(var55, 59823);
-               A(var56);
-            } else {
-               int var44 = executeMutantCode(59823);
-               if(var44 != 59824) {
-                  if(var44 != -1) {
-                     jump(var44);
+                                 tstates(5);
+                                 break;
+                              }
+
+                              tstates(5);
+                           }
+                        }
+                     }
+
+                     tstates(5);
+                     continue label79;
                   }
 
-                  return;
+                  tstates(5);
+                  break;
                }
+
+               tstates(5);
             }
-
-            pc(59824, 1);
-            int var45 = L();
-            int var46 = alu("inc", var45);
-            L(var46);
-            pc(59825, 1);
-            int var47 = B() - 1 & 255;
-            B(var47);
-         } while(B() != 0);
-
-         pc(59827, 1);
-         int var48 = pop();
-         BC(var48);
-         pc(59828, 1);
-         int var49 = pop();
-         HL(var49);
-         pc(59829, 1);
-         int var50 = DE();
-         int var51 = HL();
-         int var52 = alu("add16", var51, var50);
-         HL(var52);
-         pc(59830, 1);
-         int var53 = C();
-         int var54 = alu("dec", var53);
-         C(var54);
-         pc(59831, 1);
-      } while(flag(64, true));
-
-      pc(59833, 1);
+         }
+      }
    }
 
    public void $E9BC() {
-      pc(59836, 1);
+      pc(59836, 1, 16);
       int var1 = mem16(59834, 59836);
       HL(var1);
-      pc(59839, 1);
+      pc(59839, 1, 4);
       if(HL() != 59867) {
          int var21 = HL();
          jump(var21);
       } else {
-         pc(59867, 1);
+         pc(59867, 1, 7);
          A(239);
-         pc(59869, 1);
+         pc(59869, 1, 11);
          int var2 = A() << 8 | 254;
          int var3 = in(var2, 59869);
          A(var3);
-         pc(59871, 1);
+         pc(59871, 1, 7);
          int var4 = A();
          int var5 = alu("and", var4, 31);
          A(var5);
-         pc(59873, 1);
+         pc(59873, 1, 7);
          C(0);
-         pc(59875, 1);
+         pc(59875, 1, 7);
          int var6 = A();
          alu("cp", var6, 22);
-         pc(59877, 1);
-         if(!flag(64, false)) {
-            pc(59878, 1);
+         pc(59877, 1, 5);
+         if(flag(64, false)) {
+            tstates(6);
+         } else {
+            pc(59878, 1, 4);
             int var7 = C();
             int var8 = alu("inc", var7);
             C(var8);
-            pc(59879, 1);
+            pc(59879, 1, 7);
             int var9 = A();
             alu("cp", var9, 23);
-            pc(59881, 1);
-            if(!flag(64, false)) {
-               pc(59882, 1);
+            pc(59881, 1, 5);
+            if(flag(64, false)) {
+               tstates(6);
+            } else {
+               pc(59882, 1, 4);
                int var10 = C();
                int var11 = alu("inc", var10);
                C(var11);
-               pc(59883, 1);
+               pc(59883, 1, 7);
                int var12 = A();
                alu("cp", var12, 14);
-               pc(59885, 1);
-               if(!flag(64, false)) {
-                  pc(59886, 1);
+               pc(59885, 1, 5);
+               if(flag(64, false)) {
+                  tstates(6);
+               } else {
+                  pc(59886, 1, 4);
                   int var13 = C();
                   int var14 = alu("inc", var13);
                   C(var14);
-                  pc(59887, 1);
+                  pc(59887, 1, 7);
                   int var15 = A();
                   alu("cp", var15, 15);
-                  pc(59889, 1);
-                  if(!flag(64, false)) {
-                     pc(59890, 1);
+                  pc(59889, 1, 5);
+                  if(flag(64, false)) {
+                     tstates(6);
+                  } else {
+                     pc(59890, 1, 4);
                      int var16 = C();
                      int var17 = alu("inc", var16);
                      C(var17);
-                     pc(59891, 1);
+                     pc(59891, 1, 7);
                      int var18 = A();
                      alu("cp", var18, 30);
-                     pc(59893, 1);
-                     if(!flag(64, false)) {
-                        pc(59894, 1);
+                     pc(59893, 1, 5);
+                     if(flag(64, false)) {
+                        tstates(6);
+                     } else {
+                        pc(59894, 1, 4);
                         int var19 = C();
                         int var20 = alu("inc", var19);
                         C(var20);
-                        pc(59895, 1);
+                        pc(59895, 1, 10);
                      }
                   }
                }
@@ -11818,216 +12605,230 @@ public class DynamiteDan extends MiniZX {
    }
 
    public void $E9F8() {
-      pc(59896, 1);
+      pc(59896, 1, 4);
       int var1 = A();
       C(var1);
-      pc(59897, 1);
+      pc(59897, 1, 7);
       int var2 = A();
       int var3 = alu("and", var2, 7);
       A(var3);
-      pc(59899, 1);
+      pc(59899, 1, 4);
       int var4 = A();
       B(var4);
-      pc(59900, 1);
+      pc(59900, 1, 4);
       int var5 = C();
       A(var5);
-      pc(59901, 1);
+      pc(59901, 1, 7);
       int var6 = A();
       int var7 = alu("and", var6, 240);
       A(var7);
-      pc(59903, 1);
+      pc(59903, 1, 4);
       int var8 = A();
       int var9 = alu("rrca", var8);
       A(var9);
-      pc(59904, 1);
+      pc(59904, 1, 4);
       int var10 = A();
       int var11 = alu("rrca", var10);
       A(var11);
-      pc(59905, 1);
+      pc(59905, 1, 4);
       int var12 = A();
       int var13 = alu("rrca", var12);
       A(var13);
-      pc(59906, 1);
+      pc(59906, 1, 4);
       int var14 = A();
       int var15 = alu("rrca", var14);
       A(var15);
-      pc(59907, 1);
+      pc(59907, 1, 4);
       int var16 = A();
       C(var16);
-      pc(59908, 1);
+      pc(59908, 1, 10);
    }
 
    public void $ECA4() {
-      pc(60580, 2);
+      pc(60580, 2, 19);
       int var1 = IY() + 1;
       int var2 = mem(var1, 60580);
       L(var2);
-      pc(60583, 2);
+      pc(60583, 2, 19);
       int var3 = IY() + 2;
       int var4 = mem(var3, 60583);
       H(var4);
-      pc(60586, 1);
+      pc(60586, 1, 10);
       DE(32);
-      pc(60589, 1);
+      pc(60589, 1, 11);
       int var5 = DE();
       int var6 = HL();
       int var7 = alu("add16", var6, var5);
       HL(var7);
-      pc(60590, 1);
+      pc(60590, 1, 7);
       C(4);
 
-      do {
-         pc(60592, 1);
+      while(true) {
+         pc(60592, 1, 11);
          int var8 = HL();
          push(var8);
-         pc(60593, 1);
+         pc(60593, 1, 7);
          B(4);
 
-         do {
-            pc(60595, 1);
+         while(true) {
+            pc(60595, 1, 7);
             int var9 = A();
             int var10 = HL();
             wMem(var10, var9, 60595);
-            pc(60596, 1);
+            pc(60596, 1, 4);
             int var11 = L();
             int var12 = alu("inc", var11);
             L(var12);
-            pc(60597, 1);
+            pc(60597, 1, 8);
             int var13 = B() - 1 & 255;
             B(var13);
-         } while(B() != 0);
+            if(B() == 0) {
+               pc(60599, 1, 10);
+               int var14 = pop();
+               HL(var14);
+               pc(60600, 1, 11);
+               int var15 = DE();
+               int var16 = HL();
+               int var17 = alu("add16", var16, var15);
+               HL(var17);
+               pc(60601, 1, 4);
+               int var18 = C();
+               int var19 = alu("dec", var18);
+               C(var19);
+               pc(60602, 1, 7);
+               if(!flag(64, true)) {
+                  pc(60604, 1, 10);
+                  return;
+               }
 
-         pc(60599, 1);
-         int var14 = pop();
-         HL(var14);
-         pc(60600, 1);
-         int var15 = DE();
-         int var16 = HL();
-         int var17 = alu("add16", var16, var15);
-         HL(var17);
-         pc(60601, 1);
-         int var18 = C();
-         int var19 = alu("dec", var18);
-         C(var19);
-         pc(60602, 1);
-      } while(flag(64, true));
+               tstates(5);
+               break;
+            }
 
-      pc(60604, 1);
+            tstates(5);
+         }
+      }
    }
 
    public void $ECDD() {
-      pc(60637, 1);
+      pc(60637, 1, 11);
       int var1 = HL();
       push(var1);
-      pc(60638, 1);
+      pc(60638, 1, 11);
       int var2 = DE();
       push(var2);
-      pc(60639, 1);
+      pc(60639, 1, 7);
       int var3 = A();
       int var4 = HL();
       wMem(var4, var3, 60639);
-      pc(60640, 1);
+      pc(60640, 1, 4);
       int var5 = H();
       A(var5);
-      pc(60641, 1);
+      pc(60641, 1, 7);
       int var6 = A();
       int var7 = alu("and", var6, 3);
       A(var7);
-      pc(60643, 1);
+      pc(60643, 1, 4);
       int var8 = A();
       int var9 = alu("rlca", var8);
       A(var9);
-      pc(60644, 1);
+      pc(60644, 1, 4);
       int var10 = A();
       int var11 = alu("rlca", var10);
       A(var11);
-      pc(60645, 1);
+      pc(60645, 1, 4);
       int var12 = A();
       int var13 = alu("rlca", var12);
       A(var13);
-      pc(60646, 1);
+      pc(60646, 1, 7);
       int var14 = A();
       int var15 = alu("or", var14, 64);
       A(var15);
-      pc(60648, 1);
+      pc(60648, 1, 4);
       int var16 = A();
       H(var16);
-      pc(60649, 1);
+      pc(60649, 1, 7);
       B(8);
 
-      do {
-         pc(60651, 1);
+      while(true) {
+         pc(60651, 1, 7);
          int var17 = DE();
          int var18 = mem(var17, 60651);
          A(var18);
-         pc(60652, 1);
+         pc(60652, 1, 7);
          int var19 = A();
          int var20 = HL();
          wMem(var20, var19, 60652);
-         pc(60653, 1);
+         pc(60653, 1, 4);
          int var21 = H();
          int var22 = alu("inc", var21);
          H(var22);
-         pc(60654, 1);
+         pc(60654, 1, 6);
          int var23 = DE();
          int var24 = inc16(var23);
          DE(var24);
-         pc(60655, 1);
+         pc(60655, 1, 8);
          int var25 = B() - 1 & 255;
          B(var25);
-      } while(B() != 0);
+         if(B() == 0) {
+            pc(60657, 1, 10);
+            int var26 = pop();
+            DE(var26);
+            pc(60658, 1, 10);
+            int var27 = pop();
+            HL(var27);
+            pc(60659, 1, 10);
+            return;
+         }
 
-      pc(60657, 1);
-      int var26 = pop();
-      DE(var26);
-      pc(60658, 1);
-      int var27 = pop();
-      HL(var27);
-      pc(60659, 1);
+         tstates(5);
+      }
    }
 
    public void $ECF4() {
-      pc(60660, 1);
+      pc(60660, 1, 7);
       int var1 = HL();
       int var2 = mem(var1, 60660);
       A(var2);
-      pc(60661, 1);
+      pc(60661, 1, 7);
       int var3 = A();
       int var4 = alu("and", var3, 63);
       A(var4);
-      pc(60663, 1);
+      pc(60663, 1, 4);
       int var5 = A();
       B(var5);
-      pc(60664, 1);
+      pc(60664, 1, 4);
       int var6 = C();
       A(var6);
-      pc(60665, 1);
+      pc(60665, 1, 4);
       int var7 = B();
       int var8 = A();
       alu("cp", var8, var7);
-      pc(60666, 1);
-      if(!flag(1, true)) {
-         pc(60667, 1);
+      pc(60666, 1, 5);
+      if(flag(1, true)) {
+         tstates(6);
+      } else {
+         pc(60667, 1, 4);
          int var9 = A();
          int var10 = alu("dec", var9);
          A(var10);
-         pc(60668, 2);
+         pc(60668, 2, 8);
          int var11 = A() | 128;
          A(var11);
-         pc(60670, 1);
+         pc(60670, 1, 7);
          int var12 = A();
          int var13 = HL();
          wMem(var13, var12, 60670);
-         pc(60671, 1);
+         pc(60671, 1, 10);
       }
    }
 
    public void $ED00() {
-      pc(60672, 2);
+      pc(60672, 2, 19);
       int var1 = IX() + 0;
       int var2 = mem(var1, 60672);
       L(var2);
-      pc(60675, 2);
+      pc(60675, 2, 19);
       int var3 = IX() + 1;
       int var4 = mem(var3, 60675);
       H(var4);
@@ -12036,505 +12837,532 @@ public class DynamiteDan extends MiniZX {
 
    public void $ED06() {
       while(true) {
-         pc(60678, 1);
+         pc(60678, 1, 7);
          int var1 = HL();
          int var2 = mem(var1, 60678);
          A(var2);
-         pc(60679, 1);
+         pc(60679, 1, 7);
          int var3 = A();
          alu("cp", var3, 255);
-         pc(60681, 1);
+         pc(60681, 1, 5);
          if(flag(64, false)) {
+            tstates(6);
             return;
          }
 
-         pc(60682, 1);
+         pc(60682, 1, 4);
          int var4 = A();
          E(var4);
-         pc(60683, 1);
+         pc(60683, 1, 6);
          int var5 = HL();
          int var6 = inc16(var5);
          HL(var6);
-         pc(60684, 1);
+         pc(60684, 1, 7);
          int var7 = HL();
          int var8 = mem(var7, 60684);
          D(var8);
-         pc(60685, 1);
+         pc(60685, 1, 6);
          int var9 = HL();
          int var10 = inc16(var9);
          HL(var10);
-         pc(60686, 1);
+         pc(60686, 1, 11);
          int var11 = HL();
          push(var11);
-         pc(60687, 1);
+         pc(60687, 1, 7);
          int var12 = HL();
          int var13 = mem(var12, 60687);
          L(var13);
-         pc(60688, 1);
+         pc(60688, 1, 7);
          H(0);
-         pc(60690, 1);
+         pc(60690, 1, 11);
          int var14 = HL();
          int var15 = HL();
          int var16 = alu("add16", var15, var14);
          HL(var16);
-         pc(60691, 1);
+         pc(60691, 1, 10);
          BC(27718);
-         pc(60694, 1);
+         pc(60694, 1, 11);
          int var17 = BC();
          int var18 = HL();
          int var19 = alu("add16", var18, var17);
          HL(var19);
-         pc(60695, 1);
+         pc(60695, 1, 7);
          int var20 = HL();
          int var21 = mem(var20, 60695);
          C(var21);
-         pc(60696, 1);
+         pc(60696, 1, 6);
          int var22 = HL();
          int var23 = inc16(var22);
          HL(var23);
-         pc(60697, 1);
+         pc(60697, 1, 7);
          int var24 = HL();
          int var25 = mem(var24, 60697);
          B(var25);
-         pc(60698, 1);
+         pc(60698, 1, 10);
          int var26 = pop();
          HL(var26);
-         pc(60699, 1);
+         pc(60699, 1, 6);
          int var27 = HL();
          int var28 = inc16(var27);
          HL(var28);
-         pc(60700, 1);
+         pc(60700, 1, 7);
          int var29 = HL();
          int var30 = mem(var29, 60700);
          A(var30);
-         pc(60701, 1);
+         pc(60701, 1, 7);
          int var31 = A();
          alu("cp", var31, 254);
-         pc(60703, 1);
-         if(!flag(64, false)) {
-            pc(60705, 1);
-            int var60 = A();
-            alu("cp", var60, 253);
-            pc(60707, 1);
-            if(!flag(64, false)) {
-               pc(60709, 1);
-               int var89 = A();
-               alu("cp", var89, 252);
-               pc(60711, 1);
-               if(!flag(64, false)) {
-                  pc(60713, 1);
-                  int var120 = A();
-                  alu("cp", var120, 251);
-                  pc(60715, 1);
-                  if(!flag(64, false)) {
-                     pc(60717, 1);
-                     int var151 = HL();
-                     push(var151);
-                     pc(60718, 1);
-                     int var152 = C();
-                     L(var152);
-                     pc(60719, 1);
-                     int var153 = B();
-                     H(var153);
-                     pc(60720, 1);
-                     $E84E();
-                     pc(60723, 1);
-                     int var154 = pop();
-                     HL(var154);
-                     pc(60724, 1);
-                  } else {
-                     pc(60805, 1);
-                     int var121 = HL();
-                     int var122 = inc16(var121);
-                     HL(var122);
-                     pc(60806, 1);
-                     int var123 = HL();
-                     push(var123);
-                     pc(60807, 1);
-                     int var124 = BC();
-                     push(var124);
-                     pc(60808, 1);
-                     int var125 = HL();
-                     int var126 = mem(var125, 60808);
-                     C(var126);
-                     pc(60809, 1);
-                     int var127 = HL();
-                     int var128 = inc16(var127);
-                     HL(var128);
-                     pc(60810, 1);
-                     int var129 = HL();
-                     int var130 = mem(var129, 60810);
-                     B(var130);
-                     pc(60811, 1);
-                     int var131 = pop();
-                     HL(var131);
+         pc(60703, 1, 7);
+         if(flag(64, false)) {
+            tstates(5);
+            pc(60726, 1, 6);
+            int var127 = HL();
+            int var128 = inc16(var127);
+            HL(var128);
+            pc(60727, 1, 11);
+            int var129 = HL();
+            push(var129);
+            pc(60728, 1, 11);
+            int var130 = BC();
+            push(var130);
+            pc(60729, 1, 7);
+            int var131 = HL();
+            int var132 = mem(var131, 60729);
+            C(var132);
+            pc(60730, 1, 6);
+            int var133 = HL();
+            int var134 = inc16(var133);
+            HL(var134);
+            pc(60731, 1, 7);
+            int var135 = HL();
+            int var136 = mem(var135, 60731);
+            B(var136);
+            pc(60732, 1, 10);
+            int var137 = pop();
+            HL(var137);
 
-                     do {
-                        pc(60812, 1);
-                        int var132 = BC();
-                        push(var132);
-                        pc(60813, 1);
-                        int var133 = DE();
-                        push(var133);
-                        pc(60814, 1);
-                        int var134 = HL();
-                        push(var134);
-                        pc(60815, 1);
-                        $E84E();
-                        pc(60818, 1);
-                        int var135 = pop();
-                        HL(var135);
-                        pc(60819, 1);
-                        int var136 = pop();
-                        DE(var136);
-                        pc(60820, 1);
-                        int var137 = pop();
-                        BC(var137);
-                        pc(60821, 1);
-                        int var138 = D();
-                        A(var138);
-                        pc(60822, 1);
-                        int var139 = C();
-                        int var140 = A();
-                        int var141 = alu("add", var140, var139);
-                        A(var141);
-                        pc(60823, 1);
-                        int var142 = A();
-                        D(var142);
-                        pc(60824, 1);
-                        int var143 = E();
-                        int var144 = alu("dec", var143);
-                        E(var144);
-                        pc(60825, 1);
-                        int var145 = B() - 1 & 255;
-                        B(var145);
-                     } while(B() != 0);
-
-                     pc(60827, 1);
-                     int var146 = pop();
-                     HL(var146);
-                     pc(60828, 1);
-                     int var147 = HL();
-                     int var148 = inc16(var147);
-                     HL(var148);
-                     pc(60829, 1);
-                     int var149 = HL();
-                     int var150 = inc16(var149);
-                     HL(var150);
-                     pc(60830, 1);
-                  }
-               } else {
-                  pc(60778, 1);
-                  int var90 = HL();
-                  int var91 = inc16(var90);
-                  HL(var91);
-                  pc(60779, 1);
-                  int var92 = HL();
-                  push(var92);
-                  pc(60780, 1);
-                  int var93 = BC();
-                  push(var93);
-                  pc(60781, 1);
-                  int var94 = HL();
-                  int var95 = mem(var94, 60781);
-                  C(var95);
-                  pc(60782, 1);
-                  int var96 = HL();
-                  int var97 = inc16(var96);
-                  HL(var97);
-                  pc(60783, 1);
-                  int var98 = HL();
-                  int var99 = mem(var98, 60783);
-                  B(var99);
-                  pc(60784, 1);
-                  int var100 = pop();
-                  HL(var100);
-
-                  do {
-                     pc(60785, 1);
-                     int var101 = BC();
-                     push(var101);
-                     pc(60786, 1);
-                     int var102 = DE();
-                     push(var102);
-                     pc(60787, 1);
-                     int var103 = HL();
-                     push(var103);
-                     pc(60788, 1);
-                     $E84E();
-                     pc(60791, 1);
-                     int var104 = pop();
-                     HL(var104);
-                     pc(60792, 1);
-                     int var105 = pop();
-                     DE(var105);
-                     pc(60793, 1);
-                     int var106 = pop();
-                     BC(var106);
-                     pc(60794, 1);
-                     int var107 = D();
-                     A(var107);
-                     pc(60795, 1);
-                     int var108 = C();
-                     int var109 = A();
-                     int var110 = alu("add", var109, var108);
-                     A(var110);
-                     pc(60796, 1);
-                     int var111 = A();
-                     D(var111);
-                     pc(60797, 1);
-                     int var112 = E();
-                     int var113 = alu("inc", var112);
-                     E(var113);
-                     pc(60798, 1);
-                     int var114 = B() - 1 & 255;
-                     B(var114);
-                  } while(B() != 0);
-
-                  pc(60800, 1);
-                  int var115 = pop();
-                  HL(var115);
-                  pc(60801, 1);
-                  int var116 = HL();
-                  int var117 = inc16(var116);
-                  HL(var117);
-                  pc(60802, 1);
-                  int var118 = HL();
-                  int var119 = inc16(var118);
-                  HL(var119);
-                  pc(60803, 1);
+            while(true) {
+               pc(60733, 1, 11);
+               int var138 = BC();
+               push(var138);
+               pc(60734, 1, 11);
+               int var139 = DE();
+               push(var139);
+               pc(60735, 1, 11);
+               int var140 = HL();
+               push(var140);
+               pc(60736, 1, 17);
+               $E84E();
+               pc(60739, 1, 10);
+               int var141 = pop();
+               HL(var141);
+               pc(60740, 1, 10);
+               int var142 = pop();
+               DE(var142);
+               pc(60741, 1, 10);
+               int var143 = pop();
+               BC(var143);
+               pc(60742, 1, 4);
+               int var144 = D();
+               A(var144);
+               pc(60743, 1, 4);
+               int var145 = C();
+               int var146 = A();
+               int var147 = alu("add", var146, var145);
+               A(var147);
+               pc(60744, 1, 4);
+               int var148 = A();
+               D(var148);
+               pc(60745, 1, 8);
+               int var149 = B() - 1 & 255;
+               B(var149);
+               if(B() == 0) {
+                  pc(60747, 1, 10);
+                  int var150 = pop();
+                  HL(var150);
+                  pc(60748, 1, 6);
+                  int var151 = HL();
+                  int var152 = inc16(var151);
+                  HL(var152);
+                  pc(60749, 1, 6);
+                  int var153 = HL();
+                  int var154 = inc16(var153);
+                  HL(var154);
+                  pc(60750, 1, 12);
+                  break;
                }
-            } else {
-               pc(60752, 1);
-               int var61 = HL();
-               int var62 = inc16(var61);
-               HL(var62);
-               pc(60753, 1);
-               int var63 = HL();
-               push(var63);
-               pc(60754, 1);
-               int var64 = BC();
-               push(var64);
-               pc(60755, 1);
-               int var65 = HL();
-               int var66 = mem(var65, 60755);
-               C(var66);
-               pc(60756, 1);
-               int var67 = HL();
-               int var68 = inc16(var67);
-               HL(var68);
-               pc(60757, 1);
-               int var69 = HL();
-               int var70 = mem(var69, 60757);
-               B(var70);
-               pc(60758, 1);
-               int var71 = pop();
-               HL(var71);
 
-               do {
-                  pc(60759, 1);
-                  int var72 = BC();
-                  push(var72);
-                  pc(60760, 1);
-                  int var73 = DE();
-                  push(var73);
-                  pc(60761, 1);
-                  int var74 = HL();
-                  push(var74);
-                  pc(60762, 1);
-                  $E84E();
-                  pc(60765, 1);
-                  int var75 = pop();
-                  HL(var75);
-                  pc(60766, 1);
-                  int var76 = pop();
-                  DE(var76);
-                  pc(60767, 1);
-                  int var77 = pop();
-                  BC(var77);
-                  pc(60768, 1);
-                  int var78 = E();
-                  A(var78);
-                  pc(60769, 1);
-                  int var79 = C();
-                  int var80 = A();
-                  int var81 = alu("sub", var80, var79);
-                  A(var81);
-                  pc(60770, 1);
-                  int var82 = A();
-                  E(var82);
-                  pc(60771, 1);
-                  int var83 = B() - 1 & 255;
-                  B(var83);
-               } while(B() != 0);
-
-               pc(60773, 1);
-               int var84 = pop();
-               HL(var84);
-               pc(60774, 1);
-               int var85 = HL();
-               int var86 = inc16(var85);
-               HL(var86);
-               pc(60775, 1);
-               int var87 = HL();
-               int var88 = inc16(var87);
-               HL(var88);
-               pc(60776, 1);
+               tstates(5);
             }
          } else {
-            pc(60726, 1);
-            int var32 = HL();
-            int var33 = inc16(var32);
-            HL(var33);
-            pc(60727, 1);
-            int var34 = HL();
-            push(var34);
-            pc(60728, 1);
-            int var35 = BC();
-            push(var35);
-            pc(60729, 1);
-            int var36 = HL();
-            int var37 = mem(var36, 60729);
-            C(var37);
-            pc(60730, 1);
-            int var38 = HL();
-            int var39 = inc16(var38);
-            HL(var39);
-            pc(60731, 1);
-            int var40 = HL();
-            int var41 = mem(var40, 60731);
-            B(var41);
-            pc(60732, 1);
-            int var42 = pop();
-            HL(var42);
+            pc(60705, 1, 7);
+            int var32 = A();
+            alu("cp", var32, 253);
+            pc(60707, 1, 7);
+            if(flag(64, false)) {
+               tstates(5);
+               pc(60752, 1, 6);
+               int var99 = HL();
+               int var100 = inc16(var99);
+               HL(var100);
+               pc(60753, 1, 11);
+               int var101 = HL();
+               push(var101);
+               pc(60754, 1, 11);
+               int var102 = BC();
+               push(var102);
+               pc(60755, 1, 7);
+               int var103 = HL();
+               int var104 = mem(var103, 60755);
+               C(var104);
+               pc(60756, 1, 6);
+               int var105 = HL();
+               int var106 = inc16(var105);
+               HL(var106);
+               pc(60757, 1, 7);
+               int var107 = HL();
+               int var108 = mem(var107, 60757);
+               B(var108);
+               pc(60758, 1, 10);
+               int var109 = pop();
+               HL(var109);
 
-            do {
-               pc(60733, 1);
-               int var43 = BC();
-               push(var43);
-               pc(60734, 1);
-               int var44 = DE();
-               push(var44);
-               pc(60735, 1);
-               int var45 = HL();
-               push(var45);
-               pc(60736, 1);
-               $E84E();
-               pc(60739, 1);
-               int var46 = pop();
-               HL(var46);
-               pc(60740, 1);
-               int var47 = pop();
-               DE(var47);
-               pc(60741, 1);
-               int var48 = pop();
-               BC(var48);
-               pc(60742, 1);
-               int var49 = D();
-               A(var49);
-               pc(60743, 1);
-               int var50 = C();
-               int var51 = A();
-               int var52 = alu("add", var51, var50);
-               A(var52);
-               pc(60744, 1);
-               int var53 = A();
-               D(var53);
-               pc(60745, 1);
-               int var54 = B() - 1 & 255;
-               B(var54);
-            } while(B() != 0);
+               while(true) {
+                  pc(60759, 1, 11);
+                  int var110 = BC();
+                  push(var110);
+                  pc(60760, 1, 11);
+                  int var111 = DE();
+                  push(var111);
+                  pc(60761, 1, 11);
+                  int var112 = HL();
+                  push(var112);
+                  pc(60762, 1, 17);
+                  $E84E();
+                  pc(60765, 1, 10);
+                  int var113 = pop();
+                  HL(var113);
+                  pc(60766, 1, 10);
+                  int var114 = pop();
+                  DE(var114);
+                  pc(60767, 1, 10);
+                  int var115 = pop();
+                  BC(var115);
+                  pc(60768, 1, 4);
+                  int var116 = E();
+                  A(var116);
+                  pc(60769, 1, 4);
+                  int var117 = C();
+                  int var118 = A();
+                  int var119 = alu("sub", var118, var117);
+                  A(var119);
+                  pc(60770, 1, 4);
+                  int var120 = A();
+                  E(var120);
+                  pc(60771, 1, 8);
+                  int var121 = B() - 1 & 255;
+                  B(var121);
+                  if(B() == 0) {
+                     pc(60773, 1, 10);
+                     int var122 = pop();
+                     HL(var122);
+                     pc(60774, 1, 6);
+                     int var123 = HL();
+                     int var124 = inc16(var123);
+                     HL(var124);
+                     pc(60775, 1, 6);
+                     int var125 = HL();
+                     int var126 = inc16(var125);
+                     HL(var126);
+                     pc(60776, 1, 12);
+                     break;
+                  }
 
-            pc(60747, 1);
-            int var55 = pop();
-            HL(var55);
-            pc(60748, 1);
-            int var56 = HL();
-            int var57 = inc16(var56);
-            HL(var57);
-            pc(60749, 1);
-            int var58 = HL();
-            int var59 = inc16(var58);
-            HL(var59);
-            pc(60750, 1);
+                  tstates(5);
+               }
+            } else {
+               pc(60709, 1, 7);
+               int var33 = A();
+               alu("cp", var33, 252);
+               pc(60711, 1, 7);
+               if(flag(64, false)) {
+                  tstates(5);
+                  pc(60778, 1, 6);
+                  int var69 = HL();
+                  int var70 = inc16(var69);
+                  HL(var70);
+                  pc(60779, 1, 11);
+                  int var71 = HL();
+                  push(var71);
+                  pc(60780, 1, 11);
+                  int var72 = BC();
+                  push(var72);
+                  pc(60781, 1, 7);
+                  int var73 = HL();
+                  int var74 = mem(var73, 60781);
+                  C(var74);
+                  pc(60782, 1, 6);
+                  int var75 = HL();
+                  int var76 = inc16(var75);
+                  HL(var76);
+                  pc(60783, 1, 7);
+                  int var77 = HL();
+                  int var78 = mem(var77, 60783);
+                  B(var78);
+                  pc(60784, 1, 10);
+                  int var79 = pop();
+                  HL(var79);
+
+                  while(true) {
+                     pc(60785, 1, 11);
+                     int var80 = BC();
+                     push(var80);
+                     pc(60786, 1, 11);
+                     int var81 = DE();
+                     push(var81);
+                     pc(60787, 1, 11);
+                     int var82 = HL();
+                     push(var82);
+                     pc(60788, 1, 17);
+                     $E84E();
+                     pc(60791, 1, 10);
+                     int var83 = pop();
+                     HL(var83);
+                     pc(60792, 1, 10);
+                     int var84 = pop();
+                     DE(var84);
+                     pc(60793, 1, 10);
+                     int var85 = pop();
+                     BC(var85);
+                     pc(60794, 1, 4);
+                     int var86 = D();
+                     A(var86);
+                     pc(60795, 1, 4);
+                     int var87 = C();
+                     int var88 = A();
+                     int var89 = alu("add", var88, var87);
+                     A(var89);
+                     pc(60796, 1, 4);
+                     int var90 = A();
+                     D(var90);
+                     pc(60797, 1, 4);
+                     int var91 = E();
+                     int var92 = alu("inc", var91);
+                     E(var92);
+                     pc(60798, 1, 8);
+                     int var93 = B() - 1 & 255;
+                     B(var93);
+                     if(B() == 0) {
+                        pc(60800, 1, 10);
+                        int var94 = pop();
+                        HL(var94);
+                        pc(60801, 1, 6);
+                        int var95 = HL();
+                        int var96 = inc16(var95);
+                        HL(var96);
+                        pc(60802, 1, 6);
+                        int var97 = HL();
+                        int var98 = inc16(var97);
+                        HL(var98);
+                        pc(60803, 1, 12);
+                        break;
+                     }
+
+                     tstates(5);
+                  }
+               } else {
+                  pc(60713, 1, 7);
+                  int var34 = A();
+                  alu("cp", var34, 251);
+                  pc(60715, 1, 7);
+                  if(!flag(64, false)) {
+                     pc(60717, 1, 11);
+                     int var35 = HL();
+                     push(var35);
+                     pc(60718, 1, 4);
+                     int var36 = C();
+                     L(var36);
+                     pc(60719, 1, 4);
+                     int var37 = B();
+                     H(var37);
+                     pc(60720, 1, 17);
+                     $E84E();
+                     pc(60723, 1, 10);
+                     int var38 = pop();
+                     HL(var38);
+                     pc(60724, 1, 12);
+                  } else {
+                     tstates(5);
+                     pc(60805, 1, 6);
+                     int var39 = HL();
+                     int var40 = inc16(var39);
+                     HL(var40);
+                     pc(60806, 1, 11);
+                     int var41 = HL();
+                     push(var41);
+                     pc(60807, 1, 11);
+                     int var42 = BC();
+                     push(var42);
+                     pc(60808, 1, 7);
+                     int var43 = HL();
+                     int var44 = mem(var43, 60808);
+                     C(var44);
+                     pc(60809, 1, 6);
+                     int var45 = HL();
+                     int var46 = inc16(var45);
+                     HL(var46);
+                     pc(60810, 1, 7);
+                     int var47 = HL();
+                     int var48 = mem(var47, 60810);
+                     B(var48);
+                     pc(60811, 1, 10);
+                     int var49 = pop();
+                     HL(var49);
+
+                     while(true) {
+                        pc(60812, 1, 11);
+                        int var50 = BC();
+                        push(var50);
+                        pc(60813, 1, 11);
+                        int var51 = DE();
+                        push(var51);
+                        pc(60814, 1, 11);
+                        int var52 = HL();
+                        push(var52);
+                        pc(60815, 1, 17);
+                        $E84E();
+                        pc(60818, 1, 10);
+                        int var53 = pop();
+                        HL(var53);
+                        pc(60819, 1, 10);
+                        int var54 = pop();
+                        DE(var54);
+                        pc(60820, 1, 10);
+                        int var55 = pop();
+                        BC(var55);
+                        pc(60821, 1, 4);
+                        int var56 = D();
+                        A(var56);
+                        pc(60822, 1, 4);
+                        int var57 = C();
+                        int var58 = A();
+                        int var59 = alu("add", var58, var57);
+                        A(var59);
+                        pc(60823, 1, 4);
+                        int var60 = A();
+                        D(var60);
+                        pc(60824, 1, 4);
+                        int var61 = E();
+                        int var62 = alu("dec", var61);
+                        E(var62);
+                        pc(60825, 1, 8);
+                        int var63 = B() - 1 & 255;
+                        B(var63);
+                        if(B() == 0) {
+                           pc(60827, 1, 10);
+                           int var64 = pop();
+                           HL(var64);
+                           pc(60828, 1, 6);
+                           int var65 = HL();
+                           int var66 = inc16(var65);
+                           HL(var66);
+                           pc(60829, 1, 6);
+                           int var67 = HL();
+                           int var68 = inc16(var67);
+                           HL(var68);
+                           pc(60830, 1, 10);
+                           break;
+                        }
+
+                        tstates(5);
+                     }
+                  }
+               }
+            }
          }
       }
    }
 
    public void $EDA2() {
-      pc(60834, 1);
+      pc(60834, 1, 10);
       HL(60833);
-      pc(60837, 1);
+      pc(60837, 1, 11);
       int var1 = HL();
       int var2 = mem(var1, 60837);
       int var3 = alu("inc", var2);
       int var4 = HL();
       wMem(var4, var3, 60837);
-      pc(60838, 1);
+      pc(60838, 1, 7);
       int var5 = HL();
       int var6 = mem(var5, 60838);
       A(var6);
-      pc(60839, 1);
+      pc(60839, 1, 7);
       int var7 = A();
       int var8 = alu("and", var7, 3);
       A(var8);
-      pc(60841, 1);
+      pc(60841, 1, 7);
       int var9 = A();
       alu("cp", var9, 3);
-      pc(60843, 1);
-      if(!flag(64, true)) {
-         pc(60844, 1);
+      pc(60843, 1, 5);
+      if(flag(64, true)) {
+         tstates(6);
+      } else {
+         pc(60844, 1, 13);
          int var10 = mem(22648, 60844);
          A(var10);
-         pc(60847, 1);
+         pc(60847, 1, 4);
          int var11 = A();
          C(var11);
-         pc(60848, 1);
+         pc(60848, 1, 7);
          B(19);
-         pc(60850, 1);
+         pc(60850, 1, 10);
          HL(22631);
 
-         do {
-            pc(60853, 1);
+         while(true) {
+            pc(60853, 1, 7);
             int var12 = HL();
             int var13 = mem(var12, 60853);
             A(var13);
-            pc(60854, 1);
+            pc(60854, 1, 7);
             int var14 = C();
             int var15 = HL();
             wMem(var15, var14, 60854);
-            pc(60855, 1);
+            pc(60855, 1, 4);
             int var16 = A();
             C(var16);
-            pc(60856, 1);
+            pc(60856, 1, 4);
             int var17 = L();
             int var18 = alu("inc", var17);
             L(var18);
-            pc(60857, 1);
+            pc(60857, 1, 8);
             int var19 = B() - 1 & 255;
             B(var19);
-         } while(B() != 0);
+            if(B() == 0) {
+               pc(60859, 1, 10);
+               return;
+            }
 
-         pc(60859, 1);
+            tstates(5);
+         }
       }
    }
 
    public int $EEF1() {
-      pc(61169, 1);
+      pc(61169, 1, 7);
       int var1 = HL();
       int var2 = mem(var1, 61169);
       E(var2);
-      pc(61170, 1);
+      pc(61170, 1, 6);
       int var3 = HL();
       int var4 = inc16(var3);
       HL(var4);
-      pc(61171, 1);
+      pc(61171, 1, 7);
       int var5 = HL();
       int var6 = mem(var5, 61171);
       D(var6);
-      pc(61172, 1);
+      pc(61172, 1, 17);
       $E8F1();
-      pc(61175, 1);
+      pc(61175, 1, 4);
       int var7 = D();
       int var8 = alu("inc", var7);
       D(var8);
@@ -12542,7 +13370,7 @@ public class DynamiteDan extends MiniZX {
    }
 
    public int $EEF8() {
-      pc(61176, 1);
+      pc(61176, 1, 6);
       int var1 = HL();
       int var2 = inc16(var1);
       HL(var2);
@@ -12550,1020 +13378,1094 @@ public class DynamiteDan extends MiniZX {
    }
 
    public int $EEF9() {
-      pc(61177, 1);
+      pc(61177, 1, 7);
       int var1 = HL();
       int var2 = mem(var1, 61177);
       A(var2);
-      pc(61178, 1);
+      pc(61178, 1, 7);
       int var3 = A();
       alu("cp", var3, 255);
-      pc(61180, 1);
+      pc(61180, 1, 5);
       if(flag(64, false)) {
+         tstates(6);
          return -1;
       } else {
-         pc(61181, 1);
+         pc(61181, 1, 7);
          int var4 = A();
          alu("cp", var4, 254);
-         pc(61183, 1);
+         pc(61183, 1, 7);
          if(flag(64, false)) {
-            pc(61211, 1);
-            int var5 = HL();
-            int var6 = inc16(var5);
-            HL(var6);
-            pc(61212, 1);
+            tstates(5);
+            pc(61211, 1, 6);
+            int var34 = HL();
+            int var35 = inc16(var34);
+            HL(var35);
+            pc(61212, 1, 12);
             return 61169;
          } else {
-            pc(61185, 1);
-            int var7 = HL();
-            push(var7);
-            pc(61186, 1);
-            int var8 = DE();
-            push(var8);
-            pc(61187, 1);
+            pc(61185, 1, 11);
+            int var5 = HL();
+            push(var5);
+            pc(61186, 1, 11);
+            int var6 = DE();
+            push(var6);
+            pc(61187, 1, 4);
+            int var7 = A();
+            B(var7);
+            pc(61188, 1, 4);
+            int var8 = A();
             int var9 = A();
-            B(var9);
-            pc(61188, 1);
-            int var10 = A();
-            int var11 = A();
-            int var12 = alu("add", var11, var10);
-            A(var12);
-            pc(61189, 1);
-            int var13 = B();
+            int var10 = alu("add", var9, var8);
+            A(var10);
+            pc(61189, 1, 4);
+            int var11 = B();
+            int var12 = A();
+            int var13 = alu("add", var12, var11);
+            A(var13);
+            pc(61190, 1, 4);
             int var14 = A();
-            int var15 = alu("add", var14, var13);
-            A(var15);
-            pc(61190, 1);
-            int var16 = A();
-            L(var16);
-            pc(61191, 1);
+            L(var14);
+            pc(61191, 1, 7);
             H(0);
-            pc(61193, 1);
-            int var17 = HL();
-            int var18 = HL();
-            int var19 = alu("add16", var18, var17);
-            HL(var19);
-            pc(61194, 1);
+            pc(61193, 1, 11);
+            int var15 = HL();
+            int var16 = HL();
+            int var17 = alu("add16", var16, var15);
+            HL(var17);
+            pc(61194, 1, 10);
             BC(26495);
-            pc(61197, 1);
-            int var20 = BC();
-            int var21 = HL();
-            int var22 = alu("add16", var21, var20);
-            HL(var22);
-            pc(61198, 1);
+            pc(61197, 1, 11);
+            int var18 = BC();
+            int var19 = HL();
+            int var20 = alu("add16", var19, var18);
+            HL(var20);
+            pc(61198, 1, 7);
             B(6);
 
-            do {
-               pc(61200, 1);
-               int var23 = HL();
-               int var24 = mem(var23, 61200);
-               A(var24);
-               pc(61201, 1);
-               int var25 = A();
-               int var26 = DE();
-               wMem(var26, var25, 61201);
-               pc(61202, 1);
-               int var27 = HL();
-               int var28 = inc16(var27);
-               HL(var28);
-               pc(61203, 1);
-               int var29 = D();
-               int var30 = alu("inc", var29);
-               D(var30);
-               pc(61204, 1);
-               int var31 = B() - 1 & 255;
-               B(var31);
-            } while(B() != 0);
+            while(true) {
+               pc(61200, 1, 7);
+               int var21 = HL();
+               int var22 = mem(var21, 61200);
+               A(var22);
+               pc(61201, 1, 7);
+               int var23 = A();
+               int var24 = DE();
+               wMem(var24, var23, 61201);
+               pc(61202, 1, 6);
+               int var25 = HL();
+               int var26 = inc16(var25);
+               HL(var26);
+               pc(61203, 1, 4);
+               int var27 = D();
+               int var28 = alu("inc", var27);
+               D(var28);
+               pc(61204, 1, 8);
+               int var29 = B() - 1 & 255;
+               B(var29);
+               if(B() == 0) {
+                  pc(61206, 1, 10);
+                  int var30 = pop();
+                  DE(var30);
+                  pc(61207, 1, 10);
+                  int var31 = pop();
+                  HL(var31);
+                  pc(61208, 1, 4);
+                  int var32 = E();
+                  int var33 = alu("inc", var32);
+                  E(var33);
+                  pc(61209, 1, 12);
+                  return 61176;
+               }
 
-            pc(61206, 1);
-            int var32 = pop();
-            DE(var32);
-            pc(61207, 1);
-            int var33 = pop();
-            HL(var33);
-            pc(61208, 1);
-            int var34 = E();
-            int var35 = alu("inc", var34);
-            E(var35);
-            pc(61209, 1);
-            return 61176;
+               tstates(5);
+            }
          }
       }
    }
 
    public void $EF1E() {
-      pc(61214, 1);
+      pc(61214, 1, 16);
       int var1 = mem16(27117, 61214);
       HL(var1);
-      pc(61217, 1);
+      pc(61217, 1, 6);
       int var2 = HL();
       int var3 = inc16(var2);
       HL(var3);
-      pc(61218, 1);
+      pc(61218, 1, 6);
       int var4 = HL();
       int var5 = inc16(var4);
       HL(var5);
-      pc(61219, 1);
+      pc(61219, 1, 6);
       int var6 = HL();
       int var7 = inc16(var6);
       HL(var7);
-      pc(61220, 1);
+      pc(61220, 1, 6);
       int var8 = HL();
       int var9 = inc16(var8);
       HL(var9);
-      pc(61221, 1);
+      pc(61221, 1, 7);
       B(48);
 
-      do {
-         pc(61223, 1);
+      while(true) {
+         pc(61223, 1, 11);
          int var10 = BC();
          push(var10);
-         pc(61224, 1);
+         pc(61224, 1, 7);
          int var11 = HL();
          int var12 = mem(var11, 61224);
          A(var12);
-         pc(61225, 1);
+         pc(61225, 1, 17);
          $E9F8();
-         pc(61228, 1);
+         pc(61228, 1, 4);
          int var13 = B();
          A(var13);
-         pc(61229, 1);
+         pc(61229, 1, 4);
          int var14 = C();
          int var15 = A();
          int var16 = alu("add", var15, var14);
          A(var16);
-         pc(61230, 1);
+         pc(61230, 1, 4);
          int var17 = A();
          D(var17);
-         pc(61231, 1);
+         pc(61231, 1, 6);
          int var18 = HL();
          int var19 = inc16(var18);
          HL(var19);
-         pc(61232, 1);
+         pc(61232, 1, 7);
          int var20 = HL();
          int var21 = mem(var20, 61232);
          A(var21);
-         pc(61233, 1);
+         pc(61233, 1, 17);
          $E9F8();
-         pc(61236, 1);
+         pc(61236, 1, 4);
          int var22 = B();
          A(var22);
-         pc(61237, 1);
+         pc(61237, 1, 4);
          int var23 = C();
          int var24 = A();
          int var25 = alu("add", var24, var23);
          A(var25);
-         pc(61238, 1);
+         pc(61238, 1, 4);
          int var26 = D();
          int var27 = A();
          int var28 = alu("add", var27, var26);
          A(var28);
-         pc(61239, 1);
+         pc(61239, 1, 4);
          int var29 = A();
          B(var29);
-         pc(61240, 1);
+         pc(61240, 1, 10);
          DE(5);
-         pc(61243, 1);
+         pc(61243, 1, 11);
          int var30 = DE();
          int var31 = HL();
          int var32 = alu("add16", var31, var30);
          HL(var32);
 
-         do {
-            pc(61244, 2);
+         while(true) {
+            pc(61244, 2, 15);
             int var33 = HL();
             int var34 = mem(var33, 61244) & -65;
             int var35 = HL();
             wMem(var35, var34, 61244);
-            pc(61246, 1);
+            pc(61246, 1, 10);
             DE(8);
-            pc(61249, 1);
+            pc(61249, 1, 11);
             int var36 = DE();
             int var37 = HL();
             int var38 = alu("add16", var37, var36);
             HL(var38);
-            pc(61250, 1);
+            pc(61250, 1, 8);
             int var39 = B() - 1 & 255;
             B(var39);
-         } while(B() != 0);
+            if(B() == 0) {
+               pc(61252, 1, 10);
+               int var40 = pop();
+               BC(var40);
+               pc(61253, 1, 8);
+               int var41 = B() - 1 & 255;
+               B(var41);
+               if(B() == 0) {
+                  pc(61255, 1, 10);
+                  return;
+               }
 
-         pc(61252, 1);
-         int var40 = pop();
-         BC(var40);
-         pc(61253, 1);
-         int var41 = B() - 1 & 255;
-         B(var41);
-      } while(B() != 0);
+               tstates(5);
+               break;
+            }
 
-      pc(61255, 1);
+            tstates(5);
+         }
+      }
    }
 
    public void $EF7C() {
-      pc(61308, 1);
+      pc(61308, 1, 10);
       HL(61256);
-      pc(61311, 1);
+      pc(61311, 1, 11);
       int var1 = HL();
       int var2 = mem(var1, 61311);
       int var3 = alu("inc", var2);
       int var4 = HL();
       wMem(var4, var3, 61311);
-      pc(61312, 2);
+      pc(61312, 2, 12);
       int var5 = HL();
       int var6 = mem(var5, 61312);
       bit(0, var6);
-      pc(61314, 1);
-      if(!flag(64, false)) {
-         pc(61315, 1);
+      pc(61314, 1, 5);
+      if(flag(64, false)) {
+         tstates(6);
+      } else {
+         pc(61315, 1, 16);
          int var7 = mem16(61306, 61315);
          HL(var7);
-         pc(61318, 1);
+         pc(61318, 1, 6);
          int var8 = HL();
          int var9 = inc16(var8);
          HL(var9);
-         pc(61319, 1);
+         pc(61319, 1, 7);
          int var10 = HL();
          int var11 = mem(var10, 61319);
          A(var11);
-         pc(61320, 1);
+         pc(61320, 1, 7);
          int var12 = A();
          alu("cp", var12, 7);
-         pc(61322, 1);
-         if(!flag(64, true)) {
-            pc(61324, 1);
+         pc(61322, 1, 7);
+         if(flag(64, true)) {
+            tstates(5);
+         } else {
+            pc(61324, 1, 10);
             HL(61297);
          }
 
-         pc(61327, 1);
+         pc(61327, 1, 16);
          int var13 = HL();
          wMem16(61306, var13, 61327);
-         pc(61330, 1);
+         pc(61330, 1, 13);
          int var14 = A();
          wMem(61276, var14, 61330);
-         pc(61333, 1);
+         pc(61333, 1, 13);
          int var15 = A();
          wMem(61296, var15, 61333);
-         pc(61336, 2);
+         pc(61336, 2, 20);
          int var16 = IX() + 4;
          int var17 = mem(var16, 61336);
          bit(5, var17);
-         pc(61340, 1);
-         if(!flag(64, false)) {
-            pc(61342, 2);
-            int var24 = IX() + 9;
-            int var25 = mem(var24, 61342);
-            E(var25);
-            pc(61345, 2);
-            int var26 = IX() + 10;
-            int var27 = mem(var26, 61345);
-            D(var27);
-            pc(61348, 1);
+         pc(61340, 1, 7);
+         if(flag(64, false)) {
+            tstates(5);
+         } else {
+            pc(61342, 2, 19);
+            int var18 = IX() + 9;
+            int var19 = mem(var18, 61342);
+            E(var19);
+            pc(61345, 2, 19);
+            int var20 = IX() + 10;
+            int var21 = mem(var20, 61345);
+            D(var21);
+            pc(61348, 1, 10);
             HL(61257);
-            pc(61351, 1);
+            pc(61351, 1, 17);
             $E84E();
          }
 
-         pc(61354, 2);
-         int var18 = IX() + 4;
-         int var19 = mem(var18, 61354);
-         bit(4, var19);
-         pc(61358, 1);
-         if(!flag(64, false)) {
-            pc(61359, 2);
-            int var20 = IX() + 2;
-            int var21 = mem(var20, 61359);
-            E(var21);
-            pc(61362, 2);
-            int var22 = IX() + 3;
-            int var23 = mem(var22, 61362);
-            D(var23);
-            pc(61365, 1);
+         pc(61354, 2, 20);
+         int var22 = IX() + 4;
+         int var23 = mem(var22, 61354);
+         bit(4, var23);
+         pc(61358, 1, 5);
+         if(flag(64, false)) {
+            tstates(6);
+         } else {
+            pc(61359, 2, 19);
+            int var24 = IX() + 2;
+            int var25 = mem(var24, 61359);
+            E(var25);
+            pc(61362, 2, 19);
+            int var26 = IX() + 3;
+            int var27 = mem(var26, 61362);
+            D(var27);
+            pc(61365, 1, 10);
             HL(61277);
-            pc(61368, 1);
+            pc(61368, 1, 17);
             $E84E();
-            pc(61371, 1);
+            pc(61371, 1, 10);
          }
       }
    }
 
    public void $F021() {
-      pc(61473, 1);
+      pc(61473, 1, 10);
       HL(61472);
-      pc(61476, 1);
+      pc(61476, 1, 4);
       int var1 = A();
       int var2 = A();
       int var3 = alu("and", var2, var1);
       A(var3);
-      pc(61477, 1);
-      if(!flag(64, true)) {
-         pc(61479, 1);
-         A(8);
-         pc(61481, 1);
-      } else {
-         pc(61483, 2);
-         int var4 = A();
-         bit(7, var4);
-         pc(61485, 1);
-         if(!flag(64, true)) {
-            pc(61487, 1);
-            int var34 = A();
-            int var35 = A();
-            int var36 = alu("xor", var35, var34);
-            A(var36);
-            pc(61488, 1);
-            int var37 = A();
-            int var38 = HL();
-            wMem(var38, var37, 61488);
-            pc(61489, 1);
-         } else {
-            pc(61491, 1);
-            int var5 = HL();
-            int var6 = mem(var5, 61491);
-            int var7 = alu("inc", var6);
-            int var8 = HL();
-            wMem(var8, var7, 61491);
-            pc(61492, 1);
-            int var9 = HL();
-            int var10 = mem(var9, 61492);
-            A(var10);
-            pc(61493, 1);
-            int var11 = A();
-            alu("cp", var11, 9);
-            pc(61495, 1);
-            if(!flag(1, false)) {
-               pc(61497, 1);
+      pc(61477, 1, 7);
+      if(flag(64, true)) {
+         tstates(5);
+         pc(61483, 2, 8);
+         int var26 = A();
+         bit(7, var26);
+         pc(61485, 1, 7);
+         if(flag(64, true)) {
+            tstates(5);
+            pc(61491, 1, 11);
+            int var32 = HL();
+            int var33 = mem(var32, 61491);
+            int var34 = alu("inc", var33);
+            int var35 = HL();
+            wMem(var35, var34, 61491);
+            pc(61492, 1, 7);
+            int var36 = HL();
+            int var37 = mem(var36, 61492);
+            A(var37);
+            pc(61493, 1, 7);
+            int var38 = A();
+            alu("cp", var38, 9);
+            pc(61495, 1, 7);
+            if(flag(1, false)) {
+               tstates(5);
+            } else {
+               pc(61497, 1, 7);
                A(8);
             }
+         } else {
+            pc(61487, 1, 4);
+            int var27 = A();
+            int var28 = A();
+            int var29 = alu("xor", var28, var27);
+            A(var29);
+            pc(61488, 1, 7);
+            int var30 = A();
+            int var31 = HL();
+            wMem(var31, var30, 61488);
+            pc(61489, 1, 12);
          }
+      } else {
+         pc(61479, 1, 7);
+         A(8);
+         pc(61481, 1, 12);
       }
 
-      pc(61499, 1);
-      int var12 = A();
-      int var13 = A();
-      int var14 = alu("add", var13, var12);
-      A(var14);
-      pc(61500, 1);
-      int var15 = A();
-      C(var15);
-      pc(61501, 1);
+      pc(61499, 1, 4);
+      int var4 = A();
+      int var5 = A();
+      int var6 = alu("add", var5, var4);
+      A(var6);
+      pc(61500, 1, 4);
+      int var7 = A();
+      C(var7);
+      pc(61501, 1, 7);
       B(0);
-      pc(61503, 1);
+      pc(61503, 1, 10);
       HL(61522);
-      pc(61506, 1);
-      int var16 = BC();
-      int var17 = HL();
-      int var18 = alu("add16", var17, var16);
-      HL(var18);
-      pc(61507, 1);
-      int var19 = HL();
-      int var20 = mem(var19, 61507);
-      A(var20);
-      pc(61508, 1);
-      int var21 = HL();
-      int var22 = inc16(var21);
-      HL(var22);
-      pc(61509, 1);
-      int var23 = HL();
-      int var24 = mem(var23, 61509);
-      H(var24);
-      pc(61510, 1);
-      int var25 = A();
-      L(var25);
-      pc(61511, 1);
-      int var26 = HL();
-      int var27 = mem(var26, 61511);
-      B(var27);
-      pc(61512, 1);
-      int var28 = HL();
-      int var29 = inc16(var28);
-      HL(var29);
-      pc(61513, 1);
-      int var30 = HL();
-      int var31 = mem(var30, 61513);
-      C(var31);
-      pc(61514, 1);
-      int var32 = HL();
-      int var33 = inc16(var32);
-      HL(var33);
-      pc(61515, 1);
+      pc(61506, 1, 11);
+      int var8 = BC();
+      int var9 = HL();
+      int var10 = alu("add16", var9, var8);
+      HL(var10);
+      pc(61507, 1, 7);
+      int var11 = HL();
+      int var12 = mem(var11, 61507);
+      A(var12);
+      pc(61508, 1, 6);
+      int var13 = HL();
+      int var14 = inc16(var13);
+      HL(var14);
+      pc(61509, 1, 7);
+      int var15 = HL();
+      int var16 = mem(var15, 61509);
+      H(var16);
+      pc(61510, 1, 4);
+      int var17 = A();
+      L(var17);
+      pc(61511, 1, 7);
+      int var18 = HL();
+      int var19 = mem(var18, 61511);
+      B(var19);
+      pc(61512, 1, 6);
+      int var20 = HL();
+      int var21 = inc16(var20);
+      HL(var21);
+      pc(61513, 1, 7);
+      int var22 = HL();
+      int var23 = mem(var22, 61513);
+      C(var23);
+      pc(61514, 1, 6);
+      int var24 = HL();
+      int var25 = inc16(var24);
+      HL(var25);
+      pc(61515, 1, 10);
       DE(6923);
-      pc(61518, 1);
+      pc(61518, 1, 17);
       $E87A();
-      pc(61521, 1);
+      pc(61521, 1, 10);
    }
 
    public void $F2F4() {
-      pc(62196, 1);
+      pc(62196, 1, 17);
       $E801();
 
-      do {
-         pc(62199, 1);
+      while(true) {
+         pc(62199, 1, 4);
          int var1 = A();
          int var2 = A();
          int var3 = alu("xor", var2, var1);
          A(var3);
-         pc(62200, 1);
+         pc(62200, 1, 11);
          int var4 = A() << 8 | 254;
          int var5 = in(var4, 62200);
          A(var5);
-         pc(62202, 1);
+         pc(62202, 1, 4);
          int var6 = A();
          int var7 = alu("cpl", var6);
          A(var7);
-         pc(62203, 1);
+         pc(62203, 1, 7);
          int var8 = A();
          int var9 = alu("and", var8, 31);
          A(var9);
-         pc(62205, 1);
-      } while(flag(64, true));
+         pc(62205, 1, 7);
+         if(!flag(64, true)) {
+            pc(62207, 1, 10);
+            return;
+         }
 
-      pc(62207, 1);
+         tstates(5);
+      }
    }
 
    public void $F300() {
       while(true) {
-         pc(62208, 1);
+         pc(62208, 1, 17);
          $F30A();
-         pc(62211, 1);
-         if(!flag(64, true)) {
-            pc(62213, 1);
+         pc(62211, 1, 7);
+         if(flag(64, true)) {
+            tstates(5);
+         } else {
+            pc(62213, 1, 4);
             int var1 = D();
             int var2 = alu("inc", var1);
             D(var2);
-            pc(62214, 1);
+            pc(62214, 1, 7);
             if(!flag(64, false)) {
-               pc(62216, 1);
+               pc(62216, 1, 4);
                int var3 = D();
                int var4 = alu("dec", var3);
                D(var4);
-               pc(62217, 1);
+               pc(62217, 1, 10);
                return;
             }
+
+            tstates(5);
          }
       }
    }
 
    public void $F30A() {
-      pc(62218, 1);
+      pc(62218, 1, 10);
       DE(65327);
-      pc(62221, 1);
+      pc(62221, 1, 10);
       BC(65278);
 
-      do {
-         pc(62224, 2);
+      while(true) {
+         pc(62224, 2, 12);
          int var1 = BC();
          int var2 = inC(var1, 62224);
          A(var2);
-         pc(62226, 1);
+         pc(62226, 1, 4);
          int var3 = A();
          int var4 = alu("cpl", var3);
          A(var4);
-         pc(62227, 1);
+         pc(62227, 1, 7);
          int var5 = A();
          int var6 = alu("and", var5, 31);
          A(var6);
-         pc(62229, 1);
-         if(!flag(64, false)) {
-            pc(62231, 1);
-            int var38 = D();
-            int var39 = alu("inc", var38);
-            D(var39);
-            pc(62232, 1);
+         pc(62229, 1, 7);
+         if(flag(64, false)) {
+            tstates(5);
+         } else {
+            pc(62231, 1, 4);
+            int var7 = D();
+            int var8 = alu("inc", var7);
+            D(var8);
+            pc(62232, 1, 5);
             if(flag(64, true)) {
+               tstates(6);
                return;
             }
 
-            pc(62233, 1);
-            int var40 = A();
-            H(var40);
-            pc(62234, 1);
-            int var41 = E();
-            A(var41);
+            pc(62233, 1, 4);
+            int var9 = A();
+            H(var9);
+            pc(62234, 1, 4);
+            int var10 = E();
+            A(var10);
 
-            do {
-               pc(62235, 1);
-               int var42 = A();
-               int var43 = alu("sub", var42, 8);
-               A(var43);
-               pc(62237, 2);
-               int var44 = H();
-               int var45 = alu("srl", var44);
-               H(var45);
-               pc(62239, 1);
-            } while(flag(1, true));
+            while(true) {
+               pc(62235, 1, 7);
+               int var11 = A();
+               int var12 = alu("sub", var11, 8);
+               A(var12);
+               pc(62237, 2, 8);
+               int var13 = H();
+               int var14 = alu("srl", var13);
+               H(var14);
+               pc(62239, 1, 7);
+               if(!flag(1, true)) {
+                  pc(62241, 1, 5);
+                  if(flag(64, true)) {
+                     tstates(6);
+                     return;
+                  }
 
-            pc(62241, 1);
-            if(flag(64, true)) {
-               return;
+                  pc(62242, 1, 4);
+                  int var15 = A();
+                  D(var15);
+                  break;
+               }
+
+               tstates(5);
             }
-
-            pc(62242, 1);
-            int var46 = A();
-            D(var46);
          }
 
-         pc(62243, 1);
-         int var7 = E();
-         int var8 = alu("dec", var7);
-         E(var8);
-         pc(62244, 2);
-         int var9 = B();
-         int var10 = alu("rlc", var9);
-         B(var10);
-         pc(62246, 1);
-      } while(flag(1, false));
+         pc(62243, 1, 4);
+         int var16 = E();
+         int var17 = alu("dec", var16);
+         E(var17);
+         pc(62244, 2, 8);
+         int var18 = B();
+         int var19 = alu("rlc", var18);
+         B(var19);
+         pc(62246, 1, 7);
+         if(!flag(1, false)) {
+            pc(62248, 1, 4);
+            int var20 = A();
+            int var21 = A();
+            alu("cp", var21, var20);
+            pc(62249, 1, 5);
+            if(flag(64, false)) {
+               tstates(6);
+               return;
+            }
 
-      pc(62248, 1);
-      int var11 = A();
-      int var12 = A();
-      alu("cp", var12, var11);
-      pc(62249, 1);
-      if(!flag(64, false)) {
-         pc(62250, 1);
-         int var13 = A();
-         C(var13);
-         pc(62251, 1);
-         int var14 = A();
-         int var15 = alu("and", var14, 7);
-         A(var15);
-         pc(62253, 1);
-         int var16 = A();
-         int var17 = alu("inc", var16);
-         A(var17);
-         pc(62254, 1);
-         int var18 = A();
-         B(var18);
-         pc(62255, 2);
-         int var19 = C();
-         int var20 = alu("srl", var19);
-         C(var20);
-         pc(62257, 2);
-         int var21 = C();
-         int var22 = alu("srl", var21);
-         C(var22);
-         pc(62259, 2);
-         int var23 = C();
-         int var24 = alu("srl", var23);
-         C(var24);
-         pc(62261, 1);
-         A(5);
-         pc(62263, 1);
-         int var25 = C();
-         int var26 = A();
-         int var27 = alu("sub", var26, var25);
-         A(var27);
-         pc(62264, 1);
-         int var28 = A();
-         C(var28);
-         pc(62265, 1);
-         A(254);
-
-         do {
-            pc(62267, 1);
-            int var29 = A();
-            int var30 = alu("rrca", var29);
-            A(var30);
-            pc(62268, 1);
-            int var31 = B() - 1 & 255;
-            B(var31);
-         } while(B() != 0);
-
-         pc(62270, 1);
-         int var32 = A() << 8 | 254;
-         int var33 = in(var32, 62270);
-         A(var33);
-
-         do {
-            pc(62272, 1);
-            int var34 = A();
-            int var35 = alu("rra", var34);
-            A(var35);
-            pc(62273, 1);
-            int var36 = C();
-            int var37 = alu("dec", var36);
+            pc(62250, 1, 4);
+            int var22 = A();
+            C(var22);
+            pc(62251, 1, 7);
+            int var23 = A();
+            int var24 = alu("and", var23, 7);
+            A(var24);
+            pc(62253, 1, 4);
+            int var25 = A();
+            int var26 = alu("inc", var25);
+            A(var26);
+            pc(62254, 1, 4);
+            int var27 = A();
+            B(var27);
+            pc(62255, 2, 8);
+            int var28 = C();
+            int var29 = alu("srl", var28);
+            C(var29);
+            pc(62257, 2, 8);
+            int var30 = C();
+            int var31 = alu("srl", var30);
+            C(var31);
+            pc(62259, 2, 8);
+            int var32 = C();
+            int var33 = alu("srl", var32);
+            C(var33);
+            pc(62261, 1, 7);
+            A(5);
+            pc(62263, 1, 4);
+            int var34 = C();
+            int var35 = A();
+            int var36 = alu("sub", var35, var34);
+            A(var36);
+            pc(62264, 1, 4);
+            int var37 = A();
             C(var37);
-            pc(62274, 1);
-         } while(flag(64, true));
+            pc(62265, 1, 7);
+            A(254);
 
-         pc(62276, 1);
+            while(true) {
+               pc(62267, 1, 4);
+               int var38 = A();
+               int var39 = alu("rrca", var38);
+               A(var39);
+               pc(62268, 1, 8);
+               int var40 = B() - 1 & 255;
+               B(var40);
+               if(B() == 0) {
+                  pc(62270, 1, 11);
+                  int var41 = A() << 8 | 254;
+                  int var42 = in(var41, 62270);
+                  A(var42);
+
+                  while(true) {
+                     pc(62272, 1, 4);
+                     int var43 = A();
+                     int var44 = alu("rra", var43);
+                     A(var44);
+                     pc(62273, 1, 4);
+                     int var45 = C();
+                     int var46 = alu("dec", var45);
+                     C(var46);
+                     pc(62274, 1, 7);
+                     if(!flag(64, true)) {
+                        pc(62276, 1, 10);
+                        return;
+                     }
+
+                     tstates(5);
+                  }
+               }
+
+               tstates(5);
+            }
+         }
+
+         tstates(5);
       }
    }
 
    public void $F345() {
-      pc(62277, 1);
+      pc(62277, 1, 10);
       HL(27114);
-      pc(62280, 1);
+      pc(62280, 1, 10);
       DE(7);
-      pc(62283, 1);
+      pc(62283, 1, 10);
       BC(5);
-      pc(62286, 1);
+      pc(62286, 1, 7);
       A(48);
 
-      do {
-         pc(62288, 2);
+      while(true) {
+         pc(62288, 2, 15);
          int var1 = HL();
          int var2 = mem(var1, 62288) & -33;
          int var3 = HL();
          wMem(var3, var2, 62288);
-         pc(62290, 2);
+         pc(62290, 2, 15);
          int var4 = HL();
          int var5 = mem(var4, 62290) & -17;
          int var6 = HL();
          wMem(var6, var5, 62290);
-         pc(62292, 1);
+         pc(62292, 1, 11);
          int var7 = DE();
          int var8 = HL();
          int var9 = alu("add16", var8, var7);
          HL(var9);
-         pc(62293, 1);
+         pc(62293, 1, 10);
          int var10 = HL();
          wMem(var10, 0, 62293);
-         pc(62295, 1);
+         pc(62295, 1, 11);
          int var11 = BC();
          int var12 = HL();
          int var13 = alu("add16", var12, var11);
          HL(var13);
-         pc(62296, 1);
+         pc(62296, 1, 4);
          int var14 = A();
          int var15 = alu("dec", var14);
          A(var15);
-         pc(62297, 1);
-      } while(flag(64, true));
+         pc(62297, 1, 7);
+         if(!flag(64, true)) {
+            pc(62299, 1, 10);
+            HL(62368);
+            pc(62302, 1, 10);
+            int var16 = HL();
+            wMem(var16, 32, 62302);
+            pc(62304, 1, 6);
+            int var17 = HL();
+            int var18 = inc16(var17);
+            HL(var18);
+            pc(62305, 1, 10);
+            int var19 = HL();
+            wMem(var19, 48, 62305);
+            pc(62307, 1, 10);
+            HL(27114);
+            pc(62310, 1, 16);
+            int var20 = HL();
+            wMem16(62370, var20, 62310);
+            pc(62313, 1, 7);
+            B(8);
+            pc(62315, 1, 17);
+            $F3A4();
+            pc(62318, 1, 7);
+            A(16);
+            pc(62320, 1, 13);
+            int var21 = A();
+            wMem(62368, var21, 62320);
+            pc(62323, 1, 7);
+            B(15);
+            pc(62325, 1, 17);
+            $F3A4();
+            pc(62328, 1, 10);
+            HL(62368);
+            pc(62331, 1, 10);
+            int var22 = HL();
+            wMem(var22, 1, 62331);
+            pc(62333, 1, 6);
+            int var23 = HL();
+            int var24 = inc16(var23);
+            HL(var24);
+            pc(62334, 1, 10);
+            int var25 = HL();
+            wMem(var25, 7, 62334);
+            pc(62336, 1, 10);
+            HL(27121);
+            pc(62339, 1, 16);
+            int var26 = HL();
+            wMem16(62370, var26, 62339);
+            pc(62342, 1, 7);
+            B(2);
+            pc(62344, 1, 17);
+            $F3A4();
+            pc(62347, 1, 7);
+            A(2);
+            pc(62349, 1, 13);
+            int var27 = A();
+            wMem(62368, var27, 62349);
+            pc(62352, 1, 7);
+            B(8);
+            pc(62354, 1, 17);
+            $F3A4();
+            pc(62357, 1, 7);
+            A(4);
+            pc(62359, 1, 13);
+            int var28 = A();
+            wMem(62368, var28, 62359);
+            pc(62362, 1, 7);
+            B(4);
+            pc(62364, 1, 17);
+            $F3A4();
+            pc(62367, 1, 10);
+            return;
+         }
 
-      pc(62299, 1);
-      HL(62368);
-      pc(62302, 1);
-      int var16 = HL();
-      wMem(var16, 32, 62302);
-      pc(62304, 1);
-      int var17 = HL();
-      int var18 = inc16(var17);
-      HL(var18);
-      pc(62305, 1);
-      int var19 = HL();
-      wMem(var19, 48, 62305);
-      pc(62307, 1);
-      HL(27114);
-      pc(62310, 1);
-      int var20 = HL();
-      wMem16(62370, var20, 62310);
-      pc(62313, 1);
-      B(8);
-      pc(62315, 1);
-      $F3A4();
-      pc(62318, 1);
-      A(16);
-      pc(62320, 1);
-      int var21 = A();
-      wMem(62368, var21, 62320);
-      pc(62323, 1);
-      B(15);
-      pc(62325, 1);
-      $F3A4();
-      pc(62328, 1);
-      HL(62368);
-      pc(62331, 1);
-      int var22 = HL();
-      wMem(var22, 1, 62331);
-      pc(62333, 1);
-      int var23 = HL();
-      int var24 = inc16(var23);
-      HL(var24);
-      pc(62334, 1);
-      int var25 = HL();
-      wMem(var25, 7, 62334);
-      pc(62336, 1);
-      HL(27121);
-      pc(62339, 1);
-      int var26 = HL();
-      wMem16(62370, var26, 62339);
-      pc(62342, 1);
-      B(2);
-      pc(62344, 1);
-      $F3A4();
-      pc(62347, 1);
-      A(2);
-      pc(62349, 1);
-      int var27 = A();
-      wMem(62368, var27, 62349);
-      pc(62352, 1);
-      B(8);
-      pc(62354, 1);
-      $F3A4();
-      pc(62357, 1);
-      A(4);
-      pc(62359, 1);
-      int var28 = A();
-      wMem(62368, var28, 62359);
-      pc(62362, 1);
-      B(4);
-      pc(62364, 1);
-      $F3A4();
-      pc(62367, 1);
+         tstates(5);
+      }
    }
 
    public void $F3A4() {
-      do {
-         pc(62372, 2);
+      while(true) {
+         pc(62372, 2, 9);
          int var1 = ldAR();
          A(var1);
-         pc(62374, 1);
+         pc(62374, 1, 7);
          int var2 = A();
          int var3 = alu("and", var2, 63);
          A(var3);
-         pc(62376, 1);
+         pc(62376, 1, 7);
          int var4 = A();
          alu("cp", var4, 48);
-         pc(62378, 1);
-      } while(flag(1, true));
+         pc(62378, 1, 7);
+         if(!flag(1, true)) {
+            pc(62380, 1, 4);
+            int var5 = A();
+            C(var5);
 
-      pc(62380, 1);
-      int var5 = A();
-      C(var5);
+            while(true) {
+               pc(62381, 1, 4);
+               int var6 = C();
+               A(var6);
+               pc(62382, 1, 7);
+               int var7 = A();
+               int var8 = alu("add", var7, 17);
+               A(var8);
+               pc(62384, 1, 7);
+               int var9 = A();
+               alu("cp", var9, 48);
+               pc(62386, 1, 7);
+               if(flag(1, false)) {
+                  tstates(5);
+               } else {
+                  pc(62388, 1, 7);
+                  int var10 = A();
+                  int var11 = alu("sub", var10, 48);
+                  A(var11);
+               }
 
-      while(true) {
-         pc(62381, 1);
-         int var6 = C();
-         A(var6);
-         pc(62382, 1);
-         int var7 = A();
-         int var8 = alu("add", var7, 17);
-         A(var8);
-         pc(62384, 1);
-         int var9 = A();
-         alu("cp", var9, 48);
-         pc(62386, 1);
-         if(!flag(1, false)) {
-            pc(62388, 1);
-            int var44 = A();
-            int var45 = alu("sub", var44, 48);
-            A(var45);
-         }
+               pc(62390, 1, 4);
+               int var12 = A();
+               C(var12);
+               pc(62391, 1, 4);
+               int var13 = A();
+               int var14 = A();
+               int var15 = alu("add", var14, var13);
+               A(var15);
+               pc(62392, 1, 4);
+               int var16 = A();
+               int var17 = A();
+               int var18 = alu("add", var17, var16);
+               A(var18);
+               pc(62393, 1, 4);
+               int var19 = A();
+               L(var19);
+               pc(62394, 1, 7);
+               H(0);
+               pc(62396, 1, 4);
+               int var20 = L();
+               E(var20);
+               pc(62397, 1, 4);
+               int var21 = H();
+               D(var21);
+               pc(62398, 1, 11);
+               int var22 = HL();
+               int var23 = HL();
+               int var24 = alu("add16", var23, var22);
+               HL(var24);
+               pc(62399, 1, 11);
+               int var25 = DE();
+               int var26 = HL();
+               int var27 = alu("add16", var26, var25);
+               HL(var27);
+               pc(62400, 2, 20);
+               int var28 = mem16(62370, 62400);
+               DE(var28);
+               pc(62404, 1, 11);
+               int var29 = DE();
+               int var30 = HL();
+               int var31 = alu("add16", var30, var29);
+               HL(var31);
+               pc(62405, 2, 20);
+               int var32 = mem16(62368, 62405);
+               DE(var32);
+               pc(62409, 1, 7);
+               int var33 = HL();
+               int var34 = mem(var33, 62409);
+               A(var34);
+               pc(62410, 1, 4);
+               int var35 = D();
+               int var36 = A();
+               int var37 = alu("and", var36, var35);
+               A(var37);
+               pc(62411, 1, 7);
+               if(flag(64, true)) {
+                  tstates(5);
+               } else {
+                  pc(62413, 1, 7);
+                  int var38 = HL();
+                  int var39 = mem(var38, 62413);
+                  A(var39);
+                  pc(62414, 1, 4);
+                  int var40 = E();
+                  int var41 = A();
+                  int var42 = alu("or", var41, var40);
+                  A(var42);
+                  pc(62415, 1, 7);
+                  int var43 = A();
+                  int var44 = HL();
+                  wMem(var44, var43, 62415);
+                  pc(62416, 1, 8);
+                  int var45 = B() - 1 & 255;
+                  B(var45);
+                  if(B() == 0) {
+                     pc(62418, 1, 10);
+                     return;
+                  }
 
-         pc(62390, 1);
-         int var10 = A();
-         C(var10);
-         pc(62391, 1);
-         int var11 = A();
-         int var12 = A();
-         int var13 = alu("add", var12, var11);
-         A(var13);
-         pc(62392, 1);
-         int var14 = A();
-         int var15 = A();
-         int var16 = alu("add", var15, var14);
-         A(var16);
-         pc(62393, 1);
-         int var17 = A();
-         L(var17);
-         pc(62394, 1);
-         H(0);
-         pc(62396, 1);
-         int var18 = L();
-         E(var18);
-         pc(62397, 1);
-         int var19 = H();
-         D(var19);
-         pc(62398, 1);
-         int var20 = HL();
-         int var21 = HL();
-         int var22 = alu("add16", var21, var20);
-         HL(var22);
-         pc(62399, 1);
-         int var23 = DE();
-         int var24 = HL();
-         int var25 = alu("add16", var24, var23);
-         HL(var25);
-         pc(62400, 2);
-         int var26 = mem16(62370, 62400);
-         DE(var26);
-         pc(62404, 1);
-         int var27 = DE();
-         int var28 = HL();
-         int var29 = alu("add16", var28, var27);
-         HL(var29);
-         pc(62405, 2);
-         int var30 = mem16(62368, 62405);
-         DE(var30);
-         pc(62409, 1);
-         int var31 = HL();
-         int var32 = mem(var31, 62409);
-         A(var32);
-         pc(62410, 1);
-         int var33 = D();
-         int var34 = A();
-         int var35 = alu("and", var34, var33);
-         A(var35);
-         pc(62411, 1);
-         if(!flag(64, true)) {
-            pc(62413, 1);
-            int var36 = HL();
-            int var37 = mem(var36, 62413);
-            A(var37);
-            pc(62414, 1);
-            int var38 = E();
-            int var39 = A();
-            int var40 = alu("or", var39, var38);
-            A(var40);
-            pc(62415, 1);
-            int var41 = A();
-            int var42 = HL();
-            wMem(var42, var41, 62415);
-            pc(62416, 1);
-            int var43 = B() - 1 & 255;
-            B(var43);
-            if(B() == 0) {
-               pc(62418, 1);
-               return;
+                  tstates(5);
+               }
             }
          }
+
+         tstates(5);
       }
    }
 
    public void $F3D3() {
-      pc(62419, 1);
+      pc(62419, 1, 4);
       int var1 = A();
       L(var1);
-      pc(62420, 1);
+      pc(62420, 1, 7);
       H(0);
-      pc(62422, 1);
+      pc(62422, 1, 11);
       int var2 = HL();
       int var3 = HL();
       int var4 = alu("add16", var3, var2);
       HL(var4);
-      pc(62423, 1);
+      pc(62423, 1, 10);
       BC(27718);
-      pc(62426, 1);
+      pc(62426, 1, 11);
       int var5 = BC();
       int var6 = HL();
       int var7 = alu("add16", var6, var5);
       HL(var7);
-      pc(62427, 1);
+      pc(62427, 1, 7);
       int var8 = HL();
       int var9 = mem(var8, 62427);
       A(var9);
-      pc(62428, 1);
+      pc(62428, 1, 6);
       int var10 = HL();
       int var11 = inc16(var10);
       HL(var11);
-      pc(62429, 1);
+      pc(62429, 1, 7);
       int var12 = HL();
       int var13 = mem(var12, 62429);
       H(var13);
-      pc(62430, 1);
+      pc(62430, 1, 4);
       int var14 = A();
       L(var14);
-      pc(62431, 1);
+      pc(62431, 1, 10);
    }
 
    public void $F3E0() {
-      pc(62432, 1);
+      pc(62432, 1, 4);
       int var1 = A();
       int var2 = A();
       int var3 = alu("add", var2, var1);
       A(var3);
-      pc(62433, 1);
+      pc(62433, 1, 4);
       int var4 = A();
       E(var4);
-      pc(62434, 1);
+      pc(62434, 1, 7);
       D(0);
-      pc(62436, 1);
+      pc(62436, 1, 10);
       HL(62480);
-      pc(62439, 1);
+      pc(62439, 1, 11);
       int var5 = DE();
       int var6 = HL();
       int var7 = alu("add16", var6, var5);
       HL(var7);
-      pc(62440, 1);
+      pc(62440, 1, 7);
       int var8 = HL();
       int var9 = mem(var8, 62440);
       E(var9);
-      pc(62441, 1);
+      pc(62441, 1, 6);
       int var10 = HL();
       int var11 = inc16(var10);
       HL(var11);
-      pc(62442, 1);
+      pc(62442, 1, 7);
       int var12 = HL();
       int var13 = mem(var12, 62442);
       D(var13);
-      pc(62443, 1);
+      pc(62443, 1, 10);
    }
 
    public void $F3EC() {
-      pc(62444, 2);
+      pc(62444, 2, 19);
       int var1 = IX() + 11;
       int var2 = mem(var1, 62444);
       A(var2);
-      pc(62447, 2);
+      pc(62447, 2, 8);
       int var3 = A();
       bit(0, var3);
-      pc(62449, 1);
-      if(!flag(64, false)) {
-         pc(62451, 1);
-         C(205);
-         pc(62453, 1);
-      } else {
-         pc(62455, 2);
-         int var4 = A();
-         bit(1, var4);
-         pc(62457, 1);
-         if(!flag(64, false)) {
-            pc(62459, 1);
-            C(203);
-            pc(62461, 1);
-         } else {
-            pc(62463, 2);
-            int var5 = A();
-            bit(2, var5);
-            pc(62465, 1);
+      pc(62449, 1, 7);
+      if(flag(64, false)) {
+         tstates(5);
+         pc(62455, 2, 8);
+         int var6 = A();
+         bit(1, var6);
+         pc(62457, 1, 7);
+         if(flag(64, false)) {
+            tstates(5);
+            pc(62463, 2, 8);
+            int var7 = A();
+            bit(2, var7);
+            pc(62465, 1, 5);
             if(flag(64, false)) {
+               tstates(6);
                return;
             }
 
-            pc(62466, 1);
+            pc(62466, 1, 7);
             C(204);
+         } else {
+            pc(62459, 1, 7);
+            C(203);
+            pc(62461, 1, 12);
          }
+      } else {
+         pc(62451, 1, 7);
+         C(205);
+         pc(62453, 1, 12);
       }
 
-      pc(62468, 1);
-      int var6 = B();
-      A(var6);
-      pc(62469, 1);
+      pc(62468, 1, 4);
+      int var4 = B();
+      A(var4);
+      pc(62469, 1, 17);
       $F3E0();
-      pc(62472, 1);
-      int var7 = C();
-      A(var7);
-      pc(62473, 1);
+      pc(62472, 1, 4);
+      int var5 = C();
+      A(var5);
+      pc(62473, 1, 17);
       $F3D3();
-      pc(62476, 1);
+      pc(62476, 1, 17);
       $E84E();
-      pc(62479, 1);
+      pc(62479, 1, 10);
    }
 
    public void $F470() {
-      pc(62576, 1);
+      pc(62576, 1, 7);
       int var1 = HL();
       int var2 = mem(var1, 62576);
       B(var2);
 
-      do {
-         pc(62577, 1);
+      while(true) {
+         pc(62577, 1, 11);
          int var3 = BC();
          push(var3);
-         pc(62578, 1);
+         pc(62578, 1, 6);
          int var4 = HL();
          int var5 = inc16(var4);
          HL(var5);
-         pc(62579, 1);
+         pc(62579, 1, 7);
          int var6 = HL();
          int var7 = mem(var6, 62579);
          A(var7);
-         pc(62580, 1);
+         pc(62580, 1, 6);
          int var8 = HL();
          int var9 = inc16(var8);
          HL(var9);
-         pc(62581, 1);
+         pc(62581, 1, 7);
          int var10 = HL();
          int var11 = mem(var10, 62581);
          B(var11);
-         pc(62582, 1);
+         pc(62582, 1, 6);
          int var12 = HL();
          int var13 = inc16(var12);
          HL(var13);
-         pc(62583, 1);
+         pc(62583, 1, 7);
          int var14 = HL();
          int var15 = mem(var14, 62583);
          C(var15);
-         pc(62584, 1);
+         pc(62584, 1, 6);
          int var16 = HL();
          int var17 = inc16(var16);
          HL(var17);
-         pc(62585, 1);
+         pc(62585, 1, 7);
          int var18 = HL();
          int var19 = mem(var18, 62585);
          E(var19);
-         pc(62586, 1);
+         pc(62586, 1, 6);
          int var20 = HL();
          int var21 = inc16(var20);
          HL(var21);
-         pc(62587, 1);
+         pc(62587, 1, 7);
          int var22 = HL();
          int var23 = mem(var22, 62587);
          D(var23);
-         pc(62588, 1);
+         pc(62588, 1, 11);
          int var24 = HL();
          push(var24);
-         pc(62589, 1);
+         pc(62589, 1, 17);
          $E8BA();
-         pc(62592, 1);
+         pc(62592, 1, 10);
          int var25 = pop();
          HL(var25);
-         pc(62593, 1);
+         pc(62593, 1, 10);
          int var26 = pop();
          BC(var26);
-         pc(62594, 1);
+         pc(62594, 1, 8);
          int var27 = B() - 1 & 255;
          B(var27);
-      } while(B() != 0);
+         if(B() == 0) {
+            pc(62596, 1, 10);
+            return;
+         }
 
-      pc(62596, 1);
+         tstates(5);
+      }
    }
 }
