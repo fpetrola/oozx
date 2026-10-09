@@ -27,6 +27,12 @@
       "recording": "/home/fernando/detodo/spectrum/rzx-top/4087/target.rzx",
       "entry": "BFBF"
     },
+    "batman": {
+      "title": "Batman The Movie (128K)",
+      "type": "Batman",
+      "recording": "/home/fernando/detodo/spectrum/rzx-archive/batman.rzx",
+      "entry": "5F9F"
+    },
     "rtype": {
       "title": "R-Type",
       "type": "RType",
