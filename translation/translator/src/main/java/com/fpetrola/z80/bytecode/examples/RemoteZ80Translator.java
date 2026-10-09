@@ -146,7 +146,8 @@ public class RemoteZ80Translator {
 
     private Footprint forgettingJumpsIntoData() {
       Set<Integer> interiors = interiors(code());
-      learned.dynamicInvocation.entries().stream().filter(jump -> interiors.contains(jump.getValue())).toList().forEach(jump -> learned.dynamicInvocation.removeMapping(jump.getKey(), jump.getValue()));
+      learned.dynamicInvocation.entries().stream().filter(jump -> interiors.contains(jump.getValue()) && bankedCode.values().stream().noneMatch(banked -> banked.instructions().containsKey(jump.getKey())))
+          .toList().forEach(jump -> learned.dynamicInvocation.removeMapping(jump.getKey(), jump.getValue()));
       return this;
     }
 
