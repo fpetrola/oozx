@@ -816,6 +816,17 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aPlantedContinuationIsPushedForRealWhenTheStackIsReadByAddress() {
+    // Skool Daze 6AE5: the planted 6AD7 sits between the main loop's 6779 and the handlers' frames that the random number walk reads
+    translate(
+        at(0x8000, 0xCD, 0x30, 0x80, 0x21, 0x30, 0x80, 0xCD, 0x10, 0x80, 0x3A, 0xFC, 0xFE, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x01, 0x17, 0x80, 0xC5, 0xE5, 0xC9, 0x00, 0x3E, 0x05, 0xC9),
+        at(0x8030, 0xC9));
+    Assert.assertTrue(stackAnalyzer.observesStackLayout());
+    Assert.assertEquals(0x17, endValue("A"));
+  }
+
+  @Test
   public void aReturnAddressReadByAddressKeepsItsCallPushingIt() {
     // Skool Daze 61AA: the random number generator walks memory with XOR (HL) and reads 5CFD, the high byte of the main loop's return address 6779
     translate(

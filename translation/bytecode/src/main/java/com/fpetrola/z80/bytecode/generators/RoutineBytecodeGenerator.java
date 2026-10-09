@@ -596,7 +596,7 @@ public class RoutineBytecodeGenerator {
 
   public Integer plantedContinuation(int push) {
     Collection<Integer> values = stackAnalyzer().pushedValues.get(push);
-    if (!stackAnalyzer().dataConsumedBy.containsValue(push) || stackAnalyzer().pushesTakenByPops.contains(push) || !context.routineManager.plantsAContinuation(push, values))
+    if (!stackAnalyzer().dataConsumedBy.containsValue(push) || stackAnalyzer().pushesTakenByPops.contains(push) || stackAnalyzer().observesStackLayout() || !context.routineManager.plantsAContinuation(push, values))
       return null;
     int value = values.iterator().next();
     Routine target = context.routineManager.findRoutineAt(value);

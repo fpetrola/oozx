@@ -86,7 +86,7 @@ public class StackAnalyzer implements java.io.Serializable {
   private final transient TreeMap<Integer, Frame> frames = new TreeMap<>();
   private final transient Map<Integer, Frame> depthDependentSlots = new HashMap<>();
   private final transient BitSet stackWritten = new BitSet(0x10000);
-  private transient int lowestObservedStackSlot = 0x10000;
+  private int lowestObservedStackSlot = 0x10000;
   private final transient MemoryWriteListener forgetOverwritten = (address, value) -> {
     entries.remove(address);
     entries.remove((address - 1) & 0xFFFF);
@@ -105,6 +105,10 @@ public class StackAnalyzer implements java.io.Serializable {
         observeStackFrom(address - 1 & 0xffff);
     }
   };
+
+  public boolean observesStackLayout() {
+    return lowestObservedStackSlot < 0x10000;
+  }
 
   /** The call site an accepted interrupt stands for in the stack facts. */
   public static final int INTERRUPT = -2;
@@ -565,6 +569,7 @@ public class StackAnalyzer implements java.io.Serializable {
     nonLocalRets.putAll(recorded.nonLocalRets);
     returnSlots.putAll(recorded.returnSlots);
     layoutCallSites.addAll(recorded.layoutCallSites);
+    lowestObservedStackSlot = Math.min(lowestObservedStackSlot, recorded.lowestObservedStackSlot);
   }
 
   public void learnFromForks(StackAnalyzer forked, Set<Integer> recordedSites) {
