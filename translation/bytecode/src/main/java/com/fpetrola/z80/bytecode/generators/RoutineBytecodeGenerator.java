@@ -460,7 +460,23 @@ public class RoutineBytecodeGenerator {
   }
 
   public void jumpInto(int target) {
-    int address = inOwnBank(target);
+    inPagedBank(target, this::enter);
+  }
+
+  /** From code outside the paged window, a target where another bank has code is reached at that bank's copy while the bank is paged; code relocated out of a bank always reaches its own copy. */
+  public void inPagedBank(int target, java.util.function.IntConsumer reach) {
+    Label done = mm.label();
+    List<RoutineManager.CodeVariant> banked = inOwnBank(target) == target && routine.getEntryPoint() < com.fpetrola.z80.memory.MemoryBanks.WINDOW ? context.routineManager.bankVariantsAt(target) : List.of();
+    Variable bank = banked.isEmpty() ? null : mm.invoke("bank");
+    banked.forEach(variant -> bank.ifEq(variant.bank(), () -> {
+      reach.accept(variant.relocated(target));
+      done.goto_();
+    }));
+    reach.accept(inOwnBank(target));
+    done.here();
+  }
+
+  private void enter(int address) {
     Routine owner = context.routineManager.findRoutineAt(address);
     if (owner != null && context.routineManager.isEnteredFromOutside(owner, address)) {
       mm.invoke("setNextAddress", address);
@@ -471,7 +487,6 @@ public class RoutineBytecodeGenerator {
       mm.invoke("untranslated", address);
   }
 
-  /** Code relocated out of a bank reaches the rest of that bank's code at its relocated copy. */
   private int inOwnBank(int address) {
     return context.routineManager.bankVariantsAt(address).stream().filter(v -> routine.getEntryPoint() >= v.relocatedAt() && routine.getEntryPoint() < v.relocated(v.end())).findFirst().map(v -> v.relocated(address)).orElse(address);
   }

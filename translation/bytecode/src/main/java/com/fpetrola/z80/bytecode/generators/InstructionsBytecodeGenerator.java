@@ -407,39 +407,29 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
       if (pushes)
         methodMaker.invoke("push", returnAddress);
       Variable pushedAt = pushes ? methodMaker.invoke("SP") : null;
-      Label done = methodMaker.label();
-      List<RoutineManager.CodeVariant> banked = routineByteCodeGenerator.context.routineManager.bankVariantsAt(jumpLabel);
-      if (!banked.isEmpty()) {
-        Variable bank = methodMaker.invoke("bank");
-        banked.forEach(variant -> bank.ifEq(variant.bank(), () -> {
-          routineByteCodeGenerator.invokeTransformedMethod(variant.relocated(jumpLabel));
+      routineByteCodeGenerator.inPagedBank(jumpLabel, address -> {
+        if (routineByteCodeGenerator.context.routineManager.findRoutineAt(address) != null) {
+          routineByteCodeGenerator.invokeTransformedMethod(address);
           if (pushes)
             returnedFrom(pushedAt, callSite);
-          done.goto_();
-        }));
-      }
-      if (routineByteCodeGenerator.context.routineManager.findRoutineAt(jumpLabel) != null) {
-        routineByteCodeGenerator.invokeTransformedMethod(jumpLabel);
-        if (pushes)
-          returnedFrom(pushedAt, callSite);
-      }
-      else if (trampoline != null) {
-        routineByteCodeGenerator.invokePc(jumpLabel, trampoline == RegisterName.HL ? 1 : 2, trampoline == RegisterName.HL ? 4 : 8);
-        Variable target = methodMaker.invoke(trampoline.name());
-        Label called = methodMaker.label();
-        stackAnalyzer.calledThrough.get(callSite).stream().sorted().filter(c -> {
-          Routine callee = routineByteCodeGenerator.context.routineManager.findRoutineAt(c);
-          return callee != null && callee.getEntryPoint() == c;
-        }).forEach(c -> target.ifEq(c, () -> {
-          routineByteCodeGenerator.invokeTransformedMethod(c);
-          methodMaker.goto_(called);
-        }));
-        methodMaker.invoke("jump", target);
-        called.here();
-      }
-      else
-        methodMaker.invoke("untranslated", jumpLabel);
-      done.here();
+        }
+        else if (trampoline != null) {
+          routineByteCodeGenerator.invokePc(jumpLabel, trampoline == RegisterName.HL ? 1 : 2, trampoline == RegisterName.HL ? 4 : 8);
+          Variable target = methodMaker.invoke(trampoline.name());
+          Label called = methodMaker.label();
+          stackAnalyzer.calledThrough.get(callSite).stream().sorted().filter(c -> {
+            Routine callee = routineByteCodeGenerator.context.routineManager.findRoutineAt(c);
+            return callee != null && callee.getEntryPoint() == c;
+          }).forEach(c -> target.ifEq(c, () -> {
+            routineByteCodeGenerator.invokeTransformedMethod(c);
+            methodMaker.goto_(called);
+          }));
+          methodMaker.invoke("jump", target);
+          called.here();
+        }
+        else
+          methodMaker.invoke("untranslated", jumpLabel);
+      });
     });
     return true;
   }
