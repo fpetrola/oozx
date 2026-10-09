@@ -282,9 +282,12 @@ public class RemoteZ80Translator {
         MemoryBanks banks = ((MockedMemory) emulator[0].ooz80.getState().getMemory()).banks;
         if (starting && banks != null)
           startingBank[0] = banks.bank();
+        int[] bytes = new int[instruction.getLength()];
+        for (int i = 0; i < bytes.length; i++)
+          bytes[i] = memory[address + i & 0xffff];
         if (address >= MemoryBanks.WINDOW && banks != null && banks.bank() != startingBank[0]) {
           BankedCode banked = bankedCode.computeIfAbsent(banks.bank(), bank -> new BankedCode(new HashMap<>(), new HashSet<>(), null));
-          int[] bytes = Arrays.copyOfRange(memory, address, address + instruction.getLength()), seen = banked.instructions().putIfAbsent(address, bytes);
+          int[] seen = banked.instructions().putIfAbsent(address, bytes);
           for (int i = 0; seen != null && i < bytes.length; i++)
             if (seen[i] != bytes[i])
               banked.modified().add(address + i);
@@ -302,9 +305,6 @@ public class RemoteZ80Translator {
         pendingAddress[0] = address;
         for (int slot = emulator[0].ooz80.getState().getRegisterSP().read(); starting && slot < 0x10000 - 1 && externalEntries.size() < 10; slot += 2)
           externalEntries.add(memory[slot] | memory[slot + 1] << 8);
-        int[] bytes = new int[instruction.getLength()];
-        for (int i = 0; i < bytes.length; i++)
-          bytes[i] = memory[address + i & 0xffff];
         recordVersion(codeBytes, versions, address, bytes);
         patched.addAll(CodeVersions.fixedStoreTargets(address, instruction, memory));
       }
