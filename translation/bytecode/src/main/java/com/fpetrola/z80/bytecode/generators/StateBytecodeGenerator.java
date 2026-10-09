@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.bytecode.generators;
 
+import com.fpetrola.z80.transformations.StackAnalyzer;
 import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.bytecode.generators.helpers.BytecodeGenerationContext;
 import com.fpetrola.z80.cpu.State;
@@ -86,6 +87,8 @@ public class StateBytecodeGenerator {
         bytes = bytes.invoke("concat", base64Memory.substring(from, Math.min(from + 60000, base64Memory.length())));
       getProgramBytesMaker.return_(bytes);
     }
+    if (symbolicExecutionAdapter.getStackAnalyzer().layoutCallSites.contains(StackAnalyzer.INTERRUPT))
+      classMaker.addMethod(boolean.class, "pushesInterruptReturns").public_().return_(true);
 
     BytecodeGenerationContext bytecodeGenerationContext = new BytecodeGenerationContext(routineManager, classMaker, state.getPc(), symbolicExecutionAdapter, gameData, !translation);
 

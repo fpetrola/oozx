@@ -159,8 +159,21 @@ public abstract class MiniZX extends SpectrumApplication {
     R = R & 0x80 | R + 1 & 0x7f;
     tstates += interruptMode == 2 ? 19 : 13;
     enteringHandler = true;
-    invokeMethod(interruptMode == 2 ? mem[vector] | mem[vector + 1 & 0xffff] << 8 : 0x38);
+    int handler = interruptMode == 2 ? mem[vector] | mem[vector + 1 & 0xffff] << 8 : 0x38;
+    if (pushesInterruptReturns()) {
+      push(PC);
+      int sp = SP;
+      invokeMethod(handler);
+      if (SP == sp)
+        pop();
+    } else
+      invokeMethod(handler);
     interrupts++;
+  }
+
+  /** Whether the translated program reads the stack where the interrupted PC goes, so the Java pushes it like the Z80. */
+  public boolean pushesInterruptReturns() {
+    return false;
   }
 
   public void init() {

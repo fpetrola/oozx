@@ -778,6 +778,21 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void anInterruptReturnReadByAddressIsPushedByTheTranslatedInterruptToo() {
+    // Skool Daze 61AA: the random number walk also reads what the ROM ISR left below SP, laid out after the interrupted PC the Z80 pushed
+    interruptEvery = 6;
+    int[] table = new int[1 + 257];
+    table[0] = 0x9000;
+    Arrays.fill(table, 1, table.length, 0x80);
+    translate(
+        at(0x8000, 0x3E, 0x90, 0xED, 0x47, 0xED, 0x5E, 0xFB, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF3, 0x3A, 0xFF, 0xFE, 0x76, 0x18, 0xFD),
+        at(0x8080, 0xF5, 0xF1, 0xED, 0x4D),
+        table);
+    Assert.assertTrue(stackAnalyzer.layoutCallSites.contains(StackAnalyzer.INTERRUPT));
+    Assert.assertEquals(0x80, endValue("A"));
+  }
+
+  @Test
   public void aReturnAddressReadByAddressKeepsItsCallPushingIt() {
     // Skool Daze 61AA: the random number generator walks memory with XOR (HL) and reads 5CFD, the high byte of the main loop's return address 6779
     translate(

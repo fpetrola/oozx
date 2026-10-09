@@ -85,20 +85,47 @@ public class StackAnalyzer implements java.io.Serializable {
 
   private final transient TreeMap<Integer, Frame> frames = new TreeMap<>();
   private final transient Map<Integer, Frame> depthDependentSlots = new HashMap<>();
+  private final transient BitSet stackWritten = new BitSet(0x10000);
+  private transient int lowestObservedStackSlot = 0x10000;
   private final transient MemoryWriteListener forgetOverwritten = (address, value) -> {
     entries.remove(address);
     entries.remove((address - 1) & 0xFFFF);
     depthDependentSlots.remove(address);
     depthDependentSlots.remove(address - 1 & 0xffff);
+    stackWritten.clear(address);
   };
   public final Set<Integer> layoutCallSites = new HashSet<>();
   private int spLoadedFrom = -1;
   private boolean readingStack;
   private final transient MemoryReadListener readByAddress = (address, value, fetching) -> {
-    if (collecting && fetching == 0 && !readingStack && (address - spLoadedFrom & 0xffff) > 1)
+    if (collecting && fetching == 0 && !readingStack && (address - spLoadedFrom & 0xffff) > 1) {
       for (Frame frame = depthDependentSlots.containsKey(address) ? depthDependentSlots.get(address) : depthDependentSlots.get(address - 1 & 0xffff); frame != null; frame = frame.enclosing())
         layoutCallSites.add(frame.callSite());
+      if (stackWritten.get(address))
+        observeStackFrom(address - 1 & 0xffff);
+    }
   };
+
+  /** The call site an accepted interrupt stands for in the stack facts. */
+  public static final int INTERRUPT = -2;
+
+  public void interrupted() {
+    int sp = state.getRegisterSP().read();
+    if (collecting) {
+      returnSlots.put(sp, INTERRUPT);
+      if (sp >= lowestObservedStackSlot)
+        layoutCallSites.add(INTERRUPT);
+    }
+    stackWritten.set(sp, sp + 2);
+  }
+
+  /** Stack bytes read by address come from whichever calls were stacked above them when written: every call whose return went there keeps it. */
+  private void observeStackFrom(int slot) {
+    if (slot < lowestObservedStackSlot) {
+      lowestObservedStackSlot = slot;
+      returnSlots.entries().stream().filter(e -> e.getKey() >= slot).forEach(e -> layoutCallSites.add(e.getValue()));
+    }
+  }
 
   public StackAnalyzer(State state) {
     reset(state);
@@ -466,10 +493,12 @@ public class StackAnalyzer implements java.io.Serializable {
       returnSlots.put(sp, entry.pc());
     if (!returnAddress)
       pushedValues.put(entry.pc(), entry.value());
-    Frame enclosing = enclosingFrame(sp + 2);
     if (returnAddress && entry.pc() != -1)
-      frames.put(sp, enclosing = new Frame(entry.pc(), enclosing));
-    dependsOnDepth(sp, enclosing);
+      frames.put(sp, new Frame(entry.pc(), enclosingFrame(sp + 2)));
+    if (!stackAsRepository.active)
+      stackWritten.set(sp, sp + 2);
+    if (returnAddress && collecting && entry.pc() != -1 && sp >= lowestObservedStackSlot)
+      layoutCallSites.add(entry.pc());
   }
 
   private Frame enclosingFrame(int from) {
@@ -512,6 +541,8 @@ public class StackAnalyzer implements java.io.Serializable {
     layoutCallSites.clear();
     frames.clear();
     depthDependentSlots.clear();
+    stackWritten.clear();
+    lowestObservedStackSlot = 0x10000;
     learnedFromRecording = false;
     codeVersions = new CodeVersions();
   }

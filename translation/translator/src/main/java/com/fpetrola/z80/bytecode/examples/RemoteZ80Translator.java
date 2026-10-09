@@ -290,8 +290,10 @@ public class RemoteZ80Translator {
       }
 
       public void interruptedTo(int vector) {
-        if (started[0])
+        if (started[0]) {
           (vector < 0x4000 ? romEntries : externalEntries).add(vector);
+          stackAnalyzer.interrupted();
+        }
       }
     });
     play(emulator[0]);
