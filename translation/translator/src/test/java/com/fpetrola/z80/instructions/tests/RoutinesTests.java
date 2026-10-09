@@ -549,14 +549,15 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               label20: {
                  try {
                     this.$6();
-                 } catch (StackException var2) {
-                    if(var2.getNextPC() == 11) {
+                 } catch (StackException var3) {
+                    int[] var2 = new int[]{11};
+                    if(this.ownAddress(var3, var2) == 11) {
                        this.HL(2);
                        super.A = 6;
                        break label20;
                     }
 
-                    throw var2;
+                    return;
                  }
 
                  super.C = 3;
@@ -633,15 +634,16 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               label20: {
                  try {
                     this.$6();
-                 } catch (StackException var2) {
-                    if(var2.getNextPC() == 17) {
+                 } catch (StackException var3) {
+                    int[] var2 = new int[]{17};
+                    if(this.ownAddress(var3, var2) == 17) {
                        this.HL(2);
                        super.A = 61;
                        super.B = 62;
                        break label20;
                     }
 
-                    throw var2;
+                    return;
                  }
 
                  super.C = 3;
@@ -656,12 +658,11 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
               try {
                  this.$11();
-              } catch (StackException var2) {
-                 if(var2.getNextPC() == 16) {
+              } catch (StackException var3) {
+                 int[] var2 = new int[]{16};
+                 if(this.ownAddress(var3, var2) == 16) {
                     this.HL(8);
                     throw new StackException(17);
-                 } else {
-                    throw var2;
                  }
               }
            }
@@ -749,13 +750,14 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                  label37: {
                     try {
                        this.$7();
-                    } catch (StackException var4) {
-                       if(var4.getNextPC() == 19) {
+                    } catch (StackException var6) {
+                       int[] var2 = new int[]{19};
+                       if(this.ownAddress(var6, var2) == 19) {
                           this.HL(2);
                           break label37;
                        }
 
-                       throw var4;
+                       return;
                     }
 
                     super.C = 2;
@@ -763,9 +765,10 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                     try {
                        this.$22();
                        break label33;
-                    } catch (StackException var3) {
-                       if(var3.getNextPC() != 19) {
-                          throw var3;
+                    } catch (StackException var5) {
+                       int[] var4 = new int[]{19};
+                       if(this.ownAddress(var5, var4) != 19) {
+                          return;
                        }
 
                        this.HL(4);
@@ -789,13 +792,12 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                     this.$13();
                  }
 
-              } catch (StackException var2) {
-                 if(var2.getNextPC() == 17) {
+              } catch (StackException var3) {
+                 int[] var2 = new int[]{17};
+                 if(this.ownAddress(var3, var2) == 17) {
                     this.HL(10);
                     super.E = 71;
                     throw new StackException(19);
-                 } else {
-                    throw var2;
                  }
               }
            }
@@ -882,14 +884,15 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               label20: {
                  try {
                     this.$7();
-                 } catch (StackException var2) {
-                    if(var2.getNextPC() == 17) {
+                 } catch (StackException var3) {
+                    int[] var2 = new int[]{17};
+                    if(this.ownAddress(var3, var2) == 17) {
                        this.HL(3);
                        super.A = 6;
                        break label20;
                     }
 
-                    throw var2;
+                    return;
                  }
 
                  super.C = 3;

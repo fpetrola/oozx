@@ -240,9 +240,13 @@ public class RoutineBytecodeGenerator {
         int continuation = stackAnalyzer().callContinuations.getOrDefault(key, context.routineManager.addressAfter(key));
         Label tryEnd = routine.contains(continuation) ? getLabel(continuation) : labelsAfterLeavingCalls.get(key);
         var e = mm.catch_(tryStart, tryEnd, StackException.class);
-        Variable nextAddress = e.invoke("getNextPC");
-
         Collection<Integer> integers = catchPoints.get(key);
+        Variable points = mm.new_(int[].class, integers.size());
+        int slot = 0;
+        for (int point : integers)
+          points.aset(slot++, point);
+        Variable nextAddress = mm.invoke("ownAddress", e, points);
+
         integers.forEach(i -> {
           nextAddress.ifEq(i, () -> {
             loadPoppedReturnAddress(i, key);
@@ -262,7 +266,7 @@ public class RoutineBytecodeGenerator {
               tailJump(i, -1);
           });
         });
-        e.throw_();
+        returnFromMethod();
       });
 
       List<Integer> droppedPoints = new ArrayList<>(new HashSet<>(returnPointsDropped));

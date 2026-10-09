@@ -34,6 +34,12 @@ public class RType extends MiniZX {
          case 48734:
             var2 = this.$BE5E();
             break;
+         case 48987:
+            var2 = this.$BF5B();
+            break;
+         case 48992:
+            var2 = this.$BF60();
+            break;
          case 63894:
             var2 = this.$F996();
             break;
@@ -52,24 +58,24 @@ public class RType extends MiniZX {
    public void $73BC() {
       this.pc(29628, 1, 7);
       this.A(1);
-      this.setNextAddress(29630);
-      this.$73C2();
+      this.$73BE();
    }
 
-   public void $73C2() {
-      if(!this.isNextPC(29630)) {
-         this.pc(29634, 1, 4);
-         int var2 = this.A();
-         int var3 = this.A();
-         int var4 = this.alu("xor", var3, var2);
-         this.A(var4);
-         this.pc(29635, 1, 12);
-      }
-
+   public void $73BE() {
       this.pc(29630, 1, 13);
       int var1 = this.A();
       this.wMem('\ube62', var1, 29630);
       this.pc(29633, 1, 10);
+   }
+
+   public void $73C2() {
+      this.pc(29634, 1, 4);
+      int var1 = this.A();
+      int var2 = this.A();
+      int var3 = this.alu("xor", var2, var1);
+      this.A(var3);
+      this.pc(29635, 1, 12);
+      this.$73BE();
    }
 
    public void $73C5() {
@@ -379,9 +385,10 @@ public class RType extends MiniZX {
                try {
                   this.pc(30678, 1, 17);
                   this.$BF92();
-               } catch (StackException var23) {
-                  if(var23.getNextPC() != '\uc041') {
-                     throw var23;
+               } catch (StackException var25) {
+                  int[] var4 = new int[]{'\uc041'};
+                  if(this.ownAddress(var25, var4) != '\uc041') {
+                     return;
                   }
 
                   this.BC(30681);
@@ -399,20 +406,20 @@ public class RType extends MiniZX {
                this.pc(30693, 2, 21);
                this.ldir(30693);
                this.pc(30695, 1, 10);
-               int var6 = this.pop();
-               this.BC(var6);
+               int var7 = this.pop();
+               this.BC(var7);
                this.pc(30696, 1, 6);
-               int var7 = this.BC();
-               int var8 = this.dec16(var7);
-               this.BC(var8);
+               int var8 = this.BC();
+               int var9 = this.dec16(var8);
+               this.BC(var9);
                this.pc(30697, 1, 4);
-               int var9 = this.B();
-               this.A(var9);
+               int var10 = this.B();
+               this.A(var10);
                this.pc(30698, 1, 4);
-               int var10 = this.C();
-               int var11 = this.A();
-               int var12 = this.alu("or", var11, var10);
-               this.A(var12);
+               int var11 = this.C();
+               int var12 = this.A();
+               int var13 = this.alu("or", var12, var11);
+               this.A(var13);
                this.pc(30699, 1, 7);
                if(this.flag(64, true)) {
                   this.tstates(5);
@@ -426,36 +433,37 @@ public class RType extends MiniZX {
 
                while(true) {
                   this.pc(30706, 1, 11);
-                  int var13 = this.BC();
-                  this.push(var13);
+                  int var14 = this.BC();
+                  this.push(var14);
 
                   try {
                      this.pc(30707, 1, 17);
                      this.$C011();
-                  } catch (StackException var22) {
-                     if(var22.getNextPC() == '\uc041') {
+                  } catch (StackException var24) {
+                     int[] var16 = new int[]{'\uc041'};
+                     if(this.ownAddress(var24, var16) == '\uc041') {
                         this.BC(30710);
                         break;
                      }
 
-                     throw var22;
+                     return;
                   }
 
                   this.pc(30710, 1, 10);
-                  int var15 = this.pop();
-                  this.BC(var15);
-                  this.pc(30711, 1, 6);
-                  int var16 = this.BC();
-                  int var17 = this.dec16(var16);
+                  int var17 = this.pop();
                   this.BC(var17);
+                  this.pc(30711, 1, 6);
+                  int var18 = this.BC();
+                  int var19 = this.dec16(var18);
+                  this.BC(var19);
                   this.pc(30712, 1, 4);
-                  int var18 = this.B();
-                  this.A(var18);
+                  int var20 = this.B();
+                  this.A(var20);
                   this.pc(30713, 1, 4);
-                  int var19 = this.C();
-                  int var20 = this.A();
-                  int var21 = this.alu("or", var20, var19);
-                  this.A(var21);
+                  int var21 = this.C();
+                  int var22 = this.A();
+                  int var23 = this.alu("or", var22, var21);
+                  this.A(var23);
                   this.pc(30714, 1, 7);
                   if(!this.flag(64, true)) {
                      this.pc(30716, 1, 10);
@@ -467,11 +475,11 @@ public class RType extends MiniZX {
             }
 
             this.pc('\uc041', 1, 10);
-            int var4 = this.pop();
-            this.BC(var4);
+            int var5 = this.pop();
+            this.BC(var5);
             this.pc('\uc042', 1, 13);
-            int var5 = this.A();
-            this.wMem(29947, var5, '\uc042');
+            int var6 = this.A();
+            this.wMem(29947, var6, '\uc042');
             this.pc('\uc045', 1, 10);
             this.HL(6531);
             this.pc('\uc048', 1, 17);
@@ -819,27 +827,28 @@ public class RType extends MiniZX {
                try {
                   this.pc('\u864d', 1, 17);
                   this.$924B();
-               } catch (StackException var23) {
-                  int var6 = var23.getNextPC();
-                  if(var6 == '\u928e') {
+               } catch (StackException var24) {
+                  int[] var6 = new int[]{'\u928e', '\u92c2'};
+                  int var7 = this.ownAddress(var24, var6);
+                  if(var7 == '\u928e') {
                      this.DE('\u8650');
                      this.pc('\u928e', 1, 13);
-                     int var7 = this.mem(29387, '\u928e');
-                     this.A(var7);
+                     int var8 = this.mem(29387, '\u928e');
+                     this.A(var8);
                      this.pc('\u9291', 1, 7);
-                     int var8 = this.A();
-                     this.alu("cp", var8, 49);
+                     int var9 = this.A();
+                     this.alu("cp", var9, 49);
                      this.pc('\u9293', 1, 7);
                      if(this.flag(64, false)) {
                         this.tstates(5);
                      } else {
                         this.pc('\u9295', 1, 4);
-                        int var9 = this.A();
-                        int var10 = this.alu("dec", var9);
-                        this.A(var10);
+                        int var10 = this.A();
+                        int var11 = this.alu("dec", var10);
+                        this.A(var11);
                         this.pc('\u9296', 1, 13);
-                        int var11 = this.A();
-                        this.wMem(29387, var11, '\u9296');
+                        int var12 = this.A();
+                        this.wMem(29387, var12, '\u9296');
                         this.pc('\u9299', 1, 17);
                         this.$8BE8();
                         this.pc('\u929c', 1, 7);
@@ -856,30 +865,30 @@ public class RType extends MiniZX {
                      this.pc('\u92a4', 1, 10);
                      this.HL(29387);
                      this.pc('\u92a7', 1, 10);
-                     int var12 = this.HL();
-                     this.wMem(var12, 53, '\u92a7');
+                     int var13 = this.HL();
+                     this.wMem(var13, 53, '\u92a7');
                      this.pc('\u92a9', 1, 4);
-                     int var13 = this.A();
                      int var14 = this.A();
-                     int var15 = this.alu("xor", var14, var13);
-                     this.A(var15);
+                     int var15 = this.A();
+                     int var16 = this.alu("xor", var15, var14);
+                     this.A(var16);
                      this.pc('\u92aa', 1, 13);
-                     int var16 = this.A();
-                     this.wMem(29137, var16, '\u92aa');
+                     int var17 = this.A();
+                     this.wMem(29137, var17, '\u92aa');
                      this.pc('\u92ad', 1, 10);
                      this.HL(29084);
                      this.pc('\u92b0', 1, 7);
-                     int var17 = this.HL();
-                     int var18 = this.mem(var17, '\u92b0');
-                     this.A(var18);
+                     int var18 = this.HL();
+                     int var19 = this.mem(var18, '\u92b0');
+                     this.A(var19);
                      this.pc('\u92b1', 1, 7);
-                     int var19 = this.A();
-                     this.alu("cp", var19, 49);
+                     int var20 = this.A();
+                     this.alu("cp", var20, 49);
                      this.pc('\u92b3', 1, 10);
                      if(!this.flag(64, false)) {
                         this.pc('\u92b6', 1, 10);
-                        int var20 = this.HL();
-                        this.wMem(var20, 48, '\u92b6');
+                        int var21 = this.HL();
+                        this.wMem(var21, 48, '\u92b6');
                         this.pc('\u92b8', 1, 17);
                         this.$FE03();
                         this.pc('\u92bb', 1, 10);
@@ -887,8 +896,8 @@ public class RType extends MiniZX {
                      continue label53;
                   }
 
-                  if(var6 != '\u92c2') {
-                     throw var23;
+                  if(var7 != '\u92c2') {
+                     return;
                   }
 
                   this.DE('\u8650');
@@ -940,11 +949,11 @@ public class RType extends MiniZX {
 
                while(true) {
                   this.pc('\u868c', 1, 13);
-                  int var21 = this.mem(31370, '\u868c');
-                  this.A(var21);
+                  int var22 = this.mem(31370, '\u868c');
+                  this.A(var22);
                   this.pc('\u868f', 1, 7);
-                  int var22 = this.A();
-                  this.alu("cp", var22, 3);
+                  int var23 = this.A();
+                  this.alu("cp", var23, 3);
                   this.pc('\u8691', 1, 7);
                   if(!this.flag(1, false)) {
                      this.pc('\u8693', 1, 10);
@@ -1075,7 +1084,7 @@ public class RType extends MiniZX {
             int var19 = this.alu("xor", var18, var17);
             this.A(var19);
             this.pc('\u86f6', 1, 11);
-            int var20 = this.A() << 8 | '\ua2fe';
+            int var20 = this.A() << 8 | 254;
             int var21 = this.A();
             this.out(var20, var21);
             this.pc('\u86f8', 1, 13);
@@ -1760,7 +1769,7 @@ public class RType extends MiniZX {
       this.pc('\u8842', 2, 14);
       this.IX('\u8080');
 
-      label1527:
+      label1557:
       while(true) {
          this.pc('\u8846', 2, 19);
          int var1 = this.IX() + 3;
@@ -1844,7 +1853,7 @@ public class RType extends MiniZX {
                   this.A(var29);
                   this.pc('\u886c', 1, 10);
                   if(this.flag(64, false)) {
-                     continue label1527;
+                     continue label1557;
                   }
 
                   this.pc('\u886f', 1, 7);
@@ -2157,6 +2166,37 @@ public class RType extends MiniZX {
                                                                                                    this.jump(var212);
                                                                                                    return;
                                                                                                 }
+
+                                                                                                this.pc('\u893e', 2, 15);
+                                                                                                var362 = this.HL();
+                                                                                                var363 = this.mem(var362, '\u893e');
+                                                                                                var364 = this.alu("rl", var363);
+                                                                                                var365 = this.HL();
+                                                                                                this.wMem(var365, var364, '\u893e');
+                                                                                                this.pc('\u8940', 1, 4);
+                                                                                                var366 = this.L();
+                                                                                                var367 = this.alu("dec", var366);
+                                                                                                this.L(var367);
+                                                                                                this.pc('\u8941', 2, 15);
+                                                                                                var213 = this.HL();
+                                                                                                var214 = this.mem(var213, '\u8941');
+                                                                                                var215 = this.alu("rl", var214);
+                                                                                                var216 = this.HL();
+                                                                                                this.wMem(var216, var215, '\u8941');
+                                                                                                this.pc('\u8943', 1, 4);
+                                                                                                var217 = this.L();
+                                                                                                var218 = this.alu("dec", var217);
+                                                                                                this.L(var218);
+                                                                                                this.pc('\u8944', 2, 15);
+                                                                                                var219 = this.HL();
+                                                                                                var220 = this.mem(var219, '\u8944');
+                                                                                                var221 = this.alu("rl", var220);
+                                                                                                var222 = this.HL();
+                                                                                                this.wMem(var222, var221, '\u8944');
+                                                                                                this.pc('\u8946', 1, 4);
+                                                                                                var223 = this.L();
+                                                                                                var224 = this.alu("dec", var223);
+                                                                                                this.L(var224);
                                                                                              } else {
                                                                                                 this.pc('\u893b', 2, 15);
                                                                                                 var356 = this.HL();
@@ -2168,6 +2208,36 @@ public class RType extends MiniZX {
                                                                                                 var360 = this.L();
                                                                                                 var361 = this.alu("dec", var360);
                                                                                                 this.L(var361);
+                                                                                                this.pc('\u893e', 2, 15);
+                                                                                                var362 = this.HL();
+                                                                                                var363 = this.mem(var362, '\u893e');
+                                                                                                var364 = this.alu("rl", var363);
+                                                                                                var365 = this.HL();
+                                                                                                this.wMem(var365, var364, '\u893e');
+                                                                                                this.pc('\u8940', 1, 4);
+                                                                                                var366 = this.L();
+                                                                                                var367 = this.alu("dec", var366);
+                                                                                                this.L(var367);
+                                                                                                this.pc('\u8941', 2, 15);
+                                                                                                var213 = this.HL();
+                                                                                                var214 = this.mem(var213, '\u8941');
+                                                                                                var215 = this.alu("rl", var214);
+                                                                                                var216 = this.HL();
+                                                                                                this.wMem(var216, var215, '\u8941');
+                                                                                                this.pc('\u8943', 1, 4);
+                                                                                                var217 = this.L();
+                                                                                                var218 = this.alu("dec", var217);
+                                                                                                this.L(var218);
+                                                                                                this.pc('\u8944', 2, 15);
+                                                                                                var219 = this.HL();
+                                                                                                var220 = this.mem(var219, '\u8944');
+                                                                                                var221 = this.alu("rl", var220);
+                                                                                                var222 = this.HL();
+                                                                                                this.wMem(var222, var221, '\u8944');
+                                                                                                this.pc('\u8946', 1, 4);
+                                                                                                var223 = this.L();
+                                                                                                var224 = this.alu("dec", var223);
+                                                                                                this.L(var224);
                                                                                              }
                                                                                           } else {
                                                                                              this.pc('\u8938', 2, 15);
@@ -2190,68 +2260,37 @@ public class RType extends MiniZX {
                                                                                              var360 = this.L();
                                                                                              var361 = this.alu("dec", var360);
                                                                                              this.L(var361);
+                                                                                             this.pc('\u893e', 2, 15);
+                                                                                             var362 = this.HL();
+                                                                                             var363 = this.mem(var362, '\u893e');
+                                                                                             var364 = this.alu("rl", var363);
+                                                                                             var365 = this.HL();
+                                                                                             this.wMem(var365, var364, '\u893e');
+                                                                                             this.pc('\u8940', 1, 4);
+                                                                                             var366 = this.L();
+                                                                                             var367 = this.alu("dec", var366);
+                                                                                             this.L(var367);
+                                                                                             this.pc('\u8941', 2, 15);
+                                                                                             var213 = this.HL();
+                                                                                             var214 = this.mem(var213, '\u8941');
+                                                                                             var215 = this.alu("rl", var214);
+                                                                                             var216 = this.HL();
+                                                                                             this.wMem(var216, var215, '\u8941');
+                                                                                             this.pc('\u8943', 1, 4);
+                                                                                             var217 = this.L();
+                                                                                             var218 = this.alu("dec", var217);
+                                                                                             this.L(var218);
+                                                                                             this.pc('\u8944', 2, 15);
+                                                                                             var219 = this.HL();
+                                                                                             var220 = this.mem(var219, '\u8944');
+                                                                                             var221 = this.alu("rl", var220);
+                                                                                             var222 = this.HL();
+                                                                                             this.wMem(var222, var221, '\u8944');
+                                                                                             this.pc('\u8946', 1, 4);
+                                                                                             var223 = this.L();
+                                                                                             var224 = this.alu("dec", var223);
+                                                                                             this.L(var224);
                                                                                           }
-
-                                                                                          this.pc('\u893e', 2, 15);
-                                                                                          var362 = this.HL();
-                                                                                          var363 = this.mem(var362, '\u893e');
-                                                                                          var364 = this.alu("rl", var363);
-                                                                                          var365 = this.HL();
-                                                                                          this.wMem(var365, var364, '\u893e');
-                                                                                          this.pc('\u8940', 1, 4);
-                                                                                          var366 = this.L();
-                                                                                          var367 = this.alu("dec", var366);
-                                                                                          this.L(var367);
-                                                                                          this.pc('\u8941', 2, 15);
-                                                                                          var213 = this.HL();
-                                                                                          var214 = this.mem(var213, '\u8941');
-                                                                                          var215 = this.alu("rl", var214);
-                                                                                          var216 = this.HL();
-                                                                                          this.wMem(var216, var215, '\u8941');
-                                                                                          this.pc('\u8943', 1, 4);
-                                                                                          var217 = this.L();
-                                                                                          var218 = this.alu("dec", var217);
-                                                                                          this.L(var218);
-                                                                                          this.pc('\u8944', 2, 15);
-                                                                                          var219 = this.HL();
-                                                                                          var220 = this.mem(var219, '\u8944');
-                                                                                          var221 = this.alu("rl", var220);
-                                                                                          var222 = this.HL();
-                                                                                          this.wMem(var222, var221, '\u8944');
-                                                                                          this.pc('\u8946', 1, 4);
-                                                                                          var223 = this.L();
-                                                                                          var224 = this.alu("dec", var223);
-                                                                                          this.L(var224);
-                                                                                          this.pc('\u8947', 2, 15);
-                                                                                          var225 = this.HL();
-                                                                                          var226 = this.mem(var225, '\u8947');
-                                                                                          var227 = this.alu("rl", var226);
-                                                                                          var228 = this.HL();
-                                                                                          this.wMem(var228, var227, '\u8947');
-                                                                                          this.pc('\u8949', 1, 4);
-                                                                                          var229 = this.L();
-                                                                                          var230 = this.alu("dec", var229);
-                                                                                          this.L(var230);
-                                                                                          this.pc('\u894a', 2, 15);
-                                                                                          var231 = this.HL();
-                                                                                          var232 = this.mem(var231, '\u894a');
-                                                                                          var233 = this.alu("rl", var232);
-                                                                                          var234 = this.HL();
-                                                                                          this.wMem(var234, var233, '\u894a');
-                                                                                          this.pc('\u894c', 1, 4);
-                                                                                          var235 = this.L();
-                                                                                          var236 = this.alu("dec", var235);
-                                                                                          this.L(var236);
-                                                                                          this.pc('\u894d', 2, 15);
-                                                                                          var237 = this.HL();
-                                                                                          var238 = this.mem(var237, '\u894d');
-                                                                                          var239 = this.alu("rl", var238);
-                                                                                          var240 = this.HL();
-                                                                                          this.wMem(var240, var239, '\u894d');
-                                                                                          this.pc('\u894f', 1, 4);
-                                                                                          var241 = this.L();
-                                                                                          var242 = this.alu("dec", var241);
-                                                                                          this.L(var242);
                                                                                        } else {
                                                                                           this.pc('\u8935', 2, 15);
                                                                                           var344 = this.HL();
@@ -2313,37 +2352,48 @@ public class RType extends MiniZX {
                                                                                           var223 = this.L();
                                                                                           var224 = this.alu("dec", var223);
                                                                                           this.L(var224);
-                                                                                          this.pc('\u8947', 2, 15);
-                                                                                          var225 = this.HL();
-                                                                                          var226 = this.mem(var225, '\u8947');
-                                                                                          var227 = this.alu("rl", var226);
-                                                                                          var228 = this.HL();
-                                                                                          this.wMem(var228, var227, '\u8947');
-                                                                                          this.pc('\u8949', 1, 4);
-                                                                                          var229 = this.L();
-                                                                                          var230 = this.alu("dec", var229);
-                                                                                          this.L(var230);
-                                                                                          this.pc('\u894a', 2, 15);
-                                                                                          var231 = this.HL();
-                                                                                          var232 = this.mem(var231, '\u894a');
-                                                                                          var233 = this.alu("rl", var232);
-                                                                                          var234 = this.HL();
-                                                                                          this.wMem(var234, var233, '\u894a');
-                                                                                          this.pc('\u894c', 1, 4);
-                                                                                          var235 = this.L();
-                                                                                          var236 = this.alu("dec", var235);
-                                                                                          this.L(var236);
-                                                                                          this.pc('\u894d', 2, 15);
-                                                                                          var237 = this.HL();
-                                                                                          var238 = this.mem(var237, '\u894d');
-                                                                                          var239 = this.alu("rl", var238);
-                                                                                          var240 = this.HL();
-                                                                                          this.wMem(var240, var239, '\u894d');
-                                                                                          this.pc('\u894f', 1, 4);
-                                                                                          var241 = this.L();
-                                                                                          var242 = this.alu("dec", var241);
-                                                                                          this.L(var242);
                                                                                        }
+
+                                                                                       this.pc('\u8947', 2, 15);
+                                                                                       var225 = this.HL();
+                                                                                       var226 = this.mem(var225, '\u8947');
+                                                                                       var227 = this.alu("rl", var226);
+                                                                                       var228 = this.HL();
+                                                                                       this.wMem(var228, var227, '\u8947');
+                                                                                       this.pc('\u8949', 1, 4);
+                                                                                       var229 = this.L();
+                                                                                       var230 = this.alu("dec", var229);
+                                                                                       this.L(var230);
+                                                                                       this.pc('\u894a', 2, 15);
+                                                                                       var231 = this.HL();
+                                                                                       var232 = this.mem(var231, '\u894a');
+                                                                                       var233 = this.alu("rl", var232);
+                                                                                       var234 = this.HL();
+                                                                                       this.wMem(var234, var233, '\u894a');
+                                                                                       this.pc('\u894c', 1, 4);
+                                                                                       var235 = this.L();
+                                                                                       var236 = this.alu("dec", var235);
+                                                                                       this.L(var236);
+                                                                                       this.pc('\u894d', 2, 15);
+                                                                                       var237 = this.HL();
+                                                                                       var238 = this.mem(var237, '\u894d');
+                                                                                       var239 = this.alu("rl", var238);
+                                                                                       var240 = this.HL();
+                                                                                       this.wMem(var240, var239, '\u894d');
+                                                                                       this.pc('\u894f', 1, 4);
+                                                                                       var241 = this.L();
+                                                                                       var242 = this.alu("dec", var241);
+                                                                                       this.L(var242);
+                                                                                       this.pc('\u8950', 2, 15);
+                                                                                       var243 = this.HL();
+                                                                                       var244 = this.mem(var243, '\u8950');
+                                                                                       var245 = this.alu("rl", var244);
+                                                                                       var246 = this.HL();
+                                                                                       this.wMem(var246, var245, '\u8950');
+                                                                                       this.pc('\u8952', 1, 4);
+                                                                                       var247 = this.L();
+                                                                                       var248 = this.alu("dec", var247);
+                                                                                       this.L(var248);
                                                                                     } else {
                                                                                        this.pc('\u8932', 2, 15);
                                                                                        var338 = this.HL();
@@ -2445,6 +2495,16 @@ public class RType extends MiniZX {
                                                                                        var241 = this.L();
                                                                                        var242 = this.alu("dec", var241);
                                                                                        this.L(var242);
+                                                                                       this.pc('\u8950', 2, 15);
+                                                                                       var243 = this.HL();
+                                                                                       var244 = this.mem(var243, '\u8950');
+                                                                                       var245 = this.alu("rl", var244);
+                                                                                       var246 = this.HL();
+                                                                                       this.wMem(var246, var245, '\u8950');
+                                                                                       this.pc('\u8952', 1, 4);
+                                                                                       var247 = this.L();
+                                                                                       var248 = this.alu("dec", var247);
+                                                                                       this.L(var248);
                                                                                     }
                                                                                  } else {
                                                                                     this.pc('\u892f', 2, 15);
@@ -2557,18 +2617,18 @@ public class RType extends MiniZX {
                                                                                     var241 = this.L();
                                                                                     var242 = this.alu("dec", var241);
                                                                                     this.L(var242);
+                                                                                    this.pc('\u8950', 2, 15);
+                                                                                    var243 = this.HL();
+                                                                                    var244 = this.mem(var243, '\u8950');
+                                                                                    var245 = this.alu("rl", var244);
+                                                                                    var246 = this.HL();
+                                                                                    this.wMem(var246, var245, '\u8950');
+                                                                                    this.pc('\u8952', 1, 4);
+                                                                                    var247 = this.L();
+                                                                                    var248 = this.alu("dec", var247);
+                                                                                    this.L(var248);
                                                                                  }
 
-                                                                                 this.pc('\u8950', 2, 15);
-                                                                                 var243 = this.HL();
-                                                                                 var244 = this.mem(var243, '\u8950');
-                                                                                 var245 = this.alu("rl", var244);
-                                                                                 var246 = this.HL();
-                                                                                 this.wMem(var246, var245, '\u8950');
-                                                                                 this.pc('\u8952', 1, 4);
-                                                                                 var247 = this.L();
-                                                                                 var248 = this.alu("dec", var247);
-                                                                                 this.L(var248);
                                                                                  this.pc('\u8953', 2, 15);
                                                                                  var249 = this.HL();
                                                                                  var250 = this.mem(var249, '\u8953');
@@ -4648,6 +4708,37 @@ public class RType extends MiniZX {
                                                                                                          this.jump(var313);
                                                                                                          return;
                                                                                                       }
+
+                                                                                                      this.pc('\u893e', 2, 15);
+                                                                                                      var362 = this.HL();
+                                                                                                      var363 = this.mem(var362, '\u893e');
+                                                                                                      var364 = this.alu("rl", var363);
+                                                                                                      var365 = this.HL();
+                                                                                                      this.wMem(var365, var364, '\u893e');
+                                                                                                      this.pc('\u8940', 1, 4);
+                                                                                                      var366 = this.L();
+                                                                                                      var367 = this.alu("dec", var366);
+                                                                                                      this.L(var367);
+                                                                                                      this.pc('\u8941', 2, 15);
+                                                                                                      var213 = this.HL();
+                                                                                                      var214 = this.mem(var213, '\u8941');
+                                                                                                      var215 = this.alu("rl", var214);
+                                                                                                      var216 = this.HL();
+                                                                                                      this.wMem(var216, var215, '\u8941');
+                                                                                                      this.pc('\u8943', 1, 4);
+                                                                                                      var217 = this.L();
+                                                                                                      var218 = this.alu("dec", var217);
+                                                                                                      this.L(var218);
+                                                                                                      this.pc('\u8944', 2, 15);
+                                                                                                      var219 = this.HL();
+                                                                                                      var220 = this.mem(var219, '\u8944');
+                                                                                                      var221 = this.alu("rl", var220);
+                                                                                                      var222 = this.HL();
+                                                                                                      this.wMem(var222, var221, '\u8944');
+                                                                                                      this.pc('\u8946', 1, 4);
+                                                                                                      var223 = this.L();
+                                                                                                      var224 = this.alu("dec", var223);
+                                                                                                      this.L(var224);
                                                                                                    } else {
                                                                                                       this.pc('\u893b', 2, 15);
                                                                                                       var356 = this.HL();
@@ -4659,6 +4750,36 @@ public class RType extends MiniZX {
                                                                                                       var360 = this.L();
                                                                                                       var361 = this.alu("dec", var360);
                                                                                                       this.L(var361);
+                                                                                                      this.pc('\u893e', 2, 15);
+                                                                                                      var362 = this.HL();
+                                                                                                      var363 = this.mem(var362, '\u893e');
+                                                                                                      var364 = this.alu("rl", var363);
+                                                                                                      var365 = this.HL();
+                                                                                                      this.wMem(var365, var364, '\u893e');
+                                                                                                      this.pc('\u8940', 1, 4);
+                                                                                                      var366 = this.L();
+                                                                                                      var367 = this.alu("dec", var366);
+                                                                                                      this.L(var367);
+                                                                                                      this.pc('\u8941', 2, 15);
+                                                                                                      var213 = this.HL();
+                                                                                                      var214 = this.mem(var213, '\u8941');
+                                                                                                      var215 = this.alu("rl", var214);
+                                                                                                      var216 = this.HL();
+                                                                                                      this.wMem(var216, var215, '\u8941');
+                                                                                                      this.pc('\u8943', 1, 4);
+                                                                                                      var217 = this.L();
+                                                                                                      var218 = this.alu("dec", var217);
+                                                                                                      this.L(var218);
+                                                                                                      this.pc('\u8944', 2, 15);
+                                                                                                      var219 = this.HL();
+                                                                                                      var220 = this.mem(var219, '\u8944');
+                                                                                                      var221 = this.alu("rl", var220);
+                                                                                                      var222 = this.HL();
+                                                                                                      this.wMem(var222, var221, '\u8944');
+                                                                                                      this.pc('\u8946', 1, 4);
+                                                                                                      var223 = this.L();
+                                                                                                      var224 = this.alu("dec", var223);
+                                                                                                      this.L(var224);
                                                                                                    }
                                                                                                 } else {
                                                                                                    this.pc('\u8938', 2, 15);
@@ -4681,68 +4802,37 @@ public class RType extends MiniZX {
                                                                                                    var360 = this.L();
                                                                                                    var361 = this.alu("dec", var360);
                                                                                                    this.L(var361);
+                                                                                                   this.pc('\u893e', 2, 15);
+                                                                                                   var362 = this.HL();
+                                                                                                   var363 = this.mem(var362, '\u893e');
+                                                                                                   var364 = this.alu("rl", var363);
+                                                                                                   var365 = this.HL();
+                                                                                                   this.wMem(var365, var364, '\u893e');
+                                                                                                   this.pc('\u8940', 1, 4);
+                                                                                                   var366 = this.L();
+                                                                                                   var367 = this.alu("dec", var366);
+                                                                                                   this.L(var367);
+                                                                                                   this.pc('\u8941', 2, 15);
+                                                                                                   var213 = this.HL();
+                                                                                                   var214 = this.mem(var213, '\u8941');
+                                                                                                   var215 = this.alu("rl", var214);
+                                                                                                   var216 = this.HL();
+                                                                                                   this.wMem(var216, var215, '\u8941');
+                                                                                                   this.pc('\u8943', 1, 4);
+                                                                                                   var217 = this.L();
+                                                                                                   var218 = this.alu("dec", var217);
+                                                                                                   this.L(var218);
+                                                                                                   this.pc('\u8944', 2, 15);
+                                                                                                   var219 = this.HL();
+                                                                                                   var220 = this.mem(var219, '\u8944');
+                                                                                                   var221 = this.alu("rl", var220);
+                                                                                                   var222 = this.HL();
+                                                                                                   this.wMem(var222, var221, '\u8944');
+                                                                                                   this.pc('\u8946', 1, 4);
+                                                                                                   var223 = this.L();
+                                                                                                   var224 = this.alu("dec", var223);
+                                                                                                   this.L(var224);
                                                                                                 }
-
-                                                                                                this.pc('\u893e', 2, 15);
-                                                                                                var362 = this.HL();
-                                                                                                var363 = this.mem(var362, '\u893e');
-                                                                                                var364 = this.alu("rl", var363);
-                                                                                                var365 = this.HL();
-                                                                                                this.wMem(var365, var364, '\u893e');
-                                                                                                this.pc('\u8940', 1, 4);
-                                                                                                var366 = this.L();
-                                                                                                var367 = this.alu("dec", var366);
-                                                                                                this.L(var367);
-                                                                                                this.pc('\u8941', 2, 15);
-                                                                                                var213 = this.HL();
-                                                                                                var214 = this.mem(var213, '\u8941');
-                                                                                                var215 = this.alu("rl", var214);
-                                                                                                var216 = this.HL();
-                                                                                                this.wMem(var216, var215, '\u8941');
-                                                                                                this.pc('\u8943', 1, 4);
-                                                                                                var217 = this.L();
-                                                                                                var218 = this.alu("dec", var217);
-                                                                                                this.L(var218);
-                                                                                                this.pc('\u8944', 2, 15);
-                                                                                                var219 = this.HL();
-                                                                                                var220 = this.mem(var219, '\u8944');
-                                                                                                var221 = this.alu("rl", var220);
-                                                                                                var222 = this.HL();
-                                                                                                this.wMem(var222, var221, '\u8944');
-                                                                                                this.pc('\u8946', 1, 4);
-                                                                                                var223 = this.L();
-                                                                                                var224 = this.alu("dec", var223);
-                                                                                                this.L(var224);
-                                                                                                this.pc('\u8947', 2, 15);
-                                                                                                var225 = this.HL();
-                                                                                                var226 = this.mem(var225, '\u8947');
-                                                                                                var227 = this.alu("rl", var226);
-                                                                                                var228 = this.HL();
-                                                                                                this.wMem(var228, var227, '\u8947');
-                                                                                                this.pc('\u8949', 1, 4);
-                                                                                                var229 = this.L();
-                                                                                                var230 = this.alu("dec", var229);
-                                                                                                this.L(var230);
-                                                                                                this.pc('\u894a', 2, 15);
-                                                                                                var231 = this.HL();
-                                                                                                var232 = this.mem(var231, '\u894a');
-                                                                                                var233 = this.alu("rl", var232);
-                                                                                                var234 = this.HL();
-                                                                                                this.wMem(var234, var233, '\u894a');
-                                                                                                this.pc('\u894c', 1, 4);
-                                                                                                var235 = this.L();
-                                                                                                var236 = this.alu("dec", var235);
-                                                                                                this.L(var236);
-                                                                                                this.pc('\u894d', 2, 15);
-                                                                                                var237 = this.HL();
-                                                                                                var238 = this.mem(var237, '\u894d');
-                                                                                                var239 = this.alu("rl", var238);
-                                                                                                var240 = this.HL();
-                                                                                                this.wMem(var240, var239, '\u894d');
-                                                                                                this.pc('\u894f', 1, 4);
-                                                                                                var241 = this.L();
-                                                                                                var242 = this.alu("dec", var241);
-                                                                                                this.L(var242);
                                                                                              } else {
                                                                                                 this.pc('\u8935', 2, 15);
                                                                                                 var344 = this.HL();
@@ -4804,37 +4894,48 @@ public class RType extends MiniZX {
                                                                                                 var223 = this.L();
                                                                                                 var224 = this.alu("dec", var223);
                                                                                                 this.L(var224);
-                                                                                                this.pc('\u8947', 2, 15);
-                                                                                                var225 = this.HL();
-                                                                                                var226 = this.mem(var225, '\u8947');
-                                                                                                var227 = this.alu("rl", var226);
-                                                                                                var228 = this.HL();
-                                                                                                this.wMem(var228, var227, '\u8947');
-                                                                                                this.pc('\u8949', 1, 4);
-                                                                                                var229 = this.L();
-                                                                                                var230 = this.alu("dec", var229);
-                                                                                                this.L(var230);
-                                                                                                this.pc('\u894a', 2, 15);
-                                                                                                var231 = this.HL();
-                                                                                                var232 = this.mem(var231, '\u894a');
-                                                                                                var233 = this.alu("rl", var232);
-                                                                                                var234 = this.HL();
-                                                                                                this.wMem(var234, var233, '\u894a');
-                                                                                                this.pc('\u894c', 1, 4);
-                                                                                                var235 = this.L();
-                                                                                                var236 = this.alu("dec", var235);
-                                                                                                this.L(var236);
-                                                                                                this.pc('\u894d', 2, 15);
-                                                                                                var237 = this.HL();
-                                                                                                var238 = this.mem(var237, '\u894d');
-                                                                                                var239 = this.alu("rl", var238);
-                                                                                                var240 = this.HL();
-                                                                                                this.wMem(var240, var239, '\u894d');
-                                                                                                this.pc('\u894f', 1, 4);
-                                                                                                var241 = this.L();
-                                                                                                var242 = this.alu("dec", var241);
-                                                                                                this.L(var242);
                                                                                              }
+
+                                                                                             this.pc('\u8947', 2, 15);
+                                                                                             var225 = this.HL();
+                                                                                             var226 = this.mem(var225, '\u8947');
+                                                                                             var227 = this.alu("rl", var226);
+                                                                                             var228 = this.HL();
+                                                                                             this.wMem(var228, var227, '\u8947');
+                                                                                             this.pc('\u8949', 1, 4);
+                                                                                             var229 = this.L();
+                                                                                             var230 = this.alu("dec", var229);
+                                                                                             this.L(var230);
+                                                                                             this.pc('\u894a', 2, 15);
+                                                                                             var231 = this.HL();
+                                                                                             var232 = this.mem(var231, '\u894a');
+                                                                                             var233 = this.alu("rl", var232);
+                                                                                             var234 = this.HL();
+                                                                                             this.wMem(var234, var233, '\u894a');
+                                                                                             this.pc('\u894c', 1, 4);
+                                                                                             var235 = this.L();
+                                                                                             var236 = this.alu("dec", var235);
+                                                                                             this.L(var236);
+                                                                                             this.pc('\u894d', 2, 15);
+                                                                                             var237 = this.HL();
+                                                                                             var238 = this.mem(var237, '\u894d');
+                                                                                             var239 = this.alu("rl", var238);
+                                                                                             var240 = this.HL();
+                                                                                             this.wMem(var240, var239, '\u894d');
+                                                                                             this.pc('\u894f', 1, 4);
+                                                                                             var241 = this.L();
+                                                                                             var242 = this.alu("dec", var241);
+                                                                                             this.L(var242);
+                                                                                             this.pc('\u8950', 2, 15);
+                                                                                             var243 = this.HL();
+                                                                                             var244 = this.mem(var243, '\u8950');
+                                                                                             var245 = this.alu("rl", var244);
+                                                                                             var246 = this.HL();
+                                                                                             this.wMem(var246, var245, '\u8950');
+                                                                                             this.pc('\u8952', 1, 4);
+                                                                                             var247 = this.L();
+                                                                                             var248 = this.alu("dec", var247);
+                                                                                             this.L(var248);
                                                                                           } else {
                                                                                              this.pc('\u8932', 2, 15);
                                                                                              var338 = this.HL();
@@ -4936,6 +5037,16 @@ public class RType extends MiniZX {
                                                                                              var241 = this.L();
                                                                                              var242 = this.alu("dec", var241);
                                                                                              this.L(var242);
+                                                                                             this.pc('\u8950', 2, 15);
+                                                                                             var243 = this.HL();
+                                                                                             var244 = this.mem(var243, '\u8950');
+                                                                                             var245 = this.alu("rl", var244);
+                                                                                             var246 = this.HL();
+                                                                                             this.wMem(var246, var245, '\u8950');
+                                                                                             this.pc('\u8952', 1, 4);
+                                                                                             var247 = this.L();
+                                                                                             var248 = this.alu("dec", var247);
+                                                                                             this.L(var248);
                                                                                           }
                                                                                        } else {
                                                                                           this.pc('\u892f', 2, 15);
@@ -5048,18 +5159,18 @@ public class RType extends MiniZX {
                                                                                           var241 = this.L();
                                                                                           var242 = this.alu("dec", var241);
                                                                                           this.L(var242);
+                                                                                          this.pc('\u8950', 2, 15);
+                                                                                          var243 = this.HL();
+                                                                                          var244 = this.mem(var243, '\u8950');
+                                                                                          var245 = this.alu("rl", var244);
+                                                                                          var246 = this.HL();
+                                                                                          this.wMem(var246, var245, '\u8950');
+                                                                                          this.pc('\u8952', 1, 4);
+                                                                                          var247 = this.L();
+                                                                                          var248 = this.alu("dec", var247);
+                                                                                          this.L(var248);
                                                                                        }
 
-                                                                                       this.pc('\u8950', 2, 15);
-                                                                                       var243 = this.HL();
-                                                                                       var244 = this.mem(var243, '\u8950');
-                                                                                       var245 = this.alu("rl", var244);
-                                                                                       var246 = this.HL();
-                                                                                       this.wMem(var246, var245, '\u8950');
-                                                                                       this.pc('\u8952', 1, 4);
-                                                                                       var247 = this.L();
-                                                                                       var248 = this.alu("dec", var247);
-                                                                                       this.L(var248);
                                                                                        this.pc('\u8953', 2, 15);
                                                                                        var249 = this.HL();
                                                                                        var250 = this.mem(var249, '\u8953');
@@ -17009,35 +17120,36 @@ public class RType extends MiniZX {
       try {
          this.pc('\u9d5c', 1, 17);
          this.$9D96();
-      } catch (StackException var11) {
-         if(var11.getNextPC() == '\u9da4') {
+      } catch (StackException var12) {
+         int[] var2 = new int[]{'\u9da4'};
+         if(this.ownAddress(var12, var2) == '\u9da4') {
             this.HL('\u9d5f');
             this.pc('\u9da4', 1, 10);
             return;
          }
 
-         throw var11;
+         return;
       }
 
       this.pc('\u9d5f', 1, 10);
-      int var2 = this.HL();
-      this.wMem(var2, 24, '\u9d5f');
+      int var3 = this.HL();
+      this.wMem(var3, 24, '\u9d5f');
       this.pc('\u9d61', 1, 4);
-      int var3 = this.L();
-      int var4 = this.alu("inc", var3);
-      this.L(var4);
+      int var4 = this.L();
+      int var5 = this.alu("inc", var4);
+      this.L(var5);
       this.pc('\u9d62', 1, 7);
-      int var5 = this.E();
-      int var6 = this.HL();
-      this.wMem(var6, var5, '\u9d62');
+      int var6 = this.E();
+      int var7 = this.HL();
+      this.wMem(var7, var6, '\u9d62');
       this.pc('\u9d63', 1, 4);
-      int var7 = this.L();
-      int var8 = this.alu("inc", var7);
-      this.L(var8);
+      int var8 = this.L();
+      int var9 = this.alu("inc", var8);
+      this.L(var9);
       this.pc('\u9d64', 1, 7);
-      int var9 = this.D();
-      int var10 = this.HL();
-      this.wMem(var10, var9, '\u9d64');
+      int var10 = this.D();
+      int var11 = this.HL();
+      this.wMem(var11, var10, '\u9d64');
       this.$9D65();
    }
 
@@ -17059,14 +17171,15 @@ public class RType extends MiniZX {
       try {
          this.pc('\u9d6f', 1, 17);
          this.$9D96();
-      } catch (StackException var4) {
-         if(var4.getNextPC() == '\u9da4') {
+      } catch (StackException var6) {
+         int[] var2 = new int[]{'\u9da4'};
+         if(this.ownAddress(var6, var2) == '\u9da4') {
             this.HL('\u9d72');
             this.pc('\u9da4', 1, 10);
             return;
          }
 
-         throw var4;
+         return;
       }
 
       this.pc('\u9d72', 1, 7);
@@ -17077,14 +17190,15 @@ public class RType extends MiniZX {
       try {
          this.pc('\u9d77', 1, 17);
          this.$9D96();
-      } catch (StackException var3) {
-         if(var3.getNextPC() == '\u9da4') {
+      } catch (StackException var5) {
+         int[] var4 = new int[]{'\u9da4'};
+         if(this.ownAddress(var5, var4) == '\u9da4') {
             this.HL('\u9d7a');
             this.pc('\u9da4', 1, 10);
             return;
          }
 
-         throw var3;
+         return;
       }
 
       this.pc('\u9d7a', 1, 7);
@@ -17099,20 +17213,21 @@ public class RType extends MiniZX {
       try {
          this.pc('\u9d81', 1, 17);
          this.$9D96();
-      } catch (StackException var8) {
-         if(var8.getNextPC() == '\u9da4') {
+      } catch (StackException var10) {
+         int[] var2 = new int[]{'\u9da4'};
+         if(this.ownAddress(var10, var2) == '\u9da4') {
             this.HL('\u9d84');
             this.pc('\u9da4', 1, 10);
             return;
          }
 
-         throw var8;
+         return;
       }
 
       this.pc('\u9d84', 1, 4);
-      int var2 = this.E();
-      int var3 = this.alu("inc", var2);
-      this.E(var3);
+      int var3 = this.E();
+      int var4 = this.alu("inc", var3);
+      this.E(var4);
       this.pc('\u9d85', 1, 7);
       this.A(33);
       this.pc('\u9d87', 1, 17);
@@ -17121,20 +17236,21 @@ public class RType extends MiniZX {
       try {
          this.pc('\u9d8a', 1, 17);
          this.$9D96();
-      } catch (StackException var7) {
-         if(var7.getNextPC() == '\u9da4') {
+      } catch (StackException var9) {
+         int[] var6 = new int[]{'\u9da4'};
+         if(this.ownAddress(var9, var6) == '\u9da4') {
             this.HL('\u9d8d');
             this.pc('\u9da4', 1, 10);
             return;
          }
 
-         throw var7;
+         return;
       }
 
       this.pc('\u9d8d', 1, 4);
-      int var5 = this.D();
-      int var6 = this.alu("inc", var5);
-      this.D(var6);
+      int var7 = this.D();
+      int var8 = this.alu("inc", var7);
+      this.D(var8);
       this.pc('\u9d8e', 1, 7);
       this.A(50);
       this.$9D90();
@@ -17930,11 +18046,12 @@ public class RType extends MiniZX {
                try {
                   this.pc('\u9ef2', 1, 17);
                   this.$9F6E();
-               } catch (StackException var75) {
-                  int var13 = var75.getNextPC();
-                  if(var13 != '\u9f8e') {
-                     if(var13 != '\u9f7b') {
-                        throw var75;
+               } catch (StackException var77) {
+                  int[] var14 = new int[]{'\u9f8e', '\u9f7b'};
+                  int var15 = this.ownAddress(var77, var14);
+                  if(var15 != '\u9f8e') {
+                     if(var15 != '\u9f7b') {
+                        return;
                      }
 
                      this.DE('\u9ef5');
@@ -17947,33 +18064,33 @@ public class RType extends MiniZX {
                }
 
                this.pc('\u9ef5', 2, 20);
-               int var14 = this.BC();
-               this.wMem16(31439, var14, '\u9ef5');
+               int var16 = this.BC();
+               this.wMem16(31439, var16, '\u9ef5');
                this.pc('\u9ef9', 2, 20);
-               int var15 = this.DE();
-               this.wMem16(31441, var15, '\u9ef9');
+               int var17 = this.DE();
+               this.wMem16(31441, var17, '\u9ef9');
                this.pc('\u9efd', 1, 12);
                this.pc('\u9f4f', 1, 4);
-               int var16 = this.B();
-               int var17 = this.alu("inc", var16);
-               this.B(var17);
-               this.pc('\u9f50', 1, 4);
                int var18 = this.B();
                int var19 = this.alu("inc", var18);
                this.B(var19);
-               this.pc('\u9f51', 1, 4);
+               this.pc('\u9f50', 1, 4);
                int var20 = this.B();
                int var21 = this.alu("inc", var20);
                this.B(var21);
-               this.pc('\u9f52', 1, 4);
-               int var22 = this.C();
+               this.pc('\u9f51', 1, 4);
+               int var22 = this.B();
                int var23 = this.alu("inc", var22);
-               this.C(var23);
+               this.B(var23);
+               this.pc('\u9f52', 1, 4);
+               int var24 = this.C();
+               int var25 = this.alu("inc", var24);
+               this.C(var25);
                this.pc('\u9f53', 1, 17);
                this.$C0E4();
                this.pc('\u9f56', 1, 7);
-               int var24 = this.A();
-               this.alu("cp", var24, 251);
+               int var26 = this.A();
+               this.alu("cp", var26, 251);
                this.pc('\u9f58', 1, 7);
                if(this.flag(1, true)) {
                   this.tstates(5);
@@ -17986,16 +18103,16 @@ public class RType extends MiniZX {
 
                while(true) {
                   this.pc('\u9f5c', 1, 4);
-                  int var25 = this.E();
-                  int var26 = this.alu("inc", var25);
-                  this.E(var26);
+                  int var27 = this.E();
+                  int var28 = this.alu("inc", var27);
+                  this.E(var28);
                   this.pc('\u9f5d', 1, 7);
-                  int var27 = this.DE();
-                  int var28 = this.mem(var27, '\u9f5d');
-                  this.A(var28);
+                  int var29 = this.DE();
+                  int var30 = this.mem(var29, '\u9f5d');
+                  this.A(var30);
                   this.pc('\u9f5e', 1, 7);
-                  int var29 = this.A();
-                  this.alu("cp", var29, 251);
+                  int var31 = this.A();
+                  this.alu("cp", var31, 251);
                   this.pc('\u9f60', 1, 7);
                   if(this.flag(1, true)) {
                      this.tstates(5);
@@ -18004,41 +18121,41 @@ public class RType extends MiniZX {
                   }
 
                   this.pc('\u9f62', 1, 8);
-                  int var30 = this.B() - 1 & 255;
-                  this.B(var30);
+                  int var32 = this.B() - 1 & 255;
+                  this.B(var32);
                   if(this.B() == 0) {
                      this.pc('\u9f64', 2, 20);
-                     int var31 = this.mem16(31439, '\u9f64');
-                     this.BC(var31);
+                     int var33 = this.mem16(31439, '\u9f64');
+                     this.BC(var33);
                      this.pc('\u9f68', 2, 20);
-                     int var32 = this.mem16(31441, '\u9f68');
-                     this.DE(var32);
+                     int var34 = this.mem16(31441, '\u9f68');
+                     this.DE(var34);
                      this.pc('\u9f6c', 1, 12);
                      this.pc('\u9eff', 1, 13);
-                     int var33 = this.mem(31369, '\u9eff');
-                     this.A(var33);
-                     this.pc('\u9f02', 1, 7);
-                     int var34 = this.A();
-                     int var35 = this.alu("and", var34, 1);
+                     int var35 = this.mem(31369, '\u9eff');
                      this.A(var35);
-                     this.pc('\u9f04', 1, 4);
+                     this.pc('\u9f02', 1, 7);
                      int var36 = this.A();
-                     int var37 = this.A();
-                     int var38 = this.alu("add", var37, var36);
-                     this.A(var38);
-                     this.pc('\u9f05', 1, 7);
+                     int var37 = this.alu("and", var36, 1);
+                     this.A(var37);
+                     this.pc('\u9f04', 1, 4);
+                     int var38 = this.A();
                      int var39 = this.A();
-                     int var40 = this.alu("add", var39, 67);
+                     int var40 = this.alu("add", var39, var38);
                      this.A(var40);
-                     this.pc('\u9f07', 1, 13);
+                     this.pc('\u9f05', 1, 7);
                      int var41 = this.A();
-                     this.wMem('\u8eb1', var41, '\u9f07');
-                     this.pc('\u9f0a', 1, 4);
-                     int var42 = this.D();
+                     int var42 = this.alu("add", var41, 67);
                      this.A(var42);
-                     this.pc('\u9f0b', 1, 7);
+                     this.pc('\u9f07', 1, 13);
                      int var43 = this.A();
-                     this.alu("cp", var43, 67);
+                     this.wMem('\u8eb1', var43, '\u9f07');
+                     this.pc('\u9f0a', 1, 4);
+                     int var44 = this.D();
+                     this.A(var44);
+                     this.pc('\u9f0b', 1, 7);
+                     int var45 = this.A();
+                     this.alu("cp", var45, 67);
                      this.pc('\u9f0d', 1, 7);
                      if(this.flag(64, true)) {
                         this.tstates(5);
@@ -18046,9 +18163,9 @@ public class RType extends MiniZX {
                         this.$99FE();
                      } else {
                         this.pc('\u9f0f', 1, 4);
-                        int var44 = this.A();
-                        int var45 = this.alu("dec", var44);
-                        this.A(var45);
+                        int var46 = this.A();
+                        int var47 = this.alu("dec", var46);
+                        this.A(var47);
                         this.pc('\u9f10', 1, 17);
                         this.$9A0E();
                         this.pc('\u9f13', 1, 12);
@@ -18057,52 +18174,52 @@ public class RType extends MiniZX {
                      this.pc('\u9f18', 1, 17);
                      this.$A490();
                      this.pc('\u9f1b', 2, 20);
-                     int var46 = this.mem16(31439, '\u9f1b');
-                     this.BC(var46);
+                     int var48 = this.mem16(31439, '\u9f1b');
+                     this.BC(var48);
                      this.pc('\u9f1f', 2, 20);
-                     int var47 = this.mem16(31441, '\u9f1f');
-                     this.DE(var47);
+                     int var49 = this.mem16(31441, '\u9f1f');
+                     this.DE(var49);
                      this.pc('\u9f23', 1, 4);
-                     int var48 = this.B();
-                     int var49 = this.alu("inc", var48);
-                     this.B(var49);
-                     this.pc('\u9f24', 1, 4);
                      int var50 = this.B();
                      int var51 = this.alu("inc", var50);
                      this.B(var51);
-                     this.pc('\u9f25', 1, 4);
+                     this.pc('\u9f24', 1, 4);
                      int var52 = this.B();
                      int var53 = this.alu("inc", var52);
                      this.B(var53);
+                     this.pc('\u9f25', 1, 4);
+                     int var54 = this.B();
+                     int var55 = this.alu("inc", var54);
+                     this.B(var55);
                      this.pc('\u9f26', 1, 13);
-                     int var54 = this.mem(31369, '\u9f26');
-                     this.A(var54);
-                     this.pc('\u9f29', 1, 7);
-                     int var55 = this.A();
-                     int var56 = this.alu("and", var55, 1);
+                     int var56 = this.mem(31369, '\u9f26');
                      this.A(var56);
-                     this.pc('\u9f2b', 1, 7);
+                     this.pc('\u9f29', 1, 7);
                      int var57 = this.A();
-                     int var58 = this.alu("xor", var57, 1);
+                     int var58 = this.alu("and", var57, 1);
                      this.A(var58);
-                     this.pc('\u9f2d', 1, 4);
+                     this.pc('\u9f2b', 1, 7);
                      int var59 = this.A();
-                     int var60 = this.A();
-                     int var61 = this.alu("add", var60, var59);
-                     this.A(var61);
-                     this.pc('\u9f2e', 1, 7);
+                     int var60 = this.alu("xor", var59, 1);
+                     this.A(var60);
+                     this.pc('\u9f2d', 1, 4);
+                     int var61 = this.A();
                      int var62 = this.A();
-                     int var63 = this.alu("add", var62, 67);
+                     int var63 = this.alu("add", var62, var61);
                      this.A(var63);
-                     this.pc('\u9f30', 1, 13);
+                     this.pc('\u9f2e', 1, 7);
                      int var64 = this.A();
-                     this.wMem('\u8eb1', var64, '\u9f30');
-                     this.pc('\u9f33', 1, 4);
-                     int var65 = this.D();
+                     int var65 = this.alu("add", var64, 67);
                      this.A(var65);
-                     this.pc('\u9f34', 1, 7);
+                     this.pc('\u9f30', 1, 13);
                      int var66 = this.A();
-                     this.alu("cp", var66, 67);
+                     this.wMem('\u8eb1', var66, '\u9f30');
+                     this.pc('\u9f33', 1, 4);
+                     int var67 = this.D();
+                     this.A(var67);
+                     this.pc('\u9f34', 1, 7);
+                     int var68 = this.A();
+                     this.alu("cp", var68, 67);
                      this.pc('\u9f36', 1, 7);
                      if(this.flag(64, true)) {
                         this.tstates(5);
@@ -18110,9 +18227,9 @@ public class RType extends MiniZX {
                         this.$9A06();
                      } else {
                         this.pc('\u9f38', 1, 4);
-                        int var67 = this.A();
-                        int var68 = this.alu("dec", var67);
-                        this.A(var68);
+                        int var69 = this.A();
+                        int var70 = this.alu("dec", var69);
+                        this.A(var70);
                         this.pc('\u9f39', 1, 17);
                         this.$9A16();
                         this.pc('\u9f3c', 1, 12);
@@ -18121,13 +18238,13 @@ public class RType extends MiniZX {
                      this.pc('\u9f41', 1, 17);
                      this.$A490();
                      this.pc('\u9f44', 1, 13);
-                     int var69 = this.mem(31445, '\u9f44');
-                     this.A(var69);
+                     int var71 = this.mem(31445, '\u9f44');
+                     this.A(var71);
                      this.pc('\u9f47', 1, 4);
-                     int var70 = this.A();
-                     int var71 = this.A();
-                     int var72 = this.alu("and", var71, var70);
-                     this.A(var72);
+                     int var72 = this.A();
+                     int var73 = this.A();
+                     int var74 = this.alu("and", var73, var72);
+                     this.A(var74);
                      this.pc('\u9f48', 1, 5);
                      if(this.flag(64, false)) {
                         this.tstates(6);
@@ -18135,11 +18252,11 @@ public class RType extends MiniZX {
                      }
 
                      this.pc('\u9f49', 1, 16);
-                     int var73 = this.mem16(31443, '\u9f49');
-                     this.HL(var73);
+                     int var75 = this.mem16(31443, '\u9f49');
+                     this.HL(var75);
                      this.pc('\u9f4c', 1, 10);
-                     int var74 = this.HL();
-                     this.wMem(var74, 0, '\u9f4c');
+                     int var76 = this.HL();
+                     this.wMem(var76, 0, '\u9f4c');
                      this.pc('\u9f4e', 1, 10);
                      return;
                   }
@@ -18155,24 +18272,24 @@ public class RType extends MiniZX {
             this.pc('\u9f9b', 1, 10);
             this.DE(32214);
 
-            int var11;
+            int var12;
             try {
                this.pc('\u9f9e', 1, 17);
                this.$9F6E();
                return;
-            } catch (StackException var76) {
-               var11 = var76.getNextPC();
-               if(var11 == '\u9f8e') {
+            } catch (StackException var78) {
+               int[] var11 = new int[]{'\u9f8e', '\u9f7b'};
+               var12 = this.ownAddress(var78, var11);
+               if(var12 == '\u9f8e') {
                   this.DE('\u9fa1');
                   this.$9F8E();
                   return;
                }
-                if(var11 != '\u9f7b') {
-                    throw var76;
-                }
             }
 
-
+            if(var12 != '\u9f7b') {
+               return;
+            }
 
             this.DE('\u9fa1');
          }
@@ -18374,14 +18491,15 @@ public class RType extends MiniZX {
       try {
          this.pc('\u9ed8', 1, 17);
          this.$9EE4();
-      } catch (StackException var14) {
-         if(var14.getNextPC() == '\u9f8e') {
+      } catch (StackException var16) {
+         int[] var13 = new int[]{'\u9f8e'};
+         if(this.ownAddress(var16, var13) == '\u9f8e') {
             this.DE('\u9edb');
             this.$9F8E();
             return;
          }
 
-         throw var14;
+         return;
       }
 
       this.pc('\u9edb', 1, 10);
@@ -18390,14 +18508,15 @@ public class RType extends MiniZX {
       try {
          this.pc('\u9ede', 1, 17);
          this.$9EE4();
-      } catch (StackException var15) {
-         if(var15.getNextPC() == '\u9f8e') {
+      } catch (StackException var17) {
+         int[] var15 = new int[]{'\u9f8e'};
+         if(this.ownAddress(var17, var15) == '\u9f8e') {
             this.DE('\u9ee1');
             this.$9F8E();
             return;
          }
 
-         throw var15;
+         return;
       }
 
       this.pc('\u9ee1', 1, 10);
@@ -21108,41 +21227,36 @@ public class RType extends MiniZX {
    }
 
    public int $BE5E() {
-      label195: {
-         label196: {
-            label190: {
+      label174: {
+         label175: {
+            label169: {
                if(!this.isNextPC('\uf908')) {
                   if(this.isNextPC('\ufa61')) {
                      this.pc('\ufa61', 1, 7);
                      this.A(3);
                      this.pc('\ufa63', 1, 11);
-                     int var76 = this.BC();
-                     int var77 = this.HL();
-                     int var78 = this.alu("add16", var77, var76);
-                     this.HL(var78);
+                     int var75 = this.BC();
+                     int var76 = this.HL();
+                     int var77 = this.alu("add16", var76, var75);
+                     this.HL(var77);
                      this.pc('\ufa64', 1, 17);
                      this.$F9E7();
                      this.pc('\ufa67', 1, 11);
-                     int var79 = this.DE();
-                     this.push(var79);
+                     int var78 = this.DE();
+                     this.push(var78);
                      this.pc('\ufa68', 1, 7);
                      this.A(4);
                      this.pc('\ufa6a', 1, 11);
-                     int var80 = this.BC();
-                     int var81 = this.HL();
-                     int var82 = this.alu("add16", var81, var80);
-                     this.HL(var82);
+                     int var79 = this.BC();
+                     int var80 = this.HL();
+                     int var81 = this.alu("add16", var80, var79);
+                     this.HL(var81);
                      this.pc('\ufa6b', 1, 17);
                      this.$F9E7();
                      this.pc('\ufa6e', 1, 11);
-                     int var83 = this.DE();
-                     this.push(var83);
+                     int var82 = this.DE();
+                     this.push(var82);
                      this.pc('\ufa6f', 2, 8);
-                     if(this.IX() == '\ufb2d') {
-                        this.$FB2D();
-                        return -1;
-                     }
-
                      if(this.IX() == '\ufacd') {
                         this.$FACD();
                         return -1;
@@ -21153,28 +21267,28 @@ public class RType extends MiniZX {
                         return -1;
                      }
 
-                     int var84 = this.IX();
-                     this.jump(var84);
+                     int var83 = this.IX();
+                     this.jump(var83);
                      return -1;
                   }
 
                   if(this.isNextPC('\uf8e8')) {
-                     break label190;
+                     break label169;
                   }
 
                   if(this.isNextPC('\uf8f8')) {
-                     break label196;
+                     break label175;
                   }
 
                   this.pc('\ube5e', 1, 4);
                   this.exHLDE();
                   this.pc('\ube5f', 1, 4);
                   if(this.HL() == '\uf8e8') {
-                     break label190;
+                     break label169;
                   }
 
                   if(this.HL() == '\uf8f8') {
-                     break label196;
+                     break label175;
                   }
 
                   if(this.HL() != '\uf908') {
@@ -21183,8 +21297,8 @@ public class RType extends MiniZX {
                         return -1;
                      }
 
-                     int var89 = this.HL();
-                     this.jump(var89);
+                     int var88 = this.HL();
+                     this.jump(var88);
                      return -1;
                   }
                }
@@ -21214,7 +21328,7 @@ public class RType extends MiniZX {
                      return -1;
                   }
                }
-               break label195;
+               break label174;
             }
 
             this.pc('\uf8e8', 2, 14);
@@ -21222,21 +21336,21 @@ public class RType extends MiniZX {
             this.pc('\uf8ec', 2, 14);
             this.IY('\uf8e8');
             this.pc('\uf8f0', 1, 0);
-            int var85 = this.codeHash('\uf8f0', 3);
-            if(var85 == 229587) {
+            int var84 = this.codeHash('\uf8f0', 3);
+            if(var84 == 229587) {
                this.tstates(17);
                this.$F952();
-            } else if(var85 == 230114) {
+            } else if(var84 == 230114) {
                this.tstates(17);
                this.$F963();
-            } else if(var85 == 230672) {
+            } else if(var84 == 230672) {
                this.tstates(17);
                this.$F975();
             } else {
-               int var86 = this.executeMutantCode('\uf8f0');
-               if(var86 != '\uf8f3') {
-                  if(var86 != -1) {
-                     this.jump(var86);
+               int var85 = this.executeMutantCode('\uf8f0');
+               if(var85 != '\uf8f3') {
+                  if(var85 != -1) {
+                     this.jump(var85);
                   }
 
                   return -1;
@@ -21244,7 +21358,7 @@ public class RType extends MiniZX {
             }
 
             this.pc('\uf8f3', 1, 12);
-            break label195;
+            break label174;
          }
 
          this.pc('\uf8f8', 2, 14);
@@ -21252,18 +21366,18 @@ public class RType extends MiniZX {
          this.pc('\uf8fc', 2, 14);
          this.IY('\uf8f8');
          this.pc('\uf900', 1, 0);
-         int var87 = this.codeHash('\uf900', 3);
-         if(var87 == 230114) {
+         int var86 = this.codeHash('\uf900', 3);
+         if(var86 == 230114) {
             this.tstates(17);
             this.$F963();
-         } else if(var87 == 229587) {
+         } else if(var86 == 229587) {
             this.tstates(17);
             this.$F952();
          } else {
-            int var88 = this.executeMutantCode('\uf900');
-            if(var88 != '\uf903') {
-               if(var88 != -1) {
-                  this.jump(var88);
+            int var87 = this.executeMutantCode('\uf900');
+            if(var87 != '\uf903') {
+               if(var87 != -1) {
+                  this.jump(var87);
                }
 
                return -1;
@@ -21394,86 +21508,7 @@ public class RType extends MiniZX {
          this.pc('\uf945', 1, 7);
          this.B(0);
          this.pc('\uf947', 1, 4);
-         if(this.HL() != '\ufa71') {
-            if(this.HL() == '\uf994') {
-               this.$F994();
-               return -1;
-            }
-
-            if(this.HL() == '\uf9a5') {
-               return '\uf9a5';
-            }
-
-            if(this.HL() == '\uf948') {
-               this.pc('\uf948', 2, 19);
-               int var70 = this.IX() + 0;
-               this.wMem(var70, 0, '\uf948');
-               this.pc('\uf94c', 2, 19);
-               int var71 = this.IX() + 1;
-               this.wMem(var71, 0, '\uf94c');
-               this.pc('\uf950', 1, 4);
-               int var72 = this.A();
-               this.alu("scf", var72);
-               this.pc('\uf951', 1, 10);
-               return -1;
-            }
-
-            if(this.HL() == '\uf9ba') {
-               return '\uf9ba';
-            }
-
-            if(this.HL() == '\ufb1f') {
-               this.pc('\ufb1f', 2, 20);
-               int var73 = this.SP();
-               this.wMem16('\ufbc9', var73, '\ufb1f');
-               this.pc('\ufb23', 1, 10);
-               this.SP('\uf87a');
-               this.pc('\ufb26', 1, 4);
-               this.exHLDE();
-
-               try {
-                  this.pc('\ufb27', 1, 17);
-                  this.$FA28();
-               } catch (StackException var91) {
-                  if(var91.getNextPC() == '\ufa2a') {
-                     this.IX('\ufb2a');
-                     this.$FA2A();
-                     return -1;
-                  }
-
-                  throw var91;
-               }
-
-               this.$FB2A();
-               return -1;
-            }
-
-            if(this.HL() == '\ufaaf') {
-               this.$FAAF();
-               return -1;
-            }
-
-            if(this.HL() == '\ufabf') {
-               this.$FABF();
-               return -1;
-            }
-
-            if(this.HL() != '\ufadf') {
-               if(this.HL() == '\ufaff') {
-                  this.$FAFF();
-                  return -1;
-               }
-
-               if(this.HL() == '\ufaef') {
-                  this.$FAEF();
-                  return -1;
-               }
-
-               int var75 = this.HL();
-               this.jump(var75);
-               return -1;
-            }
-         } else {
+         if(this.HL() == '\ufa71') {
             this.pc('\ufa71', 1, 4);
             int var52 = this.C();
             this.A(var52);
@@ -21522,53 +21557,87 @@ public class RType extends MiniZX {
                this.tstates(12);
                this.$FA89();
                return -1;
-            }
-
-            if(var66 == 1705) {
+            } else if(var66 == 1705) {
                this.tstates(12);
                this.$FA85();
                return -1;
-            }
-
-            if(var66 == 1707) {
+            } else if(var66 == 1707) {
                this.tstates(12);
                this.$FA87();
                return -1;
-            }
-
-            int var67 = this.executeMutantCode('\ufa83');
-            if(var67 != '\ufa85') {
+            } else {
+               int var67 = this.executeMutantCode('\ufa83');
                if(var67 != -1) {
                   this.jump(var67);
                }
 
                return -1;
             }
-         }
+         } else if(this.HL() == '\uf994') {
+            this.$F994();
+            return -1;
+         } else if(this.HL() == '\uf9a5') {
+            return '\uf9a5';
+         } else if(this.HL() != '\uf948') {
+            if(this.HL() == '\uf9ba') {
+               return '\uf9ba';
+            } else if(this.HL() == '\ufaaf') {
+               this.$FAAF();
+               return -1;
+            } else if(this.HL() == '\ufabf') {
+               this.$FABF();
+               return -1;
+            } else if(this.HL() != '\ufadf') {
+               if(this.HL() == '\ufaff') {
+                  this.$FAFF();
+                  return -1;
+               } else if(this.HL() == '\ufaef') {
+                  this.$FAEF();
+                  return -1;
+               } else {
+                  int var74 = this.HL();
+                  this.jump(var74);
+                  return -1;
+               }
+            } else {
+               this.pc('\ufadf', 2, 20);
+               int var71 = this.SP();
+               this.wMem16('\ufbc9', var71, '\ufadf');
+               this.pc('\ufae3', 1, 10);
+               this.SP('\uf87a');
+               this.pc('\ufae6', 1, 4);
+               this.exHLDE();
 
-         this.pc('\ufadf', 2, 20);
-         int var68 = this.SP();
-         this.wMem16('\ufbc9', var68, '\ufadf');
-         this.pc('\ufae3', 1, 10);
-         this.SP('\uf87a');
-         this.pc('\ufae6', 1, 4);
-         this.exHLDE();
+               try {
+                  this.pc('\ufae7', 1, 17);
+                  this.$FA28();
+               } catch (StackException var89) {
+                  int[] var73 = new int[]{'\ufa2a'};
+                  if(this.ownAddress(var89, var73) == '\ufa2a') {
+                     this.IX('\ufaea');
+                     this.$FA2A();
+                     return -1;
+                  }
 
-         try {
-            this.pc('\ufae7', 1, 17);
-            this.$FA28();
-         } catch (StackException var90) {
-            if(var90.getNextPC() == '\ufa2a') {
-               this.IX('\ufaea');
-               this.$FA2A();
+                  return -1;
+               }
+
+               this.$FAEA();
                return -1;
             }
-
-            throw var90;
+         } else {
+            this.pc('\uf948', 2, 19);
+            int var68 = this.IX() + 0;
+            this.wMem(var68, 0, '\uf948');
+            this.pc('\uf94c', 2, 19);
+            int var69 = this.IX() + 1;
+            this.wMem(var69, 0, '\uf94c');
+            this.pc('\uf950', 1, 4);
+            int var70 = this.A();
+            this.alu("scf", var70);
+            this.pc('\uf951', 1, 10);
+            return -1;
          }
-
-         this.$FAEA();
-         return -1;
       }
    }
 
@@ -22183,160 +22252,141 @@ public class RType extends MiniZX {
       this.DE('\uff2f');
       this.pc('\ubf58', 1, 10);
       this.BC('\ufefe');
-      this.setNextAddress('\ubf5b');
-      this.$BF60();
+      this.runJumps('\ubf5b');
    }
 
-   public void $BF60() {
-      int var1;
-      int var2;
-      int var3;
-      int var4;
-      int var5;
-      int var6;
-      if(this.isNextPC('\ubf5b')) {
-         this.pc('\ubf5b', 2, 12);
-         var1 = this.BC();
-         var2 = this.inC(var1, '\ubf5b');
-         this.A(var2);
-         this.pc('\ubf5d', 1, 4);
-         var3 = this.A();
-         var4 = this.alu("cpl", var3);
+   public int $BF5B() {
+      this.pc('\ubf5b', 2, 12);
+      int var1 = this.BC();
+      int var2 = this.inC(var1, '\ubf5b');
+      this.A(var2);
+      this.pc('\ubf5d', 1, 4);
+      int var3 = this.A();
+      int var4 = this.alu("cpl", var3);
+      this.A(var4);
+      this.pc('\ubf5e', 1, 7);
+      int var5 = this.A();
+      int var6 = this.alu("and", var5, 31);
+      this.A(var6);
+      return '\ubf60';
+   }
+
+   public int $BF60() {
+      this.pc('\ubf60', 1, 7);
+      if(this.flag(64, false)) {
+         this.tstates(5);
+      } else {
+         this.pc('\ubf62', 1, 4);
+         int var1 = this.D();
+         int var2 = this.alu("inc", var1);
+         this.D(var2);
+         this.pc('\ubf63', 1, 5);
+         if(this.flag(64, true)) {
+            this.tstates(6);
+            return -1;
+         }
+
+         this.pc('\ubf64', 1, 4);
+         int var3 = this.A();
+         this.H(var3);
+         this.pc('\ubf65', 1, 4);
+         int var4 = this.E();
          this.A(var4);
-         this.pc('\ubf5e', 1, 7);
-         var5 = this.A();
-         var6 = this.alu("and", var5, 31);
-         this.A(var6);
-      }
 
-      while(true) {
-         this.pc('\ubf60', 1, 7);
-         if(this.flag(64, false)) {
-            this.tstates(5);
-         } else {
-            this.pc('\ubf62', 1, 4);
-            int var7 = this.D();
-            int var8 = this.alu("inc", var7);
-            this.D(var8);
-            this.pc('\ubf63', 1, 5);
-            if(this.flag(64, true)) {
-               this.tstates(6);
-               return;
-            }
-
-            this.pc('\ubf64', 1, 4);
-            int var9 = this.A();
-            this.H(var9);
-            this.pc('\ubf65', 1, 4);
-            int var10 = this.E();
-            this.A(var10);
-
-            while(true) {
-               this.pc('\ubf66', 1, 7);
-               int var11 = this.A();
-               int var12 = this.alu("sub", var11, 8);
-               this.A(var12);
-               this.pc('\ubf68', 2, 8);
-               int var13 = this.H();
-               int var14 = this.alu("srl", var13);
-               this.H(var14);
-               this.pc('\ubf6a', 1, 7);
-               if(!this.flag(1, true)) {
-                  this.pc('\ubf6c', 1, 5);
-                  if(this.flag(64, true)) {
-                     this.tstates(6);
-                     return;
-                  }
-
-                  this.pc('\ubf6d', 1, 4);
-                  int var15 = this.A();
-                  this.D(var15);
-                  this.pc('\ubf6e', 1, 4);
-                  int var16 = this.B();
-                  this.L(var16);
-                  break;
+         while(true) {
+            this.pc('\ubf66', 1, 7);
+            int var5 = this.A();
+            int var6 = this.alu("sub", var5, 8);
+            this.A(var6);
+            this.pc('\ubf68', 2, 8);
+            int var7 = this.H();
+            int var8 = this.alu("srl", var7);
+            this.H(var8);
+            this.pc('\ubf6a', 1, 7);
+            if(!this.flag(1, true)) {
+               this.pc('\ubf6c', 1, 5);
+               if(this.flag(64, true)) {
+                  this.tstates(6);
+                  return -1;
                }
 
-               this.tstates(5);
+               this.pc('\ubf6d', 1, 4);
+               int var9 = this.A();
+               this.D(var9);
+               this.pc('\ubf6e', 1, 4);
+               int var10 = this.B();
+               this.L(var10);
+               break;
             }
-         }
 
-         this.pc('\ubf6f', 1, 4);
-         int var17 = this.E();
-         int var18 = this.alu("dec", var17);
-         this.E(var18);
-         this.pc('\ubf70', 2, 8);
-         int var19 = this.B();
-         int var20 = this.alu("rlc", var19);
-         this.B(var20);
-         this.pc('\ubf72', 1, 7);
-         if(!this.flag(1, false)) {
-            this.pc('\ubf74', 1, 4);
-            int var21 = this.D();
-            this.A(var21);
-            this.pc('\ubf75', 1, 7);
-            int var22 = this.A();
-            int var23 = this.alu("and", var22, 56);
-            this.A(var23);
-            this.pc('\ubf77', 1, 4);
-            int var24 = this.A();
-            int var25 = this.alu("rrca", var24);
-            this.A(var25);
-            this.pc('\ubf78', 1, 4);
-            int var26 = this.A();
-            int var27 = this.alu("rrca", var26);
-            this.A(var27);
-            this.pc('\ubf79', 1, 4);
-            int var28 = this.A();
-            int var29 = this.alu("rrca", var28);
-            this.A(var29);
-            this.pc('\ubf7a', 1, 11);
-            int var30 = this.HL();
-            this.push(var30);
-            this.pc('\ubf7b', 1, 10);
-            this.HL(29424);
-            this.pc('\ubf7e', 1, 7);
-            this.B(0);
-            this.pc('\ubf80', 1, 4);
-            int var31 = this.A();
-            this.C(var31);
-            this.pc('\ubf81', 1, 11);
-            int var32 = this.BC();
-            int var33 = this.HL();
-            int var34 = this.alu("add16", var33, var32);
-            this.HL(var34);
-            this.pc('\ubf82', 1, 7);
-            int var35 = this.HL();
-            int var36 = this.mem(var35, '\ubf82');
-            this.B(var36);
-            this.pc('\ubf83', 1, 10);
-            int var37 = this.pop();
-            this.HL(var37);
-            this.pc('\ubf84', 1, 4);
-            int var38 = this.B();
-            this.H(var38);
-            this.pc('\ubf85', 1, 4);
-            int var39 = this.A();
-            int var40 = this.A();
-            int var41 = this.alu("xor", var40, var39);
-            this.A(var41);
-            this.pc('\ubf86', 1, 10);
-            return;
+            this.tstates(5);
          }
+      }
 
+      this.pc('\ubf6f', 1, 4);
+      int var11 = this.E();
+      int var12 = this.alu("dec", var11);
+      this.E(var12);
+      this.pc('\ubf70', 2, 8);
+      int var13 = this.B();
+      int var14 = this.alu("rlc", var13);
+      this.B(var14);
+      this.pc('\ubf72', 1, 7);
+      if(this.flag(1, false)) {
          this.tstates(5);
-         this.pc('\ubf5b', 2, 12);
-         var1 = this.BC();
-         var2 = this.inC(var1, '\ubf5b');
-         this.A(var2);
-         this.pc('\ubf5d', 1, 4);
-         var3 = this.A();
-         var4 = this.alu("cpl", var3);
-         this.A(var4);
-         this.pc('\ubf5e', 1, 7);
-         var5 = this.A();
-         var6 = this.alu("and", var5, 31);
-         this.A(var6);
+         return '\ubf5b';
+      } else {
+         this.pc('\ubf74', 1, 4);
+         int var15 = this.D();
+         this.A(var15);
+         this.pc('\ubf75', 1, 7);
+         int var16 = this.A();
+         int var17 = this.alu("and", var16, 56);
+         this.A(var17);
+         this.pc('\ubf77', 1, 4);
+         int var18 = this.A();
+         int var19 = this.alu("rrca", var18);
+         this.A(var19);
+         this.pc('\ubf78', 1, 4);
+         int var20 = this.A();
+         int var21 = this.alu("rrca", var20);
+         this.A(var21);
+         this.pc('\ubf79', 1, 4);
+         int var22 = this.A();
+         int var23 = this.alu("rrca", var22);
+         this.A(var23);
+         this.pc('\ubf7a', 1, 11);
+         int var24 = this.HL();
+         this.push(var24);
+         this.pc('\ubf7b', 1, 10);
+         this.HL(29424);
+         this.pc('\ubf7e', 1, 7);
+         this.B(0);
+         this.pc('\ubf80', 1, 4);
+         int var25 = this.A();
+         this.C(var25);
+         this.pc('\ubf81', 1, 11);
+         int var26 = this.BC();
+         int var27 = this.HL();
+         int var28 = this.alu("add16", var27, var26);
+         this.HL(var28);
+         this.pc('\ubf82', 1, 7);
+         int var29 = this.HL();
+         int var30 = this.mem(var29, '\ubf82');
+         this.B(var30);
+         this.pc('\ubf83', 1, 10);
+         int var31 = this.pop();
+         this.HL(var31);
+         this.pc('\ubf84', 1, 4);
+         int var32 = this.B();
+         this.H(var32);
+         this.pc('\ubf85', 1, 4);
+         int var33 = this.A();
+         int var34 = this.A();
+         int var35 = this.alu("xor", var34, var33);
+         this.A(var35);
+         this.pc('\ubf86', 1, 10);
+         return -1;
       }
    }
 
@@ -25179,12 +25229,10 @@ public class RType extends MiniZX {
          this.$F9E9();
       } else {
          int var2 = this.executeMutantCode('\uf9e7');
-         if(var2 != '\uf9e9') {
-            if(var2 != -1) {
-               this.jump(var2);
-            }
-
+         if(var2 != -1) {
+            this.jump(var2);
          }
+
       }
    }
 
@@ -25235,12 +25283,10 @@ public class RType extends MiniZX {
          this.$F9F3();
       } else {
          int var9 = this.executeMutantCode('\uf9f1');
-         if(var9 != '\uf9f3') {
-            if(var9 != -1) {
-               this.jump(var9);
-            }
-
+         if(var9 != -1) {
+            this.jump(var9);
          }
+
       }
    }
 
@@ -25397,9 +25443,7 @@ public class RType extends MiniZX {
       int var5 = this.DE();
       this.push(var5);
       this.pc('\ufa38', 2, 8);
-      if(this.IX() == '\ufb2a') {
-         this.$FB2A();
-      } else if(this.IX() == '\ufaea') {
+      if(this.IX() == '\ufaea') {
          this.$FAEA();
       } else if(this.IX() == '\ufafa') {
          this.$FAFA();
@@ -25566,7 +25610,7 @@ public class RType extends MiniZX {
             int var7 = this.alu("or", var6, var5);
             this.A(var7);
             this.pc('\ufaa2', 1, 11);
-            int var8 = this.A() << 8 | '\ua2fe';
+            int var8 = this.A() << 8 | 254;
             int var9 = this.A();
             this.out(var8, var9);
             this.pc('\ufaa4', 1, 6);
@@ -25654,14 +25698,15 @@ public class RType extends MiniZX {
       try {
          this.pc('\ufab7', 1, 17);
          this.$FA08();
-      } catch (StackException var3) {
-         if(var3.getNextPC() == '\ufa0a') {
+      } catch (StackException var4) {
+         int[] var3 = new int[]{'\ufa0a'};
+         if(this.ownAddress(var4, var3) == '\ufa0a') {
             this.IX('\ufaba');
             this.$FA0A();
             return;
          }
 
-         throw var3;
+         return;
       }
 
       this.$FABA();
@@ -25671,14 +25716,15 @@ public class RType extends MiniZX {
       try {
          this.pc('\ufaba', 1, 17);
          this.$FA3A();
-      } catch (StackException var2) {
-         if(var2.getNextPC() == '\ufa3c') {
+      } catch (StackException var3) {
+         int[] var2 = new int[]{'\ufa3c'};
+         if(this.ownAddress(var3, var2) == '\ufa3c') {
             this.IX('\ufabd');
             this.$FA3C();
             return;
          }
 
-         throw var2;
+         return;
       }
 
       this.$FABD();
@@ -25701,14 +25747,15 @@ public class RType extends MiniZX {
       try {
          this.pc('\ufac7', 1, 17);
          this.$FA08();
-      } catch (StackException var3) {
-         if(var3.getNextPC() == '\ufa0a') {
+      } catch (StackException var4) {
+         int[] var3 = new int[]{'\ufa0a'};
+         if(this.ownAddress(var4, var3) == '\ufa0a') {
             this.IX('\ufaca');
             this.$FA0A();
             return;
          }
 
-         throw var3;
+         return;
       }
 
       this.$FACA();
@@ -25718,15 +25765,16 @@ public class RType extends MiniZX {
       try {
          this.pc('\ufaca', 1, 17);
          this.$FA5F();
-      } catch (StackException var2) {
-         if(var2.getNextPC() == '\ufa61') {
+      } catch (StackException var3) {
+         int[] var2 = new int[]{'\ufa61'};
+         if(this.ownAddress(var3, var2) == '\ufa61') {
             this.IX('\ufacd');
             this.setNextAddress('\ufa61');
             this.runJumps('\ube5e');
             return;
          }
 
-         throw var2;
+         return;
       }
 
       this.$FACD();
@@ -25741,14 +25789,15 @@ public class RType extends MiniZX {
       try {
          this.pc('\ufaea', 1, 17);
          this.$FA18();
-      } catch (StackException var2) {
-         if(var2.getNextPC() == '\ufa1a') {
+      } catch (StackException var3) {
+         int[] var2 = new int[]{'\ufa1a'};
+         if(this.ownAddress(var3, var2) == '\ufa1a') {
             this.IX('\ufaed');
             this.$FA1A();
             return;
          }
 
-         throw var2;
+         return;
       }
 
       this.$FAED();
@@ -25771,14 +25820,15 @@ public class RType extends MiniZX {
       try {
          this.pc('\ufaf7', 1, 17);
          this.$FA28();
-      } catch (StackException var3) {
-         if(var3.getNextPC() == '\ufa2a') {
+      } catch (StackException var4) {
+         int[] var3 = new int[]{'\ufa2a'};
+         if(this.ownAddress(var4, var3) == '\ufa2a') {
             this.IX('\ufafa');
             this.$FA2A();
             return;
          }
 
-         throw var3;
+         return;
       }
 
       this.$FAFA();
@@ -25788,14 +25838,15 @@ public class RType extends MiniZX {
       try {
          this.pc('\ufafa', 1, 17);
          this.$FA3A();
-      } catch (StackException var2) {
-         if(var2.getNextPC() == '\ufa3c') {
+      } catch (StackException var3) {
+         int[] var2 = new int[]{'\ufa3c'};
+         if(this.ownAddress(var3, var2) == '\ufa3c') {
             this.IX('\ufafd');
             this.$FA3C();
             return;
          }
 
-         throw var2;
+         return;
       }
 
       this.$FAFD();
@@ -25818,14 +25869,15 @@ public class RType extends MiniZX {
       try {
          this.pc('\ufb07', 1, 17);
          this.$FA4E();
-      } catch (StackException var3) {
-         if(var3.getNextPC() == '\ufa50') {
+      } catch (StackException var4) {
+         int[] var3 = new int[]{'\ufa50'};
+         if(this.ownAddress(var4, var3) == '\ufa50') {
             this.IX('\ufb0a');
             this.$FA50();
             return;
          }
 
-         throw var3;
+         return;
       }
 
       this.$FB0A();
@@ -25835,15 +25887,16 @@ public class RType extends MiniZX {
       try {
          this.pc('\ufb0a', 1, 17);
          this.$FA5F();
-      } catch (StackException var2) {
-         if(var2.getNextPC() == '\ufa61') {
+      } catch (StackException var3) {
+         int[] var2 = new int[]{'\ufa61'};
+         if(this.ownAddress(var3, var2) == '\ufa61') {
             this.IX('\ufb0d');
             this.setNextAddress('\ufa61');
             this.runJumps('\ube5e');
             return;
          }
 
-         throw var2;
+         return;
       }
 
       this.$FB0D();
@@ -25851,29 +25904,6 @@ public class RType extends MiniZX {
 
    public void $FB0D() {
       this.pc('\ufb0d', 1, 12);
-      this.$FB2F();
-   }
-
-   public void $FB2A() {
-      try {
-         this.pc('\ufb2a', 1, 17);
-         this.$FA5F();
-      } catch (StackException var2) {
-         if(var2.getNextPC() == '\ufa61') {
-            this.IX('\ufb2d');
-            this.setNextAddress('\ufa61');
-            this.runJumps('\ube5e');
-            return;
-         }
-
-         throw var2;
-      }
-
-      this.$FB2D();
-   }
-
-   public void $FB2D() {
-      this.pc('\ufb2d', 1, 12);
       this.$FB2F();
    }
 
@@ -25936,7 +25966,7 @@ public class RType extends MiniZX {
             int var17 = this.alu("xor", var16, 16);
             this.A(var17);
             this.pc('\ufb52', 1, 11);
-            int var18 = this.A() << 8 | '\ua2fe';
+            int var18 = this.A() << 8 | 254;
             int var19 = this.A();
             this.out(var18, var19);
 

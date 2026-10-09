@@ -76,6 +76,12 @@ public abstract class SpectrumApplication {
     return Arrays.stream(integers).anyMatch(a -> a == nextAddress);
   }
 
+  public int ownAddress(StackException stackException, int... integers) {
+    if (isOwnAddress(stackException, integers))
+      return nextAddress;
+    throw stackException;
+  }
+
   private OOZ80 mutantExecutor;
 
   public int executeMutantCode(int address) {
