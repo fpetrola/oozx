@@ -164,6 +164,11 @@ public class GameBytecodeCreationTests {
   }
 
   @Test
+  public void testTranslateFairlightToJava() {
+    translateRecording("Fairlight", "/home/fernando/detodo/spectrum/rzx-top/1712/fairlight48.rzx", 0xF0DC);
+  }
+
+  @Test
   public void testTranslateRTypeToJava() {
     translateRecording("RType", "/home/fernando/detodo/spectrum/rzx-top/4256/rtype-random.rzx", 0xBF60);
   }
