@@ -583,6 +583,17 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void anUnrolledLoopReenteredThroughCopiesOfItsEntryPushedByItsOwnRoutineStaysInThatRoutine() {
+    // R-Type 88E6: PUSH 8974 as continuation, eight PUSH HL of an entry into the unrolled RL chain, RET; every RET of the chain takes the next copy
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x01, 0x30, 0x80, 0xC5, 0x21, 0x22, 0x80, 0xE5, 0xE5, 0xC9),
+        at(0x8020, 0x14, 0x14, 0x1C, 0xC9),
+        at(0x8030, 0x0E, 0x09, 0xC9));
+    Assert.assertEquals(routineManager.findRoutineAt(0x8013), routineManager.findRoutineAt(0x8023));
+  }
+
+  @Test
   public void poppingAReturnAddressThatWasOnTheStackBeforeTheRecordingIsNotAReturn() {
     // Bruce Lee 9633: POP of a return address from the snapshot's stack, whose CALL is unknown
     String java = translate(
