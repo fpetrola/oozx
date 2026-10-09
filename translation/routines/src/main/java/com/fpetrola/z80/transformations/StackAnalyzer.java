@@ -60,7 +60,7 @@ public class StackAnalyzer implements java.io.Serializable {
   public final MultiValuedMap<Integer, Integer> returnsConsumedBy = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> pushedValues = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> calledThrough = new HashSetValuedHashMap<>();
-  public final Set<Integer> jumpTableSites = new HashSet<>(), recordedPops = new HashSet<>();
+  public final Set<Integer> jumpTableSites = new HashSet<>(), recordedPops = new HashSet<>(), pushesTakenByPops = new HashSet<>();
   public final Map<Integer, Integer> stackSwitches = new HashMap<>();
   private transient int[] leaving, reentered;
   private final transient Map<Integer, int[]> leftStacks = new HashMap<>();
@@ -192,8 +192,10 @@ public class StackAnalyzer implements java.io.Serializable {
     instruction.accept(new InstructionVisitor<>() {
       public void visitingPop(Pop pop) {
         Entry entry = entryAtSp();
-        if (collecting && entry != null && !entry.returnAddress() && entry.pc() != -1)
+        if (collecting && entry != null && !entry.returnAddress() && entry.pc() != -1) {
           recordedPops.add(pcValue);
+          pushesTakenByPops.add(entry.pc());
+        }
         if (entry != null && entry.returnAddress() && entry.pc() != -1 && (!recordedPops.contains(pcValue) || poppedCallSites.containsValue(pcValue)))
           lastEvent = l -> l.returnAddressPopped(pcValue, entry.value(), entry.pc());
       }
@@ -452,6 +454,7 @@ public class StackAnalyzer implements java.io.Serializable {
     pushedValues.clear();
     calledThrough.clear();
     jumpTableSites.clear();
+    pushesTakenByPops.clear();
     nonLocalRets.clear();
     returnSlots.clear();
     learnedFromRecording = false;
@@ -465,6 +468,7 @@ public class StackAnalyzer implements java.io.Serializable {
     recorded.jumpTableSites.forEach(this::jumpTableAt);
     recorded.shiftedReturns.entries().forEach(e -> learnContinuation(e.getKey(), e.getValue(), recorded.callContinuations.get(e.getValue())));
     recordedPops.addAll(recorded.recordedPops);
+    pushesTakenByPops.addAll(recorded.pushesTakenByPops);
     stackSwitches.putAll(recorded.stackSwitches);
     dataConsumedBy.putAll(recorded.dataConsumedBy);
     dataOnTopAt.putAll(recorded.dataOnTopAt);

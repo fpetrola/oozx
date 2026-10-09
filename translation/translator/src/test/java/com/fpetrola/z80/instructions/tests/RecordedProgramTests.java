@@ -671,6 +671,17 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aPlantedContinuationThatATargetPopsAndJumpsToIsPushedForReal() {
+    // Target: Renegade EF3D: one of the targets of F42E takes the planted F42F with POP HL and goes there with JP (HL)
+    translate(
+        at(0x8000, 0x21, 0x34, 0x12, 0x11, 0x30, 0x80, 0xCD, 0x10, 0x80, 0x11, 0x40, 0x80, 0xCD, 0x10, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8010, 0xE5, 0x21, 0x20, 0x80, 0xE5, 0xEB, 0xE9),
+        at(0x8020, 0xE1, 0x7D, 0xC9),
+        at(0x8030, 0x04, 0xC9),
+        at(0x8040, 0xE1, 0x0C, 0xE9));
+  }
+
+  @Test
   public void anOutThroughCGoesToThePortInBCWhateverAHolds() {
     // Renegade 128K 9FF3: OUT (C),A with BC=7FFD; only OUT (n),A puts A on the high byte of the port
     banked = true;

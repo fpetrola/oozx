@@ -580,7 +580,7 @@ public class RoutineBytecodeGenerator {
 
   public Integer plantedContinuation(int push) {
     Collection<Integer> values = stackAnalyzer().pushedValues.get(push);
-    if (!stackAnalyzer().dataConsumedBy.containsValue(push) || !context.routineManager.plantsAContinuation(push, values))
+    if (!stackAnalyzer().dataConsumedBy.containsValue(push) || stackAnalyzer().pushesTakenByPops.contains(push) || !context.routineManager.plantsAContinuation(push, values))
       return null;
     int value = values.iterator().next();
     Routine target = context.routineManager.findRoutineAt(value);
@@ -593,6 +593,19 @@ public class RoutineBytecodeGenerator {
 
   public boolean pushesReturnAddress(int callSite) {
     return stackAnalyzer().poppedCallSites.containsKey(callSite) && !routine.getReturnPoints().containsKey(callSite) || context.routineManager.pushedReturnSites.contains(callSite);
+  }
+
+  public void resumeAtPushed(int site, Variable value) {
+    stackAnalyzer().dataOnTopAt.get(site).stream().flatMap(push -> stackAnalyzer().pushedValues.get(push).stream()).distinct().forEach(pushed -> value.ifEq(pushed, () -> {
+      if (getLabel(pushed) != null)
+        mm.goto_(getLabel(pushed));
+      else {
+        jumpInto(pushed);
+        returnFromMethod();
+      }
+    }));
+    mm.invoke("jump", value);
+    returnFromMethod();
   }
 
   public boolean leavesAPlantedContinuation(int site) {
