@@ -812,6 +812,29 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aContinuationPlantedUnderARetDispatchTargetRunsWhenTheTargetReturns() {
+    // Skool Daze 6251: LD BC,6254; PUSH BC; PUSH DE; RET dispatches to a character's handler, and the handler at 629F is a bare RET that takes 6254
+    translate(
+        at(0x8000, 0xCD, 0x30, 0x80, 0x21, 0x30, 0x80, 0xCD, 0x10, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x01, 0x17, 0x80, 0xC5, 0xE5, 0xC9, 0x00, 0x3E, 0x05, 0xC9),
+        at(0x8030, 0xC9));
+    Assert.assertEquals(Set.of(0x8013), Set.copyOf(stackAnalyzer.dataConsumedBy.get(0x8030)));
+    Assert.assertEquals(0x05, endValue("A"));
+  }
+
+  @Test
+  public void aContinuationPushedForRealUnderARetDispatchTargetResumesWhenTheTargetReturns() {
+    // Skool Daze 6251: some handlers POP the continuation 6254 instead of returning to it, so the push is real and the bare RET at 629F must still reach 6254
+    translate(
+        at(0x8000, 0xCD, 0x30, 0x80, 0x21, 0x30, 0x80, 0xCD, 0x10, 0x80, 0x21, 0x40, 0x80, 0xCD, 0x10, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x01, 0x17, 0x80, 0xC5, 0xE5, 0xC9, 0x00, 0x3E, 0x05, 0xC9),
+        at(0x8030, 0xC9),
+        at(0x8040, 0xC1, 0x3C, 0xC9));
+    Assert.assertTrue(stackAnalyzer.pushesTakenByPops.contains(0x8013));
+    Assert.assertEquals(0x06, endValue("A"));
+  }
+
+  @Test
   public void aStackPointerSavedAndRestoredButNeverReadAsDataKeepsNoReturns() {
     // Fairlight F060: LD SP,(FFF6) restores the saved SP, it does not look at the layout
     ignoresMemory(0xFFF6, 0xFFF7);

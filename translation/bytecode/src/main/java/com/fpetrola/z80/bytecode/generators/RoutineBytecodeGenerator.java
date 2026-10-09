@@ -51,6 +51,7 @@ import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
 
 import java.util.*;
+import java.util.stream.Stream;
 import java.util.function.Supplier;
 
 public class RoutineBytecodeGenerator {
@@ -621,7 +622,8 @@ public class RoutineBytecodeGenerator {
   }
 
   private List<Integer> ownDataLeftForOthers(int site) {
-    return stackAnalyzer().dataOnTopAt.get(site).stream().filter(push -> routine.contains(push) && consumedOutside(push)).toList();
+    Stream<Integer> onTop = context.routineManager.getInstructionAt(site) instanceof Ret ? stackAnalyzer().getInvocationsSet(site).stream().flatMap(target -> stackAnalyzer().dataOnTopAt.get(target).stream()) : stackAnalyzer().dataOnTopAt.get(site).stream();
+    return onTop.distinct().filter(push -> routine.contains(push) && consumedOutside(push)).toList();
   }
 
   public void leaveWithOwnData(int site) {
