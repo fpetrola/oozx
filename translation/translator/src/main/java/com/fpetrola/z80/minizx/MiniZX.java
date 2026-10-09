@@ -68,13 +68,16 @@ public abstract class MiniZX extends SpectrumApplication {
 //    }
 
     PC = address;
+    int early = enteringHandler ? rdelta : 0;
+    enteringHandler = false;
+    fetchCounter += early;
     for (boolean accepting = acceptsInterrupt(); interruptPending() && accepting; accepting = iff) {
       interrupt();
       PC = address;
     }
     interruptsDelayed = false;
     R = R & 0x80 | R + rdelta & 0x7f;
-    fetchCounter += rdelta;
+    fetchCounter += rdelta - early;
   }
 
   public void run(int entry) {
@@ -139,6 +142,8 @@ public abstract class MiniZX extends SpectrumApplication {
     }
   }
 
+  private boolean enteringHandler;
+
   private boolean interruptPending() {
     return interruptionCondition != null && interruptionCondition.test(fetchCounter);
   }
@@ -148,6 +153,7 @@ public abstract class MiniZX extends SpectrumApplication {
     int vector = I << 8 | 0xff;
     fetchCounter++;
     R = R & 0x80 | R + 1 & 0x7f;
+    enteringHandler = true;
     invokeMethod(interruptMode == 2 ? mem[vector] | mem[vector + 1 & 0xffff] << 8 : 0x38);
     interrupts++;
   }

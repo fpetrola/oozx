@@ -80,11 +80,16 @@ public class RecordedProgramTests {
     return translate(chunks);
   }
 
-  private String translateWithBlock(int[] block, int[]... chunks) {
+  private static int[] memoryOf(int[]... chunks) {
     int[] memory = new int[0x10000];
     for (int[] chunk : chunks)
       for (int i = 1; i < chunk.length; i++)
         memory[chunk[0] + i - 1] = chunk[i];
+    return memory;
+  }
+
+  private String translateWithBlock(int[] block, int[]... chunks) {
+    int[] memory = memoryOf(chunks);
     String image = RemoteZ80Translator.emulateProgram(base, memory, start, STACK);
     base.exploreRecording(RemoteZ80Translator.footprint(stackAnalyzer -> EmulatedMiniZX.ofProgram(memory, start, STACK, 1000, stackAnalyzer).interruptingEvery(interruptEvery), start), start);
     stackAnalyzer = base.getStackAnalyzer();
@@ -917,6 +922,34 @@ public class RecordedProgramTests {
     EmulatedMiniZX emulator = EmulatedMiniZX.ofRecording("/home/fernando/detodo/spectrum/jsw/jsw-full.rzx", 1, null);
     emulator.start();
     Assert.assertEquals(0xF5, emulator.ooz80.getState().getMemory().read(0x0038, 0));
+  }
+
+  @Test
+  public void theFirstInstructionOfAnInterruptHandlerIsCountedWithTheInterruptBeforeTheFrameCounterIsConsulted() {
+    // Emlyn: its recording has frames of 0-3 fetches right after the interrupt; the vector's JP belongs to the interrupt's frame, so a frame cannot end between them
+    interruptEvery = 300;
+    int[] table = new int[1 + 257];
+    table[0] = 0x9000;
+    Arrays.fill(table, 1, table.length, 0x80);
+    int[][] chunks = {at(0x8000, 0x3E, 0x90, 0xED, 0x47, 0xED, 0x5E, 0xFB, 0x3C, 0x18, 0xFD), at(0x8080, 0xC3, 0x90, 0x80), at(0x8090, 0x0C, 0xFB, 0xC9), table};
+    translate(chunks);
+    MiniZX program = BytecodeGeneration.translatedProgram("Program", read(Path.of("Program.class")));
+    EmulatedMiniZX emulator = EmulatedMiniZX.ofProgram(memoryOf(chunks), start, STACK, 0, null);
+    emulator.start();
+    program.loadState(emulator.ooz80.getState());
+    List<String> consulted = new ArrayList<>();
+    program.setInterruptionCondition(fetches -> {
+      consulted.add(Integer.toHexString(program.PC) + ":" + fetches);
+      if (consulted.size() > 2000)
+        throw new Finished();
+      return fetches == 300;
+    });
+    try {
+      program.run(start);
+    } catch (Finished finished) {
+    }
+    Assert.assertTrue(consulted.toString(), consulted.contains("8080:302"));
+    Assert.assertTrue(consulted.contains("8090:302"));
   }
 
   @Test
