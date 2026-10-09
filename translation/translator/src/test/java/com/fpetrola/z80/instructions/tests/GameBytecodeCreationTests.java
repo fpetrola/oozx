@@ -169,6 +169,11 @@ public class GameBytecodeCreationTests {
   }
 
   @Test
+  public void testTranslateSkoolDazeToJava() {
+    translateRecording("Skooldaze", "/home/fernando/detodo/spectrum/rzx-top/4549/skooldaze.rzx", 0x673F);
+  }
+
+  @Test
   public void testTranslateRTypeToJava() {
     translateRecording("RType", "/home/fernando/detodo/spectrum/rzx-top/4256/rtype-random.rzx", 0xBF60);
   }
