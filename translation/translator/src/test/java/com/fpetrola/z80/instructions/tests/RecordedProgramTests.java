@@ -1235,6 +1235,16 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aStackRestoredToPopRegistersBeforeItsReturnIsNoCoroutine() {
+    // Target: Renegade D996-D9A9: the blitter keeps a background buffer as a second stack (LD SP,(F6FC); PUSH BC; LD (F6FC),SP), then LD SP,(F6F6); POP DE; POP HL; RET
+    ignoresMemory(0x8F00, 0x9300);
+    translate(
+        at(0x8000, 0x31, 0x00, 0x90, 0x21, 0x00, 0x92, 0x22, 0x02, 0x91, 0x21, 0x00, 0x70, 0x11, 0x00, 0x60, 0xCD, 0x20, 0x80, 0xCD, 0x20, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8020, 0xE5, 0xD5, 0xED, 0x73, 0x00, 0x91, 0xED, 0x7B, 0x02, 0x91, 0xC5, 0xED, 0x73, 0x02, 0x91, 0xED, 0x7B, 0x00, 0x91, 0xD1, 0xE1, 0xC9));
+    Assert.assertTrue(stackAnalyzer.stackSwitches.toString(), stackAnalyzer.stackSwitches.isEmpty());
+  }
+
+  @Test
   public void aStackSwitchIsLearnedFromTheRecordingNotFromTheExplorationOfUntakenPaths() {
     // R-Type FAEF: LD (FBC9),SP; LD SP,F87A reads a table; the exploration reached an unrelated RET before the restore and took the pair for a coroutine
     ignoresMemory(0x9000, 0x9001);

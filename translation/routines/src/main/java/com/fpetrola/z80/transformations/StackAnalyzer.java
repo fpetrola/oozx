@@ -289,7 +289,7 @@ public class StackAnalyzer implements java.io.Serializable {
         if (ret instanceof RetN)
           return false;
         lastStorePlace = -1;
-        if (leaving != null && leaving[3] == -1 && !callSinceLoad && state.getRegisterSP().read() >= leaving[2]) {
+        if (leaving != null && leaving[3] == -1 && !callSinceLoad && state.getRegisterSP().read() == leaving[2]) {
           int[] memory = state.getMemory().getData();
           leaving[3] = pcValue;
           leaving[4] = memory[leaving[2]] | memory[leaving[2] + 1 & 0xffff] << 8;
