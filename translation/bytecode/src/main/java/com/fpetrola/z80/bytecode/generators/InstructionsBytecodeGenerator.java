@@ -513,6 +513,12 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
     return true;
   }
 
+  public boolean visitLdOperation(LdOperation ldOperation) {
+    ldOperation.getInstruction().accept(this);
+    routineByteCodeGenerator.getExistingVariable((Register) ldOperation.getTarget()).set(valueOf(((TargetInstruction) ldOperation.getInstruction()).getTarget()));
+    return true;
+  }
+
   public boolean visitOuti(Outi outi) {
     methodMaker.invoke("outi");
     return true;

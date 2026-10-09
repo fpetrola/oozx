@@ -704,6 +704,14 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void anUndocumentedIndexedRotationOrBitOpThatAlsoLoadsARegisterIsTranslated() {
+    // Batman The Movie: an untaken path decodes DD CB d op with a register copy (RES 0,(IX+0),B); the instruction cache could not clone it
+    translate(
+        at(0x8000, 0xDD, 0x21, 0x00, 0x90, 0x06, 0x00, 0xDD, 0xCB, 0x00, 0x80, 0x78, 0xDD, 0xCB, 0x01, 0x10, 0x48, 0x76, 0x18, 0xFD),
+        at(0x9000, 0xFF, 0x81));
+  }
+
+  @Test
   public void anOutThroughCGoesToThePortInBCWhateverAHolds() {
     // Renegade 128K 9FF3: OUT (C),A with BC=7FFD; only OUT (n),A puts A on the high byte of the port
     banked = true;

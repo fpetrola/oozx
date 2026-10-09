@@ -481,6 +481,8 @@ public class InstructionCloner implements InstructionVisitor<Object> {
 
   @Override
   public boolean visitLdOperation(LdOperation ldOperation) {
+    Instruction operation = clone(ldOperation.getInstruction());
+    setCloned(instructionFactory.LdOperation(clone(ldOperation.getTarget()), operation), ldOperation);
     return true;
   }
 
