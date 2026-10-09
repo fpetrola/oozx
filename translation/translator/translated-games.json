@@ -21,6 +21,12 @@
       "recording": "/home/fernando/detodo/spectrum/rzx-top/renegade.rzx",
       "entry": "6004"
     },
+    "targetrenegade": {
+      "title": "Target: Renegade (128K)",
+      "type": "TargetRenegade",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/4087/target.rzx",
+      "entry": "BFBF"
+    },
     "rtype": {
       "title": "R-Type",
       "type": "RType",

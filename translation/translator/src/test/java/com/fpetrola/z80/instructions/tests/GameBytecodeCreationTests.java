@@ -159,6 +159,11 @@ public class GameBytecodeCreationTests {
   }
 
   @Test
+  public void testTranslateTargetRenegadeToJava() {
+    translateRecording("TargetRenegade", "/home/fernando/detodo/spectrum/rzx-top/4087/target.rzx", 0xBFBF);
+  }
+
+  @Test
   public void testTranslateRTypeToJava() {
     translateRecording("RType", "/home/fernando/detodo/spectrum/rzx-top/4256/rtype-random.rzx", 0xBF60);
   }
