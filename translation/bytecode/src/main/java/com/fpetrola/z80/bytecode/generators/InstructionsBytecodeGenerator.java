@@ -587,7 +587,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
   private boolean invokeDynamicCall(Set<Integer> invocationsSet, Variable existingVariable) {
     int pcValue1 = routineByteCodeGenerator.context.pc.read();
-    boolean isSimulatedCall = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer().getSimulatedCallsPcs().contains(pcValue1);
+    boolean isSimulatedCall = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer().getSimulatedCallsPcs().contains(pcValue1) && !routineByteCodeGenerator.leavesAPlantedContinuation(pcValue1);
     if (isSimulatedCall)
       methodMaker.invoke("pop");
     invocationsSet.forEach(c -> {

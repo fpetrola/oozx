@@ -595,6 +595,10 @@ public class RoutineBytecodeGenerator {
     return stackAnalyzer().poppedCallSites.containsKey(callSite) && !routine.getReturnPoints().containsKey(callSite) || context.routineManager.pushedReturnSites.contains(callSite);
   }
 
+  public boolean leavesAPlantedContinuation(int site) {
+    return ownDataLeftForOthers(site).stream().anyMatch(push -> plantedContinuation(push) != null);
+  }
+
   private List<Integer> ownDataLeftForOthers(int site) {
     return stackAnalyzer().dataOnTopAt.get(site).stream().filter(push -> routine.contains(push) && consumedOutside(push)).toList();
   }
