@@ -78,8 +78,8 @@ public class RoutineExecutorHandler {
     return routineExecutions.get(address);
   }
 
-  public RoutineExecution findRoutineExecutionContaining(int address) {
-    return routineExecutions.values().stream().filter(r -> r.contains(address)).findFirst().get();
+  public RoutineExecution findRunningRoutineExecutionContaining(int address) {
+    return stackFrames.reversed().stream().map(routineExecutions::get).filter(r -> r.contains(address)).findFirst().orElse(null);
   }
 
   public LinkedList<java.lang.Integer> unexploredJumpTargets(int address, Set<java.lang.Integer> targets) {

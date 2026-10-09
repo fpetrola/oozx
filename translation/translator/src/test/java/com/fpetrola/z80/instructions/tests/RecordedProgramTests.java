@@ -609,6 +609,17 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aStackResetDroppingTheReturnOfARoutineNoLongerRunningIsNotAReturnToIt() {
+    // Renegade 128K 7C46: LD SP,BDFF dropped the return of the patched CALL at 8482, a site that earlier explorations had run too
+    ignoresMemory(0xFE00, 0xFF00);
+    translate(
+        at(0x8000, 0x11, 0x50, 0x80, 0xED, 0x53, 0x0C, 0x80, 0x21, 0x0B, 0x80, 0x00, 0xCD, 0x00, 0x00, 0x11, 0x60, 0x80, 0xED, 0x53, 0x0C, 0x80, 0xE9),
+        at(0x8030, 0x76, 0x18, 0xFD),
+        at(0x8050, 0xC9),
+        at(0x8060, 0x31, 0x00, 0xFF, 0xC3, 0x30, 0x80));
+  }
+
+  @Test
   public void anOutThroughCGoesToThePortInBCWhateverAHolds() {
     // Renegade 128K 9FF3: OUT (C),A with BC=7FFD; only OUT (n),A puts A on the high byte of the port
     banked = true;

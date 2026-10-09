@@ -374,9 +374,9 @@ public class SymbolicExecutionAdapter {
     public boolean droppingReturnValues(int pcValue, int newSpAddress, int oldSpAddress, StackAnalyzer.Entry lastReturnAddress) {
       RoutineExecutorHandler routineExecutorHandler = symbolicExecutionAdapter.routineExecutorHandler;
 
-      if (lastReturnAddress != null) {
+      var callerRoutineExecution = lastReturnAddress == null ? null : routineExecutorHandler.findRunningRoutineExecutionContaining(lastReturnAddress.pc());
+      if (callerRoutineExecution != null) {
         var lastRoutineExecution = routineExecutorHandler.getCurrentRoutineExecution();
-        var callerRoutineExecution = routineExecutorHandler.findRoutineExecutionContaining(lastReturnAddress.pc());
 
         RoutineExecution popRoutine = lastRoutineExecution;
         List<RoutineExecution> stackedRoutines = new ArrayList<>();
