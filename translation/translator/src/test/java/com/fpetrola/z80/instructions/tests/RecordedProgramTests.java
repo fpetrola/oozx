@@ -633,6 +633,15 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aReturnTheRecordingTookAsAReturnIsNoDispatchForWhatAForkMadeItPop() {
+    // Target: Renegade D9A9: on a branch the recording never took, the sprite blitter's RET pops the screen addresses it pushed
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x3A, 0x02, 0x81, 0xB7, 0x28, 0x04, 0x01, 0x00, 0x70, 0xC5, 0xC9));
+    Assert.assertNull(routineManager.findRoutineAt(0x7000));
+  }
+
+  @Test
   public void anOutThroughCGoesToThePortInBCWhateverAHolds() {
     // Renegade 128K 9FF3: OUT (C),A with BC=7FFD; only OUT (n),A puts A on the high byte of the port
     banked = true;

@@ -473,6 +473,12 @@ public class StackAnalyzer implements java.io.Serializable {
     returnSlots.putAll(recorded.returnSlots);
   }
 
+  public void learnFromForks(StackAnalyzer forked) {
+    forked.dynamicInvocation.keySet().removeAll(returnsConsumedBy.keySet());
+    forked.dataConsumedBy.keySet().removeAll(returnsConsumedBy.keySet());
+    learnFrom(forked);
+  }
+
   public Set<Integer> getInvocationsSet(int pcValue1) {
     return new HashSet<>(dynamicInvocation.get(pcValue1));
   }

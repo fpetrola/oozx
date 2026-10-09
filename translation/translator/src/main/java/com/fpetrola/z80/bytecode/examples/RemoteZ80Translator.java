@@ -234,7 +234,7 @@ public class RemoteZ80Translator {
     Set<Integer> externalEntries = new HashSet<>();
     CodeVersions versions = new CodeVersions();
     boolean[] started = {false};
-    StackAnalyzer stackAnalyzer = new StackAnalyzer(null);
+    StackAnalyzer stackAnalyzer = new StackAnalyzer(null), forked = new StackAnalyzer(null);
     stackAnalyzer.codeVersions = versions;
     EmulatedMiniZX[] emulator = {null};
     Map<Integer, int[]> explored = new HashMap<>();
@@ -251,7 +251,7 @@ public class RemoteZ80Translator {
         if (!started[0])
           return;
         if (pending[0] != null)
-          forks.exploreUntakenBranch(emulator[0].ooz80, pending[0], pendingAddress[0], address, stackAnalyzer, BRANCH_BUDGET);
+          forks.exploreUntakenBranch(emulator[0].ooz80, pending[0], pendingAddress[0], address, forked, BRANCH_BUDGET);
         if (pendingAddress[0] != -1 && address != (pendingAddress[0] + codeBytes.get(pendingAddress[0]).length & 0xffff))
           forks.landings().add(address);
         if (address < 0x4000 && (pendingAddress[0] >= 0x4000 && !(previous[0] instanceof Ret) || previous[0] instanceof JP jump && jump.getPositionOpcodeReference() instanceof Register))
@@ -277,6 +277,7 @@ public class RemoteZ80Translator {
     });
     play(emulator[0]);
     StackAnalyzer.collecting = false;
+    stackAnalyzer.learnFromForks(forked);
     versions.patched(patched, codeBytes);
     externalEntries.retainAll(codeBytes.keySet());
     return new Footprint(codeBytes, explored, stackAnalyzer, externalEntries, emulator[0].ooz80.getState().getMemory().getData().clone(), versions, romEntries).forgettingJumpsIntoData();
