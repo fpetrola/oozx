@@ -32,7 +32,6 @@ import java.util.function.Predicate;
 @SuppressWarnings("ALL")
 public abstract class MiniZX extends SpectrumApplication {
   private Predicate<Integer> interruptionCondition;
-  public int fetchCounter;
   private long interrupts;
 
   public MiniZX() {

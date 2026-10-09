@@ -184,6 +184,7 @@ public class RoutineBytecodeGenerator {
           versions.forEach(bytes -> hash.ifEq(Arrays.hashCode(bytes), () -> {
             Instruction version = codeVersions().decode(address, bytes);
             chargeTstates(UncontendedTiming.costOf(bytes)[version instanceof RepeatingInstruction ? 1 : 0]);
+            mm.invoke("fetched", ((AbstractInstruction) version).getRDelta());
             version.accept(new InstructionsBytecodeGenerator(mm, RoutineBytecodeGenerator.this, address));
             if (RoutineManager.fallsThrough(version))
               done.goto_();
@@ -523,8 +524,7 @@ public class RoutineBytecodeGenerator {
 
   /** The site charges nothing itself: whichever version or fallback runs there charges its own cost. */
   private void invokePcUncharged(int address) {
-    if (context.routineManager.getInstructionAt(address) instanceof AbstractInstruction instruction)
-      invokePc(address, instruction.getRDelta(), 0);
+    invokePc(address, 0, 0);
   }
 
   /** The T-states of the instruction at the address on its cheapest and dearest path, measured on the emulator's own timing model. */

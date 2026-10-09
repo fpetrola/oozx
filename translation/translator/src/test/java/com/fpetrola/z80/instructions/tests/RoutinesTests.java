@@ -1844,9 +1844,11 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               super.A = 2;
               int var1 = this.codeHash(1, 1);
               if(var1 == 59) {
+                 this.fetched(1);
                  int var4 = this.alu("inc", super.E);
                  super.E = var4;
               } else if(var1 == 51) {
+                 this.fetched(1);
                  int var3 = this.alu("inc", super.D);
                  super.D = var3;
               } else {

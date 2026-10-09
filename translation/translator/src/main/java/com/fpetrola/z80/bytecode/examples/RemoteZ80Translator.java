@@ -297,7 +297,10 @@ public class RemoteZ80Translator {
       for (int i = 0; i < bytes.length; i++)
         memory[address + i & 0xffff] = bytes[i];
       decoder.getState().getPc().write(address);
-      return decoder.getInstructionFetcher().fetchNextInstruction();
+      int r = decoder.getState().getRegisterR().read();
+      Instruction instruction = decoder.getInstructionFetcher().fetchNextInstruction();
+      ((com.fpetrola.z80.instructions.types.AbstractInstruction) instruction).setRDelta(decoder.getState().getRegisterR().read() - r & 0x7f);
+      return instruction;
     };
   }
 

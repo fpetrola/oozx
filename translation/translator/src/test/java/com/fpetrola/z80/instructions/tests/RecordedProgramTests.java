@@ -712,6 +712,14 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aPrefixedInstructionRunByTheEmulatorFallbackAdvancesRByItsTwoFetches() {
+    // Batman The Movie EFEF: the ISR starts with PUSH IX, a mutant site because a store the recording never ran targets it; R and the fetch count come from the emulator's fetch
+    fallsBackToTheEmulator = true;
+    translate(
+        at(0x8000, 0x3E, 0x00, 0xB7, 0x28, 0x03, 0x32, 0x09, 0x80, 0xDD, 0x21, 0x00, 0x90, 0x76, 0x18, 0xFD));
+  }
+
+  @Test
   public void anOutThroughCGoesToThePortInBCWhateverAHolds() {
     // Renegade 128K 9FF3: OUT (C),A with BC=7FFD; only OUT (n),A puts A on the high byte of the port
     banked = true;

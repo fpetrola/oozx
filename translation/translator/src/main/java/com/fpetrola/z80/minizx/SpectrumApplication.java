@@ -99,11 +99,13 @@ public abstract class SpectrumApplication {
     State state = mutantExecutor.getState();
     storeRegisters(state);
     state.getPc().write(address);
+    state.getRegisterR().write(R);
     long before = state.clock.getTStates();
     Instruction instruction = mutantExecutor.getInstructionFetcher().fetchNextInstruction();
     if (instruction instanceof Call call) {
       boolean taken = call.getCondition().conditionMet(call);
       tstates += costAt(address, call.getLength())[taken ? 1 : 0];
+      fetched(1);
       if (taken)
         invokeMethod(call.calculateJumpAddress());
       return address + call.getLength();
@@ -111,14 +113,20 @@ public abstract class SpectrumApplication {
     if (instruction instanceof Ret ret) {
       boolean taken = ret.getCondition().conditionMet(ret);
       tstates += costAt(address, ret.getLength())[taken ? 1 : 0];
+      fetched(1);
       return taken ? -1 : address + ret.getLength();
     }
-    int r = R;
     mutantExecutor.getInstructionExecutor().execute(instruction);
     tstates += state.clock.getTStates() - before;
     loadRegisters(state);
-    R = r;
+    fetchCounter += Math.min(state.getRegisterR().read() - R & 0x7f, 2);
+    R = R & 0x80 | state.getRegisterR().read() & 0x7f;
     return state.getPc().read();
+  }
+
+  public void fetched(int count) {
+    R = R & 0x80 | R + count & 0x7f;
+    fetchCounter += count;
   }
 
   private int[] costAt(int address, int length) {
@@ -342,6 +350,7 @@ public abstract class SpectrumApplication {
 
   private static final int BLOCK_REPEAT = 21, BLOCK_END = 16;
   public long tstates;
+  public int fetchCounter;
   public MiniZXSound sound;
   public MemoryBanks banks;
 
