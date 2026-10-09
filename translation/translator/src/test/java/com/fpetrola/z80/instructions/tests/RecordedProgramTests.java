@@ -724,6 +724,14 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aConditionalReturnNotTakenOverPushedDataDispatchesNowhere() {
+    // Fairlight EC13/EC14: PUSH HL; RET Z walks a byte stream and returns only at its end marker; every untaken RET Z was recorded as a dispatch to the data pointer
+    translate(
+        at(0x8000, 0x21, 0x00, 0x90, 0xE5, 0xAF, 0x3C, 0xC8, 0xE1, 0x76, 0x18, 0xFD));
+    Assert.assertTrue(stackAnalyzer.dynamicInvocation.get(0x8006).toString(), stackAnalyzer.dynamicInvocation.get(0x8006).isEmpty());
+  }
+
+  @Test
   public void anOutThroughCGoesToThePortInBCWhateverAHolds() {
     // Renegade 128K 9FF3: OUT (C),A with BC=7FFD; only OUT (n),A puts A on the high byte of the port
     banked = true;

@@ -293,6 +293,8 @@ public class StackAnalyzer implements java.io.Serializable {
       public boolean visitingRet(Ret ret) {
         if (ret instanceof RetN)
           return false;
+        if (collecting && !ret.getCondition().conditionMet(ret))
+          return true;
         lastStorePlace = -1;
         if (leaving != null && leaving[3] == -1 && !callSinceLoad && state.getRegisterSP().read() == leaving[2]) {
           int[] memory = state.getMemory().getData();
