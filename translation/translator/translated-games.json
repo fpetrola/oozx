@@ -1,5 +1,5 @@
 {
-  "game": "renegade",
+  "game": "batman",
   "mode": "replay",
   "recording": null,
   "games": {
@@ -21,17 +21,17 @@
       "recording": "/home/fernando/detodo/spectrum/rzx-top/renegade.rzx",
       "entry": "6004"
     },
-    "targetrenegade": {
-      "title": "Target: Renegade (128K)",
-      "type": "TargetRenegade",
-      "recording": "/home/fernando/detodo/spectrum/rzx-top/4087/target.rzx",
-      "entry": "BFBF"
-    },
     "batman": {
       "title": "Batman The Movie (128K)",
       "type": "Batman",
       "recording": "/home/fernando/detodo/spectrum/rzx-archive/batman.rzx",
       "entry": "5F9F"
+    },
+    "targetrenegade": {
+      "title": "Target: Renegade (128K)",
+      "type": "TargetRenegade",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/4087/target.rzx",
+      "entry": "BFBF"
     },
     "rtype": {
       "title": "R-Type",
