@@ -164,16 +164,18 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
 
   /** Code that ran with another bank paged at C000 is translated from a copy away from C000, entered when that bank is paged. */
   public void translateBankedCode(RemoteZ80Translator.Footprint footprint) {
-    footprint.bankedCode().forEach((bank, instructions) -> {
+    footprint.bankedCode().forEach((bank, banked) -> {
+      java.util.Map<Integer, int[]> instructions = banked.instructions();
       int start = java.util.Collections.min(instructions.keySet()), end = instructions.entrySet().stream().mapToInt(e -> e.getKey() + e.getValue().length).max().getAsInt();
       int at = freeAreaFor(end - start);
-      int[] code = java.util.Arrays.copyOfRange(footprint.bankContents().get(bank), start - com.fpetrola.z80.memory.MemoryBanks.WINDOW, end - com.fpetrola.z80.memory.MemoryBanks.WINDOW);
+      int[] code = java.util.Arrays.copyOfRange(banked.contents(), start - com.fpetrola.z80.memory.MemoryBanks.WINDOW, end - com.fpetrola.z80.memory.MemoryBanks.WINDOW);
       instructions.forEach((address, bytes) -> relocateJump(code, start, end, at, address, bytes.length));
       for (int i = 0; i < code.length; i++)
         getState().getMemory().write(at + i, code[i]);
       getState().getMemory().protect(at, at + code.length);
       RoutineManager.CodeVariant variant = new RoutineManager.CodeVariant(start, end, start, code, at, code, bank);
       routineManager.codeVariants.add(variant);
+      banked.modified().forEach(address -> symbolicExecutionAdapter.getMutantAddress().add(variant.relocated(address)));
       java.util.stream.Stream.concat(routineManager.entriesInto(start, end).stream().filter(instructions::containsKey).peek(entry -> routineManager.externalEntries.add(variant.relocated(entry))), instructions.keySet().stream().sorted())
           .map(variant::relocated).filter(entry -> routineManager.getInstructionAt(entry) == null).forEach(this::stepUntilComplete);
     });

@@ -122,9 +122,9 @@ public class OpcodeReferenceVisitor implements InstructionVisitor<Object> {
   }
 
   private Integer modifiedOperand(int delta, int length) {
-    int address = routineByteCodeGenerator.context.routineManager.originalAddress(routineByteCodeGenerator.context.pc.read()) + delta & 0xffff;
+    int pc = routineByteCodeGenerator.context.pc.read(), address = routineByteCodeGenerator.context.routineManager.originalAddress(pc) + delta & 0xffff;
     java.util.Set<?> modified = routineByteCodeGenerator.context.symbolicExecutionAdapter.getMutantAddress();
-    return modified.contains(address) || length == 2 && modified.contains(address + 1 & 0xffff) ? address : null;
+    return java.util.stream.IntStream.of(address, pc + delta & 0xffff).anyMatch(at -> modified.contains(at) || length == 2 && modified.contains(at + 1 & 0xffff)) ? address : null;
   }
 
   private boolean readsModifiedOperand(int delta, int length, java.util.function.Function<Object, Object> reader) {
