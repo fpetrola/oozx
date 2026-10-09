@@ -194,7 +194,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
     java.util.BitSet code = routineManager.codeAddresses();
     int free = RemoteZ80Translator.SCREEN_END;
     for (int address = free; address < com.fpetrola.z80.memory.MemoryBanks.WINDOW && address - free < size; address++)
-      if (code.get(address))
+      if (code.get(address) || getState().getMemory().isProtected(address))
         free = address + 1;
     return free;
   }
