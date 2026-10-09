@@ -21,6 +21,7 @@ package com.fpetrola.z80.minizx;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
+import com.fpetrola.z80.tstates.UncontendedTiming;
 import java.util.Map;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.Plain16BitRegister;
@@ -78,24 +79,35 @@ public abstract class SpectrumApplication {
 
   public int executeMutantCode(int address) {
     if (mutantExecutor == null)
-      mutantExecutor = EmulatedMiniZX.createOOZ80(new DefaultMiniZXIO());
+      mutantExecutor = EmulatedMiniZX.createTimedOOZ80(new DefaultMiniZXIO());
     ((MockedMemory) mutantExecutor.getState().getMemory()).init(() -> mem);
     State state = mutantExecutor.getState();
     storeRegisters(state);
     state.getPc().write(address);
+    long before = state.clock.getTStates();
     Instruction instruction = mutantExecutor.getInstructionFetcher().fetchNextInstruction();
     if (instruction instanceof Call call) {
-      if (call.getCondition().conditionMet(call))
+      boolean taken = call.getCondition().conditionMet(call);
+      tstates += costAt(address, call.getLength())[taken ? 1 : 0];
+      if (taken)
         invokeMethod(call.calculateJumpAddress());
       return address + call.getLength();
     }
-    if (instruction instanceof Ret ret)
-      return ret.getCondition().conditionMet(ret) ? -1 : address + ret.getLength();
+    if (instruction instanceof Ret ret) {
+      boolean taken = ret.getCondition().conditionMet(ret);
+      tstates += costAt(address, ret.getLength())[taken ? 1 : 0];
+      return taken ? -1 : address + ret.getLength();
+    }
     int r = R;
     mutantExecutor.getInstructionExecutor().execute(instruction);
+    tstates += state.clock.getTStates() - before;
     loadRegisters(state);
     R = r;
     return state.getPc().read();
+  }
+
+  private int[] costAt(int address, int length) {
+    return UncontendedTiming.costOf(java.util.Arrays.copyOfRange(mem, address, address + length));
   }
 
   public void storeRegisters(State state) {
@@ -313,6 +325,10 @@ public abstract class SpectrumApplication {
     return io.in(port);
   }
 
+  private static final int BLOCK_REPEAT = 21, BLOCK_END = 16;
+  public long tstates;
+  public MiniZXSound sound;
+
   public int inC(int port, int pc) {
     int value = in(port, pc);
     aluFlag.write(F);
@@ -356,15 +372,31 @@ public abstract class SpectrumApplication {
     PC = address;
   }
 
+  public void pc(int address, int rdelta, int cost) {
+    pc(address, rdelta);
+    tstates += cost;
+  }
+
+  public void tstates(int extra) {
+    tstates += extra;
+  }
+
+  public void out(int port, int value) {
+    io.out(port, value);
+    if (sound != null)
+      sound.out(tstates, port, value);
+  }
+
   public void halt(int address) {
   }
 
   public void ldir(int address) {
     ldi();
     while (BC() != 0) {
-      pc(address, 2);
+      pc(address, 2, BLOCK_REPEAT);
       ldi();
     }
+    tstates -= BLOCK_REPEAT - BLOCK_END;
   }
 
   public void ldi() {
@@ -374,9 +406,10 @@ public abstract class SpectrumApplication {
   public void lddr(int address) {
     ldd();
     while (BC() != 0) {
-      pc(address, 2);
+      pc(address, 2, BLOCK_REPEAT);
       ldd();
     }
+    tstates -= BLOCK_REPEAT - BLOCK_END;
   }
 
   public void ldd() {
@@ -386,9 +419,10 @@ public abstract class SpectrumApplication {
   public void cpir(int address) {
     cpi();
     while (BC() != 0 && (F & 0x40) == 0) {
-      pc(address, 2);
+      pc(address, 2, BLOCK_REPEAT);
       cpi();
     }
+    tstates -= BLOCK_REPEAT - BLOCK_END;
   }
 
   public void cpi() {
@@ -398,9 +432,10 @@ public abstract class SpectrumApplication {
   public void cpdr(int address) {
     cpd();
     while (BC() != 0 && (F & 0x40) == 0) {
-      pc(address, 2);
+      pc(address, 2, BLOCK_REPEAT);
       cpd();
     }
+    tstates -= BLOCK_REPEAT - BLOCK_END;
   }
 
   public void cpd() {

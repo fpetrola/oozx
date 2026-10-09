@@ -53,6 +53,16 @@
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
+            <artifactId>device-ula</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
+            <artifactId>host-sound</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
             <artifactId>routines</artifactId>
             <version>${project.version}</version>
         </dependency>

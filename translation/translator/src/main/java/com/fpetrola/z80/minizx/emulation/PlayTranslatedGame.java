@@ -19,7 +19,7 @@ import java.util.function.Predicate;
  * override the file, which is looked for in the working directory and in translation/translator.
  */
 public class PlayTranslatedGame {
-  private static final long FETCHES_PER_FRAME = 80000, NANOS_PER_FRAME = 20_000_000;
+  private static final long TSTATES_PER_FRAME = 69888, NANOS_PER_FRAME = 20_000_000;
 
   public record Translated(String title, String type, String recording, String snapshot, String entry) {
     int entryAddress() {
@@ -59,18 +59,19 @@ public class PlayTranslatedGame {
     return Files.exists(here) ? here : Path.of("translation/translator").resolve(name);
   }
 
-  private static Predicate<Integer> atSpectrumSpeed() {
+  private static Predicate<Integer> atSpectrumSpeed(MiniZX game) {
     long start = System.nanoTime();
-    long[] firstFetches = {-1}, nextFrame = {0};
+    long[] firstTstates = {-1}, nextFrame = {0};
     return fetches -> {
-      if (firstFetches[0] < 0)
-        nextFrame[0] = (firstFetches[0] = fetches) + FETCHES_PER_FRAME;
-      long ahead = start + (fetches - firstFetches[0]) * NANOS_PER_FRAME / FETCHES_PER_FRAME - System.nanoTime();
+      long tstates = game.tstates;
+      if (firstTstates[0] < 0)
+        nextFrame[0] = (firstTstates[0] = tstates) + TSTATES_PER_FRAME;
+      long ahead = start + (tstates - firstTstates[0]) * NANOS_PER_FRAME / TSTATES_PER_FRAME - System.nanoTime();
       if (ahead > 1_000_000)
         LockSupport.parkNanos(ahead);
-      boolean frameEnded = fetches >= nextFrame[0];
+      boolean frameEnded = tstates >= nextFrame[0];
       if (frameEnded)
-        nextFrame[0] = fetches + FETCHES_PER_FRAME;
+        nextFrame[0] = tstates + TSTATES_PER_FRAME;
       return frameEnded;
     };
   }
@@ -80,7 +81,7 @@ public class PlayTranslatedGame {
     emulator.start();
     MiniZX game = (MiniZX) translated.gameClass().getConstructor().newInstance();
     game.loadState(emulator.ooz80.getState());
-    game.setInterruptionCondition(atSpectrumSpeed());
+    game.setInterruptionCondition(atSpectrumSpeed(game));
     return game;
   }
 
@@ -96,7 +97,7 @@ public class PlayTranslatedGame {
     SpectrumApplication.io = player;
     player.setAcceptsInterrupt(game::acceptsInterrupt);
     IntPredicate endOfFrame = player.getInterruptionCondition();
-    Predicate<Integer> pace = atSpectrumSpeed();
+    Predicate<Integer> pace = atSpectrumSpeed(game);
     game.setInterruptionCondition(fetches -> {
       pace.test(fetches);
       return endOfFrame.test(fetches);

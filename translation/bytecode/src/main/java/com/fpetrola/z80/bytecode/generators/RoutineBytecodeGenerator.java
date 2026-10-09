@@ -36,6 +36,8 @@ import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.minizx.StackException;
+import com.fpetrola.z80.tstates.UncontendedTiming;
+import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.registers.Plain16BitRegister;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
@@ -176,11 +178,12 @@ public class RoutineBytecodeGenerator {
         }
         List<int[]> versions = codeVersions().instructionVersions(address);
         if (!versions.isEmpty()) {
-          invokePc(address);
+          invokePcUncharged(address);
           Variable hash = mm.invoke("codeHash", address, instruction.getLength());
           Label done = mm.label();
           versions.forEach(bytes -> hash.ifEq(Arrays.hashCode(bytes), () -> {
             Instruction version = codeVersions().decode(address, bytes);
+            chargeTstates(UncontendedTiming.costOf(bytes)[version instanceof RepeatingInstruction ? 1 : 0]);
             version.accept(new InstructionsBytecodeGenerator(mm, RoutineBytecodeGenerator.this, address));
             if (RoutineManager.fallsThrough(version))
               done.goto_();
@@ -188,7 +191,7 @@ public class RoutineBytecodeGenerator {
           executeMutantCode(address, instruction);
           done.here();
         } else if (mutantCodeInInstruction(instruction, address)) {
-          invokePc(address);
+          invokePcUncharged(address);
           executeMutantCode(address, instruction);
         } else if (routine.getVirtualPop().containsKey(address) && routine.getVirtualPop().get(address) == address) {
           throwAtVirtualPop(address);
@@ -493,8 +496,34 @@ public class RoutineBytecodeGenerator {
   }
 
   public void invokePc(int address, int rDelta) {
+    invokePc(address, rDelta, costOf(address)[context.routineManager.getInstructionAt(address) instanceof RepeatingInstruction ? 1 : 0]);
+  }
+
+  public void invokePc(int address, int rDelta, int cost) {
     if (!context.direct)
-      mm.invoke("pc", context.routineManager.originalAddress(address), rDelta);
+      mm.invoke("pc", context.routineManager.originalAddress(address), rDelta, cost);
+  }
+
+  public void chargeTstates(int tstates) {
+    if (!context.direct && tstates != 0)
+      mm.invoke("tstates", tstates);
+  }
+
+  /** The site charges nothing itself: whichever version or fallback runs there charges its own cost. */
+  private void invokePcUncharged(int address) {
+    if (context.routineManager.getInstructionAt(address) instanceof AbstractInstruction instruction)
+      invokePc(address, instruction.getRDelta(), 0);
+  }
+
+  /** The T-states of the instruction at the address on its cheapest and dearest path, measured on the emulator's own timing model. */
+  public int[] costOf(int address) {
+    Instruction instruction = context.routineManager.getInstructionAt(address);
+    if (instruction == null)
+      return new int[]{0, 0};
+    int[] bytes = new int[instruction.getLength()];
+    for (int i = 0; i < bytes.length; i++)
+      bytes[i] = context.symbolicExecutionAdapter.state.getMemory().read(address + i & 0xffff, 0);
+    return UncontendedTiming.costOf(bytes);
   }
 
   public boolean virtualPopOnBranch(int address) {

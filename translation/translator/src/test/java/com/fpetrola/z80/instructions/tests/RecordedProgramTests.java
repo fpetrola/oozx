@@ -11,6 +11,8 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.minizx.DefaultMiniZXIO;
 import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.SpectrumApplication;
+import com.fpetrola.z80.minizx.MiniZXSound;
+import com.fpetrola.z80.tstates.UncontendedTiming;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.routines.RoutineManager;
@@ -152,7 +154,7 @@ public class RecordedProgramTests {
   }
 
   private void assertRunsLikeTheEmulator(MiniZX program, int[] memory) {
-    EmulatedMiniZX emulator = EmulatedMiniZX.ofProgram(memory, start, STACK, 0, null);
+    EmulatedMiniZX emulator = EmulatedMiniZX.ofProgram(memory, start, STACK, 0, null).timed();
     emulator.start();
     State z80 = emulator.ooz80.getState(), translated = EmulatedMiniZX.createOOZ80(new DefaultMiniZXIO()).getState();
     program.loadState(z80);
@@ -167,6 +169,8 @@ public class RecordedProgramTests {
       translated.getPc().write(program.PC);
       if (!registers(z80).equals(registers(translated)))
         throw new IllegalStateException("after $%04X\n z80  %s\n java %s".formatted(previous[0], registers(z80), registers(translated)));
+      if ((program.tstates & 0xFFFFF) != z80.clock.getTStates())
+        throw new IllegalStateException("after $%04X: T-states java=%d z80=%d".formatted(previous[0], program.tstates & 0xFFFFF, z80.clock.getTStates()));
       if (z80.getMemory().getData()[z80.getPc().read()] == 0x76 || ++steps[0] == 1000)
         throw new Finished();
       previous[0] = program.PC;
@@ -950,6 +954,63 @@ public class RecordedProgramTests {
     }
     Assert.assertTrue(consulted.toString(), consulted.contains("8080:302"));
     Assert.assertTrue(consulted.contains("8090:302"));
+  }
+
+  @Test
+  public void anOutToTheUlaMakesTheBeeperSound() {
+    // the speaker bit toggled at the OUTs' T-states comes out of the card as samples at the end of the frames
+    Assert.assertTrue(soundOf(at(0x8000, 0x3E, 0x10, 0xD3, 0xFE, 0x3E, 0x00, 0xD3, 0xFE, 0x3C, 0x18, 0xF5)) > 0);
+  }
+
+  @Test
+  public void aProgramThatNeverOutsIsSilent() {
+    Assert.assertEquals(0, soundOf(at(0x8000, 0x3E, 0x10, 0x3C, 0x18, 0xFD)));
+  }
+
+  private int soundOf(int[]... chunks) {
+    translate(chunks);
+    MiniZX program = BytecodeGeneration.translatedProgram("Program", read(Path.of("Program.class")));
+    EmulatedMiniZX emulator = EmulatedMiniZX.ofProgram(memoryOf(chunks), start, STACK, 0, null);
+    emulator.start();
+    program.loadState(emulator.ooz80.getState());
+    int[] frames = {0}, sounding = {0};
+    program.sound = new MiniZXSound(new com.fpetrola.oozx.speccy.modules.sound.SoundCard() {
+      public int open(String device, int[] freq, int[] stereo) {
+        return 0;
+      }
+
+      public void play(int[] samples, int count) {
+        frames[0]++;
+        sounding[0] += (int) IntStream.range(0, count).filter(i -> samples[i] != 0).count();
+      }
+
+      public void close() {
+      }
+    });
+    program.setInterruptionCondition(fetches -> {
+      if (frames[0] == 3)
+        throw new Finished();
+      return fetches % 300 == 0;
+    });
+    try {
+      program.run(start);
+    } catch (Finished finished) {
+    }
+    return sounding[0];
+  }
+
+  @Test
+  public void everyInstructionCostsTheTStatesTheEmulatorCharges() {
+    // taken and untaken branches, a DJNZ loop, a block copy, port accesses, HALT and an interrupt: the beeper's pitch depends on each of them
+    interruptEvery = 400;
+    translate(
+        at(0x0038, 0x0C, 0xFB, 0xC9),
+        at(0x8000, 0x3E, 0x05, 0x21, 0x00, 0x90, 0x77, 0x34, 0x28, 0x02, 0x20, 0x00, 0x06, 0x03, 0x10, 0xFE, 0xCD, 0x30, 0x80, 0x11, 0x10, 0x90, 0x01, 0x03, 0x00, 0xED, 0xB0,
+            0xE3, 0xDB, 0xFE, 0xD3, 0xFE, 0xFB, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8030, 0xAF, 0xC0, 0xC9));
+    Assert.assertArrayEquals(new int[]{8, 13}, UncontendedTiming.costOf(0x10, 0xFE));
+    Assert.assertArrayEquals(new int[]{16, 21}, UncontendedTiming.costOf(0xED, 0xB0));
+    Assert.assertArrayEquals(new int[]{11, 11}, UncontendedTiming.costOf(0xD3, 0xFE));
   }
 
   @Test

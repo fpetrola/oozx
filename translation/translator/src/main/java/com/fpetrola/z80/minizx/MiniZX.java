@@ -71,7 +71,7 @@ public abstract class MiniZX extends SpectrumApplication {
     int early = enteringHandler ? rdelta : 0;
     enteringHandler = false;
     fetchCounter += early;
-    for (boolean accepting = acceptsInterrupt(); interruptPending() && accepting; accepting = iff) {
+    for (boolean accepting = acceptsInterrupt(); frameEnds() && accepting; accepting = iff) {
       interrupt();
       PC = address;
     }
@@ -132,20 +132,24 @@ public abstract class MiniZX extends SpectrumApplication {
   public void halt(int address) {
     for (long accepted = interrupts; interrupts == accepted; interruptsDelayed = false) {
       PC = address;
-      if (interruptPending() && acceptsInterrupt()) {
+      if (frameEnds() && acceptsInterrupt()) {
         PC = address + 1;
         interrupt();
       } else {
         R = R & 0x80 | R + 1 & 0x7f;
         fetchCounter++;
+        tstates += 4;
       }
     }
   }
 
   private boolean enteringHandler;
 
-  private boolean interruptPending() {
-    return interruptionCondition != null && interruptionCondition.test(fetchCounter);
+  private boolean frameEnds() {
+    boolean ended = interruptionCondition != null && interruptionCondition.test(fetchCounter);
+    if (ended && sound != null)
+      sound.frame(tstates);
+    return ended;
   }
 
   private void interrupt() {
@@ -153,6 +157,7 @@ public abstract class MiniZX extends SpectrumApplication {
     int vector = I << 8 | 0xff;
     fetchCounter++;
     R = R & 0x80 | R + 1 & 0x7f;
+    tstates += interruptMode == 2 ? 19 : 13;
     enteringHandler = true;
     invokeMethod(interruptMode == 2 ? mem[vector] | mem[vector + 1 & 0xffff] << 8 : 0x38);
     interrupts++;
@@ -162,8 +167,10 @@ public abstract class MiniZX extends SpectrumApplication {
     this.mem = new int[65536];
     // -Dminizx.headless=true: analysis runs must not open the live screen — its frame
     // uses EXIT_ON_CLOSE, so closing it would System.exit(0) mid-analysis
-    if (!Boolean.getBoolean("minizx.headless"))
+    if (!Boolean.getBoolean("minizx.headless")) {
       MiniZX.createScreen(((MiniZXIO) io).getMiniZXKeyboard(), new MiniZXScreen(this.getMemFunction()));
+      sound = new MiniZXSound(new com.fpetrola.oozx.speccy.modules.sound.JavaSoundDevice());
+    }
     final byte[] rom = MiniZXWithEmulationBase.createROM();
     final byte[] bytes = MiniZXWithEmulationBase.gzipDecompressFromBase64(this.getProgramBytes());
     for (int i = 0; i < 65536; ++i) {

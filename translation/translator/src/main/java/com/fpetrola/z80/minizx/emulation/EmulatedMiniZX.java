@@ -31,6 +31,10 @@ import com.fpetrola.z80.minizx.DefaultMiniZXIO;
 import com.fpetrola.z80.minizx.MiniZXIO;
 import com.fpetrola.z80.minizx.MiniZXScreen;
 import com.fpetrola.z80.minizx.SpectrumApplication;
+import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.minizx.MiniZXKeyboard;
+import com.fpetrola.z80.tstates.UncontendedTiming;
+import com.fpetrola.z80.cpu.InstructionFetcher;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.spy.NullInstructionSpy;
 import com.fpetrola.z80.transformations.StackAnalyzer;
@@ -58,6 +62,7 @@ public class EmulatedMiniZX {
   private RzxPlayback playback;
   private int stopAt = -1;
   private FetchListener fetchListener;
+  private boolean timed;
   private MemoryWriteListener memoryWriteListener;
   private int[] program;
   private int programEntry, programStack, interruptEvery;
@@ -127,6 +132,50 @@ public class EmulatedMiniZX {
     return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory(state)), new DefaultInstructionExecutor(state, false));
   }
 
+  /** The same machine counting its T-states as an uncontended Z80 would: the plan of every instruction, four per port access, seven per interrupt acknowledge. */
+  public static OOZ80 createTimedOOZ80(MiniZXIO io) {
+    TimedIO ports = new TimedIO(io);
+    UncontendedTiming timing = new UncontendedTiming();
+    State state = ports.state = new State(ports, new DefaultRegisterBankFactory().createBank(), timing.memory());
+    io.setPc(state.getPc());
+    DefaultInstructionExecutor executor = new DefaultInstructionExecutor(state, false);
+    InstructionFetcher fetcher = Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory(state));
+    timing.attach(state, executor, fetcher);
+    return new OOZ80(state, fetcher, executor);
+  }
+
+  private static class TimedIO implements MiniZXIO {
+    private final MiniZXIO io;
+    private State state;
+
+    TimedIO(MiniZXIO io) {
+      this.io = io;
+    }
+
+    public int in(int port) {
+      state.clock.addTStates(UncontendedTiming.PORT_ACCESS);
+      return io.in(port);
+    }
+
+    public void out(int port, int value) {
+      state.clock.addTStates(UncontendedTiming.PORT_ACCESS);
+      io.out(port, value);
+    }
+
+    public MiniZXKeyboard getMiniZXKeyboard() {
+      return io.getMiniZXKeyboard();
+    }
+
+    public void setPc(Register pc) {
+      io.setPc(pc);
+    }
+  }
+
+  public EmulatedMiniZX timed() {
+    timed = true;
+    return this;
+  }
+
   public static <S extends Integer> Function<java.lang.Integer, java.lang.Integer> getMemFunction(OOZ80 ooz81) {
     return index -> {
       return ooz81.getState().getMemory().read(index, 10);
@@ -135,7 +184,7 @@ public class EmulatedMiniZX {
 
   public void start() {
     MiniZXIO io = rzxFile == null ? new DefaultMiniZXIO() : new RZXPlayerIO();
-    ooz80 = createOOZ80(io);
+    ooz80 = timed ? createTimedOOZ80(io) : createOOZ80(io);
     if (fetchListener != null)
       ooz80.getInstructionFetcher().addFetchListener(fetchListener);
     if (memoryWriteListener != null)

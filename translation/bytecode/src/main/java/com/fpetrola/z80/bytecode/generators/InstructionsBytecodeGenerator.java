@@ -133,6 +133,20 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   }
 
   @Override
+  public void visitOut(Out out) {
+    Object portValue = valueOf(((Out.OutPortOpcodeReference) out.getTarget()).target);
+    if (portValue instanceof java.lang.Integer low)
+      portValue = routineByteCodeGenerator.variables.get("A").shl(8).or(low);
+    methodMaker.invoke("out", portValue, valueOf(out.getSource()));
+  }
+
+  private Object valueOf(ImmutableOpcodeReference reference) {
+    OpcodeReferenceVisitor visitor = new OpcodeReferenceVisitor(false, routineByteCodeGenerator);
+    reference.accept(visitor);
+    return RoutineBytecodeGenerator.getRealVariable(visitor.getResult());
+  }
+
+  @Override
   public void visitIn(In in) {
     in.accept(new VariableHandlingInstructionVisitor((s, t) -> {
       Object realVariable = RoutineBytecodeGenerator.getRealVariable(s);
@@ -396,7 +410,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
           methodMaker.invoke("pop");
       }
       else if (trampoline != null) {
-        routineByteCodeGenerator.invokePc(jumpLabel, trampoline == RegisterName.HL ? 1 : 2);
+        routineByteCodeGenerator.invokePc(jumpLabel, trampoline == RegisterName.HL ? 1 : 2, trampoline == RegisterName.HL ? 4 : 8);
         Variable target = methodMaker.invoke(trampoline.name());
         Label called = methodMaker.label();
         stackAnalyzer.calledThrough.get(callSite).stream().sorted().filter(c -> {
@@ -423,13 +437,16 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   }
 
   private void createIfs(Instruction instruction, Runnable runnable) {
-    if (routineByteCodeGenerator.context.pc.read() == 0xF2DD)
-      System.out.println("aegassg");
+    int[] cost = routineByteCodeGenerator.costOf(routineByteCodeGenerator.context.pc.read());
+    Runnable taken = () -> {
+      routineByteCodeGenerator.chargeTstates(cost[1] - cost[0]);
+      runnable.run();
+    };
     OpcodeReferenceVisitor opcodeReferenceVisitor = new OpcodeReferenceVisitor(false, routineByteCodeGenerator);
     if (instruction instanceof DJNZ djnz) {
-      processDjnz(runnable, djnz, opcodeReferenceVisitor);
+      processDjnz(taken, djnz, opcodeReferenceVisitor);
     } else if (instruction instanceof ConditionalInstruction conditionalInstruction && conditionalInstruction.getCondition() instanceof ConditionFlag conditionFlag)
-      processExistingCondition(runnable, conditionalInstruction, conditionFlag, opcodeReferenceVisitor);
+      processExistingCondition(taken, conditionalInstruction, conditionFlag, opcodeReferenceVisitor);
     else {
       runnable.run();
     }
