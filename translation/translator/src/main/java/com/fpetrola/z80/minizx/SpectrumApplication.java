@@ -99,7 +99,8 @@ public abstract class SpectrumApplication {
     State state = mutantExecutor.getState();
     storeRegisters(state);
     state.getPc().write(address);
-    state.getRegisterR().write(R);
+    int r = R;
+    state.getRegisterR().write(r);
     long before = state.clock.getTStates();
     Instruction instruction = mutantExecutor.getInstructionFetcher().fetchNextInstruction();
     if (instruction instanceof Call call) {
@@ -119,7 +120,7 @@ public abstract class SpectrumApplication {
     mutantExecutor.getInstructionExecutor().execute(instruction);
     tstates += state.clock.getTStates() - before;
     loadRegisters(state);
-    fetchCounter += Math.min(state.getRegisterR().read() - R & 0x7f, 2);
+    fetchCounter += Math.min(state.getRegisterR().read() - r & 0x7f, 2);
     R = R & 0x80 | state.getRegisterR().read() & 0x7f;
     return state.getPc().read();
   }

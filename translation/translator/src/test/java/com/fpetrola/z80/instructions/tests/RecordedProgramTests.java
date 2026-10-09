@@ -163,13 +163,17 @@ public class RecordedProgramTests {
     emulator.start();
     State z80 = emulator.ooz80.getState(), translated = EmulatedMiniZX.createOOZ80(new DefaultMiniZXIO()).getState();
     program.loadState(z80);
-    int[] previous = {-1}, steps = {0}, nextInterrupt = {interruptEvery};
+    int[] previous = {-1}, steps = {0}, nextInterrupt = {interruptEvery}, fetched = {0}, lastR = {z80.getRegisterR().read()};
     program.setInterruptionCondition(fetches -> {
       if (previous[0] >= 0) {
         emulator.ooz80.execute();
         for (int k = 0; k < 0x10000 && z80.getPc().read() == previous[0] && program.PC != previous[0]; k++)
           emulator.ooz80.execute();
       }
+      fetched[0] += z80.getRegisterR().read() - lastR[0] & 0x7f;
+      lastR[0] = z80.getRegisterR().read();
+      if (fetches != fetched[0] && previous[0] >= 0)
+        throw new IllegalStateException("after $%04X: fetches java=%d z80=%d".formatted(previous[0], fetches, fetched[0]));
       program.storeRegisters(translated);
       translated.getPc().write(program.PC);
       if (!registers(z80).equals(registers(translated)))
