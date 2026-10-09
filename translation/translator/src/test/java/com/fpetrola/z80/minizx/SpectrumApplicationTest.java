@@ -113,7 +113,7 @@ public class SpectrumApplicationTest {
   public void theRefreshRegisterIsNotAdvancedTwice() {
     game.R(0x10);
     execute(0x14);
-    assertEquals(0x10, game.R());
+    assertEquals(0x11, game.R());
   }
 
   @Test
