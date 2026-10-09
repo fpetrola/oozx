@@ -254,8 +254,13 @@ public class SymbolicExecutionAdapter {
             next = routineExecution.getNextPending().address;
           else
             routineFinder.returnedTo(next = popReturnAddress());
-        } else if (routineManager.getInstructionAt(pcValue) instanceof RST rst && !routineManager.isCode(rst.getP()) && routineManager.wasExecuted(pcValue + 1 & 0xffff))
-          next = popReturnAddress();
+        } else if (routineManager.getInstructionAt(pcValue) instanceof RST rst) {
+          boolean skipped = routineManager.isCode(rst.getP()) ? routineExecutorHandler.findRoutineExecutionAt(rst.getP()) != null : routineManager.wasExecuted(pcValue + 1 & 0xffff);
+          if (skipped)
+            next = popReturnAddress();
+          else if (routineManager.isCode(rst.getP()))
+            routineExecutorHandler.createRoutineExecution(rst.getP());
+        }
         updatePcRegister(next);
         lastPc = pcValue;
       }

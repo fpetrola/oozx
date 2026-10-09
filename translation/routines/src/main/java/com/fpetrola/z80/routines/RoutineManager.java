@@ -23,6 +23,10 @@ import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.opcodes.references.ConditionAlwaysTrue;
+import com.fpetrola.z80.instructions.impl.Ld;
+import com.fpetrola.z80.instructions.impl.Push;
+import com.fpetrola.z80.opcodes.references.Memory16BitReference;
+import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.blocks.BlocksManager;
 import com.fpetrola.z80.blocks.CodeBlockType;
@@ -388,6 +392,12 @@ public class RoutineManager {
 
   public void removeRoutine(Routine routine) {
     routines.remove(routine);
+  }
+
+  /** A push of one code address loaded right before it, as a routine plants where the one it jumps to must return. */
+  public boolean plantsAContinuation(int push, java.util.Collection<Integer> pushedValues) {
+    return pushedValues.size() == 1 && getInstructionAt(push) instanceof Push pushInstruction && pushInstruction.getTarget() instanceof Register pushed
+        && getInstructionAt(addressBefore(push)) instanceof Ld ld && ld.getSource() instanceof Memory16BitReference && ld.getTarget() instanceof Register loaded && loaded.getName().equals(pushed.getName());
   }
 
   public List<Routine> getRoutinesInDepth() {

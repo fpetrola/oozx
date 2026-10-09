@@ -28,6 +28,7 @@ import static com.fpetrola.z80.helpers.Helper.formatAddress;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.impl.Ld;
+import com.fpetrola.z80.instructions.impl.RST;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.AbstractInstruction;
@@ -237,6 +238,8 @@ public class RoutineFinder {
         lastPc = pcValue;
         if (instruction instanceof Call call && call.getNextPC() != -1)
           lastCallee = calleeOf(call.getNextPC());
+        else if (instruction instanceof RST rst && routineManager.isCode(rst.getP()) && routineManager.findRoutineAt(rst.getP()) == null)
+          lastCallee = rst.getP();
       }
     }
   }

@@ -481,7 +481,7 @@ public class RoutineBytecodeGenerator {
       Routine target = context.routineManager.findRoutineAt(jumpLabel);
       invoke = isJumpMember(target) && target.getEntryPoint() == jumpLabel ? mm.invoke("runJumps", jumpLabel) : mm.invoke(labelName);
     } catch (Exception e) {
-      System.out.println("not found: " + labelName + " from " + routine + " at " + Helper.formatAddress(context.pc.read()) + " callers " + context.routineManager.callers.get(jumpLabel) + " owner " + context.routineManager.findRoutineAt(jumpLabel));
+      System.out.println("not found: " + labelName + " (" + e + ")" + " from " + routine + " at " + Helper.formatAddress(context.pc.read()) + " callers " + context.routineManager.callers.get(jumpLabel) + " owner " + context.routineManager.findRoutineAt(jumpLabel));
     }
     return invoke;
   }
@@ -572,13 +572,11 @@ public class RoutineBytecodeGenerator {
 
   public Integer plantedContinuation(int push) {
     Collection<Integer> values = stackAnalyzer().pushedValues.get(push);
-    if (values.size() != 1 || !stackAnalyzer().dataConsumedBy.containsValue(push) || !(context.routineManager.getInstructionAt(push) instanceof Push pushInstruction))
+    if (!stackAnalyzer().dataConsumedBy.containsValue(push) || !context.routineManager.plantsAContinuation(push, values))
       return null;
     int value = values.iterator().next();
     Routine target = context.routineManager.findRoutineAt(value);
-    boolean loadedRightBefore = context.routineManager.getInstructionAt(context.routineManager.addressBefore(push)) instanceof Ld ld && ld.getSource() instanceof Memory16BitReference
-        && ld.getTarget() instanceof Register loaded && pushInstruction.getTarget() instanceof Register pushed && loaded.getName().equals(pushed.getName());
-    return loadedRightBefore && target != null && target.getEntryPoint() == value ? value : null;
+    return target != null && target.getEntryPoint() == value ? value : null;
   }
 
   public List<Integer> ownPushesConsumedAt(int ret) {
@@ -594,16 +592,24 @@ public class RoutineBytecodeGenerator {
   }
 
   public void leaveWithOwnData(int site) {
-    ownDataLeftForOthers(site).forEach(push -> {
+    for (int push : ownDataLeftForOthers(site)) {
       Integer continuation = plantedContinuation(push);
       if (continuation != null)
         invokeTransformedMethod(continuation);
       else {
         Variable value = mm.invoke("pop");
-        if (!stackAnalyzer().dataConsumedBy.entries().stream().allMatch(e -> e.getValue() != push || stackAnalyzer().shiftedReturns.containsKey(e.getKey())))
+        List<Integer> consumers = stackAnalyzer().dataConsumedBy.entries().stream().filter(e -> e.getValue() == push && !stackAnalyzer().shiftedReturns.containsKey(e.getKey())).map(Map.Entry::getKey).toList();
+        if (!consumers.isEmpty()) {
+          Label landed = mm.label();
+          consumers.stream().flatMap(ret -> stackAnalyzer().dynamicInvocation.get(ret).stream()).distinct().forEach(target -> value.ifEq(target, () -> {
+            jumpInto(target);
+            landed.goto_();
+          }));
           mm.invoke("jump", value);
+          landed.here();
+        }
       }
-    });
+    }
   }
 
   private boolean consumedOutside(int push) {
