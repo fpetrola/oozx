@@ -94,6 +94,7 @@ public class SymbolicExecutionAdapter {
     this.routineFinder = routineFinder;
     this.instructionExecutor = instructionExecutor;
     mutantAddress.clear();
+    written.clear();
     dataflowService = dataflowService1;
     routineExecutorHandler = new RoutineExecutorHandler(state, routineManager, new ExecutionStackStorage(state, stackAnalyzer), dataflowService, stackAnalyzer);
     this.stackAnalyzer.addEventListener(new StackListener() {
@@ -148,6 +149,7 @@ public class SymbolicExecutionAdapter {
 
   public void reset() {
     mutantAddress.clear();
+    written.clear();
     state.getMemory().unprotect(0, 0x10000);
     stackAnalyzer.forgetLearned();
     explorationSP = -1;
@@ -207,9 +209,14 @@ public class SymbolicExecutionAdapter {
     findMutantCode(writeMemoryReferences);
   }
 
+  private final java.util.BitSet written = new java.util.BitSet(0x10000);
+
   private void findMutantCode(List<WriteMemoryReference> writeMemoryReferences) {
-    java.util.stream.Stream.concat(writeMemoryReferences.stream().map(wmr -> wmr.address), routineManager.fixedStoreTargets(state.getMemory().getData())).distinct()
-        .filter(address -> !mutantAddress.contains(address) && !stackAnalyzer.codeVersions.inBlock(address) && routineManager.originalAddress(address) == address && routineManager.findRoutineAt(address) != null)
+    writeMemoryReferences.forEach(wmr -> written.set(wmr.address));
+    writeMemoryReferences.clear();
+    java.util.BitSet code = routineManager.codeAddresses();
+    java.util.stream.Stream.concat(written.stream().boxed(), routineManager.fixedStoreTargets(state.getMemory().getData()))
+        .filter(address -> !mutantAddress.contains(address) && !stackAnalyzer.codeVersions.inBlock(address) && routineManager.originalAddress(address) == address && code.get(address))
         .forEach(mutantAddress::add);
   }
 

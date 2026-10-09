@@ -70,6 +70,12 @@ public class RoutineManager {
     this.blocksManager = blocksManager;
   }
 
+  public java.util.BitSet codeAddresses() {
+    java.util.BitSet code = new java.util.BitSet(0x10000);
+    new ArrayList<>(routines).forEach(routine -> routine.getBlocks().forEach(block -> code.set(block.getRangeHandler().getStartAddress(), block.getRangeHandler().getEndAddress() + 1)));
+    return code;
+  }
+
   public Routine findRoutineAt(int address) {
     Optional<Routine> first = new ArrayList<>(routines).stream().filter(r -> r != null && r.contains(address)).findFirst();
     if (first.isPresent()) {
