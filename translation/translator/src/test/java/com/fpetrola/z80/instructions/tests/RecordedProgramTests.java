@@ -558,6 +558,17 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aPopThatTheRecordingOnlyRanOnValuesFromBeforeItStillPopsAReturnOnAnUnrecordedPath() {
+    // Manic Miner 8D05: POP HL at the start of the death path; the recording never died, it only ran it on the snapshot's stack
+    translate(
+        at(0x8000, 0xE1, 0xCD, 0x10, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0xCD, 0x18, 0x80, 0xC9),
+        at(0x8018, 0x3A, 0x00, 0x90, 0xB7, 0xC2, 0x00, 0x80, 0xC9),
+        at(0xFF00, 0x34, 0x12));
+    Assert.assertEquals(Set.of(0x8001), Set.copyOf(routineManager.returnPoints.get(0x8018)));
+  }
+
+  @Test
   public void aFootprintSurvivesBeingSavedAndReadBack() throws Exception {
     // the footprint of a recording is saved to disk so that changes to the exploration or the generator do not replay the RZX
     int[] memory = new int[0x10000];

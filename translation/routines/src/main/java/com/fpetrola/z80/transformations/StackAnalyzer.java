@@ -192,7 +192,7 @@ public class StackAnalyzer implements java.io.Serializable {
     instruction.accept(new InstructionVisitor<>() {
       public void visitingPop(Pop pop) {
         Entry entry = entryAtSp();
-        if (collecting)
+        if (collecting && entry != null && !entry.returnAddress() && entry.pc() != -1)
           recordedPops.add(pcValue);
         if (entry != null && entry.returnAddress() && entry.pc() != -1 && (!recordedPops.contains(pcValue) || poppedCallSites.containsValue(pcValue)))
           lastEvent = l -> l.returnAddressPopped(pcValue, entry.value(), entry.pc());
