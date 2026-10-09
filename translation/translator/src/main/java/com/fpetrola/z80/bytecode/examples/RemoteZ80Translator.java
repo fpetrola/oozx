@@ -277,7 +277,7 @@ public class RemoteZ80Translator {
     });
     play(emulator[0]);
     StackAnalyzer.collecting = false;
-    stackAnalyzer.learnFromForks(forked);
+    stackAnalyzer.learnFromForks(forked, codeBytes.keySet());
     versions.patched(patched, codeBytes);
     externalEntries.retainAll(codeBytes.keySet());
     return new Footprint(codeBytes, explored, stackAnalyzer, externalEntries, emulator[0].ooz80.getState().getMemory().getData().clone(), versions, romEntries).forgettingJumpsIntoData();

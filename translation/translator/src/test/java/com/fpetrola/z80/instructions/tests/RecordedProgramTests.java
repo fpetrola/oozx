@@ -642,6 +642,15 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aDispatchingReturnKeepsTheTargetsTheRecordingSawWhateverAForkMadeItPop() {
+    // Target: Renegade D9A9: the recording's callers plant the blitter's return point, a fork pops the screen addresses it pushed
+    translate(
+        at(0x8000, 0x21, 0x07, 0x80, 0xE5, 0xC3, 0x20, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8020, 0x3A, 0x02, 0x81, 0xB7, 0x28, 0x04, 0x01, 0x00, 0x70, 0xC5, 0xC9));
+    Assert.assertEquals(Set.of(0x8007), Set.copyOf(stackAnalyzer.dynamicInvocation.get(0x802A)));
+  }
+
+  @Test
   public void anOutThroughCGoesToThePortInBCWhateverAHolds() {
     // Renegade 128K 9FF3: OUT (C),A with BC=7FFD; only OUT (n),A puts A on the high byte of the port
     banked = true;
