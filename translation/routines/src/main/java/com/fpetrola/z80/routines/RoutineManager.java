@@ -77,11 +77,12 @@ public class RoutineManager {
   }
 
   public Routine findRoutineAt(int address) {
-    Optional<Routine> first = new ArrayList<>(routines).stream().filter(r -> r != null && r.contains(address)).findFirst();
-    if (first.isPresent()) {
-      return first.get().findRoutineAt(address);
-    } else
-      return first.orElse(null);
+    for (int i = 0; i < routines.size(); i++) {
+      Routine routine = routines.get(i);
+      if (routine != null && routine.contains(address))
+        return routine.findRoutineAt(address);
+    }
+    return null;
   }
 
   public void forgetCode(int from, int to) {

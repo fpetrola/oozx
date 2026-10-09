@@ -144,6 +144,9 @@ public class StackAnalyzer implements java.io.Serializable {
     consumedReturns.clear();
     lastEvent = null;
     stackAsRepository = new StackAsRepositoryState();
+    leftStacks.clear();
+    leaving = reentered = null;
+    lastStorePlace = -1;
   }
 
   public void init() {

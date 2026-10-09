@@ -74,10 +74,10 @@ public class Routine {
   }
 
   public boolean contains(int address) {
-//    Helper.breakInStackOverflow();
-    ArrayList<Block> blocks1 = new ArrayList<>(blocks);
-    boolean b1 = blocks1.stream().anyMatch(b -> b != null && b.contains(address));
-    return b1;
+    for (int i = 0; i < blocks.size(); i++)
+      if (blocks.get(i) != null && blocks.get(i).contains(address))
+        return true;
+    return false;
   }
 
   public void addInnerRoutine(Routine routine) {
