@@ -325,9 +325,24 @@ public class RemoteZ80Translator {
     MemoryBanks banks = ((MockedMemory) emulator[0].ooz80.getState().getMemory()).banks;
     if (banks != null) {
       System.arraycopy(banks.contents(startingBank[0], finalMemory), 0, finalMemory, MemoryBanks.WINDOW, MemoryBanks.SIZE);
+      bankedCode.values().forEach(code -> dropStartingBankRuns(code.instructions(), codeBytes));
+      bankedCode.values().removeIf(code -> code.instructions().isEmpty());
       bankedCode.replaceAll((bank, code) -> new BankedCode(code.instructions(), code.modified(), banks.contents(bank, emulator[0].ooz80.getState().getMemory().getData())));
     }
     return new Footprint(codeBytes, explored, stackAnalyzer, externalEntries, finalMemory, versions, romEntries, bankedCode).forgettingJumpsIntoData();
+  }
+
+  /** A contiguous run of another bank's instructions that all have the bytes the starting bank ran there (the interrupt handler every bank holds) is the starting bank's code. */
+  private static void dropStartingBankRuns(Map<Integer, int[]> instructions, Map<Integer, int[]> codeBytes) {
+    List<List<Integer>> runs = new java.util.ArrayList<>();
+    int next = -1;
+    for (int address : new java.util.TreeSet<>(instructions.keySet())) {
+      if (address > next)
+        runs.add(new java.util.ArrayList<>());
+      runs.get(runs.size() - 1).add(address);
+      next = Math.max(next, address + instructions.get(address).length);
+    }
+    runs.stream().filter(run -> run.stream().allMatch(address -> Arrays.equals(instructions.get(address), codeBytes.get(address)))).forEach(run -> run.forEach(instructions::remove));
   }
 
   private static int[] recordVersion(Map<Integer, int[]> codeBytes, CodeVersions versions, int address, int[] bytes) {

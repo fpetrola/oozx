@@ -192,10 +192,12 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
 
   private int freeAreaFor(int size) {
     java.util.BitSet code = routineManager.codeAddresses();
-    int free = RemoteZ80Translator.SCREEN_END;
-    for (int address = free; address < com.fpetrola.z80.memory.MemoryBanks.WINDOW && address - free < size; address++)
+    int free = RemoteZ80Translator.SCREEN_END, address = free;
+    for (; address < com.fpetrola.z80.memory.MemoryBanks.WINDOW && address - free < size; address++)
       if (code.get(address) || getState().getMemory().isProtected(address))
         free = address + 1;
+    if (address - free < size)
+      throw new IllegalStateException("no free area of " + size + " bytes below C000 for another bank's code");
     return free;
   }
 
