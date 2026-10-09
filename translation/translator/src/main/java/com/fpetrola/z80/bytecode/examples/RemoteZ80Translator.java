@@ -109,8 +109,18 @@ public class RemoteZ80Translator {
 
   public record Footprint(Map<Integer, int[]> codeBytes, Map<Integer, int[]> explored, StackAnalyzer learned, Set<Integer> externalEntries, int[] finalMemory, CodeVersions versions, Set<Integer> romEntries,
                           Map<Integer, BankedCode> bankedCode) implements java.io.Serializable {
+    /** Bytes that ran with more than one value: versions of an instruction, and opcodes that ran where another recorded instruction had a different operand byte. */
     public Set<Integer> modifiedCode() {
-      return versions.modifiedBytes();
+      Set<Integer> modified = new HashSet<>(versions.modifiedBytes());
+      codeBytes.forEach((address, bytes) -> {
+        for (int i = 1; i < bytes.length; i++) {
+          int[] overlapping = codeBytes.get(address + i & 0xffff);
+          for (int j = 0; overlapping != null && j < overlapping.length && i + j < bytes.length; j++)
+            if (overlapping[j] != bytes[i + j])
+              modified.add(address + i + j & 0xffff);
+        }
+      });
+      return modified;
     }
 
     public Map<Integer, Integer> executed() {

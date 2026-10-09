@@ -658,6 +658,20 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void codeRewrittenSoThatAnOperandBecomesAnOpcodeIsModifiedCode() {
+    // Batman The Movie EB27: LD A,(611A) ran there, and later EB28 ran as LD C,A after the region was rewritten
+    fallsBackToTheEmulator = true;
+    translate(
+        at(0x8000, 0xCD, 0x20, 0x80, 0x21, 0x00, 0x81, 0x11, 0x21, 0x80, 0x01, 0x02, 0x00, 0xED, 0xB0, 0x3E, 0x05, 0xCD, 0x21, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8020, 0x3A, 0x00, 0x90, 0xC9),
+        at(0x8100, 0x4F, 0xC9),
+        at(0x9000, 0x42),
+        at(0x904F, 0x99));
+    Assert.assertTrue(base.symbolicExecutionAdapter.getMutantAddress().contains(0x8021));
+    Assert.assertEquals(0x05, endValue("C"));
+  }
+
+  @Test
   public void port7FFDPagesTheBankAtC000ForTheTranslatedProgramToo() {
     // Renegade 128K pages bank 1 in for its music and bank 0 back: what is read and written at C000 depends on the bank mapped
     banked = true;
