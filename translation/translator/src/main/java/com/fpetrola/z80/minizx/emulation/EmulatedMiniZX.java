@@ -34,6 +34,11 @@ import com.fpetrola.z80.minizx.SpectrumApplication;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.minizx.MiniZXKeyboard;
 import com.fpetrola.z80.tstates.UncontendedTiming;
+import com.fpetrola.z80.minizx.emulation.MiniZXWithEmulationBase;
+import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.spy.ExecutionListener;
+import com.fpetrola.z80.instructions.impl.Out;
+import com.fpetrola.z80.memory.MemoryBanks;
 import com.fpetrola.z80.cpu.InstructionFetcher;
 import com.fpetrola.z80.registers.DefaultRegisterBankFactory;
 import com.fpetrola.z80.spy.NullInstructionSpy;
@@ -62,7 +67,7 @@ public class EmulatedMiniZX {
   private RzxPlayback playback;
   private int stopAt = -1;
   private FetchListener fetchListener;
-  private boolean timed;
+  private boolean timed, banked;
   private MemoryWriteListener memoryWriteListener;
   private int[] program;
   private int programEntry, programStack, interruptEvery;
@@ -129,7 +134,19 @@ public class EmulatedMiniZX {
   public static  OOZ80 createOOZ80(MiniZXIO io) {
     var state = new State(io, new DefaultRegisterBankFactory().createBank(), new MockedMemory(true));
     io.setPc(state.getPc());
-    return new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory(state)), new DefaultInstructionExecutor(state, false));
+    return pagingOnOut(new OOZ80(state, Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory(state)), new DefaultInstructionExecutor(state, false)));
+  }
+
+  /** A 128K machine's memory pages on the OUT to 7FFD, right after the instruction and before the next fetch. */
+  private static OOZ80 pagingOnOut(OOZ80 ooz80) {
+    State state = ooz80.getState();
+    ((DefaultInstructionExecutor) ooz80.getInstructionExecutor()).setExecutionListener(new ExecutionListener() {
+      public void afterExecution(Instruction instruction) {
+        if (instruction instanceof Out out && state.getMemory() instanceof MockedMemory memory && memory.banks != null && MemoryBanks.pages(out.getTarget().read()))
+          memory.banks.write(out.getSource().read(), memory.getData());
+      }
+    });
+    return ooz80;
   }
 
   /** The same machine counting its T-states as an uncontended Z80 would: the plan of every instruction, four per port access, seven per interrupt acknowledge. */
@@ -141,7 +158,7 @@ public class EmulatedMiniZX {
     DefaultInstructionExecutor executor = new DefaultInstructionExecutor(state, false);
     InstructionFetcher fetcher = Helper.getInstructionFetcher(state, new NullInstructionSpy(), new DefaultInstructionFactory(state));
     timing.attach(state, executor, fetcher);
-    return new OOZ80(state, fetcher, executor);
+    return pagingOnOut(new OOZ80(state, fetcher, executor));
   }
 
   private static class TimedIO implements MiniZXIO {
@@ -176,6 +193,12 @@ public class EmulatedMiniZX {
     return this;
   }
 
+  /** A program on a 128K machine: its memory becomes the view of banks 5, 2 and 0, with the other banks empty and the 48K BASIC ROM. */
+  public EmulatedMiniZX banked() {
+    banked = true;
+    return this;
+  }
+
   public static <S extends Integer> Function<java.lang.Integer, java.lang.Integer> getMemFunction(OOZ80 ooz81) {
     return index -> {
       return ooz81.getState().getMemory().read(index, 10);
@@ -203,6 +226,12 @@ public class EmulatedMiniZX {
       System.arraycopy(program, 0, state.getMemory().getData(), 0, program.length);
       state.getPc().write(programEntry);
       state.getRegisterSP().write(programStack);
+      if (banked) {
+        int[][] ram = new int[8][];
+        for (int[] bankAt : new int[][]{{5, 0x4000}, {2, 0x8000}, {0, 0xC000}})
+          ram[bankAt[0]] = java.util.Arrays.copyOfRange(program, bankAt[1], bankAt[1] + MemoryBanks.SIZE);
+        ((MockedMemory) state.getMemory()).banks = new MemoryBanks(new int[][]{MiniZXWithEmulationBase.createROM128(0), MiniZXWithEmulationBase.createROM128(1)}, ram, 0x10, state.getMemory().getData());
+      }
       state.setIntMode(State.InterruptionMode.IM0);
     } else if (rzxFile == null)
       SnapshotLoader.setupStateWithSnapshot(registersBase, com.fpetrola.z80.helpers.Helper.getSnapshotFile(url), state);

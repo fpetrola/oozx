@@ -51,6 +51,7 @@ public class RecordedProgramTests {
   private RealCodeBytecodeCreationBase base;
   private final Set<Integer> ignoredMemory = new java.util.HashSet<>();
   private int interruptEvery, start = START;
+  private boolean banked;
   private boolean fallsBackToTheEmulator;
   private RoutineManager routineManager;
   private StackAnalyzer stackAnalyzer;
@@ -93,7 +94,7 @@ public class RecordedProgramTests {
   private String translateWithBlock(int[] block, int[]... chunks) {
     int[] memory = memoryOf(chunks);
     String image = RemoteZ80Translator.emulateProgram(base, memory, start, STACK);
-    base.exploreRecording(RemoteZ80Translator.footprint(stackAnalyzer -> EmulatedMiniZX.ofProgram(memory, start, STACK, 1000, stackAnalyzer).interruptingEvery(interruptEvery), start), start);
+    base.exploreRecording(RemoteZ80Translator.footprint(stackAnalyzer -> machine(EmulatedMiniZX.ofProgram(memory, start, STACK, 1000, stackAnalyzer).interruptingEvery(interruptEvery)), start), start);
     stackAnalyzer = base.getStackAnalyzer();
     routineManager = base.getRoutineManager();
     versions = stackAnalyzer.codeVersions;
@@ -105,6 +106,10 @@ public class RecordedProgramTests {
     assertRunsLikeTheEmulator(BytecodeGeneration.translatedProgram("Program", read(Path.of("Program.class"))), memory);
     assertRunsLikeTheEmulator(compiled(java), memory);
     return java;
+  }
+
+  private EmulatedMiniZX machine(EmulatedMiniZX emulator) {
+    return banked ? emulator.banked() : emulator;
   }
 
   private static MiniZX compiled(String java) {
@@ -154,7 +159,7 @@ public class RecordedProgramTests {
   }
 
   private void assertRunsLikeTheEmulator(MiniZX program, int[] memory) {
-    EmulatedMiniZX emulator = EmulatedMiniZX.ofProgram(memory, start, STACK, 0, null).timed();
+    EmulatedMiniZX emulator = machine(EmulatedMiniZX.ofProgram(memory, start, STACK, 0, null).timed());
     emulator.start();
     State z80 = emulator.ooz80.getState(), translated = EmulatedMiniZX.createOOZ80(new DefaultMiniZXIO()).getState();
     program.loadState(z80);
@@ -591,6 +596,16 @@ public class RecordedProgramTests {
         at(0x8020, 0x14, 0x14, 0x1C, 0xC9),
         at(0x8030, 0x0E, 0x09, 0xC9));
     Assert.assertEquals(routineManager.findRoutineAt(0x8013), routineManager.findRoutineAt(0x8023));
+  }
+
+  @Test
+  public void port7FFDPagesTheBankAtC000ForTheTranslatedProgramToo() {
+    // Renegade 128K pages bank 1 in for its music and bank 0 back: what is read and written at C000 depends on the bank mapped
+    banked = true;
+    translate(
+        at(0x8000, 0x3A, 0x00, 0xC0, 0x01, 0xFD, 0x7F, 0x3E, 0x11, 0xED, 0x79, 0x3A, 0x00, 0xC0, 0x3E, 0x55, 0x32, 0x00, 0xC0, 0x3E, 0x10, 0xED, 0x79,
+            0x3A, 0x00, 0xC0, 0x47, 0x3E, 0x11, 0xED, 0x79, 0x3A, 0x00, 0xC0, 0x4F, 0x3E, 0x10, 0xED, 0x79, 0x76, 0x18, 0xFD),
+        at(0xC000, 0x42));
   }
 
   @Test

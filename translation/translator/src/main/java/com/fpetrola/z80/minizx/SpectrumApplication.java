@@ -21,6 +21,7 @@ package com.fpetrola.z80.minizx;
 import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
+import com.fpetrola.z80.memory.MemoryBanks;
 import com.fpetrola.z80.tstates.UncontendedTiming;
 import java.util.Map;
 import com.fpetrola.z80.registers.Register;
@@ -328,6 +329,7 @@ public abstract class SpectrumApplication {
   private static final int BLOCK_REPEAT = 21, BLOCK_END = 16;
   public long tstates;
   public MiniZXSound sound;
+  public MemoryBanks banks;
 
   public int inC(int port, int pc) {
     int value = in(port, pc);
@@ -382,6 +384,8 @@ public abstract class SpectrumApplication {
   }
 
   public void out(int port, int value) {
+    if (banks != null && MemoryBanks.pages(port))
+      banks.write(value, mem);
     io.out(port, value);
     if (sound != null)
       sound.out(tstates, port, value);
@@ -460,6 +464,8 @@ public abstract class SpectrumApplication {
 
   public void loadState(State state) {
     System.arraycopy(state.getMemory().getData(), 0, mem, 0, mem.length);
+    if (state.getMemory() instanceof MockedMemory memory && memory.banks != null)
+      banks = memory.banks.copyOf(memory.getData());
     loadRegisters(state);
   }
 
