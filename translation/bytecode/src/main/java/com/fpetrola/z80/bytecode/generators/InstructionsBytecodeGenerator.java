@@ -31,6 +31,7 @@ import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.routines.Routine;
+import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.transformations.StackAnalyzer;
 import org.cojen.maker.Label;
 import org.cojen.maker.MethodMaker;
@@ -406,6 +407,17 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
       if (pushes)
         methodMaker.invoke("push", returnAddress);
       Variable pushedAt = pushes ? methodMaker.invoke("SP") : null;
+      Label done = methodMaker.label();
+      List<RoutineManager.CodeVariant> banked = routineByteCodeGenerator.context.routineManager.bankVariantsAt(jumpLabel);
+      if (!banked.isEmpty()) {
+        Variable bank = methodMaker.invoke("bank");
+        banked.forEach(variant -> bank.ifEq(variant.bank(), () -> {
+          routineByteCodeGenerator.invokeTransformedMethod(variant.relocated(jumpLabel));
+          if (pushes)
+            methodMaker.invoke("SP").ifEq(pushedAt, () -> methodMaker.invoke("pop"));
+          done.goto_();
+        }));
+      }
       if (routineByteCodeGenerator.context.routineManager.findRoutineAt(jumpLabel) != null) {
         routineByteCodeGenerator.invokeTransformedMethod(jumpLabel);
         if (pushes)
@@ -427,6 +439,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
       }
       else
         methodMaker.invoke("untranslated", jumpLabel);
+      done.here();
     });
     return true;
   }

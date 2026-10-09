@@ -109,6 +109,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
       routineManager.externalEntries.add(site);
       stepUntilComplete(site);
     });
+    translateBankedCode(footprint);
     translateRomRoutines(footprint.romEntries().stream().filter(entry -> stackAnalyzer.trampolineRegister(entry) == null).mapToInt(Integer::intValue).toArray());
     stackAnalyzer.dataConsumedBy.entries().stream().filter(e -> routineManager.findRoutineAt(e.getKey()) != routineManager.findRoutineAt(e.getValue()) && !routineManager.plantsAContinuation(e.getValue(), stackAnalyzer.pushedValues.get(e.getValue())))
         .forEach(e -> routineManager.externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(e.getKey())));
@@ -138,16 +139,12 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
       for (int address = start; address < end; ) {
         decoder.getState().getPc().write(address);
         int length = decoder.getInstructionFetcher().fetchNextInstruction().getLength();
-        int opcode = code[address - start], target = length == 3 ? code[address - start + 1] | code[address - start + 2] << 8 : -1;
-        if ((opcode == 0xc3 || opcode == 0xcd || (opcode & 0xc7) == 0xc4 || (opcode & 0xc7) == 0xc2) && target >= start && target < end) {
-          code[address - start + 1] = target - start + at & 0xff;
-          code[address - start + 2] = target - start + at >> 8;
-        }
+        relocateJump(code, start, end, at, address, length);
         address += length;
       }
       for (int i = 0; i < size; i++)
         getState().getMemory().write(at + i, code[i]);
-      copies.add(new RoutineManager.CodeVariant(start, end, variableStart, variable, at, code));
+      copies.add(new RoutineManager.CodeVariant(start, end, variableStart, variable, at, code, -1));
     }
     routineManager.codeVariants.addAll(copies);
     getState().getMemory().protect(relocationBase, relocationBase + variants.size() * (size + 1));
@@ -155,6 +152,40 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
     for (java.util.Set<Integer> entries; !explored.containsAll(entries = routineManager.entriesInto(start, end)); )
       entries.stream().filter(explored::add).toList().forEach(entry -> copies.forEach(v -> stepUntilComplete(v.relocated(entry))));
     explored.forEach(entry -> copies.forEach(v -> routineManager.externalEntries.add(v.relocated(entry))));
+  }
+
+  private static void relocateJump(int[] code, int start, int end, int at, int address, int length) {
+    int opcode = code[address - start], target = length == 3 ? code[address - start + 1] | code[address - start + 2] << 8 : -1;
+    if ((opcode == 0xc3 || opcode == 0xcd || (opcode & 0xc7) == 0xc4 || (opcode & 0xc7) == 0xc2) && target >= start && target < end) {
+      code[address - start + 1] = target - start + at & 0xff;
+      code[address - start + 2] = target - start + at >> 8;
+    }
+  }
+
+  /** Code that ran with another bank paged at C000 is translated from a copy away from C000, entered when that bank is paged. */
+  public void translateBankedCode(RemoteZ80Translator.Footprint footprint) {
+    footprint.bankedCode().forEach((bank, instructions) -> {
+      int start = java.util.Collections.min(instructions.keySet()), end = instructions.entrySet().stream().mapToInt(e -> e.getKey() + e.getValue().length).max().getAsInt();
+      int at = freeAreaFor(end - start);
+      int[] code = java.util.Arrays.copyOfRange(footprint.bankContents().get(bank), start - com.fpetrola.z80.memory.MemoryBanks.WINDOW, end - com.fpetrola.z80.memory.MemoryBanks.WINDOW);
+      instructions.forEach((address, bytes) -> relocateJump(code, start, end, at, address, bytes.length));
+      for (int i = 0; i < code.length; i++)
+        getState().getMemory().write(at + i, code[i]);
+      getState().getMemory().protect(at, at + code.length);
+      RoutineManager.CodeVariant variant = new RoutineManager.CodeVariant(start, end, start, code, at, code, bank);
+      routineManager.codeVariants.add(variant);
+      java.util.stream.Stream.concat(routineManager.entriesInto(start, end).stream().filter(instructions::containsKey).peek(entry -> routineManager.externalEntries.add(variant.relocated(entry))), instructions.keySet().stream().sorted())
+          .map(variant::relocated).filter(entry -> routineManager.getInstructionAt(entry) == null).forEach(this::stepUntilComplete);
+    });
+  }
+
+  private int freeAreaFor(int size) {
+    java.util.BitSet code = routineManager.codeAddresses();
+    int free = RemoteZ80Translator.SCREEN_END;
+    for (int address = free; address < com.fpetrola.z80.memory.MemoryBanks.WINDOW && address - free < size; address++)
+      if (code.get(address))
+        free = address + 1;
+    return free;
   }
 
   @Override
@@ -175,7 +206,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
     if (base64Memory.isBlank() || routineManager.codeVariants.isEmpty())
       return base64Memory;
     byte[] image = Base64Utils.gzipDecompressFromBase64(base64Memory);
-    routineManager.codeVariants.forEach(v -> {
+    routineManager.codeVariants.stream().filter(v -> v.bank() == -1).forEach(v -> {
       for (int i = 0; i < v.code().length; i++)
         image[v.relocatedAt() + i] = (byte) v.code()[i];
     });

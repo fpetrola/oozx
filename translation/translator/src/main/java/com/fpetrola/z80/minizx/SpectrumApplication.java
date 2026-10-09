@@ -329,6 +329,10 @@ public abstract class SpectrumApplication {
     return value;
   }
 
+  public int bank() {
+    return banks == null ? -1 : banks.bank();
+  }
+
   public void popInto(String pair) {
     int value = pop();
     switch (pair) {

@@ -188,7 +188,8 @@ public class RoutineManager {
     return points;
   }
 
-  public record CodeVariant(int start, int end, int variableStart, int[] variableBytes, int relocatedAt, int[] code) {
+  /** bank: the bank whose paging selects this variant, or -1 when its bytes select it. */
+  public record CodeVariant(int start, int end, int variableStart, int[] variableBytes, int relocatedAt, int[] code, int bank) {
     public int hash() {
       return java.util.Arrays.hashCode(variableBytes);
     }
@@ -209,7 +210,11 @@ public class RoutineManager {
   private final java.util.Set<Integer> interiors = new java.util.HashSet<>();
 
   public List<CodeVariant> codeVariantsAt(int address) {
-    return codeVariants.stream().filter(v -> v.entries(this).contains(address)).toList();
+    return codeVariants.stream().filter(v -> v.bank() == -1 && v.entries(this).contains(address)).toList();
+  }
+
+  public List<CodeVariant> bankVariantsAt(int address) {
+    return codeVariants.stream().filter(v -> v.bank() != -1 && address >= v.start() && address < v.end()).toList();
   }
 
   public java.util.Set<Integer> entriesInto(int start, int end) {

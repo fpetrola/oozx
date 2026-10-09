@@ -23,6 +23,8 @@ import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.emulation.helpers.snapshots.SnapshotLoader;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
+import com.fpetrola.z80.minizx.emulation.MockedMemory;
+import com.fpetrola.z80.memory.MemoryBanks;
 import com.fpetrola.z80.routines.CodeVersions;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
@@ -101,7 +103,9 @@ public class RemoteZ80Translator {
     return emulate(realCodeBytecodeCreationBase, EmulatedMiniZX.ofRecording(rzxFile, frames, realCodeBytecodeCreationBase.getStackAnalyzer()));
   }
 
-  public record Footprint(Map<Integer, int[]> codeBytes, Map<Integer, int[]> explored, StackAnalyzer learned, Set<Integer> externalEntries, int[] finalMemory, CodeVersions versions, Set<Integer> romEntries) implements java.io.Serializable {
+  /** bankedCode: what ran above C000 while a bank other than the starting one was paged there, by bank; bankContents: those banks at the end. */
+  public record Footprint(Map<Integer, int[]> codeBytes, Map<Integer, int[]> explored, StackAnalyzer learned, Set<Integer> externalEntries, int[] finalMemory, CodeVersions versions, Set<Integer> romEntries,
+                          Map<Integer, Map<Integer, int[]>> bankedCode, Map<Integer, int[]> bankContents) implements java.io.Serializable {
     public Set<Integer> modifiedCode() {
       return versions.modifiedBytes();
     }
@@ -146,9 +150,13 @@ public class RemoteZ80Translator {
     public static Footprint combine(List<Footprint> footprints) {
       Map<Integer, int[]> codeBytes = new HashMap<>(), explored = new HashMap<>();
       Set<Integer> externalEntries = new HashSet<>(), romEntries = new HashSet<>();
+      Map<Integer, Map<Integer, int[]>> bankedCode = new HashMap<>();
+      Map<Integer, int[]> bankContents = new HashMap<>();
       StackAnalyzer learned = new StackAnalyzer(null);
       CodeVersions versions = new CodeVersions();
       footprints.forEach(footprint -> {
+        footprint.bankedCode.forEach((bank, code) -> bankedCode.computeIfAbsent(bank, b -> new HashMap<>()).putAll(code));
+        bankContents.putAll(footprint.bankContents);
         footprint.codeBytes.forEach((address, bytes) -> recordVersion(codeBytes, versions, address, bytes));
         versions.addAll(footprint.versions);
         footprint.explored.forEach(explored::putIfAbsent);
@@ -157,7 +165,7 @@ public class RemoteZ80Translator {
         learned.learnFrom(footprint.learned);
       });
       learned.codeVersions = versions;
-      return new Footprint(codeBytes, explored, learned, externalEntries, footprints.get(footprints.size() - 1).finalMemory, versions, romEntries);
+      return new Footprint(codeBytes, explored, learned, externalEntries, footprints.get(footprints.size() - 1).finalMemory, versions, romEntries, bankedCode, bankContents);
     }
 
     public void install(Memory memory, int stackPointer) {
@@ -242,7 +250,9 @@ public class RemoteZ80Translator {
     ConditionalInstruction<?>[] pending = {null};
     int[] pendingAddress = {-1};
     Set<Integer> patched = new HashSet<>(), romEntries = new HashSet<>();
+    Map<Integer, Map<Integer, int[]>> bankedCode = new HashMap<>();
     Instruction[] previous = {null};
+    int[] startingBank = {-1};
     emulator[0] = emulatorFor.apply(stackAnalyzer).listening(new FetchListener() {
       public void instructionFetchedAt(int address, Instruction instruction) {
         boolean starting = !started[0] && address == from;
@@ -252,6 +262,16 @@ public class RemoteZ80Translator {
           return;
         if (pending[0] != null)
           forks.exploreUntakenBranch(emulator[0].ooz80, pending[0], pendingAddress[0], address, forked, BRANCH_BUDGET);
+        int[] memory = emulator[0].ooz80.getState().getMemory().getData();
+        MemoryBanks banks = ((MockedMemory) emulator[0].ooz80.getState().getMemory()).banks;
+        if (starting && banks != null)
+          startingBank[0] = banks.bank();
+        if (address >= MemoryBanks.WINDOW && banks != null && banks.bank() != startingBank[0]) {
+          bankedCode.computeIfAbsent(banks.bank(), bank -> new HashMap<>()).putIfAbsent(address, Arrays.copyOfRange(memory, address, address + instruction.getLength()));
+          pending[0] = null;
+          pendingAddress[0] = -1;
+          return;
+        }
         if (pendingAddress[0] != -1 && address != (pendingAddress[0] + codeBytes.get(pendingAddress[0]).length & 0xffff))
           forks.landings().add(address);
         if (address < 0x4000 && (pendingAddress[0] >= 0x4000 && !(previous[0] instanceof Ret) || previous[0] instanceof JP jump && jump.getPositionOpcodeReference() instanceof Register))
@@ -260,7 +280,6 @@ public class RemoteZ80Translator {
         boolean conditional = isUntakenBranchCandidate(instruction);
         pending[0] = conditional ? (ConditionalInstruction<?>) instruction : null;
         pendingAddress[0] = address;
-        int[] memory = emulator[0].ooz80.getState().getMemory().getData();
         for (int slot = emulator[0].ooz80.getState().getRegisterSP().read(); starting && slot < 0x10000 - 1 && externalEntries.size() < 10; slot += 2)
           externalEntries.add(memory[slot] | memory[slot + 1] << 8);
         int[] bytes = new int[instruction.getLength()];
@@ -280,7 +299,14 @@ public class RemoteZ80Translator {
     stackAnalyzer.learnFromForks(forked, codeBytes.keySet());
     versions.patched(patched, codeBytes);
     externalEntries.retainAll(codeBytes.keySet());
-    return new Footprint(codeBytes, explored, stackAnalyzer, externalEntries, emulator[0].ooz80.getState().getMemory().getData().clone(), versions, romEntries).forgettingJumpsIntoData();
+    int[] finalMemory = emulator[0].ooz80.getState().getMemory().getData().clone();
+    MemoryBanks banks = ((MockedMemory) emulator[0].ooz80.getState().getMemory()).banks;
+    Map<Integer, int[]> bankContents = new HashMap<>();
+    if (banks != null) {
+      System.arraycopy(banks.contents(startingBank[0], finalMemory), 0, finalMemory, MemoryBanks.WINDOW, MemoryBanks.SIZE);
+      bankedCode.keySet().forEach(bank -> bankContents.put(bank, banks.contents(bank, emulator[0].ooz80.getState().getMemory().getData())));
+    }
+    return new Footprint(codeBytes, explored, stackAnalyzer, externalEntries, finalMemory, versions, romEntries, bankedCode, bankContents).forgettingJumpsIntoData();
   }
 
   private static int[] recordVersion(Map<Integer, int[]> codeBytes, CodeVersions versions, int address, int[] bytes) {

@@ -68,6 +68,11 @@ public class MemoryBanks {
     load(view);
   }
 
+  /** What a bank holds now, the paged one taken from the view. */
+  public int[] contents(int bank, int[] view) {
+    return copyOf(view).banks[bank];
+  }
+
   /** These banks with the contents the view holds now, for a machine that goes on from here with a view of its own. */
   public MemoryBanks copyOf(int[] view) {
     store(view);

@@ -610,6 +610,19 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void codeThatRunsInAnotherBankAtTheSameAddressIsTranslatedForThatBank() {
+    // Batman The Movie: the music player runs at C000-C8F7 in bank 3, where bank 0 holds the game's own code
+    banked = true;
+    translate(
+        at(0x8000, 0x01, 0xFD, 0x7F, 0x3E, 0x13, 0xED, 0x79, 0x21, 0x00, 0x81, 0x11, 0x00, 0xC0, 0x01, 0x06, 0x00, 0xED, 0xB0, 0xCD, 0x00, 0xC0, 0x57,
+            0x01, 0xFD, 0x7F, 0x3E, 0x10, 0xED, 0x79, 0xCD, 0x00, 0xC0, 0x5F, 0x76, 0x18, 0xFD),
+        at(0x8100, 0x3E, 0x05, 0xC3, 0x05, 0xC0, 0xC9),
+        at(0xC000, 0x00, 0x3E, 0x07, 0xC9));
+    Assert.assertEquals(List.of(3), routineManager.codeVariants.stream().map(RoutineManager.CodeVariant::bank).toList());
+    Assert.assertEquals(0x0507, endValue("DE"));
+  }
+
+  @Test
   public void port7FFDPagesTheBankAtC000ForTheTranslatedProgramToo() {
     // Renegade 128K pages bank 1 in for its music and bank 0 back: what is read and written at C000 depends on the bank mapped
     banked = true;
