@@ -750,6 +750,17 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aReturnAddressThatAPopInAnotherRoutineMightTakeIsPoppedAfterANormalReturn() {
+    // Fairlight FA06: CALL FA9C always returned with RET at E4E0 in the recording, but a path into F7BA's routine pops FA09 there, so the Java pushes it
+    translate(
+        at(0x8000, 0xCD, 0x40, 0x80, 0xCD, 0x10, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x21, 0x06, 0x80, 0xE5, 0xCD, 0x20, 0x80, 0xE1, 0xC9),
+        at(0x8020, 0x3A, 0x00, 0x90, 0xB7, 0xC8, 0xC3, 0x48, 0x80),
+        at(0x8040, 0xF5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF1, 0xC9));
+    Assert.assertEquals(Set.of(0x8048), Set.copyOf(stackAnalyzer.poppedCallSites.get(0x8014)));
+  }
+
+  @Test
   public void aStackPointerSavedAndRestoredButNeverReadAsDataKeepsNoReturns() {
     // Fairlight F060: LD SP,(FFF6) restores the saved SP, it does not look at the layout
     ignoresMemory(0xFFF6, 0xFFF7);

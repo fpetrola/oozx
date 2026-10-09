@@ -402,12 +402,14 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
     int callSite = routineByteCodeGenerator.context.pc.read();
     int returnAddress = routineByteCodeGenerator.context.routineManager.addressAfter(callSite);
     createIfs(call, () -> {
-      if (routineByteCodeGenerator.pushesReturnAddress(callSite))
+      boolean pushes = routineByteCodeGenerator.pushesReturnAddress(callSite);
+      if (pushes)
         methodMaker.invoke("push", returnAddress);
+      Variable pushedAt = pushes ? methodMaker.invoke("SP") : null;
       if (routineByteCodeGenerator.context.routineManager.findRoutineAt(jumpLabel) != null) {
         routineByteCodeGenerator.invokeTransformedMethod(jumpLabel);
-        if (routineByteCodeGenerator.context.routineManager.pushedReturnSites.contains(callSite))
-          methodMaker.invoke("pop");
+        if (pushes)
+          methodMaker.invoke("SP").ifEq(pushedAt, () -> methodMaker.invoke("pop"));
       }
       else if (trampoline != null) {
         routineByteCodeGenerator.invokePc(jumpLabel, trampoline == RegisterName.HL ? 1 : 2, trampoline == RegisterName.HL ? 4 : 8);
