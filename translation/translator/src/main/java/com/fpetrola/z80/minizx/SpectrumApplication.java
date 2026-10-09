@@ -519,7 +519,6 @@ public abstract class SpectrumApplication {
 
   public void ei() {
     iff = iff2 = true;
-    interruptsDelayed = true;
   }
 
   public void di() {
@@ -531,7 +530,7 @@ public abstract class SpectrumApplication {
   }
 
   public boolean acceptsInterrupt() {
-    return iff && !interruptsDelayed;
+    return iff;
   }
 
 
@@ -600,7 +599,6 @@ public abstract class SpectrumApplication {
   public int SP = INITIAL_SP_VALUE;
   protected int I;
   protected boolean iff, iff2;
-  protected boolean interruptsDelayed;
   protected int interruptMode = 1;
 
   public int R() {

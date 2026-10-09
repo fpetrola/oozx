@@ -75,7 +75,6 @@ public abstract class MiniZX extends SpectrumApplication {
       interrupt();
       PC = address;
     }
-    interruptsDelayed = false;
     R = R & 0x80 | R + rdelta & 0x7f;
     fetchCounter += rdelta - early;
   }
@@ -130,7 +129,7 @@ public abstract class MiniZX extends SpectrumApplication {
   }
 
   public void halt(int address) {
-    for (long accepted = interrupts; interrupts == accepted; interruptsDelayed = false) {
+    for (long accepted = interrupts; interrupts == accepted; ) {
       PC = address;
       if (frameEnds() && acceptsInterrupt()) {
         PC = address + 1;

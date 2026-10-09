@@ -179,7 +179,7 @@ public class RecordedProgramTests {
       if (z80.getMemory().getData()[z80.getPc().read()] == 0x76 || ++steps[0] == 1000)
         throw new Finished();
       previous[0] = program.PC;
-      if (interruptEvery > 0 && fetches >= nextInterrupt[0] && program.acceptsInterrupt()) {
+      if (interruptEvery > 0 && fetches >= nextInterrupt[0] && z80.isIff1()) {
         nextInterrupt[0] = fetches + interruptEvery;
         emulator.ooz80.interruption();
         previous[0] = -1;
@@ -687,6 +687,20 @@ public class RecordedProgramTests {
     translate(
         at(0x8000, 0x21, 0x01, 0x90, 0x01, 0xFE, 0x11, 0xED, 0xAB, 0xED, 0xAB, 0xED, 0xA3, 0x76, 0x18, 0xFD),
         at(0x9000, 0x80, 0xFF));
+  }
+
+  @Test
+  public void anInterruptArrivingRightAfterEiIsTakenLikeTheEmulatorTakesIt() {
+    // Monty on the Run frame 41511: the frame ends at the RET after the ROM ISR's EI; the emulator takes the interrupt there, the Java dropped it
+    interruptEvery = 6;
+    int[] table = new int[1 + 257];
+    table[0] = 0x9000;
+    Arrays.fill(table, 1, table.length, 0x80);
+    translate(
+        at(0x8000, 0x3E, 0x90, 0xED, 0x47, 0xED, 0x5E, 0xFB, 0x3C, 0x76),
+        at(0x8080, 0xC3, 0x90, 0x80),
+        at(0x8090, 0x0C, 0xFB, 0xED, 0x4D),
+        table);
   }
 
   @Test
