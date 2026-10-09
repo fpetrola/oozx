@@ -1,28 +1,49 @@
 package com.fpetrola.z80.minizx.emulation;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.RZXPlayerIO;
 import com.fpetrola.z80.minizx.SpectrumApplication;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
+/**
+ * Runs a translated game as translated-games.json says: "game" names the entry of "games" to run and "mode" is
+ * "play" (keyboard, at Spectrum speed, from the point where the game's recording reaches its entry) or "replay"
+ * (the recording's inputs drive the translation, with progress on the console). -Dgame=, -Dmode= and -Dconfig=
+ * override the file, which is looked for in the working directory and in translation/translator.
+ */
 public class PlayTranslatedGame {
   private static final long FETCHES_PER_FRAME = 8000, NANOS_PER_FRAME = 20_000_000;
 
-  private record Translated(Class<?> type, String recording, int entry) {
+  public record Translated(String title, String type, String recording, String snapshot, String entry) {
+    int entryAddress() {
+      return Integer.parseInt(entry, 16);
+    }
+
+    Class<?> gameClass() throws ClassNotFoundException {
+      return Class.forName(PlayTranslatedGame.class.getPackageName() + "." + type);
+    }
   }
 
-  private static final java.util.Map<String, Translated> GAMES = java.util.Map.of(
-      "emlyn", new Translated(Emlyn.class, "/home/fernando/detodo/spectrum/emlyn_r4.rzx", 0xFE65),
-      "dizzy", new Translated(Dizzy.class, "/home/fernando/detodo/spectrum/dizzy/Dizzy RZX - The Long Way.rzx", 0xF85B),
-      "equinox", new Translated(Equinox.class, "/home/fernando/detodo/spectrum/equinox/equinox.rzx", 0x5B8D));
+  public record Config(String game, String mode, String recording, Map<String, Translated> games) {
+  }
 
   public static void main(String[] args) throws Exception {
-    Translated translated = GAMES.get(System.getProperty("game", "emlyn"));
-    int entry = translated.entry();
-    MiniZX game = args.length > 0 ? replaying(args[0], entry, translated.type()) : playing(translated.recording(), entry, translated.type());
+    Config config = new ObjectMapper().readValue(configFile().toFile(), Config.class);
+    String name = System.getProperty("game", config.game());
+    Translated translated = config.games().get(name);
+    if (translated == null)
+      throw new IllegalArgumentException("no game " + name + " among " + config.games().keySet());
+    String recording = args.length > 0 ? args[0] : config.recording() != null ? config.recording() : translated.recording();
+    int entry = translated.entryAddress();
+    System.out.println(translated.title() + " (" + translated.type() + ") from $" + translated.entry() + ", " + System.getProperty("mode", config.mode()));
+    MiniZX game = System.getProperty("mode", config.mode()).equals("replay") ? replaying(recording, entry, translated.gameClass()) : playing(translated, recording, entry);
     try {
       game.run(entry);
     } catch (RuntimeException e) {
@@ -30,6 +51,12 @@ public class PlayTranslatedGame {
       System.out.println("ended at $" + Integer.toHexString(game.PC) + ": " + e + detail);
       e.printStackTrace(System.out);
     }
+  }
+
+  private static Path configFile() {
+    String name = System.getProperty("config", "translated-games.json");
+    Path here = Path.of(name);
+    return Files.exists(here) ? here : Path.of("translation/translator").resolve(name);
   }
 
   private static Predicate<Integer> atSpectrumSpeed() {
@@ -48,10 +75,10 @@ public class PlayTranslatedGame {
     };
   }
 
-  private static MiniZX playing(String recording, int entry, Class<?> type) throws Exception {
-    EmulatedMiniZX emulator = EmulatedMiniZX.ofRecording(recording, -1, null).stoppingAt(entry);
+  private static MiniZX playing(Translated translated, String recording, int entry) throws Exception {
+    EmulatedMiniZX emulator = recording != null ? EmulatedMiniZX.ofRecording(recording, -1, null).stoppingAt(entry) : new EmulatedMiniZX(translated.snapshot(), 1, false, 0, false);
     emulator.start();
-    MiniZX game = (MiniZX) type.getConstructor().newInstance();
+    MiniZX game = (MiniZX) translated.gameClass().getConstructor().newInstance();
     game.loadState(emulator.ooz80.getState());
     game.setInterruptionCondition(atSpectrumSpeed());
     return game;
@@ -74,7 +101,6 @@ public class PlayTranslatedGame {
       pace.test(fetches);
       return endOfFrame.test(fetches);
     });
-
     Thread progress = new Thread(() -> {
       while (true) {
         System.out.println("frame " + player.getCurrentFrameIndex() + "  instructions " + game.fetchCounter + "  pc " + Integer.toHexString(game.PC));
