@@ -835,6 +835,17 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aRoutineThatPushesAndFallsIntoABareRetLeavesThePushForIt() {
+    // Skool Daze 629E: PUSH BC falls into 629F RET, which jumps to the handler in BC; 629F is a routine of its own
+    translate(
+        at(0x8000, 0xCD, 0x20, 0x80, 0x01, 0x30, 0x80, 0xCD, 0x1C, 0x80, 0x76, 0x18, 0xFD),
+        at(0x801C, 0x3E, 0x01, 0x00, 0xC5, 0xC9),
+        at(0x8030, 0x3E, 0x07, 0xC9));
+    Assert.assertEquals(Set.of(0x801F), Set.copyOf(stackAnalyzer.dataConsumedBy.get(0x8020)));
+    Assert.assertEquals(0x07, endValue("A"));
+  }
+
+  @Test
   public void aStackPointerSavedAndRestoredButNeverReadAsDataKeepsNoReturns() {
     // Fairlight F060: LD SP,(FFF6) restores the saved SP, it does not look at the layout
     ignoresMemory(0xFFF6, 0xFFF7);

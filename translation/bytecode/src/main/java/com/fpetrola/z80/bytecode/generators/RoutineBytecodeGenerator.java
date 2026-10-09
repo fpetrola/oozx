@@ -622,7 +622,9 @@ public class RoutineBytecodeGenerator {
   }
 
   private List<Integer> ownDataLeftForOthers(int site) {
-    Stream<Integer> onTop = context.routineManager.getInstructionAt(site) instanceof Ret ? stackAnalyzer().getInvocationsSet(site).stream().flatMap(target -> stackAnalyzer().dataOnTopAt.get(target).stream()) : stackAnalyzer().dataOnTopAt.get(site).stream();
+    Instruction leaving = context.routineManager.getInstructionAt(site);
+    Stream<Integer> below = stackAnalyzer().dataOnTopAt.get(site).stream();
+    Stream<Integer> onTop = leaving instanceof Ret ? stackAnalyzer().getInvocationsSet(site).stream().flatMap(target -> stackAnalyzer().dataOnTopAt.get(target).stream()) : leaving instanceof Push ? Stream.concat(Stream.of(site), below) : below;
     return onTop.distinct().filter(push -> routine.contains(push) && consumedOutside(push)).toList();
   }
 
