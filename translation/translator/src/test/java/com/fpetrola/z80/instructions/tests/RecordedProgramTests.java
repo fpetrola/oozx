@@ -1267,6 +1267,16 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aStackPointerSavedAndRepointedNearItsStackDropsNoReturns() {
+    // Target: Renegade F474: LD (F6F6),SP; LD SP,HL with HL=C000, just above the stack, to POP a buffer into registers
+    ignoresMemory(0x8F00, 0x9200);
+    translate(
+        at(0x8000, 0x31, 0x00, 0x90, 0xCD, 0x10, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x21, 0x40, 0x90, 0xED, 0x73, 0x00, 0x91, 0xF9, 0xF1, 0xD1, 0xED, 0x7B, 0x00, 0x91, 0xC9),
+        at(0x9040, 0x34, 0x12, 0x78, 0x56));
+  }
+
+  @Test
   public void aStackSwitchIsLearnedFromTheRecordingNotFromTheExplorationOfUntakenPaths() {
     // R-Type FAEF: LD (FBC9),SP; LD SP,F87A reads a table; the exploration reached an unrelated RET before the restore and took the pair for a coroutine
     ignoresMemory(0x9000, 0x9001);

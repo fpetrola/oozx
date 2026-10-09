@@ -239,7 +239,8 @@ public class StackAnalyzer implements java.io.Serializable {
           int place = placeOf(source);
           int[] left = place == -1 ? null : leftStacks.remove(place);
           reentered = left != null && left[3] != -1 ? left : null;
-          leaving = collecting && lastStorePlace != -1 && place != lastStorePlace ? new int[]{pcValue, lastStorePlace, newSpAddress, -1, -1} : null;
+          boolean repointing = lastStorePlace != -1 && place != lastStorePlace;
+          leaving = collecting && repointing ? new int[]{pcValue, lastStorePlace, newSpAddress, -1, -1} : null;
           lastStorePlace = -1;
           callSinceLoad = false;
           if (stackSwitches.containsValue(pcValue)) {
@@ -251,7 +252,7 @@ public class StackAnalyzer implements java.io.Serializable {
               usingStackAsRepository(newSpAddress, oldSpAddress);
             stackResetTo = newSpAddress;
             returnsDropped = false;
-          } else if (distance(oldSpAddress, newSpAddress) < 200)
+          } else if (distance(oldSpAddress, newSpAddress) < 200 && !repointing)
             droppingReturnAddresses(oldSpAddress, newSpAddress);
         }
       }
