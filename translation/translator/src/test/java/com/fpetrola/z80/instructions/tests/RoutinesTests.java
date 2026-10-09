@@ -28,6 +28,7 @@ import io.exemplary.guice.Modules;
 import io.exemplary.guice.TestRunner;
 import jakarta.inject.Inject;
 import org.junit.Assert;
+import java.util.Set;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -1775,6 +1776,25 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     Assert.assertEquals(4, routines.size());
   }
 
+
+  @Test
+  public void splittingARoutineMovesTheDroppedReturnPointsLandingInTheNewPart() {
+    // Renegade: the RET after a stack reset got its own routine, taking the longjmp's landing with it
+    setUpMemory();
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
+      {
+        add(Ld(r(A), c(2)));
+        add(Inc(r(E)));
+        add(Ret(t()));
+      }
+    };
+    stepUntilComplete();
+    Routine routine = getRoutineManager().findRoutineAt(0);
+    routine.addReturnPointDropped(0x1234, 2);
+    routine.splitAt(2);
+    Assert.assertEquals(Set.of(2), Set.copyOf(getRoutineManager().findRoutineAt(2).getReturnPointsDropped().get(0x1234)));
+    Assert.assertTrue(routine.getReturnPointsDropped().isEmpty());
+  }
 
   @Test
   public void aSiteWithRecordedVersionsSwitchesOverThem() {

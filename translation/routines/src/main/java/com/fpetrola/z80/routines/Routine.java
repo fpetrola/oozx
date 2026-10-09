@@ -186,7 +186,7 @@ public class Routine {
 
   private static void updateReturnPointsDropped(Routine routineAt, MultiValuedMap<Integer, Integer> returnPointsDropped, Routine routine) {
     routine.getReturnPointsDropped().putAll(returnPointsDropped);
-    returnPointsDropped.entries().forEach(e -> {
+    new ArrayList<>(returnPointsDropped.entries()).forEach(e -> {
       if (!routineAt.contains(e.getValue())) {
         routineAt.getReturnPointsDropped().removeMapping(e.getKey(), e.getValue());
       }
