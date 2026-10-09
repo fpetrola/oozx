@@ -1,6 +1,6 @@
 {
-  "game": "rtype",
-  "mode": "play",
+  "game": "wally",
+  "mode": "replay",
   "recording": null,
   "games": {
     "rtype": {"title": "R-Type", "type": "RType", "recording": "/home/fernando/detodo/spectrum/rzx-top/4256/rtype-random.rzx", "entry": "BF60"},

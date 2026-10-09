@@ -19,7 +19,7 @@ import java.util.function.Predicate;
  * override the file, which is looked for in the working directory and in translation/translator.
  */
 public class PlayTranslatedGame {
-  private static final long FETCHES_PER_FRAME = 8000, NANOS_PER_FRAME = 20_000_000;
+  private static final long FETCHES_PER_FRAME = 80000, NANOS_PER_FRAME = 20_000_000;
 
   public record Translated(String title, String type, String recording, String snapshot, String entry) {
     int entryAddress() {
