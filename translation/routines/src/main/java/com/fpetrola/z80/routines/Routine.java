@@ -268,26 +268,19 @@ public class Routine {
   }
 
   public Routine split(int address) {
-    Routine[] result = new Routine[1];
-    Optional<Block> first = blocks.stream().filter(b -> b.contains(address)).findFirst();
-    if (first.get().getRangeHandler().getStartAddress() < address) {
-      first.ifPresent(b -> {
-        Block split = b.split(address - 1);
-        addBlock(split);
-        Routine routine = new Routine(split, address, true);
-        removeBlock(split);
-        addInnerRoutine(routine);
-        result[0] = routine;
-      });
-      result[0].setRoutineManager(routineManager);
-    } else {
-      Routine routine = new Routine(first.get(), address, false);
-      result[0] = routine;
-      removeBlock(first.get());
-      addInnerRoutine(result[0]);
-      result[0].setRoutineManager(routineManager);
+    Block block = blocks.stream().filter(b -> b.contains(address)).findFirst().get();
+    boolean inside = block.getRangeHandler().getStartAddress() < address;
+    if (inside) {
+      block = block.split(address - 1);
+      addBlock(block);
     }
-    return result[0];
+    if (block.contains(entryPoint) && entryPoint > address)
+      addBlock(block.split(entryPoint - 1));
+    Routine routine = new Routine(block, address, inside);
+    removeBlock(block);
+    addInnerRoutine(routine);
+    routine.setRoutineManager(routineManager);
+    return routine;
   }
 
   void addInstructionAt(Instruction instruction, int pcValue) {

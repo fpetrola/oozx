@@ -732,6 +732,15 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aCallIntoTheMiddleOfALoopRoutineEntersItThere() {
+    // Fairlight F6BF: CALL FC40 enters the loop routine FC2B-FC47 past its head, and the recording ran that call before any entry at the head
+    translate(
+        at(0x8000, 0xCD, 0x29, 0x80, 0xCD, 0x20, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8020, 0x3A, 0x00, 0x90, 0xB7, 0xC8, 0x3D, 0x32, 0x00, 0x90, 0x0C, 0x18, 0xF4),
+        at(0x9000, 0x02));
+  }
+
+  @Test
   public void anOutThroughCGoesToThePortInBCWhateverAHolds() {
     // Renegade 128K 9FF3: OUT (C),A with BC=7FFD; only OUT (n),A puts A on the high byte of the port
     banked = true;
