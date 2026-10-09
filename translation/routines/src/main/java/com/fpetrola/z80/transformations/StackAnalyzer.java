@@ -86,11 +86,12 @@ public class StackAnalyzer implements java.io.Serializable {
     entries.remove((address - 1) & 0xFFFF);
   };
   public final Set<Integer> layoutCallSites = new HashSet<>();
-  private final transient Map<Integer, Set<Integer>> framesEnclosingPushedData = new HashMap<>();
+  private final transient Map<Integer, Set<Integer>> framesEnclosingDepthDependentSlots = new HashMap<>();
+  private int spLoadedFrom = -1;
   private final transient MemoryReadListener readByAddress = (address, value, fetching) -> {
     int sp = state.getRegisterSP().read();
-    if (collecting && fetching == 0 && address != sp && address != (sp + 1 & 0xffff))
-      layoutCallSites.addAll(framesEnclosingPushedData.getOrDefault(framesEnclosingPushedData.containsKey(address) ? address : address - 1 & 0xffff, Set.of()));
+    if (collecting && fetching == 0 && address != sp && address != (sp + 1 & 0xffff) && address != spLoadedFrom && address != (spLoadedFrom + 1 & 0xffff))
+      layoutCallSites.addAll(framesEnclosingDepthDependentSlots.getOrDefault(framesEnclosingDepthDependentSlots.containsKey(address) ? address : address - 1 & 0xffff, Set.of()));
   };
 
   public StackAnalyzer(State state) {
@@ -202,6 +203,7 @@ public class StackAnalyzer implements java.io.Serializable {
     if (!initialized)
       init();
     lastEvent = null;
+    spLoadedFrom = -1;
     Entry top = entryAtSp();
     if (top != null && !top.returnAddress() && top.pc() != -1)
       dataOnTopAt.put(pcValue, top.pc());
@@ -249,12 +251,15 @@ public class StackAnalyzer implements java.io.Serializable {
         if (source instanceof Register register && register.getName().equals(SP.name())) {
           stackAsRepository.spReadAt = pcValue;
           lastStorePlace = placeOf(target);
+          if (lastStorePlace != -1)
+            rememberFramesEnclosing(lastStorePlace, register.read());
         }
 
         if (target instanceof Register register && register.getName().equals(SP.name())) {
           int newSpAddress = source.read();
           int oldSpAddress = register.read();
           int place = placeOf(source);
+          spLoadedFrom = place;
           int[] left = place == -1 ? null : leftStacks.remove(place);
           reentered = left != null && left[3] != -1 ? left : null;
           boolean repointing = lastStorePlace != -1 && place != lastStorePlace;
@@ -451,9 +456,13 @@ public class StackAnalyzer implements java.io.Serializable {
       returnSlots.put(sp, entry.pc());
     if (!returnAddress) {
       pushedValues.put(entry.pc(), entry.value());
-      if (collecting)
-        framesEnclosingPushedData.put(sp, entries.entrySet().stream().filter(e -> e.getKey() > sp && e.getValue().returnAddress() && e.getValue().pc() != -1).map(e -> e.getValue().pc()).collect(Collectors.toSet()));
+      rememberFramesEnclosing(sp, sp + 2);
     }
+  }
+
+  private void rememberFramesEnclosing(int slot, int sp) {
+    if (collecting)
+      framesEnclosingDepthDependentSlots.put(slot, entries.entrySet().stream().filter(e -> e.getKey() >= sp && e.getValue().returnAddress() && e.getValue().pc() != -1).map(e -> e.getValue().pc()).collect(Collectors.toSet()));
   }
 
   public boolean returnPoppedBelow(int sp) {
@@ -479,7 +488,7 @@ public class StackAnalyzer implements java.io.Serializable {
     nonLocalRets.clear();
     returnSlots.clear();
     layoutCallSites.clear();
-    framesEnclosingPushedData.clear();
+    framesEnclosingDepthDependentSlots.clear();
     learnedFromRecording = false;
     codeVersions = new CodeVersions();
   }
