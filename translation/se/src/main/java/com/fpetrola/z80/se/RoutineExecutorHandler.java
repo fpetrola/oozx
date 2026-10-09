@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.se;
 
+import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.RoutineManager;
@@ -78,8 +79,9 @@ public class RoutineExecutorHandler {
     return routineExecutions.get(address);
   }
 
-  public RoutineExecution findRunningRoutineExecutionContaining(int address) {
-    return stackFrames.reversed().stream().map(routineExecutions::get).filter(r -> r.contains(address)).findFirst().orElse(null);
+  public RoutineExecution findCallerOf(int callSite) {
+    int callee = routineManager.getInstructionAt(callSite) instanceof Call call ? stackFrames.lastIndexOf(call.getJumpAddress()) : -1;
+    return callee > 0 ? routineExecutions.get(stackFrames.get(callee - 1)) : stackFrames.reversed().stream().map(routineExecutions::get).filter(r -> r.contains(callSite)).findFirst().orElse(null);
   }
 
   public LinkedList<java.lang.Integer> unexploredJumpTargets(int address, Set<java.lang.Integer> targets) {
