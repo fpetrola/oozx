@@ -333,7 +333,8 @@ public class RemoteZ80Translator {
       State state = main.getState();
       int fallThrough = site + branch.getLength() & 0xffff, sp = state.getRegisterSP().read();
       int[] memory = state.getMemory().getData();
-      int target = branch instanceof Ret ? state.getMemory().read16Bits(taken == fallThrough ? sp : sp - 2 & 0xffff)
+      int slot = taken == fallThrough ? sp : sp - 2 & 0xffff;
+      int target = branch instanceof Ret ? memory[slot] | memory[slot + 1 & 0xffff] << 8
           : branch.getLength() == 2 ? site + 2 + (byte) memory[site + 1 & 0xffff] & 0xffff : memory[site + 1 & 0xffff] | memory[site + 2 & 0xffff] << 8;
       int alternative = taken == fallThrough ? target : fallThrough;
       if (taken != fallThrough && taken != target || codeBytes.containsKey(alternative) || explored.containsKey(alternative) && !unfinished.contains(alternative) || forked.getOrDefault(site, 0) >= budget)

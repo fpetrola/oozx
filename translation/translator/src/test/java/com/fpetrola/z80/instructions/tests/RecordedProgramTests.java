@@ -765,6 +765,24 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aReturnAddressReadByAddressKeepsItsCallPushingIt() {
+    // Skool Daze 61AA: the random number generator walks memory with XOR (HL) and reads 5CFD, the high byte of the main loop's return address 6779
+    translate(
+        at(0x8000, 0xCD, 0x20, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8020, 0x3A, 0xFF, 0xFE, 0xC9));
+    Assert.assertEquals(Set.of(0x8000), stackAnalyzer.layoutCallSites);
+  }
+
+  @Test
+  public void dataPushedInsideACallAndReadBackAtItsAddressKeepsTheCallersReturnOnTheStack() {
+    // Skool Daze 61AA: the same walk reads data pushed under the main loop's frames, so its position depends on how many returns are stacked
+    translate(
+        at(0x8000, 0x01, 0x34, 0x12, 0xCD, 0x20, 0x80, 0xDD, 0x21, 0xFC, 0xFE, 0xDD, 0x7E, 0x00, 0x76, 0x18, 0xFD),
+        at(0x8020, 0xC5, 0xC1, 0xC9));
+    Assert.assertEquals(Set.of(0x8003), stackAnalyzer.layoutCallSites);
+  }
+
+  @Test
   public void theStackPointerSavedInsideACallAndReadBackAsDataKeepsTheCallersReturnOnTheStack() {
     // Fairlight F055: LD (FFF6),SP saves SP around a fill routine, and the sprite drawer at E468 later reads FFF6 as graphic data
     translate(
