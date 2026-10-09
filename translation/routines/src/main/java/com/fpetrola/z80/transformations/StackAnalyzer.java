@@ -81,17 +81,18 @@ public class StackAnalyzer implements java.io.Serializable {
   private final transient List<Integer> simulatedCallsPcs = new ArrayList<>();
   private final transient Map<Integer, Entry> entries = new HashMap<>();
   private final transient Map<Integer, Entry> consumedReturns = new HashMap<>();
+  private final transient Map<Integer, Set<Integer>> framesEnclosingSavedSp = new HashMap<>();
   private final transient MemoryWriteListener forgetOverwritten = (address, value) -> {
     entries.remove(address);
     entries.remove((address - 1) & 0xFFFF);
+    framesEnclosingSavedSp.remove(address);
+    framesEnclosingSavedSp.remove(address - 1 & 0xffff);
   };
   public final Set<Integer> layoutCallSites = new HashSet<>();
-  private final transient Map<Integer, Set<Integer>> framesEnclosingDepthDependentSlots = new HashMap<>();
   private int spLoadedFrom = -1;
   private final transient MemoryReadListener readByAddress = (address, value, fetching) -> {
-    int sp = state.getRegisterSP().read();
-    if (collecting && fetching == 0 && address != sp && address != (sp + 1 & 0xffff) && address != spLoadedFrom && address != (spLoadedFrom + 1 & 0xffff))
-      layoutCallSites.addAll(framesEnclosingDepthDependentSlots.getOrDefault(framesEnclosingDepthDependentSlots.containsKey(address) ? address : address - 1 & 0xffff, Set.of()));
+    if (collecting && fetching == 0 && address != spLoadedFrom && address != (spLoadedFrom + 1 & 0xffff))
+      layoutCallSites.addAll(framesEnclosingSavedSp.getOrDefault(framesEnclosingSavedSp.containsKey(address) ? address : address - 1 & 0xffff, Set.of()));
   };
 
   public StackAnalyzer(State state) {
@@ -251,15 +252,13 @@ public class StackAnalyzer implements java.io.Serializable {
         if (source instanceof Register register && register.getName().equals(SP.name())) {
           stackAsRepository.spReadAt = pcValue;
           lastStorePlace = placeOf(target);
-          if (lastStorePlace != -1)
-            rememberFramesEnclosing(lastStorePlace, register.read());
         }
 
         if (target instanceof Register register && register.getName().equals(SP.name())) {
-          int newSpAddress = source.read();
-          int oldSpAddress = register.read();
           int place = placeOf(source);
           spLoadedFrom = place;
+          int newSpAddress = source.read();
+          int oldSpAddress = register.read();
           int[] left = place == -1 ? null : leftStacks.remove(place);
           reentered = left != null && left[3] != -1 ? left : null;
           boolean repointing = lastStorePlace != -1 && place != lastStorePlace;
@@ -407,6 +406,12 @@ public class StackAnalyzer implements java.io.Serializable {
         remember(false);
       }
 
+      public void visitingLd(Ld ld) {
+        int sp = state.getRegisterSP().read();
+        if (collecting && !stackAsRepository.active && lastStorePlace != -1 && ld.getSource() instanceof Register register && register.getName().equals(SP.name()))
+          framesEnclosingSavedSp.put(lastStorePlace, entries.entrySet().stream().filter(e -> e.getKey() >= sp && e.getValue().returnAddress() && e.getValue().pc() != -1).map(e -> e.getValue().pc()).collect(Collectors.toSet()));
+      }
+
       public void visitEx(Ex ex) {
         if (!(ex.getTarget() instanceof Register))
           remember(false);
@@ -454,15 +459,8 @@ public class StackAnalyzer implements java.io.Serializable {
     consumedReturns.remove(sp - 2 & 0xffff);
     if (returnAddress && collecting)
       returnSlots.put(sp, entry.pc());
-    if (!returnAddress) {
+    if (!returnAddress)
       pushedValues.put(entry.pc(), entry.value());
-      rememberFramesEnclosing(sp, sp + 2);
-    }
-  }
-
-  private void rememberFramesEnclosing(int slot, int sp) {
-    if (collecting)
-      framesEnclosingDepthDependentSlots.put(slot, entries.entrySet().stream().filter(e -> e.getKey() >= sp && e.getValue().returnAddress() && e.getValue().pc() != -1).map(e -> e.getValue().pc()).collect(Collectors.toSet()));
   }
 
   public boolean returnPoppedBelow(int sp) {
@@ -488,7 +486,7 @@ public class StackAnalyzer implements java.io.Serializable {
     nonLocalRets.clear();
     returnSlots.clear();
     layoutCallSites.clear();
-    framesEnclosingDepthDependentSlots.clear();
+    framesEnclosingSavedSp.clear();
     learnedFromRecording = false;
     codeVersions = new CodeVersions();
   }

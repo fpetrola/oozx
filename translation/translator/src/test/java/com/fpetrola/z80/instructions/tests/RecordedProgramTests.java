@@ -741,21 +741,41 @@ public class RecordedProgramTests {
   }
 
   @Test
-  public void dataPushedInsideACallAndReadBackAtItsFixedAddressKeepsTheCallersReturnOnTheStack() {
-    // Fairlight E7E2: PUSH BC fills a table in the stack area that the game later reads through IX at a fixed address, so the depth of the enclosing calls matters
-    translate(
-        at(0x8000, 0x01, 0x34, 0x12, 0xCD, 0x20, 0x80, 0xDD, 0x21, 0xFC, 0xFE, 0xDD, 0x7E, 0x00, 0x76, 0x18, 0xFD),
-        at(0x8020, 0xC5, 0xC1, 0xC9));
-    Assert.assertEquals(Set.of(0x8003), stackAnalyzer.layoutCallSites);
-  }
-
-  @Test
   public void theStackPointerSavedInsideACallAndReadBackAsDataKeepsTheCallersReturnOnTheStack() {
     // Fairlight F055: LD (FFF6),SP saves SP around a fill routine, and the sprite drawer at E468 later reads FFF6 as graphic data
     translate(
         at(0x8000, 0xCD, 0x20, 0x80, 0x3A, 0xF6, 0xFF, 0x76, 0x18, 0xFD),
         at(0x8020, 0xED, 0x73, 0xF6, 0xFF, 0xED, 0x7B, 0xF6, 0xFF, 0xC9));
     Assert.assertEquals(Set.of(0x8000), stackAnalyzer.layoutCallSites);
+  }
+
+  @Test
+  public void aStackPointerSavedAndRestoredButNeverReadAsDataKeepsNoReturns() {
+    // Fairlight F060: LD SP,(FFF6) restores the saved SP, it does not look at the layout
+    ignoresMemory(0xFFF6, 0xFFF7);
+    translate(
+        at(0x8000, 0xCD, 0x20, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8020, 0xED, 0x73, 0xF6, 0xFF, 0xED, 0x7B, 0xF6, 0xFF, 0xC9));
+    Assert.assertEquals(Set.of(), stackAnalyzer.layoutCallSites);
+  }
+
+  @Test
+  public void aSavedStackPointerOverwrittenByAVariableIsNoLongerReadAsTheLayout() {
+    // Fairlight E7ED/E840: the recursive fill uses FFF6 as a variable between the SP saves of F055
+    translate(
+        at(0x8000, 0xCD, 0x20, 0x80, 0x22, 0xF6, 0xFF, 0x3A, 0xF6, 0xFF, 0x76, 0x18, 0xFD),
+        at(0x8020, 0xED, 0x73, 0xF6, 0xFF, 0xC9));
+    Assert.assertEquals(Set.of(), stackAnalyzer.layoutCallSites);
+  }
+
+  @Test
+  public void aStackPointerSavedWhileTheStackFillsMemoryDoesNotDependOnTheCalls() {
+    // Fairlight E5DC: LD (FFFA),SP after a PUSH fill of the attributes is read back as where the fill ended
+    ignoresMemory(0xFFF8, 0xFFF9);
+    translate(
+        at(0x8000, 0xCD, 0x20, 0x80, 0x2A, 0xFA, 0xFF, 0x76, 0x18, 0xFD),
+        at(0x8020, 0xED, 0x73, 0xF8, 0xFF, 0x21, 0x00, 0x5B, 0xF9, 0xD5, 0xD5, 0xED, 0x73, 0xFA, 0xFF, 0xED, 0x7B, 0xF8, 0xFF, 0xC9));
+    Assert.assertEquals(Set.of(), stackAnalyzer.layoutCallSites);
   }
 
   @Test
