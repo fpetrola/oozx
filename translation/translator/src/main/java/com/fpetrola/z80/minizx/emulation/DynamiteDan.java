@@ -178,7 +178,7 @@ public class DynamiteDan extends MiniZX {
                int var8 = HL();
                wMem(var8, var7, 52707);
                pc(52708, 1, 11);
-               int var9 = A() << 8 | 7166;
+               int var9 = A() << 8 | 254;
                int var10 = A();
                out(var9, var10);
                pc(52710, 1, 10);
@@ -3134,15 +3134,9 @@ public class DynamiteDan extends MiniZX {
                if(HL() == 53111) {
                   $CF77();
                   return;
-               } else if(HL() != 52956) {
+               } else {
                   int var21 = HL();
                   jump(var21);
-                  return;
-               } else {
-                  pc(52956, 1, 10);
-                  HL(52932);
-                  pc(52959, 1, 12);
-                  $CEF0();
                   return;
                }
             } else {
@@ -3653,14 +3647,14 @@ public class DynamiteDan extends MiniZX {
                   tstates(7);
                   $CD9A();
                }
-            } catch (StackException var216) {
-               if(var216.getNextPC() == 52692) {
+            } catch (StackException var215) {
+               if(var215.getNextPC() == 52692) {
                   HL(53228);
                   pc(52692, 1, 10);
                   throw new StackException(52693);
                }
 
-               throw var216;
+               throw var215;
             }
 
             pc(53228, 1, 13);
@@ -3817,15 +3811,15 @@ public class DynamiteDan extends MiniZX {
             try {
                pc(53239, 1, 17);
                $D895();
-            } catch (StackException var215) {
-               if(var215.getNextPC() == 54038) {
+            } catch (StackException var216) {
+               if(var216.getNextPC() == 54038) {
                   DE(53242);
                   pc(54038, 1, 10);
                   $D1CE();
                   return;
                }
 
-               throw var215;
+               throw var216;
             }
 
             pc(53242, 1, 13);
@@ -5045,14 +5039,14 @@ public class DynamiteDan extends MiniZX {
                   try {
                      pc(53917, 1, 17);
                      $D2BF();
-                  } catch (StackException var146) {
-                     if(var146.getNextPC() == 53999) {
+                  } catch (StackException var149) {
+                     if(var149.getNextPC() == 53999) {
                         HL(53920);
                         pc(53999, 1, 10);
                         return;
                      }
 
-                     throw var146;
+                     throw var149;
                   }
 
                   pc(53920, 2, 20);
@@ -5065,14 +5059,14 @@ public class DynamiteDan extends MiniZX {
                   try {
                      pc(53927, 1, 17);
                      $D2BF();
-                  } catch (StackException var148) {
-                     if(var148.getNextPC() == 53999) {
+                  } catch (StackException var146) {
+                     if(var146.getNextPC() == 53999) {
                         HL(53930);
                         pc(53999, 1, 10);
                         return;
                      }
 
-                     throw var148;
+                     throw var146;
                   }
 
                   pc(53930, 2, 20);
@@ -5085,14 +5079,14 @@ public class DynamiteDan extends MiniZX {
                   try {
                      pc(53937, 1, 17);
                      $D2BF();
-                  } catch (StackException var149) {
-                     if(var149.getNextPC() == 53999) {
+                  } catch (StackException var148) {
+                     if(var148.getNextPC() == 53999) {
                         HL(53940);
                         pc(53999, 1, 10);
                         return;
                      }
 
-                     throw var149;
+                     throw var148;
                   }
 
                   pc(53940, 2, 20);
@@ -9171,7 +9165,7 @@ public class DynamiteDan extends MiniZX {
          int var4 = alu("xor", var3, 16);
          A(var4);
          pc(55992, 1, 11);
-         int var5 = A() << 8 | 7166;
+         int var5 = A() << 8 | 254;
          int var6 = A();
          out(var5, var6);
          pc(55994, 1, 4);
@@ -10129,7 +10123,7 @@ public class DynamiteDan extends MiniZX {
             int var25 = alu("or", var24, var23);
             A(var25);
             pc(56944, 1, 11);
-            int var26 = A() << 8 | 7166;
+            int var26 = A() << 8 | 254;
             int var27 = A();
             out(var26, var27);
             pc(56946, 1, 13);
@@ -11436,7 +11430,7 @@ public class DynamiteDan extends MiniZX {
       int var8 = alu("and", var7, 248);
       A(var8);
       pc(59418, 1, 11);
-      int var9 = A() << 8 | 7166;
+      int var9 = A() << 8 | 254;
       int var10 = A();
       out(var9, var10);
       pc(59420, 1, 13);

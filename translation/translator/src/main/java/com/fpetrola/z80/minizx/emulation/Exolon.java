@@ -16,6 +16,9 @@ public class Exolon extends MiniZX {
 
       while(true) {
          switch(var2) {
+         case 28065:
+            var2 = this.$6DA1();
+            break;
          case 28113:
             var2 = this.$6DD1();
             break;
@@ -64,15 +67,6 @@ public class Exolon extends MiniZX {
          case 40040:
             var2 = this.$9C68();
             break;
-         case 47006:
-            var2 = this.$B79E();
-            break;
-         case 47247:
-            var2 = this.$B88F();
-            break;
-         case 47614:
-            var2 = this.$B9FE();
-            break;
          default:
             return;
          }
@@ -100,7 +94,7 @@ public class Exolon extends MiniZX {
       int var7 = this.alu("xor", var6, var5);
       this.A(var7);
       this.pc(28013, 1, 11);
-      int var8 = this.A() << 8 | 30974;
+      int var8 = this.A() << 8 | 254;
       int var9 = this.A();
       this.out(var8, var9);
       this.pc(28015, 1, 13);
@@ -154,8 +148,7 @@ public class Exolon extends MiniZX {
       this.A(var22);
       this.pc(28062, 1, 10);
       if(!this.flag(64, true)) {
-         this.setNextAddress(28065);
-         this.runJumps(28113);
+         this.runJumps(28065);
       } else {
          this.pc(28997, 1, 4);
          int var23 = this.A();
@@ -169,66 +162,69 @@ public class Exolon extends MiniZX {
       }
    }
 
-   public int $6DD1() {
-      if(this.isNextPC(28065)) {
-         this.pc(28065, 1, 17);
-         this.$B04B();
-         this.pc(28068, 1, 17);
-         this.$8DF5();
-         this.pc(28071, 1, 17);
-         this.$8E03();
-         this.pc(28074, 1, 10);
-         this.BC(31);
-         this.pc(28077, 2, 21);
-         this.ldir(28077);
-         this.pc(28079, 1, 10);
-         this.HL(28183);
-         this.pc(28082, 1, 17);
-         this.$AF2B();
-         this.pc(28085, 1, 17);
-         this.$6F90();
-         this.pc(28088, 1, 17);
-         this.$B6EC();
-         this.pc(28091, 1, 13);
-         int var1 = this.mem(32103, 28091);
-         this.A(var1);
-         this.pc(28094, 1, 4);
-         int var2 = this.A();
-         int var3 = this.A();
-         int var4 = this.alu("or", var3, var2);
-         this.A(var4);
-         this.pc(28095, 1, 7);
-         if(this.flag(64, false)) {
+   public int $6DA1() {
+      this.pc(28065, 1, 17);
+      this.$B04B();
+      this.pc(28068, 1, 17);
+      this.$8DF5();
+      this.pc(28071, 1, 17);
+      this.$8E03();
+      this.pc(28074, 1, 10);
+      this.BC(31);
+      this.pc(28077, 2, 21);
+      this.ldir(28077);
+      this.pc(28079, 1, 10);
+      this.HL(28183);
+      this.pc(28082, 1, 17);
+      this.$AF2B();
+      this.pc(28085, 1, 17);
+      this.$6F90();
+      this.pc(28088, 1, 17);
+      this.$B6EC();
+      this.pc(28091, 1, 13);
+      int var1 = this.mem(32103, 28091);
+      this.A(var1);
+      this.pc(28094, 1, 4);
+      int var2 = this.A();
+      int var3 = this.A();
+      int var4 = this.alu("or", var3, var2);
+      this.A(var4);
+      this.pc(28095, 1, 7);
+      if(this.flag(64, false)) {
+         this.tstates(5);
+         return 28113;
+      } else {
+         this.pc(28097, 1, 4);
+         int var5 = this.A();
+         int var6 = this.A();
+         int var7 = this.alu("xor", var6, var5);
+         this.A(var7);
+         this.pc(28098, 1, 13);
+         int var8 = this.A();
+         this.wMem(32103, var8, 28098);
+         this.pc(28101, 1, 13);
+         int var9 = this.mem(28182, 28101);
+         this.A(var9);
+         this.pc(28104, 1, 4);
+         int var10 = this.A();
+         int var11 = this.A();
+         int var12 = this.alu("or", var11, var10);
+         this.A(var12);
+         this.pc(28105, 1, 7);
+         if(this.flag(64, true)) {
             this.tstates(5);
+            return 28113;
          } else {
-            this.pc(28097, 1, 4);
-            int var5 = this.A();
-            int var6 = this.A();
-            int var7 = this.alu("xor", var6, var5);
-            this.A(var7);
-            this.pc(28098, 1, 13);
-            int var8 = this.A();
-            this.wMem(32103, var8, 28098);
-            this.pc(28101, 1, 13);
-            int var9 = this.mem(28182, 28101);
-            this.A(var9);
-            this.pc(28104, 1, 4);
-            int var10 = this.A();
-            int var11 = this.A();
-            int var12 = this.alu("or", var11, var10);
-            this.A(var12);
-            this.pc(28105, 1, 7);
-            if(this.flag(64, true)) {
-               this.tstates(5);
-            } else {
-               this.pc(28107, 1, 10);
-               this.HL(32163);
-               this.pc(28110, 1, 17);
-               this.$7D17();
-            }
+            this.pc(28107, 1, 10);
+            this.HL(32163);
+            this.pc(28110, 1, 17);
+            this.$7D17();
+            return 28113;
          }
       }
+   }
 
+   public int $6DD1() {
       this.pc(28113, 1, 17);
       this.$8E11();
       this.pc(28116, 1, 17);
@@ -244,22 +240,22 @@ public class Exolon extends MiniZX {
          this.pc(28128, 1, 17);
          this.$ACD1();
          this.pc(28131, 1, 7);
-         int var13 = this.A();
-         this.alu("cp", var13, 49);
+         int var1 = this.A();
+         this.alu("cp", var1, 49);
          this.pc(28133, 1, 7);
          if(this.flag(1, false)) {
             this.tstates(5);
          } else {
             this.pc(28135, 1, 7);
-            int var14 = this.A();
-            this.alu("cp", var14, 54);
+            int var2 = this.A();
+            this.alu("cp", var2, 54);
             this.pc(28137, 1, 7);
             if(this.flag(1, true)) {
                this.tstates(5);
             } else {
                this.pc(28139, 1, 7);
-               int var15 = this.A();
-               this.alu("cp", var15, 49);
+               int var3 = this.A();
+               this.alu("cp", var3, 49);
                this.pc(28141, 1, 10);
                if(this.flag(64, false)) {
                   this.$758A();
@@ -267,66 +263,66 @@ public class Exolon extends MiniZX {
                }
 
                this.pc(28144, 1, 7);
-               int var16 = this.A();
-               this.alu("cp", var16, 50);
+               int var4 = this.A();
+               this.alu("cp", var4, 50);
                this.pc(28146, 1, 10);
                if(this.flag(64, false)) {
                   return 28587;
                }
 
                this.pc(28149, 1, 7);
-               int var17 = this.A();
-               int var18 = this.alu("sub", var17, 51);
-               this.A(var18);
+               int var5 = this.A();
+               int var6 = this.alu("sub", var5, 51);
+               this.A(var6);
                this.pc(28151, 1, 4);
-               int var19 = this.A();
-               this.E(var19);
+               int var7 = this.A();
+               this.E(var7);
                this.pc(28152, 1, 13);
-               int var20 = this.mem(31639, 28152);
-               this.A(var20);
+               int var8 = this.mem(31639, 28152);
+               this.A(var8);
                this.pc(28155, 1, 4);
-               int var21 = this.E();
-               int var22 = this.A();
-               this.alu("cp", var22, var21);
+               int var9 = this.E();
+               int var10 = this.A();
+               this.alu("cp", var10, var9);
                this.pc(28156, 1, 7);
                if(this.flag(64, false)) {
                   this.tstates(5);
                } else {
                   this.pc(28158, 1, 4);
-                  int var23 = this.E();
-                  this.A(var23);
+                  int var11 = this.E();
+                  this.A(var11);
                   this.pc(28159, 1, 13);
-                  int var24 = this.A();
-                  this.wMem(31639, var24, 28159);
+                  int var12 = this.A();
+                  this.wMem(31639, var12, 28159);
                   this.pc(28162, 1, 10);
                   this.HL(28183);
                   this.pc(28165, 1, 11);
-                  int var25 = this.BC();
-                  this.push(var25);
+                  int var13 = this.BC();
+                  this.push(var13);
                   this.pc(28166, 1, 17);
                   this.push(28169);
                   this.$AF2B();
                   this.pc(28169, 1, 17);
                   this.$6F90();
                   this.pc(28172, 1, 10);
-                  int var26 = this.pop();
-                  this.BC(var26);
+                  int var14 = this.pop();
+                  this.BC(var14);
                }
             }
          }
 
          this.pc(28173, 1, 6);
-         int var27 = this.BC();
-         int var28 = this.dec16(var27);
-         this.BC(var28);
+         int var15 = this.BC();
+         int var16 = this.dec16(var15);
+         this.BC(var16);
          this.pc(28174, 1, 4);
-         int var29 = this.B();
-         this.A(var29);
+         int var17 = this.B();
+         this.A(var17);
          this.pc(28175, 1, 4);
-         int var30 = this.C();
-         int var31 = this.A();
-         int var32 = this.alu("or", var31, var30);
-         this.A(var32);
+         int var18 = this.C();
+         int var19 = this.A();
+         int var20 = this.alu("or", var19, var18);
+         this.A(var20);
          this.pc(28176, 1, 10);
          if(this.flag(64, false)) {
             return 29001;
@@ -957,8 +953,7 @@ public class Exolon extends MiniZX {
                      this.alu("cp", var35, var34);
                      this.pc(28739, 1, 10);
                      if(this.flag(64, true)) {
-                        this.setNextAddress(28065);
-                        return 28113;
+                        return 28065;
                      }
 
                      this.pc(28742, 1, 6);
@@ -992,8 +987,7 @@ public class Exolon extends MiniZX {
                         }
 
                         this.pc(28760, 1, 10);
-                        this.setNextAddress(28065);
-                        return 28113;
+                        return 28065;
                      }
 
                      this.tstates(5);
@@ -1083,8 +1077,7 @@ public class Exolon extends MiniZX {
          this.A(var16);
          this.pc(29051, 1, 10);
          if(this.flag(64, false)) {
-            this.setNextAddress(28065);
-            return 28113;
+            return 28065;
          }
 
          this.pc(29054, 1, 17);
@@ -1106,8 +1099,7 @@ public class Exolon extends MiniZX {
          return -1;
       } else {
          this.pc(29066, 1, 10);
-         this.setNextAddress(28065);
-         return 28113;
+         return 28065;
       }
    }
 
@@ -4195,7 +4187,7 @@ public class Exolon extends MiniZX {
             int var7 = this.alu("and", var6, 248);
             this.A(var7);
             this.pc(31791, 1, 11);
-            int var8 = this.A() << 8 | 30974;
+            int var8 = this.A() << 8 | 254;
             int var9 = this.A();
             this.out(var8, var9);
             this.pc(31793, 1, 4);
@@ -4219,7 +4211,7 @@ public class Exolon extends MiniZX {
                   int var17 = this.alu("xor", var16, var15);
                   this.A(var17);
                   this.pc(31799, 1, 11);
-                  int var18 = this.A() << 8 | 30974;
+                  int var18 = this.A() << 8 | 254;
                   int var19 = this.A();
                   this.out(var18, var19);
                   this.pc(31801, 1, 8);
@@ -4284,7 +4276,7 @@ public class Exolon extends MiniZX {
                int var13 = this.alu("xor", var12, 16);
                this.A(var13);
                this.pc(31822, 1, 11);
-               int var14 = this.A() << 8 | 30974;
+               int var14 = this.A() << 8 | 254;
                int var15 = this.A();
                this.out(var14, var15);
                this.pc(31824, 1, 4);
@@ -4996,7 +4988,7 @@ public class Exolon extends MiniZX {
       int var38;
       if(!this.isNextPC('\u8047')) {
          this.pc('\u8057', 1, 11);
-         var28 = this.A() << 8 | 30974;
+         var28 = this.A() << 8 | 254;
          var29 = this.A();
          this.out(var28, var29);
          this.pc('\u8059', 1, 4);
@@ -5058,7 +5050,7 @@ public class Exolon extends MiniZX {
             int var9 = this.alu("inc", var8);
             this.E(var9);
             this.pc('\u804b', 1, 11);
-            int var10 = this.A() << 8 | 30974;
+            int var10 = this.A() << 8 | 254;
             int var11 = this.A();
             this.out(var10, var11);
             this.pc('\u804d', 1, 7);
@@ -5087,7 +5079,7 @@ public class Exolon extends MiniZX {
                this.pc('\u802f', 1, 10);
                if(!this.flag(64, true)) {
                   this.pc('\u8032', 1, 11);
-                  var19 = this.A() << 8 | 30974;
+                  var19 = this.A() << 8 | 254;
                   var20 = this.A();
                   this.out(var19, var20);
                   this.pc('\u8034', 1, 4);
@@ -5145,7 +5137,7 @@ public class Exolon extends MiniZX {
                this.pc('\u8054', 1, 10);
                if(this.flag(64, false)) {
                   this.pc('\u8032', 1, 11);
-                  var19 = this.A() << 8 | 30974;
+                  var19 = this.A() << 8 | 254;
                   var20 = this.A();
                   this.out(var19, var20);
                   this.pc('\u8034', 1, 4);
@@ -5187,7 +5179,7 @@ public class Exolon extends MiniZX {
             }
 
             this.pc('\u8057', 1, 11);
-            var28 = this.A() << 8 | 30974;
+            var28 = this.A() << 8 | 254;
             var29 = this.A();
             this.out(var28, var29);
             this.pc('\u8059', 1, 4);
@@ -10974,7 +10966,7 @@ public class Exolon extends MiniZX {
                      int var59 = this.alu("and", var58, 248);
                      this.A(var59);
                      this.pc('\u95a3', 1, 11);
-                     int var60 = this.A() << 8 | 30974;
+                     int var60 = this.A() << 8 | 254;
                      int var61 = this.A();
                      this.out(var60, var61);
                   }
@@ -19970,7 +19962,7 @@ public class Exolon extends MiniZX {
       this.pc('\ub76f', 1, 7);
       if(this.flag(64, true)) {
          this.tstates(5);
-         this.runJumps('\ub79e');
+         this.$B79E();
       } else {
          this.pc('\ub771', 2, 14);
          this.IX('\ube7d');
@@ -19979,6 +19971,7 @@ public class Exolon extends MiniZX {
          this.IY(var9);
          this.pc('\ub779', 1, 17);
          this.push('\ub77c');
+         this.$B79F();
          this.pc('\ub77c', 2, 20);
          int var10 = this.IY();
          this.wMem16('\ub6e6', var10, '\ub77c');
@@ -19988,6 +19981,7 @@ public class Exolon extends MiniZX {
          int var11 = this.mem16('\ub6e8', '\ub784');
          this.IY(var11);
          this.pc('\ub788', 1, 17);
+         this.$B79F();
          this.pc('\ub78b', 2, 20);
          int var12 = this.IY();
          this.wMem16('\ub6e8', var12, '\ub78b');
@@ -19997,19 +19991,451 @@ public class Exolon extends MiniZX {
          int var13 = this.mem16('\ub6ea', '\ub793');
          this.IY(var13);
          this.pc('\ub797', 1, 17);
+         this.$B79F();
          this.pc('\ub79a', 2, 20);
          int var14 = this.IY();
          this.wMem16('\ub6ea', var14, '\ub79a');
-         this.runJumps('\ub79e');
+         this.$B79E();
       }
    }
 
-   public int $B79E() {
+   public void $B79E() {
       this.pc('\ub79e', 1, 10);
-      return -1;
    }
 
-   public int $B88F() {
+   public void $B79F() {
+      this.pc('\ub79f', 2, 19);
+      int var1 = this.IX() + 13;
+      int var2 = this.mem(var1, '\ub79f');
+      this.A(var2);
+      this.pc('\ub7a2', 1, 4);
+      int var3 = this.A();
+      int var4 = this.A();
+      int var5 = this.alu("or", var4, var3);
+      this.A(var5);
+      this.pc('\ub7a3', 1, 7);
+      if(this.flag(64, false)) {
+         this.tstates(5);
+         this.pc('\ub7ae', 2, 23);
+         int var146 = this.IX() + 2;
+         int var147 = this.mem(var146, '\ub7ae');
+         int var148 = this.alu("dec", var147);
+         this.wMem(var146, var148, '\ub7ae');
+         this.pc('\ub7b1', 1, 10);
+         if(this.flag(64, false)) {
+            this.$B88F();
+            return;
+         }
+      } else {
+         this.pc('\ub7a5', 2, 19);
+         int var6 = this.IX() + 13;
+         this.wMem(var6, 0, '\ub7a5');
+
+         try {
+            this.pc('\ub7a9', 1, 17);
+            this.$B88F();
+         } catch (StackException var149) {
+            if(var149.getNextPC() == '\ub9fe') {
+               this.AF('\ub7ac');
+               this.$B9FE();
+               return;
+            }
+
+            throw var149;
+         }
+
+         this.pc('\ub7ac', 1, 12);
+      }
+
+      this.pc('\ub7b4', 2, 23);
+      int var8 = this.IX() + 27;
+      int var9 = this.mem(var8, '\ub7b4');
+      int var10 = this.alu("dec", var9);
+      this.wMem(var8, var10, '\ub7b4');
+      this.pc('\ub7b7', 1, 10);
+      if(!this.flag(64, true)) {
+         this.pc('\ub7ba', 2, 19);
+         int var74 = this.IX() + 25;
+         int var75 = this.mem(var74, '\ub7ba');
+         this.A(var75);
+         this.pc('\ub7bd', 2, 19);
+         int var76 = this.IX() + 29;
+         int var77 = this.mem(var76, '\ub7bd');
+         int var78 = this.A();
+         int var79 = this.alu("add", var78, var77);
+         this.A(var79);
+         this.pc('\ub7c0', 2, 19);
+         int var80 = this.IX() + 25;
+         int var81 = this.A();
+         this.wMem(var80, var81, '\ub7c0');
+         this.pc('\ub7c3', 2, 23);
+         int var82 = this.IX() + 28;
+         int var83 = this.mem(var82, '\ub7c3');
+         int var84 = this.alu("dec", var83);
+         this.wMem(var82, var84, '\ub7c3');
+         this.pc('\ub7c6', 1, 7);
+         if(this.flag(64, true)) {
+            this.tstates(5);
+         } else {
+            this.pc('\ub7c8', 2, 19);
+            int var85 = this.IX() + 26;
+            int var86 = this.mem(var85, '\ub7c8');
+            this.A(var86);
+            this.pc('\ub7cb', 1, 7);
+            int var87 = this.A();
+            int var88 = this.alu("add", var87, 3);
+            this.A(var88);
+            this.pc('\ub7cd', 2, 19);
+            int var89 = this.IX() + 26;
+            int var90 = this.A();
+            this.wMem(var89, var90, '\ub7cd');
+            this.pc('\ub7d0', 2, 19);
+            int var91 = this.IX() + 31;
+            int var92 = this.mem(var91, '\ub7d0');
+            int var93 = this.A();
+            this.alu("cp", var93, var92);
+            this.pc('\ub7d3', 1, 7);
+            if(this.flag(64, true)) {
+               this.tstates(5);
+            } else {
+               this.pc('\ub7d5', 1, 4);
+               int var94 = this.A();
+               int var95 = this.A();
+               int var96 = this.alu("xor", var95, var94);
+               this.A(var96);
+               this.pc('\ub7d6', 2, 19);
+               int var97 = this.IX() + 26;
+               int var98 = this.A();
+               this.wMem(var97, var98, '\ub7d6');
+            }
+
+            this.pc('\ub7d9', 1, 7);
+            int var99 = this.A();
+            int var100 = this.alu("add", var99, 32);
+            this.A(var100);
+            this.pc('\ub7db', 1, 13);
+            int var101 = this.A();
+            this.wMem('\ub7e8', var101, '\ub7db');
+            this.pc('\ub7de', 1, 4);
+            int var102 = this.A();
+            int var103 = this.alu("inc", var102);
+            this.A(var103);
+            this.pc('\ub7df', 1, 13);
+            int var104 = this.A();
+            this.wMem('\ub7ee', var104, '\ub7df');
+            this.pc('\ub7e2', 1, 4);
+            int var105 = this.A();
+            int var106 = this.alu("inc", var105);
+            this.A(var106);
+            this.pc('\ub7e3', 1, 13);
+            int var107 = this.A();
+            this.wMem('\ub7f4', var107, '\ub7e3');
+            this.pc('\ub7e6', 2, 0);
+            int var108 = this.executeMutantCode('\ub7e6');
+            if(var108 != '\ub7e9') {
+               if(var108 != -1) {
+                  this.jump(var108);
+               }
+
+               return;
+            }
+
+            this.pc('\ub7e9', 2, 19);
+            int var109 = this.IX() + 28;
+            int var110 = this.A();
+            this.wMem(var109, var110, '\ub7e9');
+            this.pc('\ub7ec', 2, 0);
+            int var111 = this.executeMutantCode('\ub7ec');
+            if(var111 != '\ub7ef') {
+               if(var111 != -1) {
+                  this.jump(var111);
+               }
+
+               return;
+            }
+
+            this.pc('\ub7ef', 2, 19);
+            int var112 = this.IX() + 29;
+            int var113 = this.A();
+            this.wMem(var112, var113, '\ub7ef');
+            this.pc('\ub7f2', 2, 0);
+            int var114 = this.executeMutantCode('\ub7f2');
+            if(var114 != '\ub7f5') {
+               if(var114 != -1) {
+                  this.jump(var114);
+               }
+
+               return;
+            }
+
+            this.pc('\ub7f5', 2, 19);
+            int var115 = this.IX() + 30;
+            int var116 = this.A();
+            this.wMem(var115, var116, '\ub7f5');
+         }
+
+         this.pc('\ub7f8', 2, 19);
+         int var117 = this.IX() + 30;
+         int var118 = this.mem(var117, '\ub7f8');
+         this.A(var118);
+         this.pc('\ub7fb', 2, 19);
+         int var119 = this.IX() + 27;
+         int var120 = this.A();
+         this.wMem(var119, var120, '\ub7fb');
+         this.pc('\ub7fe', 2, 19);
+         int var121 = this.IX() + 0;
+         int var122 = this.mem(var121, '\ub7fe');
+         this.L(var122);
+         this.pc('\ub801', 2, 19);
+         int var123 = this.IX() + 1;
+         int var124 = this.mem(var123, '\ub801');
+         this.H(var124);
+         this.pc('\ub804', 1, 4);
+         int var125 = this.L();
+         this.A(var125);
+         this.pc('\ub805', 1, 4);
+         int var126 = this.H();
+         int var127 = this.A();
+         int var128 = this.alu("or", var127, var126);
+         this.A(var128);
+         this.pc('\ub806', 1, 7);
+         if(this.flag(64, false)) {
+            this.tstates(5);
+         } else {
+            this.pc('\ub808', 1, 7);
+            this.D(255);
+            this.pc('\ub80a', 2, 19);
+            int var129 = this.IX() + 25;
+            int var130 = this.mem(var129, '\ub80a');
+            this.A(var130);
+            this.pc('\ub80d', 1, 4);
+            int var131 = this.A();
+            int var132 = this.A();
+            int var133 = this.alu("or", var132, var131);
+            this.A(var133);
+            this.pc('\ub80e', 1, 10);
+            if(!this.flag(128, false)) {
+               this.pc('\ub811', 1, 7);
+               this.D(0);
+            }
+
+            this.pc('\ub813', 1, 4);
+            int var134 = this.A();
+            this.E(var134);
+            this.pc('\ub814', 1, 11);
+            int var135 = this.DE();
+            int var136 = this.HL();
+            int var137 = this.alu("add16", var136, var135);
+            this.HL(var137);
+         }
+
+         this.pc('\ub815', 2, 19);
+         int var138 = this.IX() + 6;
+         int var139 = this.mem(var138, '\ub815');
+         this.A(var139);
+         this.pc('\ub818', 1, 4);
+         int var140 = this.A();
+         int var141 = this.alu("inc", var140);
+         this.A(var141);
+         this.pc('\ub819', 1, 4);
+         int var142 = this.H();
+         this.C(var142);
+         this.pc('\ub81a', 1, 17);
+         this.$BF6D();
+         this.pc('\ub81d', 1, 4);
+         int var143 = this.A();
+         int var144 = this.alu("dec", var143);
+         this.A(var144);
+         this.pc('\ub81e', 1, 4);
+         int var145 = this.L();
+         this.C(var145);
+         this.pc('\ub81f', 1, 17);
+         this.$BF6D();
+      }
+
+      this.pc('\ub822', 2, 23);
+      int var11 = this.IX() + 54;
+      int var12 = this.mem(var11, '\ub822');
+      int var13 = this.alu("dec", var12);
+      this.wMem(var11, var13, '\ub822');
+      this.pc('\ub825', 1, 7);
+      if(this.flag(64, true)) {
+         this.tstates(5);
+         this.pc('\ub88e', 1, 10);
+      } else {
+         this.pc('\ub827', 2, 19);
+         int var14 = this.IX() + 3;
+         int var15 = this.mem(var14, '\ub827');
+         this.A(var15);
+         this.pc('\ub82a', 2, 19);
+         int var16 = this.IX() + 56;
+         int var17 = this.mem(var16, '\ub82a');
+         int var18 = this.A();
+         int var19 = this.alu("add", var18, var17);
+         this.A(var19);
+         this.pc('\ub82d', 1, 10);
+         if(!this.flag(128, true)) {
+            this.pc('\ub830', 1, 4);
+            int var71 = this.A();
+            int var72 = this.A();
+            int var73 = this.alu("xor", var72, var71);
+            this.A(var73);
+         }
+
+         this.pc('\ub831', 2, 19);
+         int var20 = this.IX() + 3;
+         int var21 = this.A();
+         this.wMem(var20, var21, '\ub831');
+         this.pc('\ub834', 2, 19);
+         int var22 = this.IX() + 8;
+         int var23 = this.mem(var22, '\ub834');
+         this.A(var23);
+         this.pc('\ub837', 2, 19);
+         int var24 = this.IX() + 3;
+         int var25 = this.mem(var24, '\ub837');
+         int var26 = this.A();
+         this.alu("cp", var26, var25);
+         this.pc('\ub83a', 1, 7);
+         if(this.flag(1, true)) {
+            this.tstates(5);
+         } else {
+            this.pc('\ub83c', 2, 19);
+            int var27 = this.IX() + 3;
+            int var28 = this.A();
+            this.wMem(var27, var28, '\ub83c');
+         }
+
+         this.pc('\ub83f', 2, 23);
+         int var29 = this.IX() + 55;
+         int var30 = this.mem(var29, '\ub83f');
+         int var31 = this.alu("dec", var30);
+         this.wMem(var29, var31, '\ub83f');
+         this.pc('\ub842', 1, 7);
+         if(this.flag(64, true)) {
+            this.tstates(5);
+         } else {
+            this.pc('\ub844', 2, 19);
+            int var32 = this.IX() + 53;
+            int var33 = this.mem(var32, '\ub844');
+            this.A(var33);
+            this.pc('\ub847', 1, 7);
+            int var34 = this.A();
+            int var35 = this.alu("add", var34, 3);
+            this.A(var35);
+            this.pc('\ub849', 2, 19);
+            int var36 = this.IX() + 53;
+            int var37 = this.A();
+            this.wMem(var36, var37, '\ub849');
+            this.pc('\ub84c', 2, 19);
+            int var38 = this.IX() + 58;
+            int var39 = this.mem(var38, '\ub84c');
+            int var40 = this.A();
+            this.alu("cp", var40, var39);
+            this.pc('\ub84f', 1, 7);
+            if(this.flag(64, true)) {
+               this.tstates(5);
+               this.pc('\ub85f', 1, 7);
+               int var53 = this.A();
+               int var54 = this.alu("add", var53, 59);
+               this.A(var54);
+               this.pc('\ub861', 1, 13);
+               int var55 = this.A();
+               this.wMem('\ub86e', var55, '\ub861');
+               this.pc('\ub864', 1, 4);
+               int var56 = this.A();
+               int var57 = this.alu("inc", var56);
+               this.A(var57);
+               this.pc('\ub865', 1, 13);
+               int var58 = this.A();
+               this.wMem('\ub874', var58, '\ub865');
+               this.pc('\ub868', 1, 4);
+               int var59 = this.A();
+               int var60 = this.alu("inc", var59);
+               this.A(var60);
+               this.pc('\ub869', 1, 13);
+               int var61 = this.A();
+               this.wMem('\ub87a', var61, '\ub869');
+               this.pc('\ub86c', 2, 0);
+               int var62 = this.executeMutantCode('\ub86c');
+               if(var62 != '\ub86f') {
+                  if(var62 != -1) {
+                     this.jump(var62);
+                  }
+
+                  return;
+               }
+
+               this.pc('\ub86f', 2, 19);
+               int var63 = this.IX() + 55;
+               int var64 = this.A();
+               this.wMem(var63, var64, '\ub86f');
+               this.pc('\ub872', 2, 0);
+               int var65 = this.executeMutantCode('\ub872');
+               if(var65 != '\ub875') {
+                  if(var65 != -1) {
+                     this.jump(var65);
+                  }
+
+                  return;
+               }
+
+               this.pc('\ub875', 2, 19);
+               int var66 = this.IX() + 56;
+               int var67 = this.A();
+               this.wMem(var66, var67, '\ub875');
+               this.pc('\ub878', 2, 0);
+               int var68 = this.executeMutantCode('\ub878');
+               if(var68 != '\ub87b') {
+                  if(var68 != -1) {
+                     this.jump(var68);
+                  }
+
+                  return;
+               }
+
+               this.pc('\ub87b', 2, 19);
+               int var69 = this.IX() + 57;
+               int var70 = this.A();
+               this.wMem(var69, var70, '\ub87b');
+            } else {
+               this.pc('\ub851', 2, 19);
+               int var41 = this.IX() + 56;
+               this.wMem(var41, 0, '\ub851');
+               this.pc('\ub855', 2, 19);
+               int var42 = this.IX() + 55;
+               this.wMem(var42, 255, '\ub855');
+               this.pc('\ub859', 2, 19);
+               int var43 = this.IX() + 57;
+               this.wMem(var43, 255, '\ub859');
+               this.pc('\ub85d', 1, 12);
+            }
+         }
+
+         this.pc('\ub87e', 2, 19);
+         int var44 = this.IX() + 57;
+         int var45 = this.mem(var44, '\ub87e');
+         this.A(var45);
+         this.pc('\ub881', 2, 19);
+         int var46 = this.IX() + 54;
+         int var47 = this.A();
+         this.wMem(var46, var47, '\ub881');
+         this.pc('\ub884', 2, 19);
+         int var48 = this.IX() + 3;
+         int var49 = this.mem(var48, '\ub884');
+         this.A(var49);
+         this.pc('\ub887', 1, 4);
+         int var50 = this.A();
+         this.C(var50);
+         this.pc('\ub888', 2, 19);
+         int var51 = this.IX() + 7;
+         int var52 = this.mem(var51, '\ub888');
+         this.A(var52);
+         this.pc('\ub88b', 1, 10);
+         this.$BF6D();
+      }
+   }
+
+   public void $B88F() {
       this.pc('\ub88f', 1, 13);
       int var1 = this.mem('\ub6e1', '\ub88f');
       this.A(var1);
@@ -20025,7 +20451,6 @@ public class Exolon extends MiniZX {
          int var6 = this.A();
          this.wMem(var5, var6, '\ub895');
          this.pc('\ub898', 1, 10);
-         return -1;
       } else {
          this.tstates(5);
          this.pc('\ub899', 1, 4);
@@ -20179,7 +20604,7 @@ public class Exolon extends MiniZX {
                            this.jump(var124);
                         }
 
-                        return -1;
+                        return;
                      }
 
                      this.pc('\ub968', 2, 0);
@@ -20189,7 +20614,7 @@ public class Exolon extends MiniZX {
                            this.jump(var125);
                         }
 
-                        return -1;
+                        return;
                      }
 
                      this.pc('\ub96b', 2, 23);
@@ -20247,7 +20672,7 @@ public class Exolon extends MiniZX {
                            this.jump(var145);
                         }
 
-                        return -1;
+                        return;
                      }
 
                      this.pc('\ub98c', 2, 0);
@@ -20257,7 +20682,7 @@ public class Exolon extends MiniZX {
                            this.jump(var146);
                         }
 
-                        return -1;
+                        return;
                      }
 
                      this.pc('\ub98f', 1, 11);
@@ -20349,7 +20774,7 @@ public class Exolon extends MiniZX {
                      if(this.flag(64, true)) {
                         this.tstates(5);
                         this.pc('\ub9f6', 1, 10);
-                        return -1;
+                        return;
                      }
 
                      this.pc('\ub9dc', 2, 10);
@@ -20620,13 +21045,12 @@ public class Exolon extends MiniZX {
          int var65 = this.IX() + 53;
          this.wMem(var65, 0, '\ub8f7');
          this.pc('\ub8fb', 1, 10);
-         return -1;
       }
    }
 
-   public int $B9FE() {
+   public void $B9FE() {
       this.pc('\ub9fe', 1, 10);
-      return '\ub79e';
+      this.$B79E();
    }
 
    public void $BF6D() {
@@ -20645,13 +21069,13 @@ public class Exolon extends MiniZX {
       this.pc('\ubf71', 1, 10);
       this.BC('\ufffd');
       this.pc('\ubf74', 2, 12);
-      int var5 = this.A() << 8 | 2119;
+      int var5 = this.BC();
       int var6 = this.A();
       this.out(var5, var6);
       this.pc('\ubf76', 1, 7);
       this.B(191);
       this.pc('\ubf78', 2, 12);
-      int var7 = this.A() << 8 | 2119;
+      int var7 = this.BC();
       int var8 = this.H();
       this.out(var7, var8);
       this.pc('\ubf7a', 1, 10);
@@ -21600,306 +22024,6 @@ public class Exolon extends MiniZX {
       int var38 = this.pop();
       this.IX(var38);
       this.pc('\uc217', 1, 10);
-   }
-
-   public void $CE0A() {
-      this.pc('\uce0a', 1, 10);
-      if(this.flag(4, false)) {
-         this.tstates(7);
-         this.untranslated(4887);
-      }
-
-      this.pc('\uce0d', 1, 4);
-      int var1 = this.C();
-      int var2 = this.alu("inc", var1);
-      this.C(var2);
-      this.pc('\uce0e', 1, 7);
-      int var3 = this.BC();
-      int var4 = this.mem(var3, '\uce0e');
-      this.A(var4);
-      this.pc('\uce0f', 1, 7);
-      int var5 = this.A();
-      int var6 = this.DE();
-      this.wMem(var6, var5, '\uce0f');
-      this.pc('\uce10', 1, 4);
-      int var7 = this.C();
-      int var8 = this.alu("inc", var7);
-      this.C(var8);
-      this.pc('\uce11', 1, 4);
-      int var9 = this.A();
-      int var10 = this.alu("rla", var9);
-      this.A(var10);
-      this.pc('\uce12', 1, 7);
-      int var11 = this.A();
-      int var12 = this.DE();
-      this.wMem(var12, var11, '\uce12');
-      this.pc('\uce13', 1, 4);
-      int var13 = this.A();
-      int var14 = this.alu("rlca", var13);
-      this.A(var14);
-      this.pc('\uce14', 1, 4);
-      this.pc('\uce15', 1, 6);
-      int var15 = this.BC();
-      int var16 = this.dec16(var15);
-      this.BC(var16);
-      this.pc('\uce16', 1, 4);
-      int var17 = this.C();
-      int var18 = this.alu("dec", var17);
-      this.C(var18);
-      this.pc('\uce17', 1, 11);
-      int var19 = this.DE();
-      int var20 = this.HL();
-      int var21 = this.alu("add16", var20, var19);
-      this.HL(var21);
-      this.pc('\uce18', 1, 4);
-      int var22 = this.C();
-      int var23 = this.alu("inc", var22);
-      this.C(var23);
-      this.pc('\uce19', 1, 4);
-      int var24 = this.D();
-      int var25 = this.alu("inc", var24);
-      this.D(var25);
-      this.pc('\uce1a', 1, 4);
-      int var26 = this.D();
-      int var27 = this.alu("dec", var26);
-      this.D(var27);
-      this.pc('\uce1b', 1, 4);
-      int var28 = this.C();
-      int var29 = this.alu("inc", var28);
-      this.C(var29);
-      this.pc('\uce1c', 1, 6);
-      int var30 = this.DE();
-      int var31 = this.dec16(var30);
-      this.DE(var31);
-      this.pc('\uce1d', 1, 10);
-      this.DE(3336);
-      this.pc('\uce20', 1, 7);
-      this.C(2);
-      this.pc('\uce22', 1, 4);
-      int var32 = this.C();
-      int var33 = this.alu("dec", var32);
-      this.C(var33);
-      this.pc('\uce23', 1, 10);
-      this.DE(5124);
-      this.pc('\uce26', 1, 4);
-      int var34 = this.B();
-      int var35 = this.alu("dec", var34);
-      this.B(var35);
-      this.pc('\uce27', 1, 7);
-      this.B(27);
-      this.pc('\uce29', 1, 6);
-      int var36 = this.DE();
-      int var37 = this.inc16(var36);
-      this.DE(var37);
-      this.pc('\uce2a', 1, 7);
-      this.B(30);
-      this.pc('\uce2c', 1, 4);
-      int var38 = this.D();
-      int var39 = this.alu("inc", var38);
-      this.D(var39);
-      this.pc('\uce2d', 1, 4);
-      this.pc('\uce2e', 1, 7);
-      this.B(1);
-      this.pc('\uce30', 1, 11);
-      this.untranslated(56);
-      this.untranslated('\uce31');
-   }
-
-   public void $FF00() {
-      this.pc('\uff00', 1, 4);
-      this.pc('\uff01', 1, 4);
-      this.pc('\uff02', 1, 4);
-      this.pc('\uff03', 1, 4);
-      this.pc('\uff04', 1, 4);
-      this.pc('\uff05', 1, 4);
-      this.pc('\uff06', 1, 4);
-      this.pc('\uff07', 1, 4);
-      this.pc('\uff08', 1, 4);
-      this.pc('\uff09', 1, 4);
-      this.pc('\uff0a', 1, 4);
-      this.pc('\uff0b', 1, 4);
-      this.pc('\uff0c', 1, 4);
-      this.pc('\uff0d', 1, 4);
-      this.pc('\uff0e', 1, 4);
-      this.pc('\uff0f', 1, 4);
-      this.pc('\uff10', 1, 4);
-      this.pc('\uff11', 1, 4);
-      this.pc('\uff12', 1, 4);
-      this.pc('\uff13', 1, 4);
-      this.pc('\uff14', 1, 4);
-      this.pc('\uff15', 1, 4);
-      this.pc('\uff16', 1, 4);
-      this.pc('\uff17', 1, 4);
-      this.pc('\uff18', 1, 4);
-      this.di();
-      this.pc('\uff19', 1, 4);
-      int var1 = this.C();
-      int var2 = this.alu("dec", var1);
-      this.C(var2);
-      this.pc('\uff1a', 1, 7);
-      int var3 = this.A();
-      int var4 = this.alu("adc", var3, 11);
-      this.A(var4);
-      this.pc('\uff1c', 1, 10);
-      if(!this.flag(4, true)) {
-         this.pc('\uff1f', 1, 6);
-         int var49 = this.BC();
-         int var50 = this.dec16(var49);
-         this.BC(var50);
-         this.pc('\uff20', 1, 19);
-         int var51 = this.HL();
-         int var52 = this.ex_iSP_REG(var51);
-         this.HL(var52);
-         this.pc('\uff21', 1, 4);
-         int var53 = this.B();
-         this.D(var53);
-         this.pc('\uff22', 1, 7);
-         this.E(23);
-         this.pc('\uff24', 1, 10);
-         if(this.flag(1, false)) {
-            this.tstates(7);
-            this.$CE0A();
-         }
-
-         this.pc('\uff27', 1, 6);
-         int var54 = this.BC();
-         int var55 = this.dec16(var54);
-         this.BC(var55);
-         this.pc('\uff28', 1, 10);
-         if(this.flag(4, true)) {
-            this.tstates(7);
-            this.untranslated(7504);
-         }
-
-         this.pc('\uff2b', 1, 4);
-         int var56 = this.A();
-         int var57 = this.alu("rla", var56);
-         this.A(var57);
-         this.pc('\uff2c', 1, 6);
-         int var58 = this.BC();
-         int var59 = this.inc16(var58);
-         this.BC(var59);
-         this.pc('\uff2d', 1, 7);
-         int var60 = this.DE();
-         int var61 = this.mem(var60, '\uff2d');
-         this.A(var61);
-         this.pc('\uff2e', 1, 11);
-         this.untranslated(56);
-         this.untranslated('\uff2f');
-      } else {
-         this.pc('\uce50', 1, 7);
-         int var5 = this.BC();
-         int var6 = this.mem(var5, '\uce50');
-         this.A(var6);
-         this.pc('\uce51', 1, 10);
-         this.DE(3615);
-         this.pc('\uce54', 1, 7);
-         int var7 = this.A();
-         int var8 = this.DE();
-         this.wMem(var8, var7, '\uce54');
-         this.pc('\uce55', 1, 7);
-         if(this.flag(64, true)) {
-            this.tstates(5);
-         } else {
-            this.pc('\uce57', 1, 6);
-            int var9 = this.BC();
-            int var10 = this.inc16(var9);
-            this.BC(var10);
-            this.pc('\uce58', 1, 4);
-            int var11 = this.E();
-            int var12 = this.alu("inc", var11);
-            this.E(var12);
-            this.pc('\uce59', 1, 4);
-            this.pc('\uce5a', 1, 11);
-            int var13 = this.DE();
-            int var14 = this.HL();
-            int var15 = this.alu("add16", var14, var13);
-            this.HL(var15);
-            this.pc('\uce5b', 1, 7);
-            this.E(17);
-            this.pc('\uce5d', 1, 4);
-            int var16 = this.AF();
-            this.exAF(var16);
-            this.pc('\uce5e', 1, 6);
-            int var17 = this.DE();
-            int var18 = this.inc16(var17);
-            this.DE(var18);
-            this.pc('\uce5f', 1, 6);
-            int var19 = this.DE();
-            int var20 = this.inc16(var19);
-            this.DE(var20);
-            this.pc('\uce60', 1, 4);
-            int var21 = this.C();
-            int var22 = this.alu("dec", var21);
-            this.C(var22);
-            this.pc('\uce61', 1, 4);
-            int var23 = this.C();
-            int var24 = this.alu("inc", var23);
-            this.C(var24);
-         }
-
-         this.pc('\uce62', 1, 6);
-         int var25 = this.DE();
-         int var26 = this.inc16(var25);
-         this.DE(var26);
-         this.pc('\uce63', 1, 4);
-         int var27 = this.A();
-         int var28 = this.alu("rla", var27);
-         this.A(var28);
-         this.pc('\uce64', 1, 4);
-         int var29 = this.C();
-         int var30 = this.alu("inc", var29);
-         this.C(var30);
-         this.pc('\uce65', 1, 4);
-         int var31 = this.A();
-         int var32 = this.alu("rrca", var31);
-         this.A(var32);
-         this.pc('\uce66', 1, 7);
-         int var33 = this.DE();
-         int var34 = this.mem(var33, '\uce66');
-         this.A(var34);
-         this.pc('\uce67', 1, 7);
-         this.L(255);
-         this.pc('\uce69', 1, 6);
-         int var35 = this.DE();
-         int var36 = this.inc16(var35);
-         this.DE(var36);
-         this.pc('\uce6a', 1, 4);
-         this.pc('\uce6b', 1, 7);
-         this.C(13);
-         this.pc('\uce6d', 1, 7);
-         this.B(16);
-         this.pc('\uce6f', 1, 4);
-         int var37 = this.C();
-         int var38 = this.alu("dec", var37);
-         this.C(var38);
-         this.pc('\uce70', 1, 7);
-         this.D(16);
-         this.pc('\uce72', 1, 10);
-         this.DE(5134);
-         this.pc('\uce75', 1, 11);
-         int var39 = this.BC();
-         int var40 = this.HL();
-         int var41 = this.alu("add16", var40, var39);
-         this.HL(var41);
-         this.pc('\uce76', 1, 7);
-         int var42 = this.BC();
-         int var43 = this.mem(var42, '\uce76');
-         this.A(var43);
-         this.pc('\uce77', 1, 6);
-         int var44 = this.BC();
-         int var45 = this.dec16(var44);
-         this.BC(var45);
-         this.pc('\uce78', 1, 11);
-         this.untranslated(56);
-         this.pc('\uce79', 1, 6);
-         int var46 = this.DE();
-         int var47 = this.inc16(var46);
-         this.DE(var47);
-         this.pc('\uce7a', 1, 4);
-         int var48 = this.HL();
-         this.jump(var48);
-      }
    }
 
    public void $7D64() {

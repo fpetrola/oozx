@@ -881,7 +881,7 @@ public class DynamiteDan2 extends MiniZX {
                               int var10 = this.alu("xor", var9, 16);
                               this.A(var10);
                               this.pc(993, 1, 11);
-                              int var11 = this.A() << 8 | 6398;
+                              int var11 = this.A() << 8 | 254;
                               int var12 = this.A();
                               this.out(var11, var12);
                               this.pc(995, 1, 4);
@@ -1176,7 +1176,7 @@ public class DynamiteDan2 extends MiniZX {
       int var4 = this.alu("and", var3, 248);
       this.A(var4);
       this.pc(26435, 1, 11);
-      int var5 = this.A() << 8 | 6398;
+      int var5 = this.A() << 8 | 254;
       int var6 = this.A();
       this.out(var5, var6);
       this.pc(26437, 1, 7);
@@ -13557,24 +13557,24 @@ public class DynamiteDan2 extends MiniZX {
       if(this.flag(1, false)) {
          this.tstates(6);
       } else {
-         label54: {
-            this.pc('\u8120', 1, 7);
-            this.C(2);
-            this.pc('\u8122', 1, 4);
-            int var7 = this.H();
-            int var8 = this.alu("inc", var7);
-            this.H(var8);
-            this.pc('\u8123', 1, 4);
-            int var9 = this.H();
-            this.A(var9);
-            this.pc('\u8124', 1, 7);
-            int var10 = this.A();
-            this.alu("cp", var10, 16);
-            this.pc('\u8126', 1, 7);
-            if(this.flag(1, false)) {
-               this.tstates(5);
-            } else {
-               label53: {
+         this.pc('\u8120', 1, 7);
+         this.C(2);
+         this.pc('\u8122', 1, 4);
+         int var7 = this.H();
+         int var8 = this.alu("inc", var7);
+         this.H(var8);
+         this.pc('\u8123', 1, 4);
+         int var9 = this.H();
+         this.A(var9);
+         this.pc('\u8124', 1, 7);
+         int var10 = this.A();
+         this.alu("cp", var10, 16);
+         this.pc('\u8126', 1, 7);
+         if(this.flag(1, false)) {
+            this.tstates(5);
+         } else {
+            label53: {
+               label44: {
                   this.pc('\u8128', 1, 13);
                   int var11 = this.mem(23513, '\u8128');
                   this.A(var11);
@@ -13596,28 +13596,28 @@ public class DynamiteDan2 extends MiniZX {
                         int var22 = this.A();
                         this.alu("cp", var22, 18);
                         this.pc('\u8145', 1, 7);
-                        if(!this.flag(64, true)) {
-                           this.pc('\u8147', 1, 7);
-                           this.A(124);
-                           this.pc('\u8149', 1, 17);
-                           this.$7F4B();
-                           this.pc('\u814c', 1, 7);
-                           if(this.flag(64, true)) {
-                              this.tstates(5);
-                              this.pc('\u8155', 1, 10);
-                              throw new StackException('\u8156');
-                           }
-
-                           this.pc('\u814e', 1, 7);
-                           this.A(180);
-                           this.pc('\u8150', 1, 10);
-                           this.HL(775);
-                           this.pc('\u8153', 1, 12);
-                           break label54;
+                        if(this.flag(64, true)) {
+                           this.tstates(5);
+                           break label53;
                         }
 
-                        this.tstates(5);
-                        break label53;
+                        this.pc('\u8147', 1, 7);
+                        this.A(124);
+                        this.pc('\u8149', 1, 17);
+                        this.$7F4B();
+                        this.pc('\u814c', 1, 7);
+                        if(this.flag(64, true)) {
+                           this.tstates(5);
+                           this.pc('\u8155', 1, 10);
+                           throw new StackException('\u8156');
+                        }
+
+                        this.pc('\u814e', 1, 7);
+                        this.A(180);
+                        this.pc('\u8150', 1, 10);
+                        this.HL(775);
+                        this.pc('\u8153', 1, 12);
+                        break label44;
                      }
 
                      this.tstates(5);
@@ -13654,89 +13654,89 @@ public class DynamiteDan2 extends MiniZX {
 
                   this.pc('\u815c', 1, 7);
                   this.H(0);
-                  break label54;
-               }
-            }
-
-            this.pc('\u8161', 1, 4);
-            this.exx();
-            this.pc('\u8162', 1, 10);
-            this.DE(26272);
-            this.pc('\u8165', 1, 10);
-            this.HL(26280);
-            this.pc('\u8168', 1, 10);
-            this.BC(88);
-            this.pc('\u816b', 2, 21);
-            this.ldir('\u816b');
-            this.pc('\u816d', 1, 4);
-            this.exx();
-            this.pc('\u816e', 1, 11);
-            int var23 = this.HL();
-            this.push(var23);
-            this.pc('\u816f', 1, 4);
-            this.exx();
-            this.pc('\u8170', 1, 10);
-            int var24 = this.pop();
-            this.HL(var24);
-            this.pc('\u8171', 1, 7);
-            this.C(3);
-            this.pc('\u8173', 1, 4);
-            int var25 = this.H();
-            int var26 = this.alu("inc", var25);
-            this.H(var26);
-            this.pc('\u8174', 1, 4);
-            int var27 = this.H();
-            int var28 = this.alu("inc", var27);
-            this.H(var28);
-            this.pc('\u8175', 1, 4);
-            int var29 = this.H();
-            int var30 = this.alu("inc", var29);
-            this.H(var30);
-            this.pc('\u8176', 1, 10);
-            this.DE(26296);
-
-            while(true) {
-               this.pc('\u8179', 1, 11);
-               int var31 = this.HL();
-               this.push(var31);
-               this.pc('\u817a', 1, 17);
-               this.$7E8D();
-               this.pc('\u817d', 1, 4);
-               this.exHLDE();
-               this.pc('\u817e', 1, 10);
-               this.DE(24);
-               this.pc('\u8181', 1, 11);
-               int var32 = this.DE();
-               int var33 = this.HL();
-               int var34 = this.alu("add16", var33, var32);
-               this.HL(var34);
-               this.pc('\u8182', 1, 4);
-               this.exHLDE();
-               this.pc('\u8183', 1, 10);
-               int var35 = this.pop();
-               this.HL(var35);
-               this.pc('\u8184', 1, 4);
-               int var36 = this.L();
-               int var37 = this.alu("inc", var36);
-               this.L(var37);
-               this.pc('\u8185', 1, 4);
-               int var38 = this.C();
-               int var39 = this.alu("dec", var38);
-               this.C(var39);
-               this.pc('\u8186', 1, 7);
-               if(!this.flag(64, true)) {
-                  this.pc('\u8188', 1, 4);
-                  this.exx();
-                  this.pc('\u8189', 1, 10);
-                  return;
                }
 
-               this.tstates(5);
+               this.pc('\u815e', 1, 10);
+               this.$8053();
+               return;
             }
          }
 
-         this.pc('\u815e', 1, 10);
-         this.$8053();
+         this.pc('\u8161', 1, 4);
+         this.exx();
+         this.pc('\u8162', 1, 10);
+         this.DE(26272);
+         this.pc('\u8165', 1, 10);
+         this.HL(26280);
+         this.pc('\u8168', 1, 10);
+         this.BC(88);
+         this.pc('\u816b', 2, 21);
+         this.ldir('\u816b');
+         this.pc('\u816d', 1, 4);
+         this.exx();
+         this.pc('\u816e', 1, 11);
+         int var23 = this.HL();
+         this.push(var23);
+         this.pc('\u816f', 1, 4);
+         this.exx();
+         this.pc('\u8170', 1, 10);
+         int var24 = this.pop();
+         this.HL(var24);
+         this.pc('\u8171', 1, 7);
+         this.C(3);
+         this.pc('\u8173', 1, 4);
+         int var25 = this.H();
+         int var26 = this.alu("inc", var25);
+         this.H(var26);
+         this.pc('\u8174', 1, 4);
+         int var27 = this.H();
+         int var28 = this.alu("inc", var27);
+         this.H(var28);
+         this.pc('\u8175', 1, 4);
+         int var29 = this.H();
+         int var30 = this.alu("inc", var29);
+         this.H(var30);
+         this.pc('\u8176', 1, 10);
+         this.DE(26296);
+
+         while(true) {
+            this.pc('\u8179', 1, 11);
+            int var31 = this.HL();
+            this.push(var31);
+            this.pc('\u817a', 1, 17);
+            this.$7E8D();
+            this.pc('\u817d', 1, 4);
+            this.exHLDE();
+            this.pc('\u817e', 1, 10);
+            this.DE(24);
+            this.pc('\u8181', 1, 11);
+            int var32 = this.DE();
+            int var33 = this.HL();
+            int var34 = this.alu("add16", var33, var32);
+            this.HL(var34);
+            this.pc('\u8182', 1, 4);
+            this.exHLDE();
+            this.pc('\u8183', 1, 10);
+            int var35 = this.pop();
+            this.HL(var35);
+            this.pc('\u8184', 1, 4);
+            int var36 = this.L();
+            int var37 = this.alu("inc", var36);
+            this.L(var37);
+            this.pc('\u8185', 1, 4);
+            int var38 = this.C();
+            int var39 = this.alu("dec", var38);
+            this.C(var39);
+            this.pc('\u8186', 1, 7);
+            if(!this.flag(64, true)) {
+               this.pc('\u8188', 1, 4);
+               this.exx();
+               this.pc('\u8189', 1, 10);
+               return;
+            }
+
+            this.tstates(5);
+         }
       }
    }
 

@@ -6081,15 +6081,11 @@ public class Renegade128 extends MiniZX {
       } else {
          this.pc(28847, 1, 0);
          int var5 = this.executeMutantCode(28847);
-         if(var5 != 28849) {
-            if(var5 != -1) {
-               this.jump(var5);
-            }
-
-            return -1;
-         } else {
-            return -1;
+         if(var5 != -1) {
+            this.jump(var5);
          }
+
+         return -1;
       }
    }
 
@@ -11233,245 +11229,13 @@ public class Renegade128 extends MiniZX {
                                                 return;
                                              }
 
-                                             if(this.HL() != '\u8838') {
-                                                if(this.HL() != '\u87fa') {
-                                                   if(this.HL() != '\u84fd') {
-                                                      if(this.HL() == '\u88fe') {
-                                                         this.$88FE();
-                                                         return;
-                                                      }
-
-                                                      int var549 = this.HL();
-                                                      this.jump(var549);
-                                                      return;
-                                                   }
-
-                                                   this.pc('\u84fd', 1, 13);
-                                                   int var488 = this.mem(28855, '\u84fd');
-                                                   this.A(var488);
-                                                   this.pc('\u8500', 1, 4);
-                                                   int var489 = this.A();
-                                                   int var490 = this.alu("dec", var489);
-                                                   this.A(var490);
-                                                   this.pc('\u8501', 1, 7);
-                                                   int var491 = this.A();
-                                                   this.alu("cp", var491, 15);
-                                                   this.pc('\u8503', 1, 7);
-                                                   if(this.flag(1, true)) {
-                                                      this.tstates(5);
-                                                   } else {
-                                                      this.pc('\u8505', 1, 13);
-                                                      int var492 = this.mem(28848, '\u8505');
-                                                      this.A(var492);
-                                                      this.pc('\u8508', 1, 7);
-                                                      int var493 = this.A();
-                                                      int var494 = this.alu("add", var493, 2);
-                                                      this.A(var494);
-                                                      this.pc('\u850a', 1, 4);
-                                                      int var495 = this.A();
-                                                      this.L(var495);
-                                                      this.pc('\u850b', 1, 7);
-                                                      this.H(191);
-                                                      this.pc('\u850d', 1, 7);
-                                                      int var496 = this.HL();
-                                                      int var497 = this.mem(var496, '\u850d');
-                                                      this.A(var497);
-                                                      this.pc('\u850e', 1, 7);
-                                                      this.L(2);
-                                                      this.pc('\u8510', 1, 7);
-                                                      int var498 = this.HL();
-                                                      int var499 = this.mem(var498, '\u8510');
-                                                      int var500 = this.A();
-                                                      int var501 = this.alu("sub", var500, var499);
-                                                      this.A(var501);
-                                                      this.pc('\u8511', 1, 4);
-                                                      int var502 = this.A();
-                                                      this.alu("ccf", var502);
-                                                      this.pc('\u8512', 1, 13);
-                                                      int var503 = this.mem('\ubf05', '\u8512');
-                                                      this.A(var503);
-                                                      this.pc('\u8515', 1, 4);
-                                                      int var504 = this.A();
-                                                      int var505 = this.alu("rra", var504);
-                                                      this.A(var505);
-                                                      this.pc('\u8516', 1, 4);
-                                                      int var506 = this.A();
-                                                      int var507 = this.alu("rlca", var506);
-                                                      this.A(var507);
-                                                      this.pc('\u8517', 1, 13);
-                                                      int var508 = this.A();
-                                                      this.wMem('\ubf05', var508, '\u8517');
-                                                   }
-
-                                                   this.pc('\u851a', 1, 13);
-                                                   int var509 = this.mem(28855, '\u851a');
-                                                   this.A(var509);
-                                                   this.pc('\u851d', 1, 4);
-                                                   int var510 = this.A();
-                                                   int var511 = this.A();
-                                                   int var512 = this.alu("or", var511, var510);
-                                                   this.A(var512);
-                                                   this.pc('\u851e', 1, 5);
-                                                   if(this.flag(64, false)) {
-                                                      this.tstates(6);
-                                                      return;
-                                                   }
-
-                                                   this.pc('\u851f', 1, 4);
-                                                   int var513 = this.A();
-                                                   this.H(var513);
-                                                   this.pc('\u8520', 1, 7);
-                                                   int var514 = this.A();
-                                                   int var515 = this.alu("and", var514, 3);
-                                                   this.A(var515);
-                                                   this.pc('\u8522', 1, 13);
-                                                   int var516 = this.A();
-                                                   this.wMem(28858, var516, '\u8522');
-                                                   this.pc('\u8525', 1, 4);
-                                                   int var517 = this.H();
-                                                   this.A(var517);
-                                                   this.pc('\u8526', 2, 20);
-                                                   int var518 = this.IY() + 5;
-                                                   int var519 = this.mem(var518, '\u8526');
-                                                   this.bit(0, var519);
-                                                   this.pc('\u852a', 1, 7);
-                                                   if(this.flag(64, true)) {
-                                                      this.tstates(5);
-                                                   } else {
-                                                      this.pc('\u852c', 1, 7);
-                                                      this.L(0);
-                                                      this.pc('\u852e', 1, 4);
-                                                      int var520 = this.A();
-                                                      int var521 = this.alu("rra", var520);
-                                                      this.A(var521);
-                                                      this.pc('\u852f', 2, 8);
-                                                      int var522 = this.L();
-                                                      int var523 = this.alu("rl", var522);
-                                                      this.L(var523);
-                                                      this.pc('\u8531', 1, 4);
-                                                      int var524 = this.A();
-                                                      int var525 = this.alu("rra", var524);
-                                                      this.A(var525);
-                                                      this.pc('\u8532', 2, 8);
-                                                      int var526 = this.L();
-                                                      int var527 = this.alu("rl", var526);
-                                                      this.L(var527);
-                                                      this.pc('\u8534', 1, 4);
-                                                      int var528 = this.H();
-                                                      this.A(var528);
-                                                      this.pc('\u8535', 1, 7);
-                                                      int var529 = this.A();
-                                                      int var530 = this.alu("and", var529, 252);
-                                                      this.A(var530);
-                                                      this.pc('\u8537', 1, 4);
-                                                      int var531 = this.L();
-                                                      int var532 = this.A();
-                                                      int var533 = this.alu("or", var532, var531);
-                                                      this.A(var533);
-                                                   }
-
-                                                   this.pc('\u8538', 1, 10);
-                                                   this.HL('\ua483');
-                                                   this.pc('\u853b', 1, 4);
-                                                   int var534 = this.A();
-                                                   int var535 = this.A();
-                                                   int var536 = this.alu("add", var535, var534);
-                                                   this.A(var536);
-                                                   this.pc('\u853c', 1, 4);
-                                                   int var537 = this.L();
-                                                   int var538 = this.A();
-                                                   int var539 = this.alu("add", var538, var537);
-                                                   this.A(var539);
-                                                   this.pc('\u853d', 1, 4);
-                                                   int var540 = this.A();
-                                                   this.L(var540);
-                                                   this.pc('\u853e', 1, 7);
-                                                   int var541 = this.HL();
-                                                   int var542 = this.mem(var541, '\u853e');
-                                                   this.A(var542);
-                                                   this.pc('\u853f', 1, 6);
-                                                   int var543 = this.HL();
-                                                   int var544 = this.inc16(var543);
-                                                   this.HL(var544);
-                                                   this.pc('\u8540', 1, 7);
-                                                   int var545 = this.HL();
-                                                   int var546 = this.mem(var545, '\u8540');
-                                                   this.H(var546);
-                                                   this.pc('\u8541', 1, 4);
-                                                   int var547 = this.A();
-                                                   this.L(var547);
-                                                   this.pc('\u8542', 1, 4);
-                                                   if(this.HL() == '\u8572') {
-                                                      this.$8572();
-                                                      return;
-                                                   }
-
-                                                   if(this.HL() == '\u8592') {
-                                                      this.$8592();
-                                                      return;
-                                                   }
-
-                                                   if(this.HL() == '\u8654') {
-                                                      this.$8654();
-                                                      return;
-                                                   }
-
-                                                   if(this.HL() == '\u86e4') {
-                                                      this.$86E4();
-                                                      return;
-                                                   }
-
-                                                   if(this.HL() == '\u84d5') {
-                                                      this.$84D5();
-                                                      return;
-                                                   }
-
-                                                   if(this.HL() == '\u84e7') {
-                                                      this.$84E7();
-                                                      return;
-                                                   }
-
-                                                   if(this.HL() == '\u8748') {
-                                                      this.$8748();
-                                                      return;
-                                                   }
-
-                                                   if(this.HL() == '\u86e9') {
-                                                      this.$86E9();
-                                                      return;
-                                                   }
-
-                                                   if(this.HL() == '\u8699') {
-                                                      this.$8699();
-                                                      return;
-                                                   }
-
-                                                   if(this.HL() == '\u84cc') {
-                                                      this.$84CC();
-                                                      return;
-                                                   }
-
-                                                   if(this.HL() == '\u858d') {
-                                                      this.$858D();
-                                                      return;
-                                                   }
-
-                                                   if(this.HL() == '\u872d') {
-                                                      this.$872D();
-                                                      return;
-                                                   }
-
-                                                   int var548 = this.HL();
-                                                   this.jump(var548);
-                                                   return;
-                                                }
-
+                                             if(this.HL() == '\u8838') {
                                                 try {
-                                                   this.pc('\u87fa', 1, 17);
+                                                   this.pc('\u8838', 1, 17);
                                                    this.$8233();
                                                 } catch (StackException var550) {
                                                    if(var550.getNextPC() == '\u824f') {
-                                                      this.HL('\u87fd');
+                                                      this.HL('\u883b');
                                                       this.$824F();
                                                       return;
                                                    }
@@ -11479,37 +11243,248 @@ public class Renegade128 extends MiniZX {
                                                    throw var550;
                                                 }
 
-                                                this.pc('\u87fd', 1, 13);
-                                                int var481 = this.mem('\ubf05', '\u87fd');
-                                                this.A(var481);
-                                                this.pc('\u8800', 2, 19);
-                                                int var482 = this.IY() + 5;
-                                                int var483 = this.mem(var482, '\u8800');
-                                                int var484 = this.A();
-                                                int var485 = this.alu("xor", var484, var483);
-                                                this.A(var485);
-                                                this.pc('\u8803', 1, 4);
-                                                int var486 = this.A();
-                                                int var487 = this.alu("rra", var486);
-                                                this.A(var487);
-                                                this.pc('\u8804', 1, 7);
-                                                if(this.flag(1, true)) {
-                                                   this.tstates(5);
-                                                   this.$8818();
-                                                   return;
-                                                }
-
-                                                this.pc('\u8806', 1, 12);
                                                 this.$883B();
                                                 return;
                                              }
 
+                                             if(this.HL() != '\u87fa') {
+                                                if(this.HL() != '\u84fd') {
+                                                   if(this.HL() == '\u88fe') {
+                                                      this.$88FE();
+                                                      return;
+                                                   }
+
+                                                   int var549 = this.HL();
+                                                   this.jump(var549);
+                                                   return;
+                                                }
+
+                                                this.pc('\u84fd', 1, 13);
+                                                int var488 = this.mem(28855, '\u84fd');
+                                                this.A(var488);
+                                                this.pc('\u8500', 1, 4);
+                                                int var489 = this.A();
+                                                int var490 = this.alu("dec", var489);
+                                                this.A(var490);
+                                                this.pc('\u8501', 1, 7);
+                                                int var491 = this.A();
+                                                this.alu("cp", var491, 15);
+                                                this.pc('\u8503', 1, 7);
+                                                if(this.flag(1, true)) {
+                                                   this.tstates(5);
+                                                } else {
+                                                   this.pc('\u8505', 1, 13);
+                                                   int var492 = this.mem(28848, '\u8505');
+                                                   this.A(var492);
+                                                   this.pc('\u8508', 1, 7);
+                                                   int var493 = this.A();
+                                                   int var494 = this.alu("add", var493, 2);
+                                                   this.A(var494);
+                                                   this.pc('\u850a', 1, 4);
+                                                   int var495 = this.A();
+                                                   this.L(var495);
+                                                   this.pc('\u850b', 1, 7);
+                                                   this.H(191);
+                                                   this.pc('\u850d', 1, 7);
+                                                   int var496 = this.HL();
+                                                   int var497 = this.mem(var496, '\u850d');
+                                                   this.A(var497);
+                                                   this.pc('\u850e', 1, 7);
+                                                   this.L(2);
+                                                   this.pc('\u8510', 1, 7);
+                                                   int var498 = this.HL();
+                                                   int var499 = this.mem(var498, '\u8510');
+                                                   int var500 = this.A();
+                                                   int var501 = this.alu("sub", var500, var499);
+                                                   this.A(var501);
+                                                   this.pc('\u8511', 1, 4);
+                                                   int var502 = this.A();
+                                                   this.alu("ccf", var502);
+                                                   this.pc('\u8512', 1, 13);
+                                                   int var503 = this.mem('\ubf05', '\u8512');
+                                                   this.A(var503);
+                                                   this.pc('\u8515', 1, 4);
+                                                   int var504 = this.A();
+                                                   int var505 = this.alu("rra", var504);
+                                                   this.A(var505);
+                                                   this.pc('\u8516', 1, 4);
+                                                   int var506 = this.A();
+                                                   int var507 = this.alu("rlca", var506);
+                                                   this.A(var507);
+                                                   this.pc('\u8517', 1, 13);
+                                                   int var508 = this.A();
+                                                   this.wMem('\ubf05', var508, '\u8517');
+                                                }
+
+                                                this.pc('\u851a', 1, 13);
+                                                int var509 = this.mem(28855, '\u851a');
+                                                this.A(var509);
+                                                this.pc('\u851d', 1, 4);
+                                                int var510 = this.A();
+                                                int var511 = this.A();
+                                                int var512 = this.alu("or", var511, var510);
+                                                this.A(var512);
+                                                this.pc('\u851e', 1, 5);
+                                                if(this.flag(64, false)) {
+                                                   this.tstates(6);
+                                                   return;
+                                                }
+
+                                                this.pc('\u851f', 1, 4);
+                                                int var513 = this.A();
+                                                this.H(var513);
+                                                this.pc('\u8520', 1, 7);
+                                                int var514 = this.A();
+                                                int var515 = this.alu("and", var514, 3);
+                                                this.A(var515);
+                                                this.pc('\u8522', 1, 13);
+                                                int var516 = this.A();
+                                                this.wMem(28858, var516, '\u8522');
+                                                this.pc('\u8525', 1, 4);
+                                                int var517 = this.H();
+                                                this.A(var517);
+                                                this.pc('\u8526', 2, 20);
+                                                int var518 = this.IY() + 5;
+                                                int var519 = this.mem(var518, '\u8526');
+                                                this.bit(0, var519);
+                                                this.pc('\u852a', 1, 7);
+                                                if(this.flag(64, true)) {
+                                                   this.tstates(5);
+                                                } else {
+                                                   this.pc('\u852c', 1, 7);
+                                                   this.L(0);
+                                                   this.pc('\u852e', 1, 4);
+                                                   int var520 = this.A();
+                                                   int var521 = this.alu("rra", var520);
+                                                   this.A(var521);
+                                                   this.pc('\u852f', 2, 8);
+                                                   int var522 = this.L();
+                                                   int var523 = this.alu("rl", var522);
+                                                   this.L(var523);
+                                                   this.pc('\u8531', 1, 4);
+                                                   int var524 = this.A();
+                                                   int var525 = this.alu("rra", var524);
+                                                   this.A(var525);
+                                                   this.pc('\u8532', 2, 8);
+                                                   int var526 = this.L();
+                                                   int var527 = this.alu("rl", var526);
+                                                   this.L(var527);
+                                                   this.pc('\u8534', 1, 4);
+                                                   int var528 = this.H();
+                                                   this.A(var528);
+                                                   this.pc('\u8535', 1, 7);
+                                                   int var529 = this.A();
+                                                   int var530 = this.alu("and", var529, 252);
+                                                   this.A(var530);
+                                                   this.pc('\u8537', 1, 4);
+                                                   int var531 = this.L();
+                                                   int var532 = this.A();
+                                                   int var533 = this.alu("or", var532, var531);
+                                                   this.A(var533);
+                                                }
+
+                                                this.pc('\u8538', 1, 10);
+                                                this.HL('\ua483');
+                                                this.pc('\u853b', 1, 4);
+                                                int var534 = this.A();
+                                                int var535 = this.A();
+                                                int var536 = this.alu("add", var535, var534);
+                                                this.A(var536);
+                                                this.pc('\u853c', 1, 4);
+                                                int var537 = this.L();
+                                                int var538 = this.A();
+                                                int var539 = this.alu("add", var538, var537);
+                                                this.A(var539);
+                                                this.pc('\u853d', 1, 4);
+                                                int var540 = this.A();
+                                                this.L(var540);
+                                                this.pc('\u853e', 1, 7);
+                                                int var541 = this.HL();
+                                                int var542 = this.mem(var541, '\u853e');
+                                                this.A(var542);
+                                                this.pc('\u853f', 1, 6);
+                                                int var543 = this.HL();
+                                                int var544 = this.inc16(var543);
+                                                this.HL(var544);
+                                                this.pc('\u8540', 1, 7);
+                                                int var545 = this.HL();
+                                                int var546 = this.mem(var545, '\u8540');
+                                                this.H(var546);
+                                                this.pc('\u8541', 1, 4);
+                                                int var547 = this.A();
+                                                this.L(var547);
+                                                this.pc('\u8542', 1, 4);
+                                                if(this.HL() == '\u8592') {
+                                                   this.$8592();
+                                                   return;
+                                                }
+
+                                                if(this.HL() == '\u8572') {
+                                                   this.$8572();
+                                                   return;
+                                                }
+
+                                                if(this.HL() == '\u8654') {
+                                                   this.$8654();
+                                                   return;
+                                                }
+
+                                                if(this.HL() == '\u86e4') {
+                                                   this.$86E4();
+                                                   return;
+                                                }
+
+                                                if(this.HL() == '\u84d5') {
+                                                   this.$84D5();
+                                                   return;
+                                                }
+
+                                                if(this.HL() == '\u84e7') {
+                                                   this.$84E7();
+                                                   return;
+                                                }
+
+                                                if(this.HL() == '\u8748') {
+                                                   this.$8748();
+                                                   return;
+                                                }
+
+                                                if(this.HL() == '\u86e9') {
+                                                   this.$86E9();
+                                                   return;
+                                                }
+
+                                                if(this.HL() == '\u8699') {
+                                                   this.$8699();
+                                                   return;
+                                                }
+
+                                                if(this.HL() == '\u84cc') {
+                                                   this.$84CC();
+                                                   return;
+                                                }
+
+                                                if(this.HL() == '\u858d') {
+                                                   this.$858D();
+                                                   return;
+                                                }
+
+                                                if(this.HL() == '\u872d') {
+                                                   this.$872D();
+                                                   return;
+                                                }
+
+                                                int var548 = this.HL();
+                                                this.jump(var548);
+                                                return;
+                                             }
+
                                              try {
-                                                this.pc('\u8838', 1, 17);
+                                                this.pc('\u87fa', 1, 17);
                                                 this.$8233();
                                              } catch (StackException var551) {
                                                 if(var551.getNextPC() == '\u824f') {
-                                                   this.HL('\u883b');
+                                                   this.HL('\u87fd');
                                                    this.$824F();
                                                    return;
                                                 }
@@ -11517,6 +11492,27 @@ public class Renegade128 extends MiniZX {
                                                 throw var551;
                                              }
 
+                                             this.pc('\u87fd', 1, 13);
+                                             int var481 = this.mem('\ubf05', '\u87fd');
+                                             this.A(var481);
+                                             this.pc('\u8800', 2, 19);
+                                             int var482 = this.IY() + 5;
+                                             int var483 = this.mem(var482, '\u8800');
+                                             int var484 = this.A();
+                                             int var485 = this.alu("xor", var484, var483);
+                                             this.A(var485);
+                                             this.pc('\u8803', 1, 4);
+                                             int var486 = this.A();
+                                             int var487 = this.alu("rra", var486);
+                                             this.A(var487);
+                                             this.pc('\u8804', 1, 7);
+                                             if(this.flag(1, true)) {
+                                                this.tstates(5);
+                                                this.$8818();
+                                                return;
+                                             }
+
+                                             this.pc('\u8806', 1, 12);
                                              this.$883B();
                                              return;
                                           }
@@ -12339,7 +12335,7 @@ public class Renegade128 extends MiniZX {
                                  this.$9332();
                               }
                            } else {
-                              label553: {
+                              label552: {
                                  this.pc('\u917c', 2, 19);
                                  int var158 = this.IY() + 7;
                                  this.wMem(var158, 5, '\u917c');
@@ -12387,7 +12383,7 @@ public class Renegade128 extends MiniZX {
                                              this.wMem(var189, var190, '\u91b9');
                                              this.pc('\u91bc', 1, 12);
                                           }
-                                          break label553;
+                                          break label552;
                                        }
 
                                        this.tstates(5);
@@ -12434,7 +12430,7 @@ public class Renegade128 extends MiniZX {
                                              int var175 = this.A();
                                              this.wMem(var174, var175, '\u919d');
                                           }
-                                          break label553;
+                                          break label552;
                                        }
 
                                        this.tstates(5);
@@ -14021,10 +14017,10 @@ public class Renegade128 extends MiniZX {
          this.pc('\u8740', 1, 4);
          if(this.HL() == '\u8741') {
             this.$8741();
-         } else if(this.HL() == '\u86f3') {
-            this.$86F3();
          } else if(this.HL() == '\u8773') {
             this.$8773();
+         } else if(this.HL() == '\u86f3') {
+            this.$86F3();
          } else if(this.HL() == '\u86ee') {
             this.$86EE();
          } else {
@@ -14082,10 +14078,10 @@ public class Renegade128 extends MiniZX {
          this.pc('\u875b', 1, 4);
          if(this.HL() == '\u8741') {
             this.$8741();
-         } else if(this.HL() == '\u86f3') {
-            this.$86F3();
          } else if(this.HL() == '\u8773') {
             this.$8773();
+         } else if(this.HL() == '\u86f3') {
+            this.$86F3();
          } else if(this.HL() == '\u86ee') {
             this.$86EE();
          } else {
@@ -18819,15 +18815,11 @@ public class Renegade128 extends MiniZX {
          return -1;
       } else {
          int var24 = this.executeMutantCode('\u9525');
-         if(var24 != '\u9527') {
-            if(var24 != -1) {
-               this.jump(var24);
-            }
-
-            return -1;
-         } else {
-            return -1;
+         if(var24 != -1) {
+            this.jump(var24);
          }
+
+         return -1;
       }
    }
 
@@ -18958,15 +18950,11 @@ public class Renegade128 extends MiniZX {
                return -1;
             } else {
                int var21 = this.executeMutantCode('\u956c');
-               if(var21 != '\u956e') {
-                  if(var21 != -1) {
-                     this.jump(var21);
-                  }
-
-                  return -1;
-               } else {
-                  return -1;
+               if(var21 != -1) {
+                  this.jump(var21);
                }
+
+               return -1;
             }
          }
 
@@ -19103,7 +19091,7 @@ public class Renegade128 extends MiniZX {
    }
 
    public void $9585() {
-      label257: {
+      label224: {
          int var1;
          int var2;
          int var3;
@@ -19340,7 +19328,7 @@ public class Renegade128 extends MiniZX {
                         this.H(var32);
                      } else {
                         if(var61 == 1709) {
-                           break label257;
+                           break label224;
                         }
 
                         if(var61 == 1717) {
@@ -19424,49 +19412,15 @@ public class Renegade128 extends MiniZX {
                               var23 = this.H();
                               var24 = this.alu("inc", var23);
                               this.H(var24);
-                              this.pc('\u95da', 1, 7);
-                              var25 = this.DE();
-                              var26 = this.mem(var25, '\u95da');
-                              this.A(var26);
-                              this.pc('\u95db', 1, 7);
-                              var27 = this.A();
-                              var28 = this.HL();
-                              this.wMem(var28, var27, '\u95db');
-                              this.pc('\u95dc', 1, 4);
-                              var29 = this.E();
-                              var30 = this.alu("inc", var29);
-                              this.E(var30);
-                              this.pc('\u95dd', 1, 4);
-                              var31 = this.H();
-                              var32 = this.alu("inc", var31);
-                              this.H(var32);
-                           } else if(var61 == 1733) {
-                              this.tstates(12);
-                              this.pc('\u95da', 1, 7);
-                              var25 = this.DE();
-                              var26 = this.mem(var25, '\u95da');
-                              this.A(var26);
-                              this.pc('\u95db', 1, 7);
-                              var27 = this.A();
-                              var28 = this.HL();
-                              this.wMem(var28, var27, '\u95db');
-                              this.pc('\u95dc', 1, 4);
-                              var29 = this.E();
-                              var30 = this.alu("inc", var29);
-                              this.E(var30);
-                              this.pc('\u95dd', 1, 4);
-                              var31 = this.H();
-                              var32 = this.alu("inc", var31);
-                              this.H(var32);
                            } else {
-                              if(var61 == 1705) {
-                                 this.tstates(12);
-                                 this.$95BE();
-                                 return;
-                              }
+                              if(var61 != 1733) {
+                                 if(var61 == 1705) {
+                                    this.tstates(12);
+                                    this.$95BE();
+                                    return;
+                                 }
 
-                              var62 = this.executeMutantCode('\u95bc');
-                              if(var62 != '\u95be') {
+                                 var62 = this.executeMutantCode('\u95bc');
                                  if(var62 != -1) {
                                     this.jump(var62);
                                  }
@@ -19474,71 +19428,25 @@ public class Renegade128 extends MiniZX {
                                  return;
                               }
 
-                              this.pc('\u95ce', 1, 7);
-                              var1 = this.DE();
-                              var2 = this.mem(var1, '\u95ce');
-                              this.A(var2);
-                              this.pc('\u95cf', 1, 7);
-                              var3 = this.A();
-                              var4 = this.HL();
-                              this.wMem(var4, var3, '\u95cf');
-                              this.pc('\u95d0', 1, 4);
-                              var5 = this.E();
-                              var6 = this.alu("inc", var5);
-                              this.E(var6);
-                              this.pc('\u95d1', 1, 4);
-                              var7 = this.H();
-                              var8 = this.alu("inc", var7);
-                              this.H(var8);
-                              this.pc('\u95d2', 1, 7);
-                              var9 = this.DE();
-                              var10 = this.mem(var9, '\u95d2');
-                              this.A(var10);
-                              this.pc('\u95d3', 1, 7);
-                              var11 = this.A();
-                              var12 = this.HL();
-                              this.wMem(var12, var11, '\u95d3');
-                              this.pc('\u95d4', 1, 4);
-                              var13 = this.E();
-                              var14 = this.alu("inc", var13);
-                              this.E(var14);
-                              this.pc('\u95d5', 1, 4);
-                              var15 = this.H();
-                              var16 = this.alu("inc", var15);
-                              this.H(var16);
-                              this.pc('\u95d6', 1, 7);
-                              var17 = this.DE();
-                              var18 = this.mem(var17, '\u95d6');
-                              this.A(var18);
-                              this.pc('\u95d7', 1, 7);
-                              var19 = this.A();
-                              var20 = this.HL();
-                              this.wMem(var20, var19, '\u95d7');
-                              this.pc('\u95d8', 1, 4);
-                              var21 = this.E();
-                              var22 = this.alu("inc", var21);
-                              this.E(var22);
-                              this.pc('\u95d9', 1, 4);
-                              var23 = this.H();
-                              var24 = this.alu("inc", var23);
-                              this.H(var24);
-                              this.pc('\u95da', 1, 7);
-                              var25 = this.DE();
-                              var26 = this.mem(var25, '\u95da');
-                              this.A(var26);
-                              this.pc('\u95db', 1, 7);
-                              var27 = this.A();
-                              var28 = this.HL();
-                              this.wMem(var28, var27, '\u95db');
-                              this.pc('\u95dc', 1, 4);
-                              var29 = this.E();
-                              var30 = this.alu("inc", var29);
-                              this.E(var30);
-                              this.pc('\u95dd', 1, 4);
-                              var31 = this.H();
-                              var32 = this.alu("inc", var31);
-                              this.H(var32);
+                              this.tstates(12);
                            }
+
+                           this.pc('\u95da', 1, 7);
+                           var25 = this.DE();
+                           var26 = this.mem(var25, '\u95da');
+                           this.A(var26);
+                           this.pc('\u95db', 1, 7);
+                           var27 = this.A();
+                           var28 = this.HL();
+                           this.wMem(var28, var27, '\u95db');
+                           this.pc('\u95dc', 1, 4);
+                           var29 = this.E();
+                           var30 = this.alu("inc", var29);
+                           this.E(var30);
+                           this.pc('\u95dd', 1, 4);
+                           var31 = this.H();
+                           var32 = this.alu("inc", var31);
+                           this.H(var32);
                         }
                      }
                   } else {
@@ -19710,10 +19618,10 @@ public class Renegade128 extends MiniZX {
             this.H(var32);
          }
 
-         label256:
+         label223:
          while(true) {
             while(true) {
-               label266: {
+               label233: {
                   this.pc('\u95de', 1, 4);
                   int var33 = this.L();
                   this.A(var33);
@@ -19781,7 +19689,7 @@ public class Renegade128 extends MiniZX {
                            this.pc('\u9629', 1, 10);
                            return;
                         }
-                        break label266;
+                        break label233;
                      }
 
                      this.tstates(5);
@@ -20101,7 +20009,7 @@ public class Renegade128 extends MiniZX {
                   this.H(var32);
                } else {
                   if(var61 == 1709) {
-                     break label256;
+                     break label223;
                   }
 
                   if(var61 == 1717) {
@@ -20185,49 +20093,15 @@ public class Renegade128 extends MiniZX {
                         var23 = this.H();
                         var24 = this.alu("inc", var23);
                         this.H(var24);
-                        this.pc('\u95da', 1, 7);
-                        var25 = this.DE();
-                        var26 = this.mem(var25, '\u95da');
-                        this.A(var26);
-                        this.pc('\u95db', 1, 7);
-                        var27 = this.A();
-                        var28 = this.HL();
-                        this.wMem(var28, var27, '\u95db');
-                        this.pc('\u95dc', 1, 4);
-                        var29 = this.E();
-                        var30 = this.alu("inc", var29);
-                        this.E(var30);
-                        this.pc('\u95dd', 1, 4);
-                        var31 = this.H();
-                        var32 = this.alu("inc", var31);
-                        this.H(var32);
-                     } else if(var61 == 1733) {
-                        this.tstates(12);
-                        this.pc('\u95da', 1, 7);
-                        var25 = this.DE();
-                        var26 = this.mem(var25, '\u95da');
-                        this.A(var26);
-                        this.pc('\u95db', 1, 7);
-                        var27 = this.A();
-                        var28 = this.HL();
-                        this.wMem(var28, var27, '\u95db');
-                        this.pc('\u95dc', 1, 4);
-                        var29 = this.E();
-                        var30 = this.alu("inc", var29);
-                        this.E(var30);
-                        this.pc('\u95dd', 1, 4);
-                        var31 = this.H();
-                        var32 = this.alu("inc", var31);
-                        this.H(var32);
                      } else {
-                        if(var61 == 1705) {
-                           this.tstates(12);
-                           this.$95BE();
-                           return;
-                        }
+                        if(var61 != 1733) {
+                           if(var61 == 1705) {
+                              this.tstates(12);
+                              this.$95BE();
+                              return;
+                           }
 
-                        var62 = this.executeMutantCode('\u95bc');
-                        if(var62 != '\u95be') {
+                           var62 = this.executeMutantCode('\u95bc');
                            if(var62 != -1) {
                               this.jump(var62);
                            }
@@ -20235,71 +20109,25 @@ public class Renegade128 extends MiniZX {
                            return;
                         }
 
-                        this.pc('\u95ce', 1, 7);
-                        var1 = this.DE();
-                        var2 = this.mem(var1, '\u95ce');
-                        this.A(var2);
-                        this.pc('\u95cf', 1, 7);
-                        var3 = this.A();
-                        var4 = this.HL();
-                        this.wMem(var4, var3, '\u95cf');
-                        this.pc('\u95d0', 1, 4);
-                        var5 = this.E();
-                        var6 = this.alu("inc", var5);
-                        this.E(var6);
-                        this.pc('\u95d1', 1, 4);
-                        var7 = this.H();
-                        var8 = this.alu("inc", var7);
-                        this.H(var8);
-                        this.pc('\u95d2', 1, 7);
-                        var9 = this.DE();
-                        var10 = this.mem(var9, '\u95d2');
-                        this.A(var10);
-                        this.pc('\u95d3', 1, 7);
-                        var11 = this.A();
-                        var12 = this.HL();
-                        this.wMem(var12, var11, '\u95d3');
-                        this.pc('\u95d4', 1, 4);
-                        var13 = this.E();
-                        var14 = this.alu("inc", var13);
-                        this.E(var14);
-                        this.pc('\u95d5', 1, 4);
-                        var15 = this.H();
-                        var16 = this.alu("inc", var15);
-                        this.H(var16);
-                        this.pc('\u95d6', 1, 7);
-                        var17 = this.DE();
-                        var18 = this.mem(var17, '\u95d6');
-                        this.A(var18);
-                        this.pc('\u95d7', 1, 7);
-                        var19 = this.A();
-                        var20 = this.HL();
-                        this.wMem(var20, var19, '\u95d7');
-                        this.pc('\u95d8', 1, 4);
-                        var21 = this.E();
-                        var22 = this.alu("inc", var21);
-                        this.E(var22);
-                        this.pc('\u95d9', 1, 4);
-                        var23 = this.H();
-                        var24 = this.alu("inc", var23);
-                        this.H(var24);
-                        this.pc('\u95da', 1, 7);
-                        var25 = this.DE();
-                        var26 = this.mem(var25, '\u95da');
-                        this.A(var26);
-                        this.pc('\u95db', 1, 7);
-                        var27 = this.A();
-                        var28 = this.HL();
-                        this.wMem(var28, var27, '\u95db');
-                        this.pc('\u95dc', 1, 4);
-                        var29 = this.E();
-                        var30 = this.alu("inc", var29);
-                        this.E(var30);
-                        this.pc('\u95dd', 1, 4);
-                        var31 = this.H();
-                        var32 = this.alu("inc", var31);
-                        this.H(var32);
+                        this.tstates(12);
                      }
+
+                     this.pc('\u95da', 1, 7);
+                     var25 = this.DE();
+                     var26 = this.mem(var25, '\u95da');
+                     this.A(var26);
+                     this.pc('\u95db', 1, 7);
+                     var27 = this.A();
+                     var28 = this.HL();
+                     this.wMem(var28, var27, '\u95db');
+                     this.pc('\u95dc', 1, 4);
+                     var29 = this.E();
+                     var30 = this.alu("inc", var29);
+                     this.E(var30);
+                     this.pc('\u95dd', 1, 4);
+                     var31 = this.H();
+                     var32 = this.alu("inc", var31);
+                     this.H(var32);
                   }
                }
             }
@@ -25754,795 +25582,55 @@ public class Renegade128 extends MiniZX {
          this.wMem('\ucfbf', var89, '\uc051');
       }
 
-      this.pc('\uc054', 1, 13);
-      int var22 = this.mem(32766, '\uc054');
-      this.A(var22);
-      this.pc('\uc057', 1, 7);
-      int var23 = this.A();
-      int var24 = this.alu("or", var23, 128);
-      this.A(var24);
-      this.pc('\uc059', 1, 13);
-      int var25 = this.A();
-      this.wMem(32766, var25, '\uc059');
-      this.pc('\uc05c', 1, 7);
-      int var26 = this.A();
-      int var27 = this.alu("and", var26, 127);
-      this.A(var27);
-      this.pc('\uc05e', 1, 4);
-      int var28 = this.A();
-      int var29 = this.A();
-      int var30 = this.alu("add", var29, var28);
-      this.A(var30);
-      this.pc('\uc05f', 1, 4);
-      int var31 = this.A();
-      this.L(var31);
-      this.pc('\uc060', 1, 7);
-      this.H(0);
-      this.pc('\uc062', 1, 10);
-      this.DE('\uc06b');
-      this.pc('\uc065', 1, 11);
-      int var32 = this.DE();
-      int var33 = this.HL();
-      int var34 = this.alu("add16", var33, var32);
-      this.HL(var34);
-      this.pc('\uc066', 1, 7);
-      int var35 = this.HL();
-      int var36 = this.mem(var35, '\uc066');
-      this.E(var36);
-      this.pc('\uc067', 1, 6);
-      int var37 = this.HL();
-      int var38 = this.inc16(var37);
-      this.HL(var38);
-      this.pc('\uc068', 1, 7);
-      int var39 = this.HL();
-      int var40 = this.mem(var39, '\uc068');
-      this.D(var40);
-      this.pc('\uc069', 1, 4);
-      this.exHLDE();
-      this.pc('\uc06a', 1, 4);
-      if(this.HL() != '\uc640') {
-         label228: {
-            if(this.HL() != '\uc3c2') {
-               if(this.HL() != '\uc446') {
-                  if(this.HL() == '\uc506') {
-                     this.pc('\uc506', 1, 17);
-                     this.$C4F4();
-                     this.pc('\uc509', 1, 5);
-                     if(this.flag(64, true)) {
-                        this.tstates(6);
-                        return;
-                     }
-
-                     this.pc('\uc50a', 1, 10);
-                     this.HL('\ucd37');
-                     this.pc('\uc50d', 1, 7);
-                     this.E(31);
-                     this.pc('\uc50f', 1, 17);
-                     this.$C0BB();
-                     this.pc('\uc512', 1, 10);
-                     this.HL('\ucd37');
-                     this.pc('\uc515', 1, 7);
-                     this.E(24);
-                     this.pc('\uc517', 1, 17);
-                     this.$C0FA();
-                     this.pc('\uc51a', 1, 10);
-                     this.DE(43);
-                     this.pc('\uc51d', 1, 10);
-                     break label228;
-                  }
-
-                  if(this.HL() != '\uc6c7') {
-                     if(this.HL() != '\uc40b') {
-                        if(this.HL() != '\uc54c') {
-                           if(this.HL() != '\uc38e') {
-                              if(this.HL() != '\uc4d1') {
-                                 if(this.HL() != '\uc616') {
-                                    if(this.HL() == '\uc65a') {
-                                       this.pc('\uc65a', 1, 17);
-                                       this.$C37C();
-                                       this.pc('\uc65d', 1, 5);
-                                       if(this.flag(64, true)) {
-                                          this.tstates(6);
-                                          return;
-                                       }
-
-                                       this.pc('\uc65e', 1, 10);
-                                       this.HL('\uc7d7');
-                                       this.pc('\uc661', 1, 7);
-                                       this.E(12);
-                                       this.pc('\uc663', 1, 17);
-                                       this.$C0FA();
-                                       this.pc('\uc666', 1, 10);
-                                       this.HL('\uc7d7');
-                                       this.pc('\uc669', 1, 7);
-                                       this.E(36);
-                                       this.pc('\uc66b', 1, 17);
-                                       this.$C0BB();
-                                       this.pc('\uc66e', 1, 10);
-                                       this.DE(23);
-                                       this.pc('\uc671', 1, 10);
-                                       break label228;
-                                    }
-
-                                    if(this.HL() == '\uc3dc') {
-                                       this.pc('\uc3dc', 1, 7);
-                                       this.A(1);
-                                       this.pc('\uc3de', 1, 13);
-                                       int var63 = this.A();
-                                       this.wMem(32766, var63, '\uc3de');
-                                       this.pc('\uc3e1', 1, 10);
-                                       return;
-                                    }
-
-                                    if(this.HL() == '\uc49f') {
-                                       this.pc('\uc49f', 1, 7);
-                                       this.A(9);
-                                       this.pc('\uc4a1', 1, 13);
-                                       int var64 = this.A();
-                                       this.wMem(32766, var64, '\uc4a1');
-                                       this.pc('\uc4a4', 1, 10);
-                                       return;
-                                    }
-
-                                    if(this.HL() == '\uc520') {
-                                       this.pc('\uc520', 1, 10);
-                                       this.$C4F4();
-                                       return;
-                                    }
-
-                                    if(this.HL() == '\uc3e2') {
-                                       this.pc('\uc3e2', 1, 17);
-                                       this.$CFD4();
-                                       this.pc('\uc3e5', 1, 7);
-                                       this.E(6);
-                                       this.pc('\uc3e7', 1, 17);
-                                       this.$C158();
-                                       this.pc('\uc3ea', 1, 7);
-                                       this.E(2);
-                                       this.pc('\uc3ec', 1, 17);
-                                       this.$C0E9();
-                                       this.pc('\uc3ef', 1, 7);
-                                       this.E(8);
-                                       this.pc('\uc3f1', 1, 17);
-                                       this.$C1E7();
-                                       this.pc('\uc3f4', 1, 5);
-                                       if(this.flag(64, true)) {
-                                          this.tstates(6);
-                                          return;
-                                       }
-
-                                       this.pc('\uc3f5', 1, 10);
-                                       this.HL('\uca28');
-                                       this.pc('\uc3f8', 1, 7);
-                                       this.E(31);
-                                       this.pc('\uc3fa', 1, 17);
-                                       this.$C0BB();
-                                       this.pc('\uc3fd', 1, 10);
-                                       this.HL('\uca28');
-                                       this.pc('\uc400', 1, 7);
-                                       this.E(24);
-                                       this.pc('\uc402', 1, 17);
-                                       this.$C0FA();
-                                       this.pc('\uc405', 1, 10);
-                                       this.DE(13);
-                                       this.pc('\uc408', 1, 10);
-                                       break label228;
-                                    }
-
-                                    if(this.HL() != '\uc523') {
-                                       if(this.HL() == '\uc0e8') {
-                                          this.$C0E8();
-                                          return;
-                                       }
-
-                                       if(this.HL() != '\uc3a8') {
-                                          if(this.HL() != '\uc5a9') {
-                                             if(this.HL() == '\uc6ad') {
-                                                this.pc('\uc6ad', 1, 17);
-                                                this.$C4F4();
-                                                this.pc('\uc6b0', 1, 5);
-                                                if(this.flag(64, true)) {
-                                                   this.tstates(6);
-                                                   return;
-                                                }
-
-                                                this.pc('\uc6b1', 1, 10);
-                                                this.HL('\uc80b');
-                                                this.pc('\uc6b4', 1, 7);
-                                                this.E(12);
-                                                this.pc('\uc6b6', 1, 17);
-                                                this.$C0FA();
-                                                this.pc('\uc6b9', 1, 10);
-                                                this.HL('\uc7ee');
-                                                this.pc('\uc6bc', 1, 7);
-                                                this.E(24);
-                                                this.pc('\uc6be', 1, 17);
-                                                this.$C0BB();
-                                                this.pc('\uc6c1', 1, 10);
-                                                this.DE(29);
-                                                this.pc('\uc6c4', 1, 10);
-                                                break label228;
-                                             }
-
-                                             if(this.HL() == '\uc4ee') {
-                                                this.pc('\uc4ee', 1, 7);
-                                                this.A(18);
-                                                this.pc('\uc4f0', 1, 13);
-                                                int var69 = this.A();
-                                                this.wMem(32766, var69, '\uc4f0');
-                                                this.pc('\uc4f3', 1, 10);
-                                                return;
-                                             }
-
-                                             if(this.HL() != '\uc5f4') {
-                                                if(this.HL() != '\uc476') {
-                                                   if(this.HL() != '\uc4b7') {
-                                                      if(this.HL() != '\uc579') {
-                                                         if(this.HL() != '\uc63a') {
-                                                            int var80 = this.HL();
-                                                            this.jump(var80);
-                                                            return;
-                                                         }
-
-                                                         this.pc('\uc63a', 1, 7);
-                                                         this.A(27);
-                                                         this.pc('\uc63c', 1, 13);
-                                                         int var79 = this.A();
-                                                         this.wMem(32766, var79, '\uc63c');
-                                                         this.pc('\uc63f', 1, 10);
-                                                         return;
-                                                      }
-
-                                                      this.pc('\uc579', 1, 17);
-                                                      this.$CFD4();
-                                                      this.pc('\uc57c', 1, 7);
-                                                      this.E(7);
-                                                      this.pc('\uc57e', 1, 17);
-                                                      this.$C158();
-                                                      this.pc('\uc581', 1, 7);
-                                                      this.E(2);
-                                                      this.pc('\uc583', 1, 17);
-                                                      this.$C0E9();
-                                                      this.pc('\uc586', 1, 7);
-                                                      this.E(8);
-                                                      this.pc('\uc588', 1, 17);
-                                                      this.$C1E7();
-                                                      this.pc('\uc58b', 1, 5);
-                                                      if(this.flag(64, true)) {
-                                                         this.tstates(6);
-                                                         return;
-                                                      }
-
-                                                      this.pc('\uc58c', 1, 10);
-                                                      this.HL('\uc6e7');
-                                                      this.pc('\uc58f', 1, 7);
-                                                      this.E(24);
-                                                      this.pc('\uc591', 1, 17);
-                                                      this.$C0BB();
-                                                      this.pc('\uc594', 1, 10);
-                                                      this.HL('\uc75f');
-                                                      this.pc('\uc597', 1, 7);
-                                                      this.E(12);
-                                                      this.pc('\uc599', 1, 17);
-                                                      this.$C0FA();
-                                                      this.pc('\uc59c', 1, 10);
-                                                      this.DE(120);
-                                                      this.pc('\uc59f', 1, 17);
-                                                      this.$C1F8();
-                                                      this.pc('\uc5a2', 1, 5);
-                                                      if(this.flag(64, true)) {
-                                                         this.tstates(6);
-                                                         return;
-                                                      }
-
-                                                      this.pc('\uc5a3', 1, 7);
-                                                      this.A(24);
-                                                      this.pc('\uc5a5', 1, 13);
-                                                      int var78 = this.A();
-                                                      this.wMem(32766, var78, '\uc5a5');
-                                                      this.pc('\uc5a8', 1, 10);
-                                                      return;
-                                                   }
-
-                                                   this.pc('\uc4b7', 1, 17);
-                                                   this.$C4A5();
-                                                   this.pc('\uc4ba', 1, 5);
-                                                   if(this.flag(64, true)) {
-                                                      this.tstates(6);
-                                                      return;
-                                                   }
-
-                                                   this.pc('\uc4bb', 1, 10);
-                                                   this.HL('\ucbd7');
-                                                   this.pc('\uc4be', 1, 7);
-                                                   this.E(12);
-                                                   this.pc('\uc4c0', 1, 17);
-                                                   this.$C0FA();
-                                                   this.pc('\uc4c3', 1, 10);
-                                                   this.HL('\ucbb7');
-                                                   this.pc('\uc4c6', 1, 7);
-                                                   this.E(12);
-                                                   this.pc('\uc4c8', 1, 17);
-                                                   this.$C0BB();
-                                                   this.pc('\uc4cb', 1, 10);
-                                                   this.DE(32);
-                                                   this.pc('\uc4ce', 1, 10);
-                                                } else {
-                                                   this.pc('\uc476', 1, 17);
-                                                   this.$CFD4();
-                                                   this.pc('\uc479', 1, 7);
-                                                   this.E(6);
-                                                   this.pc('\uc47b', 1, 17);
-                                                   this.$C158();
-                                                   this.pc('\uc47e', 1, 7);
-                                                   this.E(2);
-                                                   this.pc('\uc480', 1, 17);
-                                                   this.$C0E9();
-                                                   this.pc('\uc483', 1, 7);
-                                                   this.E(4);
-                                                   this.pc('\uc485', 1, 17);
-                                                   this.$C1E7();
-                                                   this.pc('\uc488', 1, 5);
-                                                   if(this.flag(64, true)) {
-                                                      this.tstates(6);
-                                                      return;
-                                                   }
-
-                                                   this.pc('\uc489', 1, 10);
-                                                   this.HL('\uca9f');
-                                                   this.pc('\uc48c', 1, 7);
-                                                   this.E(36);
-                                                   this.pc('\uc48e', 1, 17);
-                                                   this.$C0FA();
-                                                   this.pc('\uc491', 1, 10);
-                                                   this.HL('\ucb2b');
-                                                   this.pc('\uc494', 1, 7);
-                                                   this.E(19);
-                                                   this.pc('\uc496', 1, 17);
-                                                   this.$C0BB();
-                                                   this.pc('\uc499', 1, 10);
-                                                   this.DE(140);
-                                                   this.pc('\uc49c', 1, 10);
-                                                }
-                                             } else {
-                                                this.pc('\uc5f4', 1, 17);
-                                                this.$C5DC();
-                                                this.pc('\uc5f7', 1, 5);
-                                                if(this.flag(64, true)) {
-                                                   this.tstates(6);
-                                                   return;
-                                                }
-
-                                                this.pc('\uc5f8', 1, 4);
-                                                int var70 = this.C();
-                                                this.A(var70);
-                                                this.pc('\uc5f9', 1, 7);
-                                                int var71 = this.A();
-                                                int var72 = this.alu("and", var71, 31);
-                                                this.A(var72);
-                                                this.pc('\uc5fb', 1, 4);
-                                                int var73 = this.A();
-                                                this.C(var73);
-                                                this.pc('\uc5fc', 1, 10);
-                                                this.HL('\uce62');
-                                                this.pc('\uc5ff', 1, 7);
-                                                this.E(24);
-                                                this.pc('\uc601', 1, 17);
-                                                this.$C0FA();
-                                                this.pc('\uc604', 1, 4);
-                                                int var74 = this.C();
-                                                this.A(var74);
-                                                this.pc('\uc605', 1, 7);
-                                                int var75 = this.A();
-                                                int var76 = this.alu("and", var75, 31);
-                                                this.A(var76);
-                                                this.pc('\uc607', 1, 4);
-                                                int var77 = this.A();
-                                                this.C(var77);
-                                                this.pc('\uc608', 1, 10);
-                                                this.HL('\uce42');
-                                                this.pc('\uc60b', 1, 7);
-                                                this.E(36);
-                                                this.pc('\uc60d', 1, 17);
-                                                this.$C0BB();
-                                                this.pc('\uc610', 1, 10);
-                                                this.DE(64);
-                                                this.pc('\uc613', 1, 10);
-                                             }
-                                          } else {
-                                             this.pc('\uc5a9', 1, 17);
-                                             this.$CFD4();
-                                             this.pc('\uc5ac', 1, 17);
-                                             this.$C114();
-                                             this.pc('\uc5af', 1, 17);
-                                             this.$C114();
-                                             this.pc('\uc5b2', 1, 7);
-                                             this.E(2);
-                                             this.pc('\uc5b4', 1, 17);
-                                             this.$C158();
-                                             this.pc('\uc5b7', 1, 7);
-                                             this.E(8);
-                                             this.pc('\uc5b9', 1, 17);
-                                             this.$C0E9();
-                                             this.pc('\uc5bc', 1, 7);
-                                             this.E(4);
-                                             this.pc('\uc5be', 1, 17);
-                                             this.$C1E7();
-                                             this.pc('\uc5c1', 1, 5);
-                                             if(this.flag(64, true)) {
-                                                this.tstates(6);
-                                                return;
-                                             }
-
-                                             this.pc('\uc5c2', 1, 4);
-                                             int var65 = this.C();
-                                             this.A(var65);
-                                             this.pc('\uc5c3', 1, 7);
-                                             int var66 = this.A();
-                                             int var67 = this.alu("and", var66, 63);
-                                             this.A(var67);
-                                             this.pc('\uc5c5', 1, 4);
-                                             int var68 = this.A();
-                                             this.C(var68);
-                                             this.pc('\uc5c6', 1, 10);
-                                             this.HL('\ucdc2');
-                                             this.pc('\uc5c9', 1, 7);
-                                             this.E(24);
-                                             this.pc('\uc5cb', 1, 17);
-                                             this.$C0FA();
-                                             this.pc('\uc5ce', 1, 10);
-                                             this.HL('\uce02');
-                                             this.pc('\uc5d1', 1, 7);
-                                             this.E(24);
-                                             this.pc('\uc5d3', 1, 17);
-                                             this.$C0BB();
-                                             this.pc('\uc5d6', 1, 10);
-                                             this.DE(128);
-                                             this.pc('\uc5d9', 1, 10);
-                                          }
-                                       } else {
-                                          this.pc('\uc3a8', 1, 17);
-                                          this.$C37C();
-                                          this.pc('\uc3ab', 1, 5);
-                                          if(this.flag(64, true)) {
-                                             this.tstates(6);
-                                             return;
-                                          }
-
-                                          this.pc('\uc3ac', 1, 10);
-                                          this.HL('\uc988');
-                                          this.pc('\uc3af', 1, 7);
-                                          this.E(36);
-                                          this.pc('\uc3b1', 1, 17);
-                                          this.$C0FA();
-                                          this.pc('\uc3b4', 1, 10);
-                                          this.HL('\uc9e8');
-                                          this.pc('\uc3b7', 1, 7);
-                                          this.E(12);
-                                          this.pc('\uc3b9', 1, 17);
-                                          this.$C0BB();
-                                          this.pc('\uc3bc', 1, 10);
-                                          this.DE(32);
-                                          this.pc('\uc3bf', 1, 10);
-                                       }
-                                    } else {
-                                       this.pc('\uc523', 1, 17);
-                                       this.$CFD4();
-                                       this.pc('\uc526', 1, 7);
-                                       this.E(8);
-                                       this.pc('\uc528', 1, 17);
-                                       this.$C158();
-                                       this.pc('\uc52b', 1, 7);
-                                       this.E(6);
-                                       this.pc('\uc52d', 1, 17);
-                                       this.$C0E9();
-                                       this.pc('\uc530', 1, 7);
-                                       this.E(8);
-                                       this.pc('\uc532', 1, 17);
-                                       this.$C1E7();
-                                       this.pc('\uc535', 1, 5);
-                                       if(this.flag(64, true)) {
-                                          this.tstates(6);
-                                          return;
-                                       }
-
-                                       this.pc('\uc536', 1, 10);
-                                       this.HL('\ucd82');
-                                       this.pc('\uc539', 1, 7);
-                                       this.E(24);
-                                       this.pc('\uc53b', 1, 17);
-                                       this.$C0BB();
-                                       this.pc('\uc53e', 1, 10);
-                                       this.HL('\ucd82');
-                                       this.pc('\uc541', 1, 7);
-                                       this.E(19);
-                                       this.pc('\uc543', 1, 17);
-                                       this.$C0FA();
-                                       this.pc('\uc546', 1, 10);
-                                       this.DE(32);
-                                       this.pc('\uc549', 1, 10);
-                                    }
-                                 } else {
-                                    this.pc('\uc616', 1, 17);
-                                    this.$C5DC();
-                                    this.pc('\uc619', 1, 5);
-                                    if(this.flag(64, true)) {
-                                       this.tstates(6);
-                                       return;
-                                    }
-
-                                    this.pc('\uc61a', 1, 4);
-                                    int var56 = this.C();
-                                    this.A(var56);
-                                    this.pc('\uc61b', 1, 7);
-                                    int var57 = this.A();
-                                    this.alu("cp", var57, 32);
-                                    this.pc('\uc61d', 1, 7);
-                                    if(this.flag(1, true)) {
-                                       this.tstates(5);
-                                    } else {
-                                       this.pc('\uc61f', 1, 7);
-                                       int var58 = this.A();
-                                       int var59 = this.alu("and", var58, 15);
-                                       this.A(var59);
-                                    }
-
-                                    this.pc('\uc621', 1, 7);
-                                    int var60 = this.A();
-                                    int var61 = this.alu("and", var60, 31);
-                                    this.A(var61);
-                                    this.pc('\uc623', 1, 4);
-                                    int var62 = this.A();
-                                    this.C(var62);
-                                    this.pc('\uc624', 1, 10);
-                                    this.HL('\ucea2');
-                                    this.pc('\uc627', 1, 7);
-                                    this.E(36);
-                                    this.pc('\uc629', 1, 17);
-                                    this.$C0FA();
-                                    this.pc('\uc62c', 1, 10);
-                                    this.HL('\uce82');
-                                    this.pc('\uc62f', 1, 7);
-                                    this.E(36);
-                                    this.pc('\uc631', 1, 17);
-                                    this.$C0BB();
-                                    this.pc('\uc634', 1, 10);
-                                    this.DE(64);
-                                    this.pc('\uc637', 1, 10);
-                                 }
-                              } else {
-                                 this.pc('\uc4d1', 1, 17);
-                                 this.$C114();
-                                 this.pc('\uc4d4', 1, 17);
-                                 this.$C4A5();
-                                 this.pc('\uc4d7', 1, 5);
-                                 if(this.flag(64, true)) {
-                                    this.tstates(6);
-                                    return;
-                                 }
-
-                                 this.pc('\uc4d8', 1, 10);
-                                 this.HL('\ucbf7');
-                                 this.pc('\uc4db', 1, 7);
-                                 this.E(24);
-                                 this.pc('\uc4dd', 1, 17);
-                                 this.$C0FA();
-                                 this.pc('\uc4e0', 1, 10);
-                                 this.HL('\ucc97');
-                                 this.pc('\uc4e3', 1, 7);
-                                 this.E(12);
-                                 this.pc('\uc4e5', 1, 17);
-                                 this.$C0BB();
-                                 this.pc('\uc4e8', 1, 10);
-                                 this.DE(160);
-                                 this.pc('\uc4eb', 1, 10);
-                              }
-                           } else {
-                              this.pc('\uc38e', 1, 17);
-                              this.$C37C();
-                              this.pc('\uc391', 1, 5);
-                              if(this.flag(64, true)) {
-                                 this.tstates(6);
-                                 return;
-                              }
-
-                              this.pc('\uc392', 1, 10);
-                              this.HL('\uc8e8');
-                              this.pc('\uc395', 1, 7);
-                              this.E(24);
-                              this.pc('\uc397', 1, 17);
-                              this.$C0FA();
-                              this.pc('\uc39a', 1, 10);
-                              this.HL('\uc938');
-                              this.pc('\uc39d', 1, 7);
-                              this.E(12);
-                              this.pc('\uc39f', 1, 17);
-                              this.$C0BB();
-                              this.pc('\uc3a2', 1, 10);
-                              this.DE(80);
-                              this.pc('\uc3a5', 1, 10);
-                           }
-                        } else {
-                           this.pc('\uc54c', 1, 17);
-                           this.$CFD4();
-                           this.pc('\uc54f', 1, 7);
-                           this.E(7);
-                           this.pc('\uc551', 1, 17);
-                           this.$C158();
-                           this.pc('\uc554', 1, 7);
-                           this.E(2);
-                           this.pc('\uc556', 1, 17);
-                           this.$C0E9();
-                           this.pc('\uc559', 1, 7);
-                           this.E(8);
-                           this.pc('\uc55b', 1, 17);
-                           this.$C1E7();
-                           this.pc('\uc55e', 1, 5);
-                           if(this.flag(64, true)) {
-                              this.tstates(6);
-                              return;
-                           }
-
-                           this.pc('\uc55f', 1, 4);
-                           int var52 = this.C();
-                           this.A(var52);
-                           this.pc('\uc560', 1, 7);
-                           int var53 = this.A();
-                           int var54 = this.alu("and", var53, 31);
-                           this.A(var54);
-                           this.pc('\uc562', 1, 4);
-                           int var55 = this.A();
-                           this.C(var55);
-                           this.pc('\uc563', 1, 10);
-                           this.HL('\ucda2');
-                           this.pc('\uc566', 1, 7);
-                           this.E(24);
-                           this.pc('\uc568', 1, 17);
-                           this.$C0BB();
-                           this.pc('\uc56b', 1, 10);
-                           this.HL('\ucd62');
-                           this.pc('\uc56e', 1, 7);
-                           this.E(12);
-                           this.pc('\uc570', 1, 17);
-                           this.$C0FA();
-                           this.pc('\uc573', 1, 10);
-                           this.DE(88);
-                           this.pc('\uc576', 1, 10);
-                        }
-                     } else {
-                        this.pc('\uc40b', 1, 17);
-                        this.$CFD4();
-                        this.pc('\uc40e', 1, 17);
-                        this.$C114();
-                        this.pc('\uc411', 1, 7);
-                        this.E(6);
-                        this.pc('\uc413', 1, 17);
-                        this.$C158();
-                        this.pc('\uc416', 1, 7);
-                        this.E(6);
-                        this.pc('\uc418', 1, 17);
-                        this.$C0E9();
-                        this.pc('\uc41b', 1, 7);
-                        this.E(8);
-                        this.pc('\uc41d', 1, 17);
-                        this.$C1E7();
-                        this.pc('\uc420', 1, 5);
-                        if(this.flag(64, true)) {
-                           this.tstates(6);
-                           return;
-                        }
-
-                        this.pc('\uc421', 1, 10);
-                        this.HL('\uca35');
-                        this.pc('\uc424', 1, 7);
-                        this.E(24);
-                        this.pc('\uc426', 1, 17);
-                        this.$C0BB();
-                        this.pc('\uc429', 1, 13);
-                        int var50 = this.mem(32766, '\uc429');
-                        this.A(var50);
-                        this.pc('\uc42c', 1, 7);
-                        int var51 = this.A();
-                        this.alu("cp", var51, 139);
-                        this.pc('\uc42e', 1, 7);
-                        if(this.flag(1, false)) {
-                           this.tstates(5);
-                        } else {
-                           this.pc('\uc430', 1, 10);
-                           this.HL('\uca45');
-                           this.pc('\uc433', 1, 7);
-                           this.E(36);
-                           this.pc('\uc435', 1, 17);
-                           this.$C0BB();
-                        }
-
-                        this.pc('\uc438', 1, 10);
-                        this.HL('\uca35');
-                        this.pc('\uc43b', 1, 7);
-                        this.E(12);
-                        this.pc('\uc43d', 1, 17);
-                        this.$C0FA();
-                        this.pc('\uc440', 1, 10);
-                        this.DE(16);
-                        this.pc('\uc443', 1, 10);
-                     }
-                  } else {
-                     this.pc('\uc6c7', 1, 17);
-                     this.$C37C();
-                     this.pc('\uc6ca', 1, 5);
-                     if(this.flag(64, true)) {
-                        this.tstates(6);
-                        return;
-                     }
-
-                     this.pc('\uc6cb', 1, 10);
-                     this.HL('\uc828');
-                     this.pc('\uc6ce', 1, 7);
-                     this.E(12);
-                     this.pc('\uc6d0', 1, 17);
-                     this.$C0FA();
-                     this.pc('\uc6d3', 1, 10);
-                     this.HL('\uc888');
-                     this.pc('\uc6d6', 1, 7);
-                     this.E(24);
-                     this.pc('\uc6d8', 1, 17);
-                     this.$C0BB();
-                     this.pc('\uc6db', 1, 10);
-                     this.DE(96);
-                     this.pc('\uc6de', 1, 10);
-                  }
-               } else {
-                  this.pc('\uc446', 1, 17);
-                  this.$CFD4();
-                  this.pc('\uc449', 1, 7);
-                  this.E(6);
-                  this.pc('\uc44b', 1, 17);
-                  this.$C158();
-                  this.pc('\uc44e', 1, 7);
-                  this.E(2);
-                  this.pc('\uc450', 1, 17);
-                  this.$C0E9();
-                  this.pc('\uc453', 1, 7);
-                  this.E(8);
-                  this.pc('\uc455', 1, 17);
-                  this.$C1E7();
-                  this.pc('\uc458', 1, 5);
-                  if(this.flag(64, true)) {
-                     this.tstates(6);
-                     return;
-                  }
-
-                  this.pc('\uc459', 1, 7);
-                  this.E(12);
-                  this.pc('\uc45b', 1, 4);
-                  int var48 = this.C();
-                  this.A(var48);
-                  this.pc('\uc45c', 1, 7);
-                  int var49 = this.A();
-                  this.alu("cp", var49, 16);
-                  this.pc('\uc45e', 1, 7);
-                  if(this.flag(1, false)) {
-                     this.tstates(5);
-                  } else {
-                     this.pc('\uc460', 1, 7);
-                     this.E(31);
-                  }
-
-                  this.pc('\uc462', 1, 10);
-                  this.HL('\uca55');
-                  this.pc('\uc465', 1, 17);
-                  this.$C0BB();
-                  this.pc('\uc468', 1, 10);
-                  this.HL('\uca55');
-                  this.pc('\uc46b', 1, 7);
-                  this.E(24);
-                  this.pc('\uc46d', 1, 17);
-                  this.$C0FA();
-                  this.pc('\uc470', 1, 10);
-                  this.DE(74);
-                  this.pc('\uc473', 1, 10);
-               }
-            } else {
+      label230: {
+         this.pc('\uc054', 1, 13);
+         int var22 = this.mem(32766, '\uc054');
+         this.A(var22);
+         this.pc('\uc057', 1, 7);
+         int var23 = this.A();
+         int var24 = this.alu("or", var23, 128);
+         this.A(var24);
+         this.pc('\uc059', 1, 13);
+         int var25 = this.A();
+         this.wMem(32766, var25, '\uc059');
+         this.pc('\uc05c', 1, 7);
+         int var26 = this.A();
+         int var27 = this.alu("and", var26, 127);
+         this.A(var27);
+         this.pc('\uc05e', 1, 4);
+         int var28 = this.A();
+         int var29 = this.A();
+         int var30 = this.alu("add", var29, var28);
+         this.A(var30);
+         this.pc('\uc05f', 1, 4);
+         int var31 = this.A();
+         this.L(var31);
+         this.pc('\uc060', 1, 7);
+         this.H(0);
+         this.pc('\uc062', 1, 10);
+         this.DE('\uc06b');
+         this.pc('\uc065', 1, 11);
+         int var32 = this.DE();
+         int var33 = this.HL();
+         int var34 = this.alu("add16", var33, var32);
+         this.HL(var34);
+         this.pc('\uc066', 1, 7);
+         int var35 = this.HL();
+         int var36 = this.mem(var35, '\uc066');
+         this.E(var36);
+         this.pc('\uc067', 1, 6);
+         int var37 = this.HL();
+         int var38 = this.inc16(var37);
+         this.HL(var38);
+         this.pc('\uc068', 1, 7);
+         int var39 = this.HL();
+         int var40 = this.mem(var39, '\uc068');
+         this.D(var40);
+         this.pc('\uc069', 1, 4);
+         this.exHLDE();
+         this.pc('\uc06a', 1, 4);
+         if(this.HL() != '\uc640') {
+            if(this.HL() == '\uc3c2') {
                this.pc('\uc3c2', 1, 17);
                this.$C37C();
                this.pc('\uc3c5', 1, 5);
@@ -26566,73 +25654,816 @@ public class Renegade128 extends MiniZX {
                this.pc('\uc3d6', 1, 10);
                this.DE(63);
                this.pc('\uc3d9', 1, 10);
+               break label230;
             }
 
-            this.pc('\uc203', 1, 17);
-            this.$C1F8();
-            this.pc('\uc206', 1, 7);
-            if(this.flag(64, true)) {
-               this.tstates(5);
+            if(this.HL() == '\uc446') {
+               this.pc('\uc446', 1, 17);
+               this.$CFD4();
+               this.pc('\uc449', 1, 7);
+               this.E(6);
+               this.pc('\uc44b', 1, 17);
+               this.$C158();
+               this.pc('\uc44e', 1, 7);
+               this.E(2);
+               this.pc('\uc450', 1, 17);
+               this.$C0E9();
+               this.pc('\uc453', 1, 7);
+               this.E(8);
+               this.pc('\uc455', 1, 17);
+               this.$C1E7();
+               this.pc('\uc458', 1, 5);
+               if(this.flag(64, true)) {
+                  this.tstates(6);
+                  return;
+               }
+
+               this.pc('\uc459', 1, 7);
+               this.E(12);
+               this.pc('\uc45b', 1, 4);
+               int var48 = this.C();
+               this.A(var48);
+               this.pc('\uc45c', 1, 7);
+               int var49 = this.A();
+               this.alu("cp", var49, 16);
+               this.pc('\uc45e', 1, 7);
+               if(this.flag(1, false)) {
+                  this.tstates(5);
+               } else {
+                  this.pc('\uc460', 1, 7);
+                  this.E(31);
+               }
+
+               this.pc('\uc462', 1, 10);
+               this.HL('\uca55');
+               this.pc('\uc465', 1, 17);
+               this.$C0BB();
+               this.pc('\uc468', 1, 10);
+               this.HL('\uca55');
+               this.pc('\uc46b', 1, 7);
+               this.E(24);
+               this.pc('\uc46d', 1, 17);
+               this.$C0FA();
+               this.pc('\uc470', 1, 10);
+               this.DE(74);
+               this.pc('\uc473', 1, 10);
+               break label230;
+            }
+
+            if(this.HL() != '\uc506') {
+               if(this.HL() == '\uc6c7') {
+                  this.pc('\uc6c7', 1, 17);
+                  this.$C37C();
+                  this.pc('\uc6ca', 1, 5);
+                  if(this.flag(64, true)) {
+                     this.tstates(6);
+                     return;
+                  }
+
+                  this.pc('\uc6cb', 1, 10);
+                  this.HL('\uc828');
+                  this.pc('\uc6ce', 1, 7);
+                  this.E(12);
+                  this.pc('\uc6d0', 1, 17);
+                  this.$C0FA();
+                  this.pc('\uc6d3', 1, 10);
+                  this.HL('\uc888');
+                  this.pc('\uc6d6', 1, 7);
+                  this.E(24);
+                  this.pc('\uc6d8', 1, 17);
+                  this.$C0BB();
+                  this.pc('\uc6db', 1, 10);
+                  this.DE(96);
+                  this.pc('\uc6de', 1, 10);
+                  break label230;
+               }
+
+               if(this.HL() == '\uc40b') {
+                  this.pc('\uc40b', 1, 17);
+                  this.$CFD4();
+                  this.pc('\uc40e', 1, 17);
+                  this.$C114();
+                  this.pc('\uc411', 1, 7);
+                  this.E(6);
+                  this.pc('\uc413', 1, 17);
+                  this.$C158();
+                  this.pc('\uc416', 1, 7);
+                  this.E(6);
+                  this.pc('\uc418', 1, 17);
+                  this.$C0E9();
+                  this.pc('\uc41b', 1, 7);
+                  this.E(8);
+                  this.pc('\uc41d', 1, 17);
+                  this.$C1E7();
+                  this.pc('\uc420', 1, 5);
+                  if(this.flag(64, true)) {
+                     this.tstates(6);
+                     return;
+                  }
+
+                  this.pc('\uc421', 1, 10);
+                  this.HL('\uca35');
+                  this.pc('\uc424', 1, 7);
+                  this.E(24);
+                  this.pc('\uc426', 1, 17);
+                  this.$C0BB();
+                  this.pc('\uc429', 1, 13);
+                  int var50 = this.mem(32766, '\uc429');
+                  this.A(var50);
+                  this.pc('\uc42c', 1, 7);
+                  int var51 = this.A();
+                  this.alu("cp", var51, 139);
+                  this.pc('\uc42e', 1, 7);
+                  if(this.flag(1, false)) {
+                     this.tstates(5);
+                  } else {
+                     this.pc('\uc430', 1, 10);
+                     this.HL('\uca45');
+                     this.pc('\uc433', 1, 7);
+                     this.E(36);
+                     this.pc('\uc435', 1, 17);
+                     this.$C0BB();
+                  }
+
+                  this.pc('\uc438', 1, 10);
+                  this.HL('\uca35');
+                  this.pc('\uc43b', 1, 7);
+                  this.E(12);
+                  this.pc('\uc43d', 1, 17);
+                  this.$C0FA();
+                  this.pc('\uc440', 1, 10);
+                  this.DE(16);
+                  this.pc('\uc443', 1, 10);
+                  break label230;
+               }
+
+               if(this.HL() == '\uc54c') {
+                  this.pc('\uc54c', 1, 17);
+                  this.$CFD4();
+                  this.pc('\uc54f', 1, 7);
+                  this.E(7);
+                  this.pc('\uc551', 1, 17);
+                  this.$C158();
+                  this.pc('\uc554', 1, 7);
+                  this.E(2);
+                  this.pc('\uc556', 1, 17);
+                  this.$C0E9();
+                  this.pc('\uc559', 1, 7);
+                  this.E(8);
+                  this.pc('\uc55b', 1, 17);
+                  this.$C1E7();
+                  this.pc('\uc55e', 1, 5);
+                  if(this.flag(64, true)) {
+                     this.tstates(6);
+                     return;
+                  }
+
+                  this.pc('\uc55f', 1, 4);
+                  int var52 = this.C();
+                  this.A(var52);
+                  this.pc('\uc560', 1, 7);
+                  int var53 = this.A();
+                  int var54 = this.alu("and", var53, 31);
+                  this.A(var54);
+                  this.pc('\uc562', 1, 4);
+                  int var55 = this.A();
+                  this.C(var55);
+                  this.pc('\uc563', 1, 10);
+                  this.HL('\ucda2');
+                  this.pc('\uc566', 1, 7);
+                  this.E(24);
+                  this.pc('\uc568', 1, 17);
+                  this.$C0BB();
+                  this.pc('\uc56b', 1, 10);
+                  this.HL('\ucd62');
+                  this.pc('\uc56e', 1, 7);
+                  this.E(12);
+                  this.pc('\uc570', 1, 17);
+                  this.$C0FA();
+                  this.pc('\uc573', 1, 10);
+                  this.DE(88);
+                  this.pc('\uc576', 1, 10);
+                  break label230;
+               }
+
+               if(this.HL() == '\uc38e') {
+                  this.pc('\uc38e', 1, 17);
+                  this.$C37C();
+                  this.pc('\uc391', 1, 5);
+                  if(this.flag(64, true)) {
+                     this.tstates(6);
+                     return;
+                  }
+
+                  this.pc('\uc392', 1, 10);
+                  this.HL('\uc8e8');
+                  this.pc('\uc395', 1, 7);
+                  this.E(24);
+                  this.pc('\uc397', 1, 17);
+                  this.$C0FA();
+                  this.pc('\uc39a', 1, 10);
+                  this.HL('\uc938');
+                  this.pc('\uc39d', 1, 7);
+                  this.E(12);
+                  this.pc('\uc39f', 1, 17);
+                  this.$C0BB();
+                  this.pc('\uc3a2', 1, 10);
+                  this.DE(80);
+                  this.pc('\uc3a5', 1, 10);
+                  break label230;
+               }
+
+               if(this.HL() == '\uc4d1') {
+                  this.pc('\uc4d1', 1, 17);
+                  this.$C114();
+                  this.pc('\uc4d4', 1, 17);
+                  this.$C4A5();
+                  this.pc('\uc4d7', 1, 5);
+                  if(this.flag(64, true)) {
+                     this.tstates(6);
+                     return;
+                  }
+
+                  this.pc('\uc4d8', 1, 10);
+                  this.HL('\ucbf7');
+                  this.pc('\uc4db', 1, 7);
+                  this.E(24);
+                  this.pc('\uc4dd', 1, 17);
+                  this.$C0FA();
+                  this.pc('\uc4e0', 1, 10);
+                  this.HL('\ucc97');
+                  this.pc('\uc4e3', 1, 7);
+                  this.E(12);
+                  this.pc('\uc4e5', 1, 17);
+                  this.$C0BB();
+                  this.pc('\uc4e8', 1, 10);
+                  this.DE(160);
+                  this.pc('\uc4eb', 1, 10);
+                  break label230;
+               }
+
+               if(this.HL() == '\uc616') {
+                  this.pc('\uc616', 1, 17);
+                  this.$C5DC();
+                  this.pc('\uc619', 1, 5);
+                  if(this.flag(64, true)) {
+                     this.tstates(6);
+                     return;
+                  }
+
+                  this.pc('\uc61a', 1, 4);
+                  int var56 = this.C();
+                  this.A(var56);
+                  this.pc('\uc61b', 1, 7);
+                  int var57 = this.A();
+                  this.alu("cp", var57, 32);
+                  this.pc('\uc61d', 1, 7);
+                  if(this.flag(1, true)) {
+                     this.tstates(5);
+                  } else {
+                     this.pc('\uc61f', 1, 7);
+                     int var58 = this.A();
+                     int var59 = this.alu("and", var58, 15);
+                     this.A(var59);
+                  }
+
+                  this.pc('\uc621', 1, 7);
+                  int var60 = this.A();
+                  int var61 = this.alu("and", var60, 31);
+                  this.A(var61);
+                  this.pc('\uc623', 1, 4);
+                  int var62 = this.A();
+                  this.C(var62);
+                  this.pc('\uc624', 1, 10);
+                  this.HL('\ucea2');
+                  this.pc('\uc627', 1, 7);
+                  this.E(36);
+                  this.pc('\uc629', 1, 17);
+                  this.$C0FA();
+                  this.pc('\uc62c', 1, 10);
+                  this.HL('\uce82');
+                  this.pc('\uc62f', 1, 7);
+                  this.E(36);
+                  this.pc('\uc631', 1, 17);
+                  this.$C0BB();
+                  this.pc('\uc634', 1, 10);
+                  this.DE(64);
+                  this.pc('\uc637', 1, 10);
+                  break label230;
+               }
+
+               if(this.HL() != '\uc65a') {
+                  if(this.HL() == '\uc3dc') {
+                     this.pc('\uc3dc', 1, 7);
+                     this.A(1);
+                     this.pc('\uc3de', 1, 13);
+                     int var63 = this.A();
+                     this.wMem(32766, var63, '\uc3de');
+                     this.pc('\uc3e1', 1, 10);
+                     return;
+                  }
+
+                  if(this.HL() == '\uc49f') {
+                     this.pc('\uc49f', 1, 7);
+                     this.A(9);
+                     this.pc('\uc4a1', 1, 13);
+                     int var64 = this.A();
+                     this.wMem(32766, var64, '\uc4a1');
+                     this.pc('\uc4a4', 1, 10);
+                     return;
+                  }
+
+                  if(this.HL() == '\uc520') {
+                     this.pc('\uc520', 1, 10);
+                     this.$C4F4();
+                     return;
+                  }
+
+                  if(this.HL() != '\uc3e2') {
+                     if(this.HL() == '\uc523') {
+                        this.pc('\uc523', 1, 17);
+                        this.$CFD4();
+                        this.pc('\uc526', 1, 7);
+                        this.E(8);
+                        this.pc('\uc528', 1, 17);
+                        this.$C158();
+                        this.pc('\uc52b', 1, 7);
+                        this.E(6);
+                        this.pc('\uc52d', 1, 17);
+                        this.$C0E9();
+                        this.pc('\uc530', 1, 7);
+                        this.E(8);
+                        this.pc('\uc532', 1, 17);
+                        this.$C1E7();
+                        this.pc('\uc535', 1, 5);
+                        if(this.flag(64, true)) {
+                           this.tstates(6);
+                           return;
+                        }
+
+                        this.pc('\uc536', 1, 10);
+                        this.HL('\ucd82');
+                        this.pc('\uc539', 1, 7);
+                        this.E(24);
+                        this.pc('\uc53b', 1, 17);
+                        this.$C0BB();
+                        this.pc('\uc53e', 1, 10);
+                        this.HL('\ucd82');
+                        this.pc('\uc541', 1, 7);
+                        this.E(19);
+                        this.pc('\uc543', 1, 17);
+                        this.$C0FA();
+                        this.pc('\uc546', 1, 10);
+                        this.DE(32);
+                        this.pc('\uc549', 1, 10);
+                        break label230;
+                     }
+
+                     if(this.HL() == '\uc3a8') {
+                        this.pc('\uc3a8', 1, 17);
+                        this.$C37C();
+                        this.pc('\uc3ab', 1, 5);
+                        if(this.flag(64, true)) {
+                           this.tstates(6);
+                           return;
+                        }
+
+                        this.pc('\uc3ac', 1, 10);
+                        this.HL('\uc988');
+                        this.pc('\uc3af', 1, 7);
+                        this.E(36);
+                        this.pc('\uc3b1', 1, 17);
+                        this.$C0FA();
+                        this.pc('\uc3b4', 1, 10);
+                        this.HL('\uc9e8');
+                        this.pc('\uc3b7', 1, 7);
+                        this.E(12);
+                        this.pc('\uc3b9', 1, 17);
+                        this.$C0BB();
+                        this.pc('\uc3bc', 1, 10);
+                        this.DE(32);
+                        this.pc('\uc3bf', 1, 10);
+                        break label230;
+                     }
+
+                     if(this.HL() == '\uc5a9') {
+                        this.pc('\uc5a9', 1, 17);
+                        this.$CFD4();
+                        this.pc('\uc5ac', 1, 17);
+                        this.$C114();
+                        this.pc('\uc5af', 1, 17);
+                        this.$C114();
+                        this.pc('\uc5b2', 1, 7);
+                        this.E(2);
+                        this.pc('\uc5b4', 1, 17);
+                        this.$C158();
+                        this.pc('\uc5b7', 1, 7);
+                        this.E(8);
+                        this.pc('\uc5b9', 1, 17);
+                        this.$C0E9();
+                        this.pc('\uc5bc', 1, 7);
+                        this.E(4);
+                        this.pc('\uc5be', 1, 17);
+                        this.$C1E7();
+                        this.pc('\uc5c1', 1, 5);
+                        if(this.flag(64, true)) {
+                           this.tstates(6);
+                           return;
+                        }
+
+                        this.pc('\uc5c2', 1, 4);
+                        int var65 = this.C();
+                        this.A(var65);
+                        this.pc('\uc5c3', 1, 7);
+                        int var66 = this.A();
+                        int var67 = this.alu("and", var66, 63);
+                        this.A(var67);
+                        this.pc('\uc5c5', 1, 4);
+                        int var68 = this.A();
+                        this.C(var68);
+                        this.pc('\uc5c6', 1, 10);
+                        this.HL('\ucdc2');
+                        this.pc('\uc5c9', 1, 7);
+                        this.E(24);
+                        this.pc('\uc5cb', 1, 17);
+                        this.$C0FA();
+                        this.pc('\uc5ce', 1, 10);
+                        this.HL('\uce02');
+                        this.pc('\uc5d1', 1, 7);
+                        this.E(24);
+                        this.pc('\uc5d3', 1, 17);
+                        this.$C0BB();
+                        this.pc('\uc5d6', 1, 10);
+                        this.DE(128);
+                        this.pc('\uc5d9', 1, 10);
+                        break label230;
+                     }
+
+                     if(this.HL() != '\uc6ad') {
+                        if(this.HL() == '\uc4ee') {
+                           this.pc('\uc4ee', 1, 7);
+                           this.A(18);
+                           this.pc('\uc4f0', 1, 13);
+                           int var69 = this.A();
+                           this.wMem(32766, var69, '\uc4f0');
+                           this.pc('\uc4f3', 1, 10);
+                           return;
+                        }
+
+                        if(this.HL() != '\uc5f4') {
+                           if(this.HL() != '\uc476') {
+                              if(this.HL() != '\uc4b7') {
+                                 if(this.HL() != '\uc579') {
+                                    if(this.HL() != '\uc63a') {
+                                       int var80 = this.HL();
+                                       this.jump(var80);
+                                       return;
+                                    }
+
+                                    this.pc('\uc63a', 1, 7);
+                                    this.A(27);
+                                    this.pc('\uc63c', 1, 13);
+                                    int var79 = this.A();
+                                    this.wMem(32766, var79, '\uc63c');
+                                    this.pc('\uc63f', 1, 10);
+                                    return;
+                                 }
+
+                                 this.pc('\uc579', 1, 17);
+                                 this.$CFD4();
+                                 this.pc('\uc57c', 1, 7);
+                                 this.E(7);
+                                 this.pc('\uc57e', 1, 17);
+                                 this.$C158();
+                                 this.pc('\uc581', 1, 7);
+                                 this.E(2);
+                                 this.pc('\uc583', 1, 17);
+                                 this.$C0E9();
+                                 this.pc('\uc586', 1, 7);
+                                 this.E(8);
+                                 this.pc('\uc588', 1, 17);
+                                 this.$C1E7();
+                                 this.pc('\uc58b', 1, 5);
+                                 if(this.flag(64, true)) {
+                                    this.tstates(6);
+                                    return;
+                                 }
+
+                                 this.pc('\uc58c', 1, 10);
+                                 this.HL('\uc6e7');
+                                 this.pc('\uc58f', 1, 7);
+                                 this.E(24);
+                                 this.pc('\uc591', 1, 17);
+                                 this.$C0BB();
+                                 this.pc('\uc594', 1, 10);
+                                 this.HL('\uc75f');
+                                 this.pc('\uc597', 1, 7);
+                                 this.E(12);
+                                 this.pc('\uc599', 1, 17);
+                                 this.$C0FA();
+                                 this.pc('\uc59c', 1, 10);
+                                 this.DE(120);
+                                 this.pc('\uc59f', 1, 17);
+                                 this.$C1F8();
+                                 this.pc('\uc5a2', 1, 5);
+                                 if(this.flag(64, true)) {
+                                    this.tstates(6);
+                                    return;
+                                 }
+
+                                 this.pc('\uc5a3', 1, 7);
+                                 this.A(24);
+                                 this.pc('\uc5a5', 1, 13);
+                                 int var78 = this.A();
+                                 this.wMem(32766, var78, '\uc5a5');
+                                 this.pc('\uc5a8', 1, 10);
+                                 return;
+                              }
+
+                              this.pc('\uc4b7', 1, 17);
+                              this.$C4A5();
+                              this.pc('\uc4ba', 1, 5);
+                              if(this.flag(64, true)) {
+                                 this.tstates(6);
+                                 return;
+                              }
+
+                              this.pc('\uc4bb', 1, 10);
+                              this.HL('\ucbd7');
+                              this.pc('\uc4be', 1, 7);
+                              this.E(12);
+                              this.pc('\uc4c0', 1, 17);
+                              this.$C0FA();
+                              this.pc('\uc4c3', 1, 10);
+                              this.HL('\ucbb7');
+                              this.pc('\uc4c6', 1, 7);
+                              this.E(12);
+                              this.pc('\uc4c8', 1, 17);
+                              this.$C0BB();
+                              this.pc('\uc4cb', 1, 10);
+                              this.DE(32);
+                              this.pc('\uc4ce', 1, 10);
+                           } else {
+                              this.pc('\uc476', 1, 17);
+                              this.$CFD4();
+                              this.pc('\uc479', 1, 7);
+                              this.E(6);
+                              this.pc('\uc47b', 1, 17);
+                              this.$C158();
+                              this.pc('\uc47e', 1, 7);
+                              this.E(2);
+                              this.pc('\uc480', 1, 17);
+                              this.$C0E9();
+                              this.pc('\uc483', 1, 7);
+                              this.E(4);
+                              this.pc('\uc485', 1, 17);
+                              this.$C1E7();
+                              this.pc('\uc488', 1, 5);
+                              if(this.flag(64, true)) {
+                                 this.tstates(6);
+                                 return;
+                              }
+
+                              this.pc('\uc489', 1, 10);
+                              this.HL('\uca9f');
+                              this.pc('\uc48c', 1, 7);
+                              this.E(36);
+                              this.pc('\uc48e', 1, 17);
+                              this.$C0FA();
+                              this.pc('\uc491', 1, 10);
+                              this.HL('\ucb2b');
+                              this.pc('\uc494', 1, 7);
+                              this.E(19);
+                              this.pc('\uc496', 1, 17);
+                              this.$C0BB();
+                              this.pc('\uc499', 1, 10);
+                              this.DE(140);
+                              this.pc('\uc49c', 1, 10);
+                           }
+                        } else {
+                           this.pc('\uc5f4', 1, 17);
+                           this.$C5DC();
+                           this.pc('\uc5f7', 1, 5);
+                           if(this.flag(64, true)) {
+                              this.tstates(6);
+                              return;
+                           }
+
+                           this.pc('\uc5f8', 1, 4);
+                           int var70 = this.C();
+                           this.A(var70);
+                           this.pc('\uc5f9', 1, 7);
+                           int var71 = this.A();
+                           int var72 = this.alu("and", var71, 31);
+                           this.A(var72);
+                           this.pc('\uc5fb', 1, 4);
+                           int var73 = this.A();
+                           this.C(var73);
+                           this.pc('\uc5fc', 1, 10);
+                           this.HL('\uce62');
+                           this.pc('\uc5ff', 1, 7);
+                           this.E(24);
+                           this.pc('\uc601', 1, 17);
+                           this.$C0FA();
+                           this.pc('\uc604', 1, 4);
+                           int var74 = this.C();
+                           this.A(var74);
+                           this.pc('\uc605', 1, 7);
+                           int var75 = this.A();
+                           int var76 = this.alu("and", var75, 31);
+                           this.A(var76);
+                           this.pc('\uc607', 1, 4);
+                           int var77 = this.A();
+                           this.C(var77);
+                           this.pc('\uc608', 1, 10);
+                           this.HL('\uce42');
+                           this.pc('\uc60b', 1, 7);
+                           this.E(36);
+                           this.pc('\uc60d', 1, 17);
+                           this.$C0BB();
+                           this.pc('\uc610', 1, 10);
+                           this.DE(64);
+                           this.pc('\uc613', 1, 10);
+                        }
+                        break label230;
+                     }
+
+                     this.pc('\uc6ad', 1, 17);
+                     this.$C4F4();
+                     this.pc('\uc6b0', 1, 5);
+                     if(this.flag(64, true)) {
+                        this.tstates(6);
+                        return;
+                     }
+
+                     this.pc('\uc6b1', 1, 10);
+                     this.HL('\uc80b');
+                     this.pc('\uc6b4', 1, 7);
+                     this.E(12);
+                     this.pc('\uc6b6', 1, 17);
+                     this.$C0FA();
+                     this.pc('\uc6b9', 1, 10);
+                     this.HL('\uc7ee');
+                     this.pc('\uc6bc', 1, 7);
+                     this.E(24);
+                     this.pc('\uc6be', 1, 17);
+                     this.$C0BB();
+                     this.pc('\uc6c1', 1, 10);
+                     this.DE(29);
+                     this.pc('\uc6c4', 1, 10);
+                  } else {
+                     this.pc('\uc3e2', 1, 17);
+                     this.$CFD4();
+                     this.pc('\uc3e5', 1, 7);
+                     this.E(6);
+                     this.pc('\uc3e7', 1, 17);
+                     this.$C158();
+                     this.pc('\uc3ea', 1, 7);
+                     this.E(2);
+                     this.pc('\uc3ec', 1, 17);
+                     this.$C0E9();
+                     this.pc('\uc3ef', 1, 7);
+                     this.E(8);
+                     this.pc('\uc3f1', 1, 17);
+                     this.$C1E7();
+                     this.pc('\uc3f4', 1, 5);
+                     if(this.flag(64, true)) {
+                        this.tstates(6);
+                        return;
+                     }
+
+                     this.pc('\uc3f5', 1, 10);
+                     this.HL('\uca28');
+                     this.pc('\uc3f8', 1, 7);
+                     this.E(31);
+                     this.pc('\uc3fa', 1, 17);
+                     this.$C0BB();
+                     this.pc('\uc3fd', 1, 10);
+                     this.HL('\uca28');
+                     this.pc('\uc400', 1, 7);
+                     this.E(24);
+                     this.pc('\uc402', 1, 17);
+                     this.$C0FA();
+                     this.pc('\uc405', 1, 10);
+                     this.DE(13);
+                     this.pc('\uc408', 1, 10);
+                  }
+               } else {
+                  this.pc('\uc65a', 1, 17);
+                  this.$C37C();
+                  this.pc('\uc65d', 1, 5);
+                  if(this.flag(64, true)) {
+                     this.tstates(6);
+                     return;
+                  }
+
+                  this.pc('\uc65e', 1, 10);
+                  this.HL('\uc7d7');
+                  this.pc('\uc661', 1, 7);
+                  this.E(12);
+                  this.pc('\uc663', 1, 17);
+                  this.$C0FA();
+                  this.pc('\uc666', 1, 10);
+                  this.HL('\uc7d7');
+                  this.pc('\uc669', 1, 7);
+                  this.E(36);
+                  this.pc('\uc66b', 1, 17);
+                  this.$C0BB();
+                  this.pc('\uc66e', 1, 10);
+                  this.DE(23);
+                  this.pc('\uc671', 1, 10);
+               }
             } else {
-               this.pc('\uc208', 1, 13);
-               int var42 = this.mem(32766, '\uc208');
-               this.A(var42);
-               this.pc('\uc20b', 1, 4);
-               int var43 = this.A();
-               int var44 = this.alu("inc", var43);
-               this.A(var44);
-               this.pc('\uc20c', 1, 7);
-               int var45 = this.A();
-               int var46 = this.alu("and", var45, 127);
-               this.A(var46);
-               this.pc('\uc20e', 1, 13);
-               int var47 = this.A();
-               this.wMem(32766, var47, '\uc20e');
+               this.pc('\uc506', 1, 17);
+               this.$C4F4();
+               this.pc('\uc509', 1, 5);
+               if(this.flag(64, true)) {
+                  this.tstates(6);
+                  return;
+               }
+
+               this.pc('\uc50a', 1, 10);
+               this.HL('\ucd37');
+               this.pc('\uc50d', 1, 7);
+               this.E(31);
+               this.pc('\uc50f', 1, 17);
+               this.$C0BB();
+               this.pc('\uc512', 1, 10);
+               this.HL('\ucd37');
+               this.pc('\uc515', 1, 7);
+               this.E(24);
+               this.pc('\uc517', 1, 17);
+               this.$C0FA();
+               this.pc('\uc51a', 1, 10);
+               this.DE(43);
+               this.pc('\uc51d', 1, 10);
+            }
+         } else {
+            this.pc('\uc640', 1, 17);
+            this.$C4F4();
+            this.pc('\uc643', 1, 5);
+            if(this.flag(64, true)) {
+               this.tstates(6);
+               return;
             }
 
-            this.pc('\uc211', 1, 10);
-            return;
-         }
-      } else {
-         this.pc('\uc640', 1, 17);
-         this.$C4F4();
-         this.pc('\uc643', 1, 5);
-         if(this.flag(64, true)) {
-            this.tstates(6);
-            return;
+            this.pc('\uc644', 1, 10);
+            this.HL('\ucec2');
+            this.pc('\uc647', 1, 7);
+            this.E(12);
+            this.pc('\uc649', 1, 17);
+            this.$C0FA();
+            this.pc('\uc64c', 1, 10);
+            this.HL('\ucec2');
+            this.pc('\uc64f', 1, 7);
+            this.E(48);
+            this.pc('\uc651', 1, 17);
+            this.$C0BB();
+            this.pc('\uc654', 1, 10);
+            this.DE(46);
+            this.pc('\uc657', 1, 10);
          }
 
-         this.pc('\uc644', 1, 10);
-         this.HL('\ucec2');
-         this.pc('\uc647', 1, 7);
-         this.E(12);
-         this.pc('\uc649', 1, 17);
-         this.$C0FA();
-         this.pc('\uc64c', 1, 10);
-         this.HL('\ucec2');
-         this.pc('\uc64f', 1, 7);
-         this.E(48);
-         this.pc('\uc651', 1, 17);
-         this.$C0BB();
-         this.pc('\uc654', 1, 10);
-         this.DE(46);
-         this.pc('\uc657', 1, 10);
+         this.pc('\uc212', 1, 17);
+         this.$C1F8();
+         this.pc('\uc215', 1, 7);
+         if(this.flag(64, true)) {
+            this.tstates(5);
+         } else {
+            this.pc('\uc217', 1, 7);
+            this.A(23);
+            this.pc('\uc219', 1, 13);
+            int var41 = this.A();
+            this.wMem(32766, var41, '\uc219');
+         }
+
+         this.pc('\uc21c', 1, 10);
+         return;
       }
 
-      this.pc('\uc212', 1, 17);
+      this.pc('\uc203', 1, 17);
       this.$C1F8();
-      this.pc('\uc215', 1, 7);
+      this.pc('\uc206', 1, 7);
       if(this.flag(64, true)) {
          this.tstates(5);
       } else {
-         this.pc('\uc217', 1, 7);
-         this.A(23);
-         this.pc('\uc219', 1, 13);
-         int var41 = this.A();
-         this.wMem(32766, var41, '\uc219');
+         this.pc('\uc208', 1, 13);
+         int var42 = this.mem(32766, '\uc208');
+         this.A(var42);
+         this.pc('\uc20b', 1, 4);
+         int var43 = this.A();
+         int var44 = this.alu("inc", var43);
+         this.A(var44);
+         this.pc('\uc20c', 1, 7);
+         int var45 = this.A();
+         int var46 = this.alu("and", var45, 127);
+         this.A(var46);
+         this.pc('\uc20e', 1, 13);
+         int var47 = this.A();
+         this.wMem(32766, var47, '\uc20e');
       }
 
-      this.pc('\uc21c', 1, 10);
+      this.pc('\uc211', 1, 10);
    }
 
    public void $C0BB() {
@@ -26726,12 +26557,8 @@ public class Renegade128 extends MiniZX {
          this.pc('\uc0e5', 1, 13);
          int var36 = this.A();
          this.wMem('\ucfb9', var36, '\uc0e5');
-         this.$C0E8();
+         this.pc('\uc0e8', 1, 10);
       }
-   }
-
-   public void $C0E8() {
-      this.pc('\uc0e8', 1, 10);
    }
 
    public void $C0E9() {
@@ -29299,12 +29126,10 @@ public class Renegade128 extends MiniZX {
          this.$98B8();
       } else {
          int var1 = this.executeMutantCode('\ufff4');
-         if(var1 != '\ufff7') {
-            if(var1 != -1) {
-               this.jump(var1);
-            }
-
+         if(var1 != -1) {
+            this.jump(var1);
          }
+
       }
    }
 
@@ -29318,12 +29143,10 @@ public class Renegade128 extends MiniZX {
          this.$FFF4();
       } else {
          int var1 = this.executeMutantCode('\uffff');
-         if(var1 != 1) {
-            if(var1 != -1) {
-               this.jump(var1);
-            }
-
+         if(var1 != -1) {
+            this.jump(var1);
          }
+
       }
    }
 
