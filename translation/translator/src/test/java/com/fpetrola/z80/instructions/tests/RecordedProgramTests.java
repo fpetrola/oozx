@@ -880,6 +880,18 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aCalleeThatPopsItsReturnAndReturnsGoesBackToTheCallersCaller() {
+    // Rainbow Islands 6017: CALL 605C reaches the handler through JP (HL); it does POP HL and its RET at 6024 returns to the caller's caller
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0x3E, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x21, 0x30, 0x80, 0xCD, 0x20, 0x80, 0x3E, 0x02, 0xC9),
+        at(0x8020, 0xE9),
+        at(0x8030, 0xE1, 0xC9));
+    Assert.assertEquals(Set.of(0x8030), Set.copyOf(stackAnalyzer.poppedCallSites.get(0x8013)));
+    Assert.assertEquals(0x01, endValue("A"));
+  }
+
+  @Test
   public void aReturnAddressThatAPopInAnotherRoutineMightTakeIsPoppedAfterANormalReturn() {
     // Fairlight FA06: CALL FA9C always returned with RET at E4E0 in the recording, but a path into F7BA's routine pops FA09 there, so the Java pushes it
     translate(

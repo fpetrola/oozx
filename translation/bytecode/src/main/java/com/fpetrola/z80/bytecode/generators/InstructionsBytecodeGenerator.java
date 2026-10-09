@@ -414,14 +414,14 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
         banked.forEach(variant -> bank.ifEq(variant.bank(), () -> {
           routineByteCodeGenerator.invokeTransformedMethod(variant.relocated(jumpLabel));
           if (pushes)
-            methodMaker.invoke("SP").ifEq(pushedAt, () -> methodMaker.invoke("pop"));
+            returnedFrom(pushedAt, callSite);
           done.goto_();
         }));
       }
       if (routineByteCodeGenerator.context.routineManager.findRoutineAt(jumpLabel) != null) {
         routineByteCodeGenerator.invokeTransformedMethod(jumpLabel);
         if (pushes)
-          methodMaker.invoke("SP").ifEq(pushedAt, () -> methodMaker.invoke("pop"));
+          returnedFrom(pushedAt, callSite);
       }
       else if (trampoline != null) {
         routineByteCodeGenerator.invokePc(jumpLabel, trampoline == RegisterName.HL ? 1 : 2, trampoline == RegisterName.HL ? 4 : 8);
@@ -442,6 +442,16 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
       done.here();
     });
     return true;
+  }
+
+  /** After a call that pushed its return address: still there, the callee returned normally; taken without a shifted return, the callee's RET went back to our caller. */
+  private void returnedFrom(Variable pushedAt, int callSite) {
+    Variable sp = methodMaker.invoke("SP");
+    boolean shifted = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer().callContinuations.containsKey(callSite);
+    sp.ifEq(pushedAt, () -> methodMaker.invoke("pop"), () -> {
+      if (!shifted)
+        sp.ifEq(pushedAt.add(2).and(0xffff), routineByteCodeGenerator::returnFromMethod);
+    });
   }
 
   public void visitingRst(RST rst) {
