@@ -84,6 +84,8 @@ public abstract class MiniZX extends SpectrumApplication {
         invokeMethod(address);
         address = pop();
       } catch (StackException unwound) {
+        if (!unwound.getPoppedInto().isEmpty())
+          popInto(unwound.getPoppedInto());
         address = unwound.getNextPC();
       }
   }

@@ -24,9 +24,20 @@ public class StackException extends RuntimeException {
   }
 
   private int nextPC;
+  private String poppedInto = "";
 
   public StackException(int nextPC) {
     this.nextPC = nextPC;
+  }
+
+  public StackException(int nextPC, String poppedInto) {
+    this.nextPC = nextPC;
+    this.poppedInto = poppedInto;
+  }
+
+  /** The register a virtual pop loads, for when no translated caller owns the return address it takes. */
+  public String getPoppedInto() {
+    return poppedInto;
   }
 
   public int getNextPC() {

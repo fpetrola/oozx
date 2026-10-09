@@ -329,6 +329,18 @@ public abstract class SpectrumApplication {
     return value;
   }
 
+  public void popInto(String pair) {
+    int value = pop();
+    switch (pair) {
+      case "AF" -> AF(value);
+      case "BC" -> BC(value);
+      case "DE" -> DE(value);
+      case "HL" -> HL(value);
+      case "IX" -> IX(value);
+      default -> IY(value);
+    }
+  }
+
 
 
 

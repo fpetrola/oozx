@@ -799,6 +799,19 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aPopOfAReturnAddressPushedBeforeTheRecordingStartedPopsItFromTheStack() {
+    // Skool Daze FA69: POP HL takes EDFA, pushed by CALL FA49 at EDF7 before the snapshot (which starts in 673D, called from FA59 inside FA49's loop), so no Java frame owns that call
+    translateFrom(0x8050,
+        at(0x8010, 0xCD, 0x40, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8020, 0x3A, 0x00, 0x90, 0x3C, 0x32, 0x00, 0x90, 0xFE, 0x02, 0x30, 0x06, 0xCD, 0x10, 0x80, 0x18, 0xF0, 0x76, 0x18, 0xFD),
+        at(0x8040, 0xCD, 0x50, 0x80, 0x28, 0xFB, 0xE1, 0xC9),
+        at(0x8050, 0x3A, 0x01, 0x90, 0xB7, 0xC9),
+        at(0x9001, 0x01),
+        at(STACK, 0x43, 0x80, 0x13, 0x80, 0x20, 0x80));
+    Assert.assertEquals(Set.of(0x8045), Set.copyOf(stackAnalyzer.poppedCallSites.get(0x8010)));
+  }
+
+  @Test
   public void aStackPointerSavedAndRestoredButNeverReadAsDataKeepsNoReturns() {
     // Fairlight F060: LD SP,(FFF6) restores the saved SP, it does not look at the layout
     ignoresMemory(0xFFF6, 0xFFF7);

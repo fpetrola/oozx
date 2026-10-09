@@ -569,7 +569,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
            public void $6() {
               super.D = 4;
-              throw new StackException(11);
+              throw new StackException(11, "HL");
            }
         }
         """, resultingJava);
@@ -671,7 +671,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               int var1 = this.alu("dec", super.A);
               super.A = var1;
               if(this.flag(64, true)) {
-                 throw new StackException(16);
+                 throw new StackException(16, "HL");
               } else {
                  super.E = 8;
               }
@@ -797,20 +797,20 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                  if(this.ownAddress(var3, var2) == 17) {
                     this.HL(10);
                     super.E = 71;
-                    throw new StackException(19);
+                    throw new StackException(19, "HL");
                  }
               }
            }
 
            public void $13() {
               super.C = 40;
-              throw new StackException(17);
+              throw new StackException(17, "HL");
            }
 
            public void $22() {
               super.D = 41;
               super.E = 51;
-              throw new StackException(19);
+              throw new StackException(19, "HL");
            }
         }
         """, resultingJava);
@@ -912,7 +912,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               }
 
               super.D = super.H;
-              throw new StackException(17);
+              throw new StackException(17, "HL");
            }
         }
         """, resultingJava);

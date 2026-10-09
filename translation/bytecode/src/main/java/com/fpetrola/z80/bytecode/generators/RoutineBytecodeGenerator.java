@@ -555,11 +555,15 @@ public class RoutineBytecodeGenerator {
 
   private void throwAtVirtualPop(int pop) {
     invokePc(pop);
-    if (context.routineManager.getInstructionAt(pop) instanceof Ld stackReset) {
+    Instruction instruction = context.routineManager.getInstructionAt(pop);
+    if (instruction instanceof Ld stackReset) {
       context.pc.write(pop);
       stackReset.accept(new InstructionsBytecodeGenerator(mm, this, pop));
     }
-    throwStackException(context.routineManager.addressAfter(pop), StackException.class);
+    if (instruction instanceof Pop popped)
+      mm.new_(StackException.class, context.routineManager.addressAfter(pop), ((Register) popped.getTarget()).getName()).throw_();
+    else
+      throwStackException(context.routineManager.addressAfter(pop), StackException.class);
   }
 
   public void throwStackException(Object nextAddress, Class<? extends Exception> type) {
