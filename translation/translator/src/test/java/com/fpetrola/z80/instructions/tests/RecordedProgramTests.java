@@ -1255,6 +1255,18 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aStackEnteredToCallOnItIsNoCoroutineThatTheReturnOnTheOtherStackResumes() {
+    // Target: Renegade C860-C86B, C6EE: each music channel has its own stack (LD SP,(C7A0); CALL C132; LD (C7A0),SP; LD SP,(C487)), then the player returns
+    ignoresMemory(0x8F00, 0x9200);
+    translate(
+        at(0x8000, 0x31, 0x00, 0x90, 0x21, 0x00, 0x91, 0x22, 0x02, 0x91, 0xCD, 0x20, 0x80, 0xCD, 0x20, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8020, 0xED, 0x73, 0x04, 0x91, 0xED, 0x7B, 0x02, 0x91, 0xCD, 0x40, 0x80, 0xED, 0x73, 0x02, 0x91, 0xED, 0x7B, 0x04, 0x91, 0xC3, 0x50, 0x80),
+        at(0x8040, 0x04, 0xC9),
+        at(0x8050, 0x0C, 0xC9));
+    Assert.assertTrue(stackAnalyzer.stackSwitches.toString(), stackAnalyzer.stackSwitches.isEmpty());
+  }
+
+  @Test
   public void aStackSwitchIsLearnedFromTheRecordingNotFromTheExplorationOfUntakenPaths() {
     // R-Type FAEF: LD (FBC9),SP; LD SP,F87A reads a table; the exploration reached an unrelated RET before the restore and took the pair for a coroutine
     ignoresMemory(0x9000, 0x9001);

@@ -62,7 +62,7 @@ public class StackAnalyzer implements java.io.Serializable {
   public final MultiValuedMap<Integer, Integer> calledThrough = new HashSetValuedHashMap<>();
   public final Set<Integer> jumpTableSites = new HashSet<>(), recordedPops = new HashSet<>();
   public final Map<Integer, Integer> stackSwitches = new HashMap<>();
-  private transient int[] leaving;
+  private transient int[] leaving, reentered;
   private final transient Map<Integer, int[]> leftStacks = new HashMap<>();
   private transient int switchHomeSp = -1, lastStorePlace = -1;
   private transient boolean callSinceLoad;
@@ -238,8 +238,7 @@ public class StackAnalyzer implements java.io.Serializable {
           int oldSpAddress = register.read();
           int place = placeOf(source);
           int[] left = place == -1 ? null : leftStacks.remove(place);
-          if (left != null && left[3] != -1)
-            confirmSwitch(left);
+          reentered = left != null && left[3] != -1 ? left : null;
           leaving = collecting && lastStorePlace != -1 && place != lastStorePlace ? new int[]{pcValue, lastStorePlace, newSpAddress, -1, -1} : null;
           lastStorePlace = -1;
           callSinceLoad = false;
@@ -295,6 +294,9 @@ public class StackAnalyzer implements java.io.Serializable {
           leaving[4] = memory[leaving[2]] | memory[leaving[2] + 1 & 0xffff] << 8;
           leftStacks.put(leaving[1], leaving);
           leaving = null;
+          if (reentered != null)
+            confirmSwitch(reentered);
+          reentered = null;
         }
         if (stackSwitches.containsKey(pcValue))
           return true;
@@ -438,7 +440,7 @@ public class StackAnalyzer implements java.io.Serializable {
     dynamicInvocation.clear();
     stackSwitches.clear();
     leftStacks.clear();
-    leaving = null;
+    leaving = reentered = null;
     lastStorePlace = -1;
     callContinuations.clear();
     shiftedReturns.clear();
