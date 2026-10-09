@@ -25,6 +25,7 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.MemoryWriteListener;
+import com.fpetrola.z80.memory.MemoryReadListener;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.IndirectMemory16BitReference;
 import com.fpetrola.z80.opcodes.references.Memory16BitReference;
@@ -38,6 +39,7 @@ import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.function.Function;
 
 import static com.fpetrola.z80.registers.RegisterName.SP;
@@ -83,6 +85,13 @@ public class StackAnalyzer implements java.io.Serializable {
     entries.remove(address);
     entries.remove((address - 1) & 0xFFFF);
   };
+  public final Set<Integer> layoutCallSites = new HashSet<>();
+  private final transient Map<Integer, Set<Integer>> framesEnclosingPushedData = new HashMap<>();
+  private final transient MemoryReadListener readByAddress = (address, value, fetching) -> {
+    int sp = state.getRegisterSP().read();
+    if (collecting && fetching == 0 && address != sp && address != (sp + 1 & 0xffff))
+      layoutCallSites.addAll(framesEnclosingPushedData.getOrDefault(framesEnclosingPushedData.containsKey(address) ? address : address - 1 & 0xffff, Set.of()));
+  };
 
   public StackAnalyzer(State state) {
     reset(state);
@@ -93,11 +102,15 @@ public class StackAnalyzer implements java.io.Serializable {
   }
 
   public void reset(State state) {
-    if (this.state != null)
+    if (this.state != null) {
       this.state.getMemory().removeMemoryWriteListener(forgetOverwritten);
+      this.state.getMemory().removeMemoryReadListener(readByAddress);
+    }
     this.state = state;
-    if (state != null)
+    if (state != null) {
       state.getMemory().addMemoryWriteListener(forgetOverwritten);
+      state.getMemory().addMemoryReadListener(readByAddress);
+    }
     entries.clear();
     consumedReturns.clear();
     lastEvent = null;
@@ -436,8 +449,11 @@ public class StackAnalyzer implements java.io.Serializable {
     consumedReturns.remove(sp - 2 & 0xffff);
     if (returnAddress && collecting)
       returnSlots.put(sp, entry.pc());
-    if (!returnAddress)
+    if (!returnAddress) {
       pushedValues.put(entry.pc(), entry.value());
+      if (collecting)
+        framesEnclosingPushedData.put(sp, entries.entrySet().stream().filter(e -> e.getKey() > sp && e.getValue().returnAddress() && e.getValue().pc() != -1).map(e -> e.getValue().pc()).collect(Collectors.toSet()));
+    }
   }
 
   public boolean returnPoppedBelow(int sp) {
@@ -462,6 +478,8 @@ public class StackAnalyzer implements java.io.Serializable {
     pushesTakenByPops.clear();
     nonLocalRets.clear();
     returnSlots.clear();
+    layoutCallSites.clear();
+    framesEnclosingPushedData.clear();
     learnedFromRecording = false;
     codeVersions = new CodeVersions();
   }
@@ -483,6 +501,7 @@ public class StackAnalyzer implements java.io.Serializable {
     calledThrough.putAll(recorded.calledThrough);
     nonLocalRets.putAll(recorded.nonLocalRets);
     returnSlots.putAll(recorded.returnSlots);
+    layoutCallSites.addAll(recorded.layoutCallSites);
   }
 
   public void learnFromForks(StackAnalyzer forked, Set<Integer> recordedSites) {

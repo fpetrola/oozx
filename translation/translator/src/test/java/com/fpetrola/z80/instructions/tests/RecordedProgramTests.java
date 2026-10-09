@@ -741,6 +741,14 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void dataPushedInsideACallAndReadBackAtItsFixedAddressKeepsTheCallersReturnOnTheStack() {
+    // Fairlight E7E2: PUSH BC fills a table in the stack area that the game later reads through IX at a fixed address, so the depth of the enclosing calls matters
+    translate(
+        at(0x8000, 0x01, 0x34, 0x12, 0xCD, 0x20, 0x80, 0xDD, 0x21, 0xFC, 0xFE, 0xDD, 0x7E, 0x00, 0x76, 0x18, 0xFD),
+        at(0x8020, 0xC5, 0xC1, 0xC9));
+  }
+
+  @Test
   public void anOutThroughCGoesToThePortInBCWhateverAHolds() {
     // Renegade 128K 9FF3: OUT (C),A with BC=7FFD; only OUT (n),A puts A on the high byte of the port
     banked = true;

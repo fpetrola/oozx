@@ -92,6 +92,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
     StackAnalyzer stackAnalyzer = getStackAnalyzer();
     footprint.install(getState().getMemory(), getState().getRegisterSP().read());
     stackAnalyzer.learnFrom(footprint.learned());
+    routineManager.pushedReturnSites.addAll(stackAnalyzer.layoutCallSites);
     stackAnalyzer.codeVersions.decodeWith(RemoteZ80Translator.decoder());
     stackAnalyzer.reset(getState());
     routineManager.setSpans(footprint.executed());
