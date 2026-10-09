@@ -208,6 +208,8 @@ public class RoutineManager {
   private int codeStart, codeEnd = 0x10000;
   private Map<Integer, Integer> spans = Map.of();
   private final java.util.Set<Integer> interiors = new java.util.HashSet<>();
+  /** Addresses whose code only ran with another bank paged: in the starting bank they are not that code. */
+  public final java.util.Set<Integer> bankedOnly = new java.util.HashSet<>();
 
   public List<CodeVariant> codeVariantsAt(int address) {
     return codeVariants.stream().filter(v -> v.bank() == -1 && v.entries(this).contains(address)).toList();
@@ -276,7 +278,7 @@ public class RoutineManager {
   }
 
   public boolean isCode(int address) {
-    return address >= codeStart && address < codeEnd && (originalAddress(address) != address || !interiors.contains(address));
+    return address >= codeStart && address < codeEnd && (originalAddress(address) != address || !interiors.contains(address) && !bankedOnly.contains(address));
   }
 
   public boolean isCalledFrom(Routine routine, int callAddress) {
@@ -405,6 +407,7 @@ public class RoutineManager {
     externalEntries.clear();
     spans = Map.of();
     interiors.clear();
+    bankedOnly.clear();
   }
 
   public void removeRoutine(Routine routine) {

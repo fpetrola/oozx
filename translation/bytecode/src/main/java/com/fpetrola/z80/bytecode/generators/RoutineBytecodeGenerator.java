@@ -459,7 +459,8 @@ public class RoutineBytecodeGenerator {
     return variables.get(hl);
   }
 
-  public void jumpInto(int address) {
+  public void jumpInto(int target) {
+    int address = inOwnBank(target);
     Routine owner = context.routineManager.findRoutineAt(address);
     if (owner != null && context.routineManager.isEnteredFromOutside(owner, address)) {
       mm.invoke("setNextAddress", address);
@@ -470,7 +471,13 @@ public class RoutineBytecodeGenerator {
       mm.invoke("untranslated", address);
   }
 
-  public void tailJump(int address, int site) {
+  /** Code relocated out of a bank reaches the rest of that bank's code at its relocated copy. */
+  private int inOwnBank(int address) {
+    return context.routineManager.bankVariantsAt(address).stream().filter(v -> routine.getEntryPoint() >= v.relocatedAt() && routine.getEntryPoint() < v.relocated(v.end())).findFirst().map(v -> v.relocated(address)).orElse(address);
+  }
+
+  public void tailJump(int target, int site) {
+    int address = inOwnBank(target);
     Routine owner = context.routineManager.findRoutineAt(address);
     if (isJumpMember(routine) && isJumpMember(owner) && (site == -1 || ownDataLeftForOthers(site).isEmpty())) {
       if (owner.getEntryPoint() != address)

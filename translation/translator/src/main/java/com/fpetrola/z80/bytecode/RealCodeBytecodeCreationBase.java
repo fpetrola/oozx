@@ -96,6 +96,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
     stackAnalyzer.codeVersions.decodeWith(RemoteZ80Translator.decoder());
     stackAnalyzer.reset(getState());
     routineManager.setSpans(footprint.executed());
+    footprint.bankedCode().values().forEach(banked -> banked.instructions().keySet().stream().filter(address -> !footprint.codeBytes().containsKey(address)).forEach(routineManager.bankedOnly::add));
     symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());
     routineManager.externalEntries.addAll(footprint.externalEntries());
     stackAnalyzer.nonLocalRets.keySet().forEach(ret -> routineManager.externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(ret)));
@@ -176,7 +177,15 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
       RoutineManager.CodeVariant variant = new RoutineManager.CodeVariant(start, end, start, code, at, code, bank);
       routineManager.codeVariants.add(variant);
       banked.modified().forEach(address -> symbolicExecutionAdapter.getMutantAddress().add(variant.relocated(address)));
-      java.util.stream.Stream.concat(routineManager.entriesInto(start, end).stream().filter(instructions::containsKey).peek(entry -> routineManager.externalEntries.add(variant.relocated(entry))), instructions.keySet().stream().sorted())
+      StackAnalyzer stackAnalyzer = getStackAnalyzer();
+      java.util.Set<Integer> entries = new java.util.TreeSet<>(routineManager.entriesInto(start, end));
+      stackAnalyzer.dynamicInvocation.entries().stream().filter(jump -> instructions.containsKey(jump.getKey())).toList().forEach(jump -> {
+        stackAnalyzer.dynamicInvocation.put(variant.relocated(jump.getKey()), jump.getValue());
+        entries.add(jump.getValue());
+      });
+      entries.removeIf(entry -> !instructions.containsKey(entry));
+      entries.forEach(entry -> routineManager.externalEntries.add(variant.relocated(entry)));
+      java.util.stream.Stream.concat(entries.stream(), instructions.keySet().stream().sorted())
           .map(variant::relocated).filter(entry -> routineManager.getInstructionAt(entry) == null).forEach(this::stepUntilComplete);
     });
   }
