@@ -359,7 +359,7 @@ public class StackAnalyzer implements java.io.Serializable {
   }
 
   private void addDynamicInvocationData(int address) {
-    if (collecting && address >= 16384)
+    if (collecting && (address >= 16384 || pcValue < 16384))
       dynamicInvocation.put(pcValue, address);
   }
 

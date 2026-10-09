@@ -529,12 +529,13 @@ public class RecordedProgramTests {
 
   @Test
   public void aRomRoutineReachedThroughARegisterJumpIsTranslated() {
-    // Sir Fred prints with RST 10, and the ROM reaches PRINT-OUT at 09F4 through JP (HL) from the channel table
+    // Sir Fred prints with RST 10, and the ROM reaches PRINT-OUT at 09F4 through JP (HL) from the channel table: the target is translated as part of the jumping routine
     String java = translate(
         at(0x0010, 0x21, 0x20, 0x00, 0xE9),
         at(0x0020, 0x06, 0x01, 0xC9),
         at(0x8000, 0xD7, 0x76, 0x18, 0xFD));
-    Assert.assertEquals("10 20 8000", routines());
+    Assert.assertEquals("10 8000", routines());
+    Assert.assertNotNull(routineManager.getInstructionAt(0x0020));
   }
 
   @Test
@@ -1081,6 +1082,16 @@ public class RecordedProgramTests {
         at(0x8030, 0x21, 0x20, 0x80, 0x36, 0x3E, 0x23, 0x36, 0x02, 0xC9),
         at(0x8040, 0x21, 0x20, 0x80, 0x36, 0x08, 0x23, 0x36, 0x77, 0xC9));
     Assert.assertNotNull(routineManager.getInstructionAt(0x8021));
+  }
+
+  @Test
+  public void aJumpThroughARegisterIntoTheMiddleOfItsOwnRoutineGoesToThatLabel() {
+    // ROM BEEPER 03C1: LD IX,03D1; ADD IX,BC; ... JP (IX) lands on 03D1..03D4 of the same loop; Dynamite Dan II calls it
+    translate(
+        at(0x8000, 0x01, 0x03, 0x00, 0xCD, 0x10, 0x03, 0x01, 0x00, 0x00, 0xCD, 0x10, 0x03, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x0310, 0xDD, 0x21, 0x20, 0x03, 0xDD, 0x09, 0x16, 0x02, 0xDD, 0xE9),
+        at(0x0320, 0x00, 0x00, 0x00, 0x14, 0x15, 0x20, 0xFD, 0xC9));
+    Assert.assertEquals("310 8000", routines());
   }
 
   @Test
