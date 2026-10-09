@@ -44,7 +44,10 @@ public class CallAddressAction extends AddressAction {
       throughRegister = routineExecutionHandler.getStackAnalyzer().trampolineRegister(target);
       target = throughRegister == null ? -1 : routineExecutionHandler.getState().getRegister(throughRegister).read();
       if (!routineExecutionHandler.getRoutineManager().isCode(target)) {
-        steppedOver = true;
+        if (!steppedOver) {
+          steppedOver = true;
+          changed();
+        }
         return false;
       }
     }
@@ -52,6 +55,8 @@ public class CallAddressAction extends AddressAction {
     if (doBranch) {
       calleeAddress = target;
       calleeRoutineExecution = routineExecutionHandler.findRoutineExecutionAt(calleeAddress);
+      if (owner != null && calleeRoutineExecution != null)
+        owner.dependsOn(calleeRoutineExecution);
       if (calleeRoutineExecution != null) {
         calleePending = !routineExecutionHandler.getStackFrames().contains(calleeAddress) && calleeRoutineExecution.isPending();
         if (calleePending)
@@ -59,6 +64,8 @@ public class CallAddressAction extends AddressAction {
         return calleePending;
       } else {
         calleeRoutineExecution = routineExecutionHandler.createRoutineExecution(calleeAddress);
+        if (owner != null)
+          owner.dependsOn(calleeRoutineExecution);
       }
     }
     return doBranch;
@@ -82,7 +89,7 @@ public class CallAddressAction extends AddressAction {
 
   @Override
   public int getNext(int executedInstructionAddress, int currentPc) {
-    pending = branch && !steppedOver;
+    setPending(branch && !steppedOver);
     if (steppedOver)
       return currentPc;
     if (throughRegister != null && currentPc == call.getJumpAddress())

@@ -91,12 +91,14 @@ public class RoutineExecutorHandler {
 
     System.out.println("Push frame: " + formatAddress(jumpAddress));
 
+    if (stackFrames.isEmpty())
+      routineExecutions.values().forEach(RoutineExecution::invalidate);
     stackFrames.push(jumpAddress);
     RoutineExecution routineExecution = routineExecutions.get(jumpAddress);
     if (routineExecution == null) {
       routineExecutions.put(jumpAddress, routineExecution = new RoutineExecution(this, jumpAddress));
     } else
-      System.err.print("");
+      routineExecution.invalidate();
 
     if (currentRoutineExecution != null)
       currentRoutineExecution.addCallee(routineExecution);
@@ -112,6 +114,10 @@ public class RoutineExecutorHandler {
     int t = state.getMemory().read16Bits(state.getRegisterSP().read());
     java.lang.Integer pop = stackFrames.pop();
     System.out.printf("Pop frame: %s, ret: %s%n", formatAddress(pop), formatAddress(t));
+    if (stackFrames.isEmpty())
+      clearStackFrames();
+    else
+      routineExecutions.get(pop).invalidate();
     return pop;
   }
 
@@ -125,10 +131,16 @@ public class RoutineExecutorHandler {
 
   public void forgetExecutions(int from, int to) {
     routineExecutions.keySet().removeIf(start -> start >= from && start < to);
+    routineExecutions.values().forEach(RoutineExecution::invalidate);
+  }
+
+  public void clearStackFrames() {
+    stackFrames.clear();
+    routineExecutions.values().forEach(RoutineExecution::invalidate);
   }
 
   public void reset() {
-    stackFrames.clear();
+    clearStackFrames();
     routineExecutions.clear();
     unexploredJumpTargets.clear();
   }

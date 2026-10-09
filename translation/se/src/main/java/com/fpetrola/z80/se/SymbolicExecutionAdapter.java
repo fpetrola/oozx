@@ -195,7 +195,7 @@ public class SymbolicExecutionAdapter {
     protectedCallerStacks.clear();
     routineExecutorHandler.getExecutionStackStorage().newExploration();
     routineExecutorHandler.newExploration();
-    routineExecutorHandler.getStackFrames().clear();
+    routineExecutorHandler.clearStackFrames();
 
     routineExecutorHandler.createRoutineExecution(firstAddress);
     pc = state.getPc();
@@ -228,7 +228,7 @@ public class SymbolicExecutionAdapter {
       if (steps == 1_000_000) {
         System.out.println("exploration abandoned at " + Helper.formatAddress(pc.read()) + " after " + steps + " steps");
         abandonedExplorations++;
-        routineExecutorHandler.getStackFrames().clear();
+        routineExecutorHandler.clearStackFrames();
         return;
       }
       var pcValue = pc.read();

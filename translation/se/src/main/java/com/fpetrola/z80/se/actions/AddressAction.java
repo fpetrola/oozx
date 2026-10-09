@@ -30,6 +30,7 @@ public class AddressAction {
   protected boolean branch;
   public int address;
   protected boolean pending;
+  protected RoutineExecution owner;
   private int count;
   private int visitedIn;
   private boolean resuming;
@@ -63,9 +64,7 @@ public class AddressAction {
   }
 
   public boolean processBranch(Instruction instruction) {
-    if (pending) {
-      pending = false;
-    }
+    setPending(false);
     return true;
   }
 
@@ -86,7 +85,19 @@ public class AddressAction {
   }
 
   public void setPending(boolean pending) {
-    this.pending = pending;
+    if (this.pending != pending) {
+      this.pending = pending;
+      changed();
+    }
+  }
+
+  protected void changed() {
+    if (owner != null)
+      owner.invalidate();
+  }
+
+  public void ownedBy(RoutineExecution owner) {
+    this.owner = owner;
   }
 
   @Override
@@ -107,7 +118,7 @@ public class AddressAction {
   protected int getNextPC(int address1) {
     if (pending || visitedIn != routineExecutionHandler.exploration()) {
       resuming |= pending;
-      pending = false;
+      setPending(false);
       visitedIn = routineExecutionHandler.exploration();
       return address1;
     } else {

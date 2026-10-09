@@ -52,7 +52,7 @@ public class JumpUsingRetAddressAction extends AddressAction {
   }
 
   public int getNext(int executedInstructionAddress, int currentPc) {
-    pending = false;
+    setPending(false);
     if (currentCase != null)
       return currentCase;
     else if (!cases.isEmpty())
@@ -63,6 +63,7 @@ public class JumpUsingRetAddressAction extends AddressAction {
 
   private void pollNextCase() {
     currentCase = cases.poll();
+    changed();
   }
 
   public boolean isPending() {

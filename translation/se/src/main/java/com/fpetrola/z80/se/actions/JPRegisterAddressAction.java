@@ -64,7 +64,7 @@ public class JPRegisterAddressAction extends AddressAction {
   }
 
   public int getNext(int executedInstructionAddress, int currentPc) {
-    pending = false;
+    setPending(false);
     if (currentCase != null)
       return currentCase;
     else
@@ -73,6 +73,7 @@ public class JPRegisterAddressAction extends AddressAction {
 
   private void pollNextCase() {
     currentCase = cases.poll();
+    changed();
   }
 
   @Override

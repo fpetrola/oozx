@@ -36,6 +36,8 @@ public class RoutineExecution {
   private int start;
   private Map<Integer, AddressAction> actions = new HashMap<>();
   private List<RoutineExecution> callees = new ArrayList<>();
+  private final Set<RoutineExecution> callers = new HashSet<>();
+  private boolean nothingPending, noPendingPoints;
 
   public RoutineExecution(RoutineExecutorHandler routineExecutorHandler, int start) {
     this.routineExecutorHandler = routineExecutorHandler;
@@ -43,11 +45,29 @@ public class RoutineExecution {
   }
 
   public boolean hasPendingPoints() {
-    return hasPendingPoints(new java.util.HashSet<>());
+    if (!noPendingPoints)
+      noPendingPoints = !hasPendingPoints(new java.util.HashSet<>());
+    return !noPendingPoints;
   }
 
   public boolean hasPendingPoints(java.util.Set<RoutineExecution> visited) {
-    return visited.add(this) && pendingAction(visited);
+    return !noPendingPoints && visited.add(this) && pendingAction(visited);
+  }
+
+  public void dependsOn(RoutineExecution callee) {
+    callee.callers.add(this);
+    invalidate();
+  }
+
+  public void invalidate() {
+    invalidate(new HashSet<>());
+  }
+
+  private void invalidate(Set<RoutineExecution> seen) {
+    if (seen.add(this)) {
+      nothingPending = noPendingPoints = false;
+      callers.forEach(caller -> caller.invalidate(seen));
+    }
   }
 
   private boolean pendingAction(java.util.Set<RoutineExecution> visited) {
@@ -95,6 +115,8 @@ public class RoutineExecution {
     AddressAction replaced = actions.put(addressAction.address, addressAction);
     if (replaced != null)
       addressAction.keepStackStorageOf(replaced);
+    addressAction.ownedBy(this);
+    invalidate();
   }
 
 
@@ -151,13 +173,16 @@ public class RoutineExecution {
 
   public void addCallee(RoutineExecution routineExecution) {
     callees.add(routineExecution);
+    dependsOn(routineExecution);
   }
 
   public boolean isPending() {
-    return isPending(new java.util.HashSet<>());
+    if (!nothingPending)
+      nothingPending = !isPending(new java.util.HashSet<>());
+    return !nothingPending;
   }
 
   public boolean isPending(java.util.Set<RoutineExecution> visited) {
-    return visited.add(this) && (pendingAction(visited) || callees.stream().anyMatch(callee -> !routineExecutorHandler.getStackFrames().contains(callee.start) && callee.isPending(visited)));
+    return !nothingPending && visited.add(this) && (pendingAction(visited) || callees.stream().anyMatch(callee -> !routineExecutorHandler.getStackFrames().contains(callee.start) && callee.isPending(visited)));
   }
 }

@@ -35,6 +35,11 @@ public class ChangeStackCallAddressAction extends BasicAddressAction {
     this.lastRoutineExecutions = lastRoutineExecutions;
   }
 
+  public void ownedBy(RoutineExecution owner) {
+    super.ownedBy(owner);
+    lastRoutineExecutions.forEach(owner::dependsOn);
+  }
+
   public List<RoutineExecution> getLastRoutineExecutions() {
     return lastRoutineExecutions;
   }
@@ -59,7 +64,7 @@ public class ChangeStackCallAddressAction extends BasicAddressAction {
   }
 
   public int getNext(int executedInstructionAddress, int currentPc) {
-    pending = branch;
+    setPending(branch);
     if (hasPendingInStack())
       return currentPc;
     else
