@@ -372,23 +372,19 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   public boolean visitingRet(Ret ret) {
     StackAnalyzer stackAnalyzer = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer();
     int pcValue = routineByteCodeGenerator.context.pc.read();
-    List<Integer> ownPushes = routineByteCodeGenerator.ownPushesConsumedAt(pcValue);
-    Set<Integer> invocationsSet = stackAnalyzer.getInvocationsSet(pcValue);
-    boolean returnsToACaller = stackAnalyzer.returnsConsumedBy.get(pcValue).stream().anyMatch(callSite -> callSite != -1);
-    boolean consumesData = stackAnalyzer.dataConsumedBy.containsKey(pcValue) ? !ownPushes.isEmpty() && !returnsToACaller : !invocationsSet.isEmpty();
-    Integer continuation = ownPushes.size() == 1 ? routineByteCodeGenerator.plantedContinuation(ownPushes.get(0)) : null;
+    RoutineManager.RetExit exit = routineByteCodeGenerator.context.routineManager.exitOf(pcValue, stackAnalyzer);
     createIfs(ret, () -> {
-      if (stackAnalyzer.stackSwitches.containsKey(pcValue))
-        methodMaker.invoke("switchStack");
-      else if (routineByteCodeGenerator.context.routineManager.nonLocalReturns.containsKey(pcValue))
-        routineByteCodeGenerator.throwStackException(methodMaker.invoke("pop"), StackException.class);
-      else if (continuation != null)
-        routineByteCodeGenerator.invokeTransformedMethod(continuation);
-      else if (consumesData) {
-        Variable poppedValue = methodMaker.invoke("pop");
-        if (!stackAnalyzer.shiftedReturns.containsKey(pcValue)) {
-          invokeDynamicCall(invocationsSet, poppedValue);
+      switch (exit.kind()) {
+        case SWITCH_STACK -> methodMaker.invoke("switchStack");
+        case NON_LOCAL -> routineByteCodeGenerator.throwStackException(methodMaker.invoke("pop"), StackException.class);
+        case CONTINUATION -> routineByteCodeGenerator.invokeTransformedMethod(exit.continuation());
+        case DROP -> methodMaker.invoke("pop");
+        case DISPATCH -> {
+          Variable poppedValue = methodMaker.invoke("pop");
+          invokeDynamicCall(stackAnalyzer.getInvocationsSet(pcValue), poppedValue);
           methodMaker.invoke("jump", poppedValue);
+        }
+        case RETURN -> {
         }
       }
       routineByteCodeGenerator.returnFromMethod();

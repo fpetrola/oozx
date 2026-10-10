@@ -327,6 +327,7 @@ public class RecordedProgramTests {
         at(0x801C, 0x0E, 0x02, 0xC9));
     Assert.assertEquals("8000 8010", routines());
     Assert.assertEquals(Set.of(0x8018), Set.copyOf(stackAnalyzer.pushedValues.get(0x8013)));
+    Assert.assertEquals(RoutineManager.Exit.DISPATCH, routineManager.exitOf(0x801E, stackAnalyzer).kind());
   }
 
   @Test
@@ -337,6 +338,7 @@ public class RecordedProgramTests {
         at(0x8010, 0xCD, 0x18, 0x80, 0xC9),
         at(0x8018, 0x31, 0xFE, 0xFE, 0xC9));
     Assert.assertEquals(Set.of(0x8003), Set.copyOf(routineManager.nonLocalReturns.get(0x801B)));
+    Assert.assertEquals(RoutineManager.Exit.NON_LOCAL, routineManager.exitOf(0x801B, stackAnalyzer).kind());
   }
 
   @Test
@@ -397,7 +399,7 @@ public class RecordedProgramTests {
         at(0x8030, 0x06, 0x01, 0xC9));
     Assert.assertEquals("8000 8018 8020 8021 8028 8030", routines());
     Assert.assertFalse(routineManager.pushedReturnSites.contains(0x8012));
-    Assert.assertFalse(routineManager.nonLocalReturns.containsKey(0x8032));
+    Assert.assertEquals(RoutineManager.Exit.RETURN, routineManager.exitOf(0x8032, stackAnalyzer).kind());
   }
 
   @Test
@@ -900,6 +902,7 @@ public class RecordedProgramTests {
         at(0x8000, 0xCD, 0x10, 0x80, 0x76, 0x18, 0xFD),
         at(0x8010, 0x3A, 0x02, 0x81, 0xB7, 0x28, 0x04, 0x01, 0x00, 0x70, 0xC5, 0xC9));
     Assert.assertNull(routineManager.findRoutineAt(0x7000));
+    Assert.assertEquals(RoutineManager.Exit.RETURN, routineManager.exitOf(0x801A, stackAnalyzer).kind());
   }
 
   @Test
@@ -909,6 +912,7 @@ public class RecordedProgramTests {
         at(0x8000, 0x21, 0x07, 0x80, 0xE5, 0xC3, 0x20, 0x80, 0x76, 0x18, 0xFD),
         at(0x8020, 0x3A, 0x02, 0x81, 0xB7, 0x28, 0x04, 0x01, 0x00, 0x70, 0xC5, 0xC9));
     Assert.assertEquals(Set.of(0x8007), Set.copyOf(stackAnalyzer.dynamicInvocation.get(0x802A)));
+    Assert.assertEquals(RoutineManager.Exit.DISPATCH, routineManager.exitOf(0x802A, stackAnalyzer).kind());
   }
 
   @Test
@@ -1882,7 +1886,7 @@ public class RecordedProgramTests {
         at(0x8020, 0x31, 0x00, 0x00, 0xC9),
         at(0x8030, 0x16, 0x02, 0xC3, 0x20, 0x80));
     Assert.assertTrue(stackAnalyzer.stackSwitches.isEmpty());
-    Assert.assertTrue(routineManager.nonLocalReturns.toString(), routineManager.nonLocalReturns.containsKey(0x8023));
+    Assert.assertEquals(RoutineManager.Exit.NON_LOCAL, routineManager.exitOf(0x8023, stackAnalyzer).kind());
   }
 
   @Test

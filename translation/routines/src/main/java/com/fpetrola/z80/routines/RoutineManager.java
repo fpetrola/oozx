@@ -436,9 +436,38 @@ public class RoutineManager {
   }
 
   /** A push of one code address loaded right before it, as a routine plants where the one it jumps to must return. */
-  public boolean plantsAContinuation(int push, java.util.Collection<Integer> pushedValues) {
-    return pushedValues.size() == 1 && getInstructionAt(push) instanceof Push pushInstruction && pushInstruction.getTarget() instanceof Register pushed
-        && getInstructionAt(addressBefore(push)) instanceof Ld ld && ld.getSource() instanceof Memory16BitReference && ld.getTarget() instanceof Register loaded && loaded.getName().equals(pushed.getName());
+  /** The routine a PUSH plants as the continuation its data RET takes (LD r,(nn); PUSH r of one recorded value, never popped nor read by address), or null. */
+  public Integer plantedContinuation(int push, StackAnalyzer stackAnalyzer) {
+    java.util.Collection<Integer> values = stackAnalyzer.pushedValues.get(push);
+    if (!stackAnalyzer.dataConsumedBy.containsValue(push) || stackAnalyzer.pushesTakenByPops.contains(push) || stackAnalyzer.observesStackLayout() || values.size() != 1
+        || !(getInstructionAt(push) instanceof Push pushInstruction && pushInstruction.getTarget() instanceof Register pushed
+        && getInstructionAt(addressBefore(push)) instanceof Ld ld && ld.getSource() instanceof Memory16BitReference && ld.getTarget() instanceof Register loaded && loaded.getName().equals(pushed.getName())))
+      return null;
+    int value = values.iterator().next();
+    Routine target = findRoutineAt(value);
+    return target != null && target.getEntryPoint() == value ? value : null;
+  }
+
+  /** What a RET does in Java, decided from the stack facts once the routines are planned. */
+  public enum Exit {SWITCH_STACK, NON_LOCAL, CONTINUATION, DISPATCH, DROP, RETURN}
+
+  public record RetExit(Exit kind, int continuation) {
+  }
+
+  public RetExit exitOf(int ret, StackAnalyzer stackAnalyzer) {
+    List<Integer> ownPushes = stackAnalyzer.dataConsumedBy.get(ret).stream().filter(findRoutineAt(ret)::contains).toList();
+    Integer continuation = ownPushes.size() == 1 ? plantedContinuation(ownPushes.get(0), stackAnalyzer) : null;
+    boolean returnsToACaller = stackAnalyzer.returnsConsumedBy.get(ret).stream().anyMatch(callSite -> callSite != -1);
+    boolean consumesData = stackAnalyzer.dataConsumedBy.containsKey(ret) ? !ownPushes.isEmpty() && !returnsToACaller : !stackAnalyzer.dynamicInvocation.get(ret).isEmpty();
+    if (stackAnalyzer.stackSwitches.containsKey(ret))
+      return new RetExit(Exit.SWITCH_STACK, -1);
+    if (nonLocalReturns.containsKey(ret))
+      return new RetExit(Exit.NON_LOCAL, -1);
+    if (continuation != null)
+      return new RetExit(Exit.CONTINUATION, continuation);
+    if (consumesData)
+      return new RetExit(stackAnalyzer.shiftedReturns.containsKey(ret) ? Exit.DROP : Exit.DISPATCH, -1);
+    return new RetExit(Exit.RETURN, -1);
   }
 
   public List<Routine> getRoutinesInDepth() {

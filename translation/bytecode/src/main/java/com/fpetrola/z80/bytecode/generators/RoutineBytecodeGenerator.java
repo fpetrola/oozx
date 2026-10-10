@@ -626,16 +626,7 @@ public class RoutineBytecodeGenerator {
   }
 
   public Integer plantedContinuation(int push) {
-    Collection<Integer> values = stackAnalyzer().pushedValues.get(push);
-    if (!stackAnalyzer().dataConsumedBy.containsValue(push) || stackAnalyzer().pushesTakenByPops.contains(push) || stackAnalyzer().observesStackLayout() || !context.routineManager.plantsAContinuation(push, values))
-      return null;
-    int value = values.iterator().next();
-    Routine target = context.routineManager.findRoutineAt(value);
-    return target != null && target.getEntryPoint() == value ? value : null;
-  }
-
-  public List<Integer> ownPushesConsumedAt(int ret) {
-    return stackAnalyzer().dataConsumedBy.get(ret).stream().filter(routine::contains).toList();
+    return context.routineManager.plantedContinuation(push, stackAnalyzer());
   }
 
   public boolean pushesReturnAddress(int callSite) {
