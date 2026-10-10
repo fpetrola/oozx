@@ -177,10 +177,8 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
       banked.modified().forEach(address -> symbolicExecutionAdapter.getMutantAddress().add(variant.relocated(address)));
       StackAnalyzer stackAnalyzer = getStackAnalyzer();
       java.util.Set<Integer> entries = new java.util.TreeSet<>(routineManager.entriesInto(start, end));
-      stackAnalyzer.dynamicInvocation.entries().stream().filter(jump -> instructions.containsKey(jump.getKey())).toList().forEach(jump -> {
-        stackAnalyzer.dynamicInvocation.put(variant.relocated(jump.getKey()), jump.getValue());
-        entries.add(jump.getValue());
-      });
+      stackAnalyzer.dynamicInvocation.entries().stream().filter(jump -> instructions.containsKey(jump.getKey())).toList().forEach(jump -> stackAnalyzer.dynamicInvocation.put(variant.relocated(jump.getKey()), jump.getValue()));
+      entries.addAll(stackAnalyzer.dynamicInvocation.values());
       entries.removeIf(entry -> !instructions.containsKey(entry));
       entries.forEach(entry -> routineManager.externalEntries.add(variant.relocated(entry)));
       java.util.stream.Stream.concat(entries.stream(), instructions.keySet().stream().sorted())

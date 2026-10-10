@@ -788,6 +788,19 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aJumpFromTheStartingBanksCodeIntoTheMiddleOfAnotherBanksRoutineEntersItThere() {
+    // Rainbow Islands 5C8E: JP (HL) with bank 1 paged lands at D6E5, in the middle of bank 1's routine at D6D1
+    banked = true;
+    translate(
+        at(0x8000, 0x01, 0xFD, 0x7F, 0x3E, 0x13, 0xED, 0x79, 0x21, 0x00, 0x81, 0x11, 0x00, 0xC0, 0x01, 0x04, 0x00, 0xED, 0xB0, 0xCD, 0x00, 0xC0, 0x57, 0x21, 0x02, 0xC0,
+            0xCD, 0x30, 0x80, 0x5F, 0x76, 0x18, 0xFD),
+        at(0x8030, 0xE9),
+        at(0x8100, 0x3E, 0x05, 0x3C, 0xC9));
+    Assert.assertEquals(0x0607, endValue("DE"));
+    Assert.assertTrue(routineManager.externalEntries.contains(routineManager.codeVariants.get(0).relocated(0xC002)));
+  }
+
+  @Test
   public void codeRewrittenSoThatAnOperandBecomesAnOpcodeIsModifiedCode() {
     // Batman The Movie EB27: LD A,(611A) ran there, and later EB28 ran as LD C,A after the region was rewritten
     fallsBackToTheEmulator = true;
