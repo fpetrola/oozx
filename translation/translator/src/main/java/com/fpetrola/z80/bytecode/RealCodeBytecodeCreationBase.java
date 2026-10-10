@@ -97,7 +97,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
     stackAnalyzer.reset(getState());
     routineManager.setSpans(footprint.executed());
     footprint.bankedCode().values().forEach(banked -> banked.instructions().keySet().stream().filter(address -> !footprint.codeBytes().containsKey(address)).forEach(routineManager.bankedOnly::add));
-    symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());
+    getStackAnalyzer().codeVersions.mutant().addAll(footprint.modifiedCode());
     routineManager.externalEntries.addAll(footprint.externalEntries());
     routineManager.externalEntries.add(start);
     stepUntilComplete(start);
@@ -121,7 +121,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
     List<int[]> variants = versions.blockContents(variableStart);
     OOZ80 decoder = com.fpetrola.z80.minizx.emulation.EmulatedMiniZX.createOOZ80(new com.fpetrola.z80.minizx.DefaultMiniZXIO());
     routineManager.forgetCode(relocationBase, relocationBase + variants.size() * (end - start + 1));
-    symbolicExecutionAdapter.getMutantAddress().removeIf(address -> address >= variableStart && address < variableStart + variants.get(0).length);
+    getStackAnalyzer().codeVersions.mutant().removeIf(address -> address >= variableStart && address < variableStart + variants.get(0).length);
     symbolicExecutionAdapter.routineExecutorHandler.forgetExecutions(relocationBase, relocationBase + variants.size() * (end - start + 1));
     int[] decoderMemory = (int[]) decoder.getState().getMemory().getData();
     int size = end - start;
@@ -171,7 +171,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
       getState().getMemory().protect(at, at + code.length);
       RoutineManager.CodeVariant variant = new RoutineManager.CodeVariant(start, end, start, code, at, code, bank);
       routineManager.codeVariants.add(variant);
-      banked.modified().forEach(address -> symbolicExecutionAdapter.getMutantAddress().add(variant.relocated(address)));
+      banked.modified().forEach(address -> getStackAnalyzer().codeVersions.mutant().add(variant.relocated(address)));
       StackAnalyzer stackAnalyzer = getStackAnalyzer();
       java.util.Set<Integer> entries = new java.util.TreeSet<>(routineManager.entriesInto(start, end));
       stackAnalyzer.dynamicInvocation.entries().stream().filter(jump -> instructions.containsKey(jump.getKey())).toList().forEach(jump -> stackAnalyzer.dynamicInvocation.put(variant.relocated(jump.getKey()), jump.getValue()));

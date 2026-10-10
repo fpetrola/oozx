@@ -75,7 +75,6 @@ public class SymbolicExecutionAdapter {
     if (protectedHere != null)
       protectedHere.stream().forEach(address -> state.getMemory().unprotect(address, address + 1));
   }
-  private Set<Integer> mutantAddress = new HashSet<>();
   private Register pc;
   private DataflowService dataflowService;
   private SEInstructionFactory sEInstructionFactory;
@@ -95,7 +94,6 @@ public class SymbolicExecutionAdapter {
     this.stackAnalyzer = stackAnalyzer;
     this.routineFinder = routineFinder;
     this.instructionExecutor = instructionExecutor;
-    mutantAddress.clear();
     written.clear();
     dataflowService = dataflowService1;
     routineExecutorHandler = new RoutineExecutorHandler(state, routineManager, new ExecutionStackStorage(state, stackAnalyzer), dataflowService, stackAnalyzer);
@@ -150,7 +148,6 @@ public class SymbolicExecutionAdapter {
   }
 
   public void reset() {
-    mutantAddress.clear();
     written.clear();
     state.getMemory().unprotect(0, 0x10000);
     stackAnalyzer.forgetLearned();
@@ -216,9 +213,10 @@ public class SymbolicExecutionAdapter {
     writeMemoryReferences.forEach(wmr -> written.set(wmr.address));
     writeMemoryReferences.clear();
     java.util.BitSet code = routineManager.codeAddresses();
+    Set<Integer> mutant = stackAnalyzer.codeVersions.mutant();
     java.util.stream.Stream.concat(written.stream().boxed(), routineManager.fixedStoreTargets(state.getMemory().getData()))
-        .filter(address -> !mutantAddress.contains(address) && !stackAnalyzer.codeVersions.inBlock(address) && routineManager.originalAddress(address) == address && code.get(address))
-        .forEach(mutantAddress::add);
+        .filter(address -> !mutant.contains(address) && !stackAnalyzer.codeVersions.inBlock(address) && routineManager.originalAddress(address) == address && code.get(address))
+        .forEach(mutant::add);
   }
 
   public int abandonedExplorations;
@@ -324,9 +322,6 @@ public class SymbolicExecutionAdapter {
     memory.enableReadyOnly(readOnly);
   }
 
-  public Set<Integer> getMutantAddress() {
-    return mutantAddress;
-  }
 
   private static class SEStackListener implements StackListener {
     private final SymbolicExecutionAdapter symbolicExecutionAdapter;

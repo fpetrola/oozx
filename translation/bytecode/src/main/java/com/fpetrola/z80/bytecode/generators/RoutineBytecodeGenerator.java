@@ -302,7 +302,7 @@ public class RoutineBytecodeGenerator {
   }
 
   private boolean mutantCodeInInstruction(Instruction instruction, int address) {
-    Set<java.lang.Integer> mutantAddress = (Set<java.lang.Integer>) context.symbolicExecutionAdapter.getMutantAddress();
+    Set<java.lang.Integer> mutantAddress = codeVersions().mutant();
     Set<java.lang.Integer> operands = CodeVersions.operandOffsets(instruction);
     return java.util.stream.IntStream.range(0, instruction.getLength()).anyMatch(i -> mutantAddress.contains(address + i) && !operands.contains(i));
   }

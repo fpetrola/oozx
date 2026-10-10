@@ -1890,7 +1890,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
         add(Ret(t()));
       }
     };
-    getSymbolicExecutionAdapter().getMutantAddress().add(1);
+    getSymbolicExecutionAdapter().getStackAnalyzer().codeVersions.mutant().add(1);
 
     stepUntilComplete();
 

@@ -123,7 +123,7 @@ public class OpcodeReferenceVisitor implements InstructionVisitor<Object> {
 
   private Integer modifiedOperand(int delta, int length) {
     int pc = routineByteCodeGenerator.context.pc.read(), address = routineByteCodeGenerator.context.routineManager.originalAddress(pc) + delta & 0xffff;
-    java.util.Set<?> modified = routineByteCodeGenerator.context.symbolicExecutionAdapter.getMutantAddress();
+    java.util.Set<?> modified = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer().codeVersions.mutant();
     return java.util.stream.IntStream.of(address, pc + delta & 0xffff).anyMatch(at -> modified.contains(at) || length == 2 && modified.contains(at + 1 & 0xffff)) ? address : null;
   }
 

@@ -39,7 +39,7 @@ public class CodeVersions implements java.io.Serializable {
   private final Map<Integer, Kind> kinds = new TreeMap<>();
   private final List<int[]> blockRegions = new ArrayList<>();
   private final Map<Integer, List<int[]>> blockContents = new TreeMap<>();
-  private final Set<Integer> patched = new TreeSet<>();
+  private final Set<Integer> patched = new TreeSet<>(), mutant = new HashSet<>();
   private transient BiFunction<Integer, int[], Instruction> decoder;
 
   public void record(int address, int[] first, int[] other) {
@@ -59,6 +59,11 @@ public class CodeVersions implements java.io.Serializable {
   public void addAll(CodeVersions other) {
     other.versions.forEach((address, known) -> known.forEach(v -> record(address, known.get(0), v)));
     patched.addAll(other.patched);
+  }
+
+  /** Code bytes that may hold at runtime something other than what was translated: they are read from memory or run through the emulator. */
+  public Set<Integer> mutant() {
+    return mutant;
   }
 
   public Map<Integer, List<int[]>> versions() {
