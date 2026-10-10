@@ -57,21 +57,23 @@ public class SymbolicExecutionAdapter {
   private int explorationSP = -1;
   private boolean returnedToUnknownAddress;
   private static final int CALLER_STACK = 64;
-  private final List<int[]> protectedCallerStacks = new ArrayList<>();
+  private final Map<Integer, java.util.BitSet> protectedCallerStacks = new HashMap<>();
 
+  /** Only the bytes that were not protected already, so releasing the caller's stack leaves recorded code inside it protected. */
   private void protectCallerStack(int sp) {
-    int[] range = {sp, Math.min(sp + CALLER_STACK, 0x10000)};
-    protectedCallerStacks.add(range);
-    state.getMemory().protect(range[0], range[1]);
+    java.util.BitSet protectedHere = new java.util.BitSet();
+    for (int address = sp; address < Math.min(sp + CALLER_STACK, 0x10000); address++)
+      if (!state.getMemory().isProtected(address)) {
+        protectedHere.set(address);
+        state.getMemory().protect(address, address + 1);
+      }
+    protectedCallerStacks.merge(sp, protectedHere, (a, b) -> { a.or(b); return a; });
   }
 
   private void unprotectCallerStack(int sp) {
-    protectedCallerStacks.removeIf(range -> range[0] == sp && unprotected(range));
-  }
-
-  private boolean unprotected(int[] range) {
-    state.getMemory().unprotect(range[0], range[1]);
-    return true;
+    java.util.BitSet protectedHere = protectedCallerStacks.remove(sp);
+    if (protectedHere != null)
+      protectedHere.stream().forEach(address -> state.getMemory().unprotect(address, address + 1));
   }
   private Set<Integer> mutantAddress = new HashSet<>();
   private Register pc;
@@ -191,8 +193,7 @@ public class SymbolicExecutionAdapter {
       explorationSP = state.getRegisterSP().read();
     state.getRegisterSP().write(explorationSP);
     stackAnalyzer.forgetStack();
-    protectedCallerStacks.forEach(range -> state.getMemory().unprotect(range[0], range[1]));
-    protectedCallerStacks.clear();
+    new ArrayList<>(protectedCallerStacks.keySet()).forEach(this::unprotectCallerStack);
     routineExecutorHandler.getExecutionStackStorage().newExploration();
     routineExecutorHandler.newExploration();
     routineExecutorHandler.clearStackFrames();

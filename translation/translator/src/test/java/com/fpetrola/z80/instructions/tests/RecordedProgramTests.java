@@ -655,6 +655,18 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void releasingTheCallersStackKeepsTheRecordedCodeInsideItProtected() {
+    // Head over Heels FFF4: the stack sits right below the interrupt entry; releasing the caller's stack after SP pointed elsewhere unprotected the recorded code at FFF4-FFFF, and the SE's later writes there made it mutant
+    ignoresMemory(0xFFE0, 0xFFF0);
+    translate(
+        at(0x8000, 0x31, 0xF0, 0xFF, 0xCD, 0xFF, 0xFF, 0xED, 0x73, 0x00, 0x90, 0x31, 0x00, 0xA0, 0xC5, 0xED, 0x7B, 0x00, 0x90, 0xCD, 0xFF, 0xFF, 0x76, 0x18, 0xFD),
+        at(0xFFF4, 0x3E, 0x01, 0xC9, 0, 0, 0, 0, 0, 0, 0, 0, 0x18),
+        at(0x0000, 0xF3));
+    Assert.assertTrue(base.getState().getMemory().isProtected(0xFFF4) && base.getState().getMemory().isProtected(0xFFFF));
+    Assert.assertEquals(0x01, endValue("A"));
+  }
+
+  @Test
   public void anOperandThatCodeInAnotherBankRewritesIsReadFromThatBank() {
     // Batman The Movie C431: the music player in bank 3 rewrites the operand of its own LD A,n
     banked = true;
