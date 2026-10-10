@@ -100,8 +100,7 @@ public class StateBytecodeGenerator {
 ////    routine1.split(34762);
 
     routineManager.planPoppedReturnsOfRewrittenCalls(symbolicExecutionAdapter.getStackAnalyzer());
-    routineManager.splitAtEntriesFromOutside();
-    routineManager.planLandingsFromOutside(symbolicExecutionAdapter.getStackAnalyzer());
+    routineManager.planEntries(symbolicExecutionAdapter.getStackAnalyzer());
     new ArrayList<>(routineManager.getRoutines()).forEach(this::splitIfTooLargeForOneMethod);
     routineManager.planNonLocalReturns(symbolicExecutionAdapter.getStackAnalyzer(), bytecodeGenerationContext.routinesInJumpCycles());
     List<Routine> routines = routineManager.getRoutinesInDepth();

@@ -143,8 +143,16 @@ public class RoutineManager {
     siteReturnPoints.put(callSite, point);
   }
 
-  /** Landings entered from outside their routine: where a RET takes data another routine pushed, and where the exception of a stack reset that drops returns goes on, which no translated caller may be left to catch (a loader jumping in). */
-  public void planLandingsFromOutside(StackAnalyzer stackAnalyzer) {
+  /**
+   * Every entry the recording's facts imply, decided once the exploration is over: where non-local RETs and CALL-JUMP land and what rewritten
+   * code goes on to, which split routines; then the landings that depend on which routine owns what: where a RET takes data another routine
+   * pushed, and where the exception of a stack reset that drops returns goes on, which no translated caller may be left to catch.
+   */
+  public void planEntries(StackAnalyzer stackAnalyzer) {
+    stackAnalyzer.nonLocalRets.keySet().forEach(ret -> externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(ret)));
+    externalEntries.addAll(stackAnalyzer.calledThrough.values());
+    externalEntries.addAll(stackAnalyzer.codeVersions.successors());
+    splitAtEntriesFromOutside();
     stackAnalyzer.dataConsumedBy.entries().stream().filter(e -> findRoutineAt(e.getKey()) != findRoutineAt(e.getValue()))
         .forEach(e -> externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(e.getKey())));
     routines.forEach(routine -> routine.getVirtualPop().values().stream().filter(pop -> getInstructionAt(pop) instanceof Ld).forEach(reset -> externalEntries.add(addressAfter(reset))));
@@ -313,7 +321,7 @@ public class RoutineManager {
     return instructions.entrySet().stream().anyMatch(e -> fallsThrough(e.getValue()) && (e.getKey() + e.getValue().getLength() & 0xffff) == address && !owner.contains(e.getKey()) && findRoutineAt(e.getKey()) != null);
   }
 
-  public void splitAtEntriesFromOutside() {
+  private void splitAtEntriesFromOutside() {
     java.util.Set<Integer> candidates = new java.util.TreeSet<>(externalEntries);
     candidates.addAll(callers.keySet());
     candidates.addAll(jumpsAfterStackReset.keySet());

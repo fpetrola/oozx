@@ -99,9 +99,6 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
     footprint.bankedCode().values().forEach(banked -> banked.instructions().keySet().stream().filter(address -> !footprint.codeBytes().containsKey(address)).forEach(routineManager.bankedOnly::add));
     symbolicExecutionAdapter.getMutantAddress().addAll(footprint.modifiedCode());
     routineManager.externalEntries.addAll(footprint.externalEntries());
-    stackAnalyzer.nonLocalRets.keySet().forEach(ret -> routineManager.externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(ret)));
-    routineManager.externalEntries.addAll(stackAnalyzer.calledThrough.values());
-    routineManager.externalEntries.addAll(stackAnalyzer.codeVersions.successors());
     routineManager.externalEntries.add(start);
     stepUntilComplete(start);
     Stream.of(IntStream.of(entries).boxed(), footprint.externalEntries().stream(), stackAnalyzer.dynamicInvocation.values().stream(), stackAnalyzer.calledThrough.values().stream(), stackAnalyzer.codeVersions.successors().stream())
