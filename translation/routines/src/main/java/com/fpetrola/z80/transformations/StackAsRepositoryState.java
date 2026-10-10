@@ -19,7 +19,6 @@
 package com.fpetrola.z80.transformations;
 
 public class StackAsRepositoryState {
-  public int spReadAt;
   public boolean active;
   public int lastSP;
 
@@ -30,6 +29,5 @@ public class StackAsRepositoryState {
   void clear() {
     active = false;
     lastSP = Integer.MAX_VALUE;
-    spReadAt= Integer.MAX_VALUE;
   }
 }

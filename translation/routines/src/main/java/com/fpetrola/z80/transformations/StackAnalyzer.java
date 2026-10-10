@@ -299,10 +299,8 @@ public class StackAnalyzer implements java.io.Serializable {
       public void visitingLd(Ld ld) {
         ImmutableOpcodeReference source = ld.getSource();
         OpcodeReference target = ld.getTarget();
-        if (source instanceof Register register && register.getName().equals(SP.name())) {
-          stackAsRepository.spReadAt = pcValue;
+        if (source instanceof Register register && register.getName().equals(SP.name()))
           lastStorePlace = placeOf(target);
-        }
 
         if (target instanceof Register register && register.getName().equals(SP.name())) {
           int place = placeOf(source);
@@ -311,7 +309,7 @@ public class StackAnalyzer implements java.io.Serializable {
           int oldSpAddress = register.read();
           int[] left = place == -1 ? null : leftStacks.remove(place);
           reentered = left != null && left[3] != -1 ? left : null;
-          boolean repointing = lastStorePlace != -1 && place != lastStorePlace;
+          boolean saved = lastStorePlace != -1, repointing = saved && place != lastStorePlace;
           leaving = collecting() && repointing ? new int[]{pcValue, lastStorePlace, newSpAddress, -1, -1} : null;
           lastStorePlace = -1;
           callSinceLoad = false;
@@ -320,7 +318,7 @@ public class StackAnalyzer implements java.io.Serializable {
             return;
           }
           if (distance(oldSpAddress, newSpAddress) > 2000) {
-            if (distance(stackAsRepository.spReadAt, pcValue) < 2000)
+            if (saved || stackAsRepository.active)
               usingStackAsRepository(newSpAddress, oldSpAddress);
             stackResetTo = newSpAddress;
             stackResets++;
