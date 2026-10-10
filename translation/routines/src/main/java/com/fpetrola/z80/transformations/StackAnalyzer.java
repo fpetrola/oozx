@@ -69,7 +69,10 @@ public class StackAnalyzer implements java.io.Serializable {
   private transient boolean callSinceLoad;
   public final MultiValuedMap<Integer, Integer> nonLocalRets = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> returnSlots = new HashSetValuedHashMap<>();
-  public static boolean collecting;
+  /** Who learns these facts: the recording, a fork running a branch the recording never took, or the symbolic execution on its own; only the first two collect. */
+  public enum Source {RECORDING, FORK, EXPLORATION}
+
+  private Source source = Source.EXPLORATION;
   private boolean learnedFromRecording;
   public CodeVersions codeVersions = new CodeVersions();
   private int pcValue;
@@ -99,7 +102,7 @@ public class StackAnalyzer implements java.io.Serializable {
   private int spLoadedFrom = -1;
   private boolean readingStack;
   private final transient MemoryReadListener readByAddress = (address, value, fetching) -> {
-    if (collecting && fetching == 0 && !readingStack && (address - spLoadedFrom & 0xffff) > 1) {
+    if (collecting() && fetching == 0 && !readingStack && (address - spLoadedFrom & 0xffff) > 1) {
       for (Frame frame = depthDependentSlots.containsKey(address) ? depthDependentSlots.get(address) : depthDependentSlots.get(address - 1 & 0xffff); frame != null; frame = frame.enclosing())
         layoutCallSites.add(frame.callSite());
       if (stackWritten.get(address))
@@ -116,7 +119,7 @@ public class StackAnalyzer implements java.io.Serializable {
 
   public void interrupted() {
     int sp = state.getRegisterSP().read();
-    if (collecting) {
+    if (collecting()) {
       returnSlots.put(sp, INTERRUPT);
       if (sp >= lowestObservedStackSlot)
         layoutCallSites.add(INTERRUPT);
@@ -134,6 +137,15 @@ public class StackAnalyzer implements java.io.Serializable {
 
   public StackAnalyzer(State state) {
     reset(state);
+  }
+
+  public StackAnalyzer learning(Source source) {
+    this.source = source;
+    return this;
+  }
+
+  private boolean collecting() {
+    return source != Source.EXPLORATION;
   }
 
   public List<Integer> getSimulatedCallsPcs() {
@@ -174,7 +186,7 @@ public class StackAnalyzer implements java.io.Serializable {
     shiftedReturns.remove(left[3]);
     returnsConsumedBy.remove(left[3]);
     dataConsumedBy.remove(left[3]);
-    if (collecting)
+    if (collecting())
       dynamicInvocation.put(left[3], left[4]);
   }
 
@@ -249,7 +261,7 @@ public class StackAnalyzer implements java.io.Serializable {
     instruction.accept(new InstructionVisitor<>() {
       public void visitingPop(Pop pop) {
         Entry entry = entryAtSp();
-        if (collecting && entry != null && !entry.returnAddress() && entry.pc() != -1) {
+        if (collecting() && entry != null && !entry.returnAddress() && entry.pc() != -1) {
           recordedPops.add(pcValue);
           pushesTakenByPops.add(entry.pc());
         }
@@ -267,7 +279,7 @@ public class StackAnalyzer implements java.io.Serializable {
           }
           addDynamicInvocationData(jumpAddress);
           Entry caller = entryAtSp();
-          if (collecting && caller != null && caller.returnAddress() && state.getMemory().read16Bits(caller.pc() + 1 & 0xffff) == pcValue)
+          if (collecting() && caller != null && caller.returnAddress() && state.getMemory().read16Bits(caller.pc() + 1 & 0xffff) == pcValue)
             calledThrough.put(caller.pc(), jumpAddress);
           int sp = state.getRegisterSP().read();
           if (sp >= 16384) {
@@ -300,7 +312,7 @@ public class StackAnalyzer implements java.io.Serializable {
           int[] left = place == -1 ? null : leftStacks.remove(place);
           reentered = left != null && left[3] != -1 ? left : null;
           boolean repointing = lastStorePlace != -1 && place != lastStorePlace;
-          leaving = collecting && repointing ? new int[]{pcValue, lastStorePlace, newSpAddress, -1, -1} : null;
+          leaving = collecting() && repointing ? new int[]{pcValue, lastStorePlace, newSpAddress, -1, -1} : null;
           lastStorePlace = -1;
           callSinceLoad = false;
           if (stackSwitches.containsValue(pcValue)) {
@@ -350,7 +362,7 @@ public class StackAnalyzer implements java.io.Serializable {
       public boolean visitingRet(Ret ret) {
         if (ret instanceof RetN)
           return false;
-        if (collecting && !ret.getCondition().conditionMet(ret))
+        if (collecting() && !ret.getCondition().conditionMet(ret))
           return true;
         lastStorePlace = -1;
         if (leaving != null && leaving[3] == -1 && !callSinceLoad && state.getRegisterSP().read() == leaving[2]) {
@@ -371,7 +383,7 @@ public class StackAnalyzer implements java.io.Serializable {
         Entry popped = consumedReturns.get(state.getRegisterSP().read() - 2 & 0xffff);
         boolean pastPoppedReturn = entry != null && entry.returnAddress() && popped != null && codeVersions.isVersioned(popped.pc());
         boolean abandonsInnerCall = entry != null && entry.returnAddress() && abandonsInnerCall(state.getRegisterSP().read());
-        if (collecting && (pastPoppedReturn || abandonsInnerCall || afterStackReset && (returnsDropped ? entry != null && entry.returnAddress() : entry == null && knowsWholeStack)))
+        if (collecting() && (pastPoppedReturn || abandonsInnerCall || afterStackReset && (returnsDropped ? entry != null && entry.returnAddress() : entry == null && knowsWholeStack)))
           nonLocalRets.put(pcValue, state.getRegisterSP().read());
         if (entry == null && afterStackReset && knowsWholeStack)
           jumpingUsingRet(ret, state.getMemory().read16Bits(state.getRegisterSP().read()), null);
@@ -397,7 +409,7 @@ public class StackAnalyzer implements java.io.Serializable {
   }
 
   private boolean returningShifted(Instruction instruction, int target, Entry consumedReturn) {
-    Integer continuation = collecting ? ((target - consumedReturn.value() & 0xffff) < 256 ? target : null) : callContinuations.get(consumedReturn.pc());
+    Integer continuation = collecting() ? ((target - consumedReturn.value() & 0xffff) < 256 ? target : null) : callContinuations.get(consumedReturn.pc());
     if (continuation == null || !learnContinuation(pcValue, consumedReturn.pc(), continuation))
       return false;
     lastEvent = l -> l.returnShifted(instruction, pcValue, continuation, consumedReturn.pc());
@@ -427,7 +439,7 @@ public class StackAnalyzer implements java.io.Serializable {
   }
 
   private void addDynamicInvocationData(int address) {
-    if (collecting && (address >= 16384 || pcValue < 16384))
+    if (collecting() && (address >= 16384 || pcValue < 16384))
       dynamicInvocation.put(pcValue, address);
   }
 
@@ -466,7 +478,7 @@ public class StackAnalyzer implements java.io.Serializable {
         if (entry != null && entry.returnAddress())
           returnsConsumedBy.put(pcValue, entry.pc());
         if (entry != null && !entry.returnAddress()) {
-          if (entry.pc() != -1 && (collecting || !learnedFromRecording))
+          if (entry.pc() != -1 && (collecting() || !learnedFromRecording))
             dataConsumedBy.put(pcValue, entry.pc());
           consumedReturns.remove(poppedSlot());
           if (!simulatedRets.contains(nextPC))
@@ -497,7 +509,7 @@ public class StackAnalyzer implements java.io.Serializable {
     Entry entry = new Entry(state.getMemory().read16Bits(sp), state.getPc().read(), returnAddress);
     entries.put(sp, entry);
     consumedReturns.remove(sp - 2 & 0xffff);
-    if (returnAddress && collecting)
+    if (returnAddress && collecting())
       returnSlots.put(sp, entry.pc());
     if (!returnAddress)
       pushedValues.put(entry.pc(), entry.value());
@@ -505,7 +517,7 @@ public class StackAnalyzer implements java.io.Serializable {
       frames.put(sp, new Frame(entry.pc(), enclosingFrame(sp + 2), stackResets));
     if (!stackAsRepository.active)
       stackWritten.set(sp, sp + 2);
-    if (returnAddress && collecting && entry.pc() != -1 && sp >= lowestObservedStackSlot)
+    if (returnAddress && collecting() && entry.pc() != -1 && sp >= lowestObservedStackSlot)
       layoutCallSites.add(entry.pc());
   }
 
@@ -530,7 +542,7 @@ public class StackAnalyzer implements java.io.Serializable {
   }
 
   private void dependsOnDepth(int slot, Frame enclosing) {
-    if (collecting && !stackAsRepository.active && enclosing != null)
+    if (collecting() && !stackAsRepository.active && enclosing != null)
       depthDependentSlots.put(slot, enclosing);
   }
 

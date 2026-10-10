@@ -258,7 +258,7 @@ public class RemoteZ80Translator {
     Set<Integer> externalEntries = new HashSet<>();
     CodeVersions versions = new CodeVersions();
     boolean[] started = {false};
-    StackAnalyzer stackAnalyzer = new StackAnalyzer(null), forked = new StackAnalyzer(null);
+    StackAnalyzer stackAnalyzer = new StackAnalyzer(null), forked = new StackAnalyzer(null).learning(StackAnalyzer.Source.FORK);
     stackAnalyzer.codeVersions = versions;
     EmulatedMiniZX[] emulator = {null};
     Map<Integer, int[]> explored = new HashMap<>();
@@ -273,7 +273,8 @@ public class RemoteZ80Translator {
       public void instructionFetchedAt(int address, Instruction instruction) {
         boolean starting = !started[0] && address == from;
         started[0] |= starting;
-        StackAnalyzer.collecting = started[0];
+        if (starting)
+          stackAnalyzer.learning(StackAnalyzer.Source.RECORDING);
         if (!started[0])
           return;
         if (pending[0] != null)
@@ -317,7 +318,6 @@ public class RemoteZ80Translator {
       }
     });
     play(emulator[0]);
-    StackAnalyzer.collecting = false;
     stackAnalyzer.learnFromForks(forked, codeBytes.keySet());
     versions.patched(patched, codeBytes);
     externalEntries.retainAll(codeBytes.keySet());
@@ -415,7 +415,7 @@ public class RemoteZ80Translator {
       else if (branch instanceof Ret)
         forkState.getRegisterSP().write(taken == fallThrough ? sp + 2 & 0xffff : sp - 2 & 0xffff);
       forkState.getPc().write(alternative);
-      StackAnalyzer analyzer = new StackAnalyzer(forkState);
+      StackAnalyzer analyzer = new StackAnalyzer(forkState).learning(StackAnalyzer.Source.FORK);
       analyzer.knowsWholeStack = false;
       analyzer.addExecutionListener(fork.getInstructionExecutor());
       int startSp = forkState.getRegisterSP().read();
