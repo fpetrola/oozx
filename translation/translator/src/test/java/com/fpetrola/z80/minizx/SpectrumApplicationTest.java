@@ -22,6 +22,13 @@ public class SpectrumApplicationTest {
   }
 
   @Test
+  public void aCaughtStackExceptionHandledByValueLeavesNoEntryPending() {
+    // Head over Heels B3A1: the virtual POP caught at B3A2 left B3A2 pending, so the CALL B225 at B3A3 re-entered its own routine at B3A2
+    assertEquals(0xB3A2, game.ownAddress(new StackException(0xB3A2, ""), 0xB40A, 0xB3A2));
+    assertFalse(game.isNextPC(0xB3A2));
+  }
+
+  @Test
   public void anOpcodeSwapRunsTheVersionInMemory() {
     game.D(5);
     game.E(7);

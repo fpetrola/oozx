@@ -77,9 +77,11 @@ public abstract class SpectrumApplication {
   }
 
   public int ownAddress(StackException stackException, int... integers) {
-    if (isOwnAddress(stackException, integers))
-      return nextAddress;
-    throw stackException;
+    if (!isOwnAddress(stackException, integers))
+      throw stackException;
+    int own = nextAddress;
+    nextAddress = 0;
+    return own;
   }
 
   private OOZ80 mutantExecutor;
