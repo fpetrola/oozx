@@ -1,5 +1,5 @@
 {
-  "game": "batman",
+  "game": "zynaps",
   "mode": "replay",
   "recording": null,
   "games": {
@@ -50,6 +50,12 @@
       "type": "HeadOverHeels",
       "recording": "/home/fernando/detodo/spectrum/rzx-top/2259/head.rzx",
       "entry": "FFFF"
+    },
+    "rainbowislands": {
+      "title": "Rainbow Islands",
+      "type": "RainbowIslands",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/724/x/rainbow.rzx",
+      "entry": "7C12"
     },
     "rtype": {
       "title": "R-Type",

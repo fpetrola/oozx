@@ -179,6 +179,11 @@ public class GameBytecodeCreationTests {
   }
 
   @Test
+  public void testTranslateRainbowIslandsToJava() {
+    translateRecording("RainbowIslands", "/home/fernando/detodo/spectrum/rzx-top/724/x/rainbow.rzx", 0x7C12);
+  }
+
+  @Test
   public void testTranslateRTypeToJava() {
     translateRecording("RType", "/home/fernando/detodo/spectrum/rzx-top/4256/rtype-random.rzx", 0xBF60);
   }
