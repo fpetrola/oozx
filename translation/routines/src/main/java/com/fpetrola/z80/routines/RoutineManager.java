@@ -159,12 +159,18 @@ public class RoutineManager {
         nonLocalReturnPoints.put(e.getValue(), continuation);
       }
     });
-    stackAnalyzer.nonLocalRets.entries().stream().filter(ret -> !returnPoints.containsValue(ret.getKey()) && !siteReturnPoints.containsValue(ret.getKey())).forEach(ret -> Stream.concat(stackAnalyzer.returnsConsumedBy.get(ret.getKey()).stream(), stackAnalyzer.returnSlots.get(ret.getValue()).stream())
+    Stream.concat(stackAnalyzer.nonLocalRets.entries().stream(), retsInTheCallersCode(stackAnalyzer)).filter(ret -> !returnPoints.containsValue(ret.getKey()) && !siteReturnPoints.containsValue(ret.getKey())).forEach(ret -> Stream.concat(stackAnalyzer.returnsConsumedBy.get(ret.getKey()).stream(), stackAnalyzer.returnSlots.get(ret.getValue()).stream())
         .filter(callSite -> instructions.get(callSite) instanceof Call).forEach(callSite -> {
           nonLocalReturns.put(ret.getKey(), addressAfter(callSite));
           nonLocalReturnPoints.put(callSite, addressAfter(callSite));
           pushedReturnSites.add(callSite);
         }));
+  }
+
+  /** A callee that jumps back into its caller's code returns through a RET there, which in Java runs nested inside the callee. */
+  private Stream<Map.Entry<Integer, Integer>> retsInTheCallersCode(StackAnalyzer stackAnalyzer) {
+    return stackAnalyzer.returnsConsumedBy.entries().stream().filter(e -> instructions.get(e.getValue()) instanceof Call call && findRoutineAt(e.getKey()) != null
+        && findRoutineAt(e.getKey()) == findRoutineAt(e.getValue()) && findRoutineAt(call.getJumpAddress()) != findRoutineAt(e.getValue())).map(e -> Map.entry(e.getKey(), -1));
   }
 
   public void planPoppedReturnsOfRewrittenCalls(StackAnalyzer stackAnalyzer) {

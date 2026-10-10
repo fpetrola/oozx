@@ -727,6 +727,18 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aCalleeJumpingBackIntoItsCallersCodeReturnsThroughTheCallersRet() {
+    // Rainbow Islands D44C: CALL CAFB at D470 ends up jumping back to D448, and the RET Z at D44C in the caller's own code returns from that call to D473
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x3E, 0x01, 0xA7, 0xC8, 0x3D, 0xCD, 0x30, 0x80, 0x06, 0x05, 0xC9),
+        at(0x8030, 0xCD, 0x40, 0x80, 0x0E, 0x07, 0xC9),
+        at(0x8040, 0xE1, 0xC3, 0x12, 0x80));
+    Assert.assertTrue(routineManager.nonLocalReturns.containsKey(0x8013));
+    Assert.assertEquals(0x0500, endValue("BC"));
+  }
+
+  @Test
   public void anOperandThatCodeInAnotherBankRewritesIsReadFromThatBank() {
     // Batman The Movie C431: the music player in bank 3 rewrites the operand of its own LD A,n
     banked = true;
