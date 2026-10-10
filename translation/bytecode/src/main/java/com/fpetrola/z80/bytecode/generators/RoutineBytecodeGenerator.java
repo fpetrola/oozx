@@ -280,11 +280,6 @@ public class RoutineBytecodeGenerator {
           mm.invoke("isOwnAddress", exception, points).ifTrue(label1::goto_);
           exception.throw_();
         });
-        label1.insert(() -> droppedPoints.forEach(point -> {
-          Label target = getLabel(point);
-          if (target != null)
-            mm.invoke("isNextPC", point).ifTrue(target::goto_);
-        }));
       }
 
 //      mm.catch_(label10, StackException.class, (Variable exception) -> {

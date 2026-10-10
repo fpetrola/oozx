@@ -1693,6 +1693,11 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               this.SP('\\uffff');
               throw new StackException(18);
            }
+
+           public void $18() {
+              this.setNextAddress(18);
+              this.$0();
+           }
         }
         """, resultingJava);
 
@@ -1752,7 +1757,10 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
            }
 
            public void $1() {
-              this.SP('\\ufc00');
+              if(!this.isNextPC(2)) {
+                 this.SP('\\ufc00');
+              }
+
               super.B = 5;
               this.$7();
               this.$9();
@@ -1771,6 +1779,11 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
            public void $9() {
               super.B = 4;
+           }
+
+           public void $2() {
+              this.setNextAddress(2);
+              this.$1();
            }
         }
         """, resultingJava);

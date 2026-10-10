@@ -143,10 +143,11 @@ public class RoutineManager {
     siteReturnPoints.put(callSite, point);
   }
 
-  /** A RET that takes data another routine pushed lands where that routine left it, so its targets are entered from outside. */
-  public void planLandingsOfDataPushedElsewhere(StackAnalyzer stackAnalyzer) {
+  /** Landings entered from outside their routine: where a RET takes data another routine pushed, and where the exception of a stack reset that drops returns goes on, which no translated caller may be left to catch (a loader jumping in). */
+  public void planLandingsFromOutside(StackAnalyzer stackAnalyzer) {
     stackAnalyzer.dataConsumedBy.entries().stream().filter(e -> findRoutineAt(e.getKey()) != findRoutineAt(e.getValue()))
         .forEach(e -> externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(e.getKey())));
+    routines.forEach(routine -> routine.getVirtualPop().values().stream().filter(pop -> getInstructionAt(pop) instanceof Ld).forEach(reset -> externalEntries.add(addressAfter(reset))));
   }
 
   public void planNonLocalReturns(StackAnalyzer stackAnalyzer, java.util.Set<Routine> jumpMembers) {

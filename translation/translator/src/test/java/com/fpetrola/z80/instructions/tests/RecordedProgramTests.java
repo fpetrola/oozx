@@ -1555,6 +1555,18 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void theLandingOfAStackResetThatDropsAReturnCanBeEnteredByNumber() {
+    // Everyone's a Wally 8185: LD SP,FC00 drops returns and its exception goes on at 8188; when the loader jumped in, no translated caller catches it and MiniZX.run enters 8188 by number
+    ignoresMemory(0xFB00, 0xFC00);
+    translate(
+        at(0x8000, 0x31, 0xFE, 0xFB, 0xCD, 0x50, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8050, 0xF3, 0x31, 0x00, 0xFC, 0xCD, 0x70, 0x80, 0x04, 0x18, 0xFA),
+        at(0x8070, 0x3C, 0xC9));
+    Assert.assertTrue(routineManager.externalEntries.contains(0x8054));
+    Assert.assertTrue(endValue("A") > 0);
+  }
+
+  @Test
   public void aRecordingStartsAtTheFirstInstructionItRunsInGameRam() {
     // Monty on the Run's snapshot sits at AAC5 in the game; Skool Daze's sits in the ROM interrupt at 0038 and the game goes on at 673F
     Assert.assertEquals(0xAAC5, RemoteZ80Translator.startOf("/home/fernando/detodo/spectrum/montyontherun.rzx"));
