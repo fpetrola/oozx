@@ -486,8 +486,23 @@ public class RoutineBytecodeGenerator {
       invokeTransformedMethod(owner.getEntryPoint());
     } else if (owner != null)
       invokeTransformedMethod(address);
+    else if (stackAnalyzer().trampolineRegister(address) != null)
+      throughTrampoline(address, stackAnalyzer().trampolineRegister(address), stackAnalyzer().dynamicInvocation.get(address));
     else
       mm.invoke("untranslated", address);
+  }
+
+  /** An instruction that only jumps through a register (the ROM's JP (HL) at 006F, CALL-JUMP's at 162C) goes on at the targets recorded for it. */
+  public void throughTrampoline(int trampoline, RegisterName register, Collection<Integer> targets) {
+    invokePc(trampoline, register == RegisterName.HL ? 1 : 2, register == RegisterName.HL ? 4 : 8);
+    Variable target = mm.invoke(register.name());
+    Label reached = mm.label();
+    targets.stream().sorted().forEach(c -> target.ifEq(c, () -> {
+      jumpInto(c);
+      reached.goto_();
+    }));
+    mm.invoke("jump", target);
+    reached.here();
   }
 
   private int inOwnBank(int address) {

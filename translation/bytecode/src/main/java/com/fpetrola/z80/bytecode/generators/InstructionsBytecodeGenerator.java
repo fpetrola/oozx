@@ -413,20 +413,8 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
           if (pushes)
             returnedFrom(pushedAt, callSite);
         }
-        else if (trampoline != null) {
-          routineByteCodeGenerator.invokePc(jumpLabel, trampoline == RegisterName.HL ? 1 : 2, trampoline == RegisterName.HL ? 4 : 8);
-          Variable target = methodMaker.invoke(trampoline.name());
-          Label called = methodMaker.label();
-          stackAnalyzer.calledThrough.get(callSite).stream().sorted().filter(c -> {
-            Routine callee = routineByteCodeGenerator.context.routineManager.findRoutineAt(c);
-            return callee != null && callee.getEntryPoint() == c;
-          }).forEach(c -> target.ifEq(c, () -> {
-            routineByteCodeGenerator.invokeTransformedMethod(c);
-            methodMaker.goto_(called);
-          }));
-          methodMaker.invoke("jump", target);
-          called.here();
-        }
+        else if (trampoline != null)
+          routineByteCodeGenerator.throughTrampoline(jumpLabel, trampoline, stackAnalyzer.calledThrough.get(callSite));
         else
           methodMaker.invoke("untranslated", jumpLabel);
       });

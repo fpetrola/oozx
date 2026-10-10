@@ -1544,6 +1544,17 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aJumpToARomTrampolineGoesOnAtTheTargetOfItsRegister() {
+    // Dynamite Dan FFD1: the loader ends with JP 006F, the ROM NMI handler's JP (HL), to reach the game at C800 in HL
+    translate(
+        at(0x8000, 0x21, 0x50, 0x80, 0xC3, 0x6F, 0x00),
+        at(0x8050, 0x3E, 0x07, 0x76, 0x18, 0xFD),
+        at(0x006F, 0xE9));
+    Assert.assertTrue(stackAnalyzer.dynamicInvocation.get(0x006F).contains(0x8050));
+    Assert.assertEquals(0x07, endValue("A"));
+  }
+
+  @Test
   public void aRecordingStartsAtTheFirstInstructionItRunsInGameRam() {
     // Monty on the Run's snapshot sits at AAC5 in the game; Skool Daze's sits in the ROM interrupt at 0038 and the game goes on at 673F
     Assert.assertEquals(0xAAC5, RemoteZ80Translator.startOf("/home/fernando/detodo/spectrum/montyontherun.rzx"));
