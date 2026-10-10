@@ -585,7 +585,7 @@ public class RoutineBytecodeGenerator {
   private void loadPoppedReturnAddress(int returnPoint, int callSite) {
     for (int length = 1; length <= 2; length++)
       if (context.routineManager.getInstructionAt(returnPoint - length) instanceof Pop pop && pop.getLength() == length)
-        getExistingVariable((Register) pop.getTarget()).set(pushesReturnAddress(callSite) ? mm.invoke("pop") : context.routineManager.addressAfter(callSite));
+        getExistingVariable((Register) pop.getTarget()).set(pushesReturnAddress(callSite) ? mm.invoke("pop") : context.routineManager.originalAddress(context.routineManager.addressAfter(callSite)));
   }
 
   public void throwAfterVirtualPop(int address) {

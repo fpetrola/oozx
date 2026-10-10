@@ -640,6 +640,20 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aReturnAddressPoppedInAnotherBanksCopyIsTheOriginalAddress() {
+    // Target: Renegade C132: POP IX takes the return address of the CALL at C465 to read the bytes that follow it
+    banked = true;
+    translate(
+        at(0x8000, 0x01, 0xFD, 0x7F, 0x3E, 0x13, 0xED, 0x79, 0x21, 0x00, 0x81, 0x11, 0x00, 0xC0, 0x01, 0x0A, 0x00, 0xED, 0xB0, 0xCD, 0x00, 0xC0, 0x57,
+            0x01, 0xFD, 0x7F, 0x3E, 0x10, 0xED, 0x79, 0xCD, 0x00, 0xC0, 0x5F, 0x76, 0x18, 0xFD),
+        at(0x8100, 0xCD, 0x04, 0xC0, 0x09, 0xDD, 0xE1, 0xDD, 0x7E, 0x00, 0xC9),
+        at(0xC000, 0x00, 0x3E, 0x07, 0xC9));
+    Assert.assertEquals(List.of(3), routineManager.codeVariants.stream().map(RoutineManager.CodeVariant::bank).toList());
+    Assert.assertEquals(0x0907, endValue("DE"));
+    Assert.assertEquals(0xC003, endValue("IX"));
+  }
+
+  @Test
   public void codeAnotherBankRunsWithTheStartingBanksBytesIsTheStartingBanksCode() {
     // Head over Heels FFFF: every bank holds the same interrupt entry, a JR FFF4 whose offset is the ROM's byte at 0000, and bank 1 ran it too, which made bank 1's copy span C000-FFFF
     banked = true;
