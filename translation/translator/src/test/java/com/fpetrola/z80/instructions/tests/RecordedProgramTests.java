@@ -1579,6 +1579,17 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aCallThroughARomTrampolineThatReallyPushesItsReturnPopsItAfterTheCalleeReturns() {
+    // Emlyn Hughes 5FF1: CALL 162C (CALL-JUMP's JP (HL)) pushes its return for real because the stack is read by address, and nothing popped it afterwards
+    translate(
+        at(0x8000, 0x11, 0x34, 0x12, 0xD5, 0x21, 0x20, 0x80, 0xCD, 0x2C, 0x16, 0xC1, 0x76, 0x18, 0xFD),
+        at(0x8020, 0x21, 0x00, 0x00, 0x39, 0x7E, 0xC9),
+        at(0x162C, 0xE9));
+    Assert.assertTrue(routineManager.pushedReturnSites.contains(0x8007));
+    Assert.assertEquals(0x1234, endValue("BC"));
+  }
+
+  @Test
   public void theLandingOfAStackResetThatDropsAReturnCanBeEnteredByNumber() {
     // Everyone's a Wally 8185: LD SP,FC00 drops returns and its exception goes on at 8188; when the loader jumped in, no translated caller catches it and MiniZX.run enters 8188 by number
     ignoresMemory(0xFB00, 0xFC00);

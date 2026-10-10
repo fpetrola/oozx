@@ -408,15 +408,14 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
         methodMaker.invoke("push", returnAddress);
       Variable pushedAt = pushes ? methodMaker.invoke("SP") : null;
       routineByteCodeGenerator.inPagedBank(jumpLabel, address -> {
-        if (routineByteCodeGenerator.context.routineManager.findRoutineAt(address) != null) {
+        if (routineByteCodeGenerator.context.routineManager.findRoutineAt(address) != null)
           routineByteCodeGenerator.invokeTransformedMethod(address);
-          if (pushes)
-            returnedFrom(pushedAt, callSite);
-        }
         else if (trampoline != null)
           routineByteCodeGenerator.throughTrampoline(jumpLabel, trampoline, stackAnalyzer.calledThrough.get(callSite));
         else
           methodMaker.invoke("untranslated", jumpLabel);
+        if (pushes)
+          returnedFrom(pushedAt, callSite);
       });
     });
     return true;
