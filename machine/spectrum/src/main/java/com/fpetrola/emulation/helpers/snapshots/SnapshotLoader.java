@@ -22,6 +22,9 @@ import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.minizx.emulation.MiniZXWithEmulationBase;
+import com.fpetrola.z80.minizx.emulation.MockedMemory;
+import com.fpetrola.z80.memory.MemoryBanks;
+import com.fpetrola.emulation.helpers.machine.MachineTypes;
 
 import java.io.File;
 
@@ -78,7 +81,20 @@ public class SnapshotLoader {
     copyPage(ram, 0, position, result);
     MemorySetter memorySetter = new MemorySetter(state.getMemory(), MiniZXWithEmulationBase.createROM(), state);
     memorySetter.setData(result);
+    if (snapState.getSpectrumModel().codeModel != MachineTypes.CodeModel.SPECTRUM48K && state.getMemory() instanceof MockedMemory memory)
+      memory.banks = new MemoryBanks(new int[][]{MiniZXWithEmulationBase.createROM128(0), MiniZXWithEmulationBase.createROM128(1)}, ints(ram), snapState.getPort7ffd(), memory.getData());
     return result;
+  }
+
+  private static int[][] ints(byte[][] ram) {
+    int[][] banks = new int[8][];
+    for (int bank = 0; bank < banks.length && bank < ram.length; bank++)
+      if (ram[bank] != null) {
+        banks[bank] = new int[ram[bank].length];
+        for (int i = 0; i < ram[bank].length; i++)
+          banks[bank][i] = ram[bank][i] & 0xff;
+      }
+    return banks;
   }
 
   private static  int copyPage(byte[][] ram, int page, int position, byte[] result) {

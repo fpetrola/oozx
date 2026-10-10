@@ -18,11 +18,16 @@
 
 package com.fpetrola.z80.se;
 
+import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.actions.ExecutionStackStorage;
+import com.fpetrola.z80.transformations.StackAnalyzer;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Set;
 import java.util.Map;
 import java.util.Stack;
 
@@ -32,23 +37,39 @@ public class RoutineExecutorHandler {
   private final Register pc;
   private Stack<java.lang.Integer> stackFrames = new Stack<>();
   private Map<java.lang.Integer, RoutineExecution> routineExecutions = new HashMap<>();
+  private final Map<java.lang.Integer, LinkedList<java.lang.Integer>> unexploredJumpTargets = new HashMap<>();
 
   private final State state;
+  private final RoutineManager routineManager;
+  private int exploration;
 
   private ExecutionStackStorage executionStackStorage;
 
   private final DataflowService dataflowService;
 
-  public RoutineExecutorHandler(State state, ExecutionStackStorage executionStackStorage, DataflowService dataflowService) {
+  public StackAnalyzer getStackAnalyzer() {
+    return stackAnalyzer;
+  }
+
+  private final StackAnalyzer stackAnalyzer;
+
+  public RoutineExecutorHandler(State state, RoutineManager routineManager, ExecutionStackStorage executionStackStorage, DataflowService dataflowService, StackAnalyzer stackAnalyzer) {
+    this.routineManager = routineManager;
     this.pc = state.getPc();
     this.state = state;
     this.executionStackStorage = executionStackStorage;
     this.dataflowService = dataflowService;
+    this.stackAnalyzer = stackAnalyzer;
   }
 
   public State getState() {
     return state;
   }
+
+  public RoutineManager getRoutineManager() {
+    return routineManager;
+  }
+
 
   public DataflowService getDataflowService() {
     return dataflowService;
@@ -58,43 +79,86 @@ public class RoutineExecutorHandler {
     return routineExecutions.get(address);
   }
 
-  public RoutineExecution findRoutineExecutionContaining(int address) {
-    return routineExecutions.values().stream().filter(r -> r.contains(address)).findFirst().get();
+  public RoutineExecution findCallerOf(int callSite) {
+    int callee = routineManager.getInstructionAt(callSite) instanceof Call call ? stackFrames.lastIndexOf(call.getJumpAddress()) : -1;
+    return callee > 0 ? routineExecutions.get(stackFrames.get(callee - 1)) : stackFrames.reversed().stream().map(routineExecutions::get).filter(r -> r.contains(callSite)).findFirst().orElse(null);
   }
 
-  public void createRoutineExecution(int jumpAddress) {
-    // if (jumpAddress == 35211) System.out.println("start routine: " + jumpAddress);
-    if (jumpAddress == 0xCFD9)
-      System.out.println("");
+  public LinkedList<java.lang.Integer> unexploredJumpTargets(int address, Set<java.lang.Integer> targets) {
+    return unexploredJumpTargets.computeIfAbsent(address, a -> new LinkedList<>(targets));
+  }
+
+  public RoutineExecution createRoutineExecution(int jumpAddress) {
+    RoutineExecution currentRoutineExecution = getCurrentRoutineExecution();
 
     System.out.println("Push frame: " + formatAddress(jumpAddress));
 
+    if (stackFrames.isEmpty())
+      routineExecutions.values().forEach(RoutineExecution::invalidate);
     stackFrames.push(jumpAddress);
     RoutineExecution routineExecution = routineExecutions.get(jumpAddress);
     if (routineExecution == null) {
       routineExecutions.put(jumpAddress, routineExecution = new RoutineExecution(this, jumpAddress));
     } else
-      System.err.print("");
+      routineExecution.invalidate();
+
+    if (currentRoutineExecution != null)
+      currentRoutineExecution.addCallee(routineExecution);
+
+    return routineExecution;
   }
 
-  public Object popRoutineExecution() {
+  public Stack<Integer> getStackFrames() {
+    return stackFrames;
+  }
+
+  public int popRoutineExecution() {
     int t = state.getMemory().read16Bits(state.getRegisterSP().read());
     java.lang.Integer pop = stackFrames.pop();
     System.out.printf("Pop frame: %s, ret: %s%n", formatAddress(pop), formatAddress(t));
+    if (stackFrames.isEmpty())
+      clearStackFrames();
+    else
+      routineExecutions.get(pop).invalidate();
     return pop;
   }
 
-  public void reset() {
+  public void newExploration() {
+    exploration++;
+  }
+
+  public int exploration() {
+    return exploration;
+  }
+
+  public void forgetExecutions(int from, int to) {
+    routineExecutions.keySet().removeIf(start -> start >= from && start < to);
+    routineExecutions.values().forEach(RoutineExecution::invalidate);
+  }
+
+  public void clearStackFrames() {
     stackFrames.clear();
+    routineExecutions.values().forEach(RoutineExecution::invalidate);
+  }
+
+  public void reset() {
+    clearStackFrames();
     routineExecutions.clear();
+    unexploredJumpTargets.clear();
   }
 
   public boolean isEmpty() {
-    return stackFrames.isEmpty();
+    boolean empty = stackFrames.isEmpty();
+    if (empty)
+      System.out.println("empty");
+    return empty;
   }
 
   public RoutineExecution getCurrentRoutineExecution() {
-    return routineExecutions.get(stackFrames.peek());
+    if (stackFrames.isEmpty())
+      return null;
+    else
+      return routineExecutions.get(stackFrames.peek());
   }
 
   public RoutineExecution getCallerRoutineExecution() {

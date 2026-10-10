@@ -18,7 +18,9 @@
 
 package com.fpetrola.z80.se.actions;
 
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.se.RoutineExecution;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
 
 public class AddressAction {
@@ -28,12 +30,25 @@ public class AddressAction {
   protected boolean branch;
   public int address;
   protected boolean pending;
+  protected RoutineExecution owner;
   private int count;
+  private int visitedIn;
+  private boolean resuming;
+
+  public ExecutionStackStorage getExecutionStackStorage() {
+    return executionStackStorage;
+  }
+
+  public void keepStackStorageOf(AddressAction replaced) {
+    executionStackStorage = replaced.executionStackStorage;
+  }
+
   private ExecutionStackStorage executionStackStorage;
 
   public AddressAction(int pcValue, RoutineExecutorHandler routineExecutorHandler) {
     this.address = pcValue;
     this.routineExecutionHandler = routineExecutorHandler;
+    visitedIn = routineExecutorHandler.exploration();
     executionStackStorage = routineExecutionHandler.getExecutionStackStorage().create();
   }
 
@@ -49,9 +64,7 @@ public class AddressAction {
   }
 
   public boolean processBranch(Instruction instruction) {
-    if (pending) {
-      pending = false;
-    }
+    setPending(false);
     return true;
   }
 
@@ -67,18 +80,46 @@ public class AddressAction {
     return pending;
   }
 
+  public boolean isPending(java.util.Set<RoutineExecution> visited) {
+    return isPending();
+  }
+
   public void setPending(boolean pending) {
-    this.pending = pending;
+    if (this.pending != pending) {
+      this.pending = pending;
+      changed();
+    }
+  }
+
+  protected void changed() {
+    if (owner != null)
+      owner.invalidate();
+  }
+
+  public void ownedBy(RoutineExecution owner) {
+    this.owner = owner;
   }
 
   @Override
   public String toString() {
-    return "AddressAction{address=%d, instruction=%s, pending=%s}".formatted(address, instruction, pending);
+    return "%s{address=%s, instruction=%s, pending=%s}".formatted(getClass().getSimpleName(), Helper.formatAddress(address), instruction, pending);
+  }
+
+  public void resume() {
+    resuming = true;
+  }
+
+  public boolean takeResuming() {
+    boolean result = resuming;
+    resuming = false;
+    return result;
   }
 
   protected int getNextPC(int address1) {
-    if (pending) {
-      pending = false;
+    if (pending || visitedIn != routineExecutionHandler.exploration()) {
+      resuming |= pending;
+      setPending(false);
+      visitedIn = routineExecutionHandler.exploration();
       return address1;
     } else {
       return routineExecutionHandler.getCurrentRoutineExecution().getNextPending().address;
@@ -86,17 +127,17 @@ public class AddressAction {
   }
 
   protected void incCount() {
-    if (!branch)
-      executionStackStorage.save();
-    else {
-      executionStackStorage.restore();
-    }
+//    if (!branch)
+//      executionStackStorage.save();
+//    else {
+//      executionStackStorage.restore();
+//    }
 
 //    if (routineExecutionHandler.getPc().read().intValue() == 0x8d67)
 //      System.out.println("dasfsssss!!!");
     count++;
-    if (count > 2)
-      System.out.println("adgadgdag");
+//    if (count > 2)
+//      System.out.println("adgadgdag");
   }
 
   public int getNextPC() {

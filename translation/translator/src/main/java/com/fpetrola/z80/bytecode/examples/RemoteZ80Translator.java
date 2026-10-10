@@ -23,22 +23,39 @@ import com.fpetrola.z80.cpu.RegistersSetter;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.emulation.helpers.snapshots.SnapshotLoader;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
+import com.fpetrola.z80.minizx.emulation.MockedMemory;
+import com.fpetrola.z80.memory.MemoryBanks;
+import com.fpetrola.z80.routines.CodeVersions;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
-import io.korhner.asciimg.image.AsciiImgCache;
-import io.korhner.asciimg.image.character_fit_strategy.StructuralSimilarityFitStrategy;
-import io.korhner.asciimg.image.converter.AsciiToStringConverter;
 import org.apache.commons.text.CaseUtils;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import com.fpetrola.z80.cpu.FetchListener;
+import com.fpetrola.z80.cpu.OOZ80;
+import com.fpetrola.z80.instructions.impl.Call;
+import com.fpetrola.z80.instructions.impl.Halt;
+import com.fpetrola.z80.instructions.impl.JP;
+import com.fpetrola.z80.instructions.impl.Ret;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
+import com.fpetrola.z80.minizx.DefaultMiniZXIO;
+import com.fpetrola.z80.opcodes.references.ConditionAlwaysTrue;
+import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.transformations.StackAnalyzer;
+import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.memory.Memory;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.regex.Pattern;
 
 import static java.net.URI.create;
@@ -64,7 +81,6 @@ public class RemoteZ80Translator {
     String screenURL = "https://tcrf.net/images/3/3a/Jet_Set_Willy-ZX_Spectrum-title.png";
     int emulateUntil = -1;
 
-
     if (args.length >= 4) {
       action = args[0];
       gameName = args[1];
@@ -79,32 +95,405 @@ public class RemoteZ80Translator {
     remoteZ80Translator.translate(action, gameName, url, startRoutineAddress, screenURL, emulateUntil);
   }
 
-  public static  String emulateUntil(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, int address, String url) {
-    EmulatedMiniZX emulatedMiniZX = new EmulatedMiniZX(url, 1, false, address, false);
+  public static String emulateUntil(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, int emulateUntil, String url) {
+    return emulate(realCodeBytecodeCreationBase, new EmulatedMiniZX(url, 1, false, emulateUntil, false, realCodeBytecodeCreationBase.getStackAnalyzer()));
+  }
+
+  public static String emulateRecording(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, String rzxFile, int frames) {
+    return emulate(realCodeBytecodeCreationBase, EmulatedMiniZX.ofRecording(rzxFile, frames, realCodeBytecodeCreationBase.getStackAnalyzer()));
+  }
+
+  /** What ran above C000 while a bank other than the starting one was paged there: its instructions, the bytes they changed between runs, and the bank at the end. */
+  public record BankedCode(Map<Integer, int[]> instructions, Set<Integer> modified, int[] contents) implements java.io.Serializable {
+  }
+
+  public record Footprint(Map<Integer, int[]> codeBytes, Map<Integer, int[]> explored, StackAnalyzer learned, Set<Integer> externalEntries, int[] finalMemory, CodeVersions versions, Set<Integer> romEntries,
+                          Map<Integer, BankedCode> bankedCode) implements java.io.Serializable {
+    /** Bytes that ran with more than one value: versions of an instruction, and opcodes that ran where another recorded instruction had a different operand byte. */
+    public Set<Integer> modifiedCode() {
+      Set<Integer> modified = new HashSet<>(versions.modifiedBytes());
+      codeBytes.forEach((address, bytes) -> {
+        for (int i = 1; i < bytes.length; i++) {
+          int[] overlapping = codeBytes.get(address + i & 0xffff);
+          for (int j = 0; overlapping != null && j < overlapping.length && i + j < bytes.length; j++)
+            if (overlapping[j] != bytes[i + j])
+              modified.add(address + i + j & 0xffff);
+        }
+      });
+      return modified;
+    }
+
+    public Map<Integer, Integer> executed() {
+      Map<Integer, Integer> lengths = new HashMap<>();
+      code().forEach((address, bytes) -> lengths.put(address, span(address, bytes)));
+      return lengths;
+    }
+
+    private Map<Integer, int[]> code() {
+      Set<Integer> recordedInteriors = interiors(codeBytes);
+      Map<Integer, int[]> code = new HashMap<>(codeBytes);
+      explored.forEach((address, bytes) -> {
+        if (!recordedInteriors.contains(address) && java.util.stream.IntStream.range(1, bytes.length).noneMatch(i -> codeBytes.containsKey(address + i & 0xffff)))
+          code.putIfAbsent(address, bytes);
+      });
+      return code;
+    }
+
+    private Set<Integer> interiors(Map<Integer, int[]> instructions) {
+      Set<Integer> interiors = new HashSet<>();
+      instructions.forEach((address, bytes) -> {
+        for (int i = 1; i < span(address, bytes); i++)
+          interiors.add(address + i & 0xffff);
+      });
+      interiors.removeAll(codeBytes.keySet());
+      return interiors;
+    }
+
+    private int span(int address, int[] bytes) {
+      int data = learned.callContinuations.getOrDefault(address, address + bytes.length) - address - bytes.length & 0xffff;
+      return data < 256 && java.util.stream.IntStream.range(bytes.length, bytes.length + data).noneMatch(i -> codeBytes.containsKey(address + i & 0xffff)) ? bytes.length + data : bytes.length;
+    }
+
+    private Footprint forgettingJumpsIntoData() {
+      Set<Integer> interiors = interiors(code());
+      learned.dynamicInvocation.entries().stream().filter(jump -> interiors.contains(jump.getValue()) && bankedCode.values().stream().noneMatch(banked -> banked.instructions().containsKey(jump.getKey()) || banked.instructions().containsKey(jump.getValue())))
+          .toList().forEach(jump -> learned.dynamicInvocation.removeMapping(jump.getKey(), jump.getValue()));
+      return this;
+    }
+
+    public static Footprint combine(List<Footprint> footprints) {
+      Map<Integer, int[]> codeBytes = new HashMap<>(), explored = new HashMap<>();
+      Set<Integer> externalEntries = new HashSet<>(), romEntries = new HashSet<>();
+      Map<Integer, BankedCode> bankedCode = new HashMap<>();
+      StackAnalyzer learned = new StackAnalyzer(null);
+      CodeVersions versions = new CodeVersions();
+      footprints.forEach(footprint -> {
+        footprint.bankedCode.forEach((bank, code) -> bankedCode.merge(bank, code, (a, b) -> {
+          b.instructions().forEach(a.instructions()::putIfAbsent);
+          a.modified().addAll(b.modified());
+          return new BankedCode(a.instructions(), a.modified(), b.contents());
+        }));
+        footprint.codeBytes.forEach((address, bytes) -> recordVersion(codeBytes, versions, address, bytes));
+        versions.addAll(footprint.versions);
+        footprint.explored.forEach(explored::putIfAbsent);
+        externalEntries.addAll(footprint.externalEntries);
+        romEntries.addAll(footprint.romEntries);
+        learned.learnFrom(footprint.learned);
+      });
+      learned.codeVersions = versions;
+      return new Footprint(codeBytes, explored, learned, externalEntries, footprints.get(footprints.size() - 1).finalMemory, versions, romEntries, bankedCode);
+    }
+
+    public void install(Memory memory, int stackPointer) {
+      for (int address = 0x4000; address < 0x10000; address++)
+        if (address < stackPointer || address >= stackPointer + 128)
+          memory.write(address, finalMemory[address]);
+      Set<Integer> modified = modifiedCode();
+      code().forEach((address, bytes) -> {
+        for (int i = 0; i < bytes.length; i++) {
+          int at = address + i & 0xffff;
+          memory.write(at, bytes[i]);
+          if (!modified.contains(at))
+            memory.protect(at, at + 1);
+        }
+      });
+    }
+  }
+
+  public static Footprint footprint(String rzxFile, int from) {
+    try {
+      Path saved = Path.of("target", "footprints", footprintKey(rzxFile, from) + ".ser");
+      if (Files.exists(saved))
+        try (java.io.ObjectInputStream in = new java.io.ObjectInputStream(new java.io.BufferedInputStream(Files.newInputStream(saved)))) {
+          return (Footprint) in.readObject();
+        }
+      Footprint footprint = footprint(stackAnalyzer -> EmulatedMiniZX.ofRecording(rzxFile, -1, stackAnalyzer), from);
+      Files.createDirectories(saved.getParent());
+      try (java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(new java.io.BufferedOutputStream(Files.newOutputStream(saved)))) {
+        out.writeObject(footprint);
+      }
+      return footprint;
+    } catch (IOException | ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private static String footprintKey(String rzxFile, int from) throws IOException {
+    java.security.MessageDigest digest = sha256();
+    digest.update(Files.readAllBytes(Path.of(rzxFile)));
+    digest.update(Integer.toString(from).getBytes());
+    for (Class<?> type : List.of(com.fpetrola.z80.cpu.OOZ80.class, StackAnalyzer.class, RemoteZ80Translator.class))
+      digestCode(digest, Path.of(type.getProtectionDomain().getCodeSource().getLocation().getPath()), type == RemoteZ80Translator.class);
+    return java.util.HexFormat.of().formatHex(digest.digest());
+  }
+
+  private static void digestCode(java.security.MessageDigest digest, Path location, boolean onlyTheFootprint) throws IOException {
+    java.util.function.Predicate<String> part = name -> name.endsWith(".class") && (!onlyTheFootprint || name.contains("RemoteZ80Translator") || name.contains("/minizx/"));
+    if (Files.isDirectory(location))
+      try (java.util.stream.Stream<Path> files = Files.walk(location)) {
+        for (Path file : files.filter(f -> part.test(f.toString())).sorted().toList())
+          digest.update(Files.readAllBytes(file));
+      }
+    else
+      try (java.util.jar.JarFile jar = new java.util.jar.JarFile(location.toFile())) {
+        for (java.util.jar.JarEntry entry : jar.stream().filter(e -> part.test(e.getName())).sorted(java.util.Comparator.comparing(java.util.jar.JarEntry::getName)).toList())
+          digest.update(jar.getInputStream(entry).readAllBytes());
+      }
+  }
+
+  private static java.security.MessageDigest sha256() {
+    try {
+      return java.security.MessageDigest.getInstance("SHA-256");
+    } catch (java.security.NoSuchAlgorithmException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  public static String emulateProgram(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, int[] memory, int entry, int stack) {
+    return emulate(realCodeBytecodeCreationBase, EmulatedMiniZX.ofProgram(memory, entry, stack, 0, null));
+  }
+
+  public static Footprint footprint(java.util.function.Function<StackAnalyzer, EmulatedMiniZX> emulatorFor, int from) {
+    Map<Integer, int[]> codeBytes = new HashMap<>();
+    Set<Integer> externalEntries = new HashSet<>();
+    CodeVersions versions = new CodeVersions();
+    boolean[] started = {false};
+    StackAnalyzer stackAnalyzer = new StackAnalyzer(null), forked = new StackAnalyzer(null).learning(StackAnalyzer.Source.FORK);
+    stackAnalyzer.codeVersions = versions;
+    EmulatedMiniZX[] emulator = {null};
+    Map<Integer, int[]> explored = new HashMap<>();
+    Forks forks = new Forks(codeBytes, new HashSet<>(), explored, new HashMap<>(), new HashSet<>());
+    ConditionalInstruction<?>[] pending = {null};
+    int[] pendingAddress = {-1};
+    Set<Integer> patched = new HashSet<>(), romEntries = new HashSet<>();
+    Map<Integer, BankedCode> bankedCode = new HashMap<>();
+    Instruction[] previous = {null};
+    int[] startingBank = {-1};
+    emulator[0] = emulatorFor.apply(stackAnalyzer).listening(new FetchListener() {
+      public void instructionFetchedAt(int address, Instruction instruction) {
+        boolean starting = !started[0] && address == from;
+        started[0] |= starting;
+        if (starting)
+          stackAnalyzer.learning(StackAnalyzer.Source.RECORDING);
+        if (!started[0])
+          return;
+        if (pending[0] != null)
+          forks.exploreUntakenBranch(emulator[0].ooz80, pending[0], pendingAddress[0], address, forked, BRANCH_BUDGET);
+        int[] memory = emulator[0].ooz80.getState().getMemory().getData();
+        MemoryBanks banks = ((MockedMemory) emulator[0].ooz80.getState().getMemory()).banks;
+        if (starting && banks != null)
+          startingBank[0] = banks.bank();
+        int[] bytes = new int[instruction.getLength()];
+        for (int i = 0; i < bytes.length; i++)
+          bytes[i] = memory[address + i & 0xffff];
+        if (address >= MemoryBanks.WINDOW && banks != null && banks.bank() != startingBank[0]) {
+          BankedCode banked = bankedCode.computeIfAbsent(banks.bank(), bank -> new BankedCode(new HashMap<>(), new HashSet<>(), null));
+          int[] seen = banked.instructions().putIfAbsent(address, bytes);
+          for (int i = 0; seen != null && i < bytes.length; i++)
+            if (seen[i] != bytes[i])
+              banked.modified().add(address + i);
+          pending[0] = null;
+          pendingAddress[0] = -1;
+          return;
+        }
+        if (pendingAddress[0] != -1 && address != (pendingAddress[0] + codeBytes.get(pendingAddress[0]).length & 0xffff))
+          forks.landings().add(address);
+        if (address < 0x4000 && (pendingAddress[0] >= 0x4000 && !(previous[0] instanceof Ret) || previous[0] instanceof JP jump && jump.getPositionOpcodeReference() instanceof Register))
+          romEntries.add(address);
+        previous[0] = instruction;
+        boolean conditional = isUntakenBranchCandidate(instruction);
+        pending[0] = conditional ? (ConditionalInstruction<?>) instruction : null;
+        pendingAddress[0] = address;
+        for (int slot = emulator[0].ooz80.getState().getRegisterSP().read(); starting && slot < 0x10000 - 1 && externalEntries.size() < 10; slot += 2)
+          externalEntries.add(memory[slot] | memory[slot + 1] << 8);
+        recordVersion(codeBytes, versions, address, bytes);
+        patched.addAll(CodeVersions.fixedStoreTargets(address, instruction, memory));
+      }
+
+      public void interruptedTo(int vector) {
+        if (started[0]) {
+          (vector < 0x4000 ? romEntries : externalEntries).add(vector);
+          stackAnalyzer.interrupted();
+        }
+      }
+    });
+    play(emulator[0]);
+    stackAnalyzer.learnFromForks(forked, codeBytes.keySet());
+    versions.patched(patched, codeBytes);
+    externalEntries.retainAll(codeBytes.keySet());
+    int[] finalMemory = emulator[0].ooz80.getState().getMemory().getData().clone();
+    MemoryBanks banks = ((MockedMemory) emulator[0].ooz80.getState().getMemory()).banks;
+    if (banks != null) {
+      System.arraycopy(banks.contents(startingBank[0], finalMemory), 0, finalMemory, MemoryBanks.WINDOW, MemoryBanks.SIZE);
+      bankedCode.values().forEach(code -> dropStartingBankRuns(code.instructions(), codeBytes));
+      bankedCode.values().removeIf(code -> code.instructions().isEmpty());
+      bankedCode.replaceAll((bank, code) -> new BankedCode(code.instructions(), code.modified(), banks.contents(bank, emulator[0].ooz80.getState().getMemory().getData())));
+    }
+    return new Footprint(codeBytes, explored, stackAnalyzer, externalEntries, finalMemory, versions, romEntries, bankedCode).forgettingJumpsIntoData();
+  }
+
+  /** A contiguous run of another bank's instructions that all have the bytes the starting bank ran there (the interrupt handler every bank holds) is the starting bank's code. */
+  private static void dropStartingBankRuns(Map<Integer, int[]> instructions, Map<Integer, int[]> codeBytes) {
+    List<List<Integer>> runs = new java.util.ArrayList<>();
+    int next = -1;
+    for (int address : new java.util.TreeSet<>(instructions.keySet())) {
+      if (address > next)
+        runs.add(new java.util.ArrayList<>());
+      runs.get(runs.size() - 1).add(address);
+      next = Math.max(next, address + instructions.get(address).length);
+    }
+    runs.stream().filter(run -> run.stream().allMatch(address -> Arrays.equals(instructions.get(address), codeBytes.get(address)))).forEach(run -> run.forEach(instructions::remove));
+  }
+
+  private static int[] recordVersion(Map<Integer, int[]> codeBytes, CodeVersions versions, int address, int[] bytes) {
+    int[] seen = codeBytes.putIfAbsent(address, bytes);
+    if (seen != null && !Arrays.equals(seen, bytes))
+      versions.record(address, seen, bytes);
+    return seen;
+  }
+
+  public static BiFunction<Integer, int[], Instruction> decoder() {
+    OOZ80 decoder = EmulatedMiniZX.createOOZ80(new DefaultMiniZXIO());
+    int[] memory = decoder.getState().getMemory().getData();
+    return (address, bytes) -> {
+      for (int i = 0; i < bytes.length; i++)
+        memory[address + i & 0xffff] = bytes[i];
+      decoder.getState().getPc().write(address);
+      int r = decoder.getState().getRegisterR().read();
+      Instruction instruction = decoder.getInstructionFetcher().fetchNextInstruction();
+      ((com.fpetrola.z80.instructions.types.AbstractInstruction) instruction).setRDelta(decoder.getState().getRegisterR().read() - r & 0x7f);
+      return instruction;
+    };
+  }
+
+  public static void recordBlockContents(EmulatedMiniZX emulator, int from, CodeVersions versions) {
+    boolean[] started = {false};
+    emulator.listening(new FetchListener() {
+      public void instructionFetchedAt(int address, Instruction instruction) {
+        started[0] |= address == from;
+        if (started[0])
+          versions.recordBlockContent(address, emulator.ooz80.getState().getMemory().getData());
+      }
+    });
+    play(emulator);
+  }
+
+  private static void play(EmulatedMiniZX emulator) {
+    try {
+      emulator.start();
+    } catch (RuntimeException finished) {
+      if (!"rzx finished".equals(finished.getMessage()))
+        throw finished;
+    }
+  }
+
+  private static final int BRANCH_BUDGET = 500;
+  public static final int SCREEN_END = 0x5B00, GAME_RAM = 0x5D00;
+
+  private record Forks(Map<Integer, int[]> codeBytes, Set<Integer> landings, Map<Integer, int[]> explored, Map<Integer, Integer> forked, Set<Integer> unfinished) {
+    private void exploreUntakenBranch(OOZ80 main, ConditionalInstruction<?> branch, int site, int taken, StackAnalyzer learned, int budget) {
+      State state = main.getState();
+      int fallThrough = site + branch.getLength() & 0xffff, sp = state.getRegisterSP().read();
+      int[] memory = state.getMemory().getData();
+      int slot = taken == fallThrough ? sp : sp - 2 & 0xffff;
+      int target = branch instanceof Ret ? memory[slot] | memory[slot + 1 & 0xffff] << 8
+          : branch.getLength() == 2 ? site + 2 + (byte) memory[site + 1 & 0xffff] & 0xffff : memory[site + 1 & 0xffff] | memory[site + 2 & 0xffff] << 8;
+      int alternative = taken == fallThrough ? target : fallThrough;
+      if (taken != fallThrough && taken != target || codeBytes.containsKey(alternative) || explored.containsKey(alternative) && !unfinished.contains(alternative) || forked.getOrDefault(site, 0) >= budget)
+        return;
+      forked.put(site, budget);
+      OOZ80 fork = EmulatedMiniZX.createOOZ80(new DefaultMiniZXIO() {
+        public int in(int port) {
+          return 0xff;
+        }
+      });
+      State forkState = fork.getState();
+      System.arraycopy(state.getMemory().getData(), 0, forkState.getMemory().getData(), 0, 0x10000);
+      forkState.takeFrom(state);
+      if (branch instanceof Call)
+        forkState.getRegisterSP().write(taken == fallThrough ? push(forkState, fallThrough) : sp + 2 & 0xffff);
+      else if (branch instanceof Ret)
+        forkState.getRegisterSP().write(taken == fallThrough ? sp + 2 & 0xffff : sp - 2 & 0xffff);
+      forkState.getPc().write(alternative);
+      StackAnalyzer analyzer = new StackAnalyzer(forkState).learning(StackAnalyzer.Source.FORK);
+      analyzer.knowsWholeStack = false;
+      analyzer.addExecutionListener(fork.getInstructionExecutor());
+      int startSp = forkState.getRegisterSP().read();
+      Set<Integer> known = new HashSet<>(explored.keySet());
+      known.removeAll(unfinished);
+      Set<Integer> own = new HashSet<>();
+      try {
+        Instruction executed = null;
+        for (int fresh = 0, step = 0; ; step++) {
+          if (fresh >= budget && executed instanceof ConditionalInstruction || step == 100 * budget) {
+            unfinished.addAll(own);
+            own.clear();
+            break;
+          }
+          int pc = forkState.getPc().read(), depth = startSp - forkState.getRegisterSP().read() & 0xffff;
+          if (step > 0 && (depth == 0 && !analyzer.returnPoppedBelow(forkState.getRegisterSP().read()) || depth >= 0x8000) && (codeBytes.containsKey(pc) || known.contains(pc)))
+            break;
+          if (deadEnd(pc))
+            break;
+          if (own.add(pc) && !codeBytes.containsKey(pc) && !known.contains(pc))
+            fresh++;
+          int[] bytes = java.util.Arrays.copyOfRange(forkState.getMemory().getData(), pc, Math.min(pc + 4, 0x10000));
+          executed = fork.execute(1);
+          if (executed == null)
+            break;
+          explored.put(pc, java.util.Arrays.copyOf(bytes, executed.getLength()));
+          if (budget > BRANCH_BUDGET / 32 && isUntakenBranchCandidate(executed))
+            exploreUntakenBranch(fork, (ConditionalInstruction<?>) executed, pc, forkState.getPc().read(), analyzer, budget / 2);
+          int landing = forkState.getPc().read();
+          if (executed instanceof JP jump && jump.getPositionOpcodeReference() instanceof Register && (codeBytes.containsKey(landing) ? !landings.contains(landing) : deadEnd(landing)))
+            return;
+          if (executed instanceof Halt || executed instanceof Ret && (forkState.getRegisterSP().read() - startSp & 0xffff) > 0 && (forkState.getRegisterSP().read() - startSp & 0xffff) < 0x8000)
+            break;
+        }
+      } catch (RuntimeException deadEnd) {
+      }
+      unfinished.removeAll(own);
+      learned.learnFrom(analyzer);
+    }
+
+    private boolean deadEnd(int pc) {
+      return pc == 0 || pc >= 0x4000 && pc < SCREEN_END && !codeBytes.containsKey(pc);
+    }
+  }
+
+  private static boolean isUntakenBranchCandidate(Instruction instruction) {
+    return instruction instanceof ConditionalInstruction<?> branch && !(branch.getCondition() instanceof ConditionAlwaysTrue) && (branch instanceof Ret || !(branch.getPositionOpcodeReference() instanceof Register));
+  }
+
+  private static int push(State state, int value) {
+    int sp = state.getRegisterSP().read() - 2 & 0xffff;
+    state.getMemory().write16Bits(value, sp);
+    return sp;
+  }
+
+  public static String emulateRecordingUntil(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, String rzxFile, int address) {
+    return emulate(realCodeBytecodeCreationBase, EmulatedMiniZX.ofRecording(rzxFile, -1, null).stoppingAt(address));
+  }
+
+  /** Where a recording's translation starts: the first instruction it runs above the ROM, the screen and the system variables, so a snapshot taken inside the ROM's interrupt or a loader in the screen starts at the game. */
+  public static int startOf(String rzxFile) {
+    EmulatedMiniZX emulator = EmulatedMiniZX.ofRecording(rzxFile, -1, null).stoppingAt(pc -> pc >= GAME_RAM);
+    emulator.start();
+    return emulator.ooz80.getState().getPc().read();
+  }
+
+  private static String emulate(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, EmulatedMiniZX emulatedMiniZX) {
     emulatedMiniZX.start();
 
     State state = emulatedMiniZX.ooz80.getState();
     String base64Memory = SnapshotHelper.getBase64Memory(state);
+    realCodeBytecodeCreationBase.setProgramImage(((int[]) state.getMemory().getData()).clone());
     realCodeBytecodeCreationBase.getState().getMemory().copyFrom(state.getMemory());
     realCodeBytecodeCreationBase.getState().setRegisters(state);
     return base64Memory;
   }
 
-  private void drawPicture(String url) {
-    try {
-      File input = getRemoteFile(url, "", "/tmp/" + "screen");
-
-      AsciiImgCache cache = AsciiImgCache.create(new Font("Courier", Font.PLAIN, 2));
-      BufferedImage portraitImage = ImageIO.read(input);
-      AsciiToStringConverter stringConverter = new AsciiToStringConverter(cache, new StructuralSimilarityFitStrategy());
-      System.out.println(stringConverter.convertImage(portraitImage));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   public void translate(String action, String gameName, String url, int startRoutineAddress, String screeenURL, int emulateUntil) {
-    //  drawPicture(screeenURL);
     int firstAddress = startRoutineAddress;
     String base64Memory;
     if (emulateUntil > 0) {
@@ -136,7 +525,7 @@ public class RemoteZ80Translator {
         throw new RuntimeException(e);
       }
     } else
-      translateToJava(gameName, base64Memory, "$" + startRoutineAddress);
+      realCodeBytecodeCreationBase.translatedProgram(gameName, base64Memory).run(startRoutineAddress);
   }
 
   public static String improveSource(String sourceCode) {
@@ -171,10 +560,6 @@ public class RemoteZ80Translator {
 
   public String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className, SymbolicExecutionAdapter symbolicExecutionAdapter) {
     return realCodeBytecodeCreationBase.generateAndDecompile(base64Memory, routines, targetFolder, className, symbolicExecutionAdapter);
-  }
-
-  public void translateToJava(String className, String memoryInBase64, String startMethod) {
-    realCodeBytecodeCreationBase.translateToJava(className, memoryInBase64, startMethod);
   }
 
   public RegistersSetter getDefaultRegistersSetter() {

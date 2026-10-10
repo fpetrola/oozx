@@ -18,6 +18,10 @@
 
 package com.fpetrola.z80.minizx.emulation;
 
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.List;
+
 import com.fpetrola.z80.helpers.CollectionHandler;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.memory.MemoryReadListener;
@@ -27,6 +31,7 @@ public abstract class AbstractMemory implements Memory {
   protected final CollectionHandler<MemoryWriteListener> memoryWriteListener = new CollectionHandler<>();
   protected final CollectionHandler<MemoryReadListener> memoryReadListener = new CollectionHandler<>();
   protected boolean readOnly;
+  private final BitSet protectedAddresses = new BitSet(0x10000);
 
   public AbstractMemory() {
   }
@@ -41,9 +46,23 @@ public abstract class AbstractMemory implements Memory {
 
   protected abstract void doWrite(int address, int value);
 
+  public boolean isProtected(int address) {
+    return protectedAddresses.get(address);
+  }
+
   public void write(final int address, final int value) {
+    if (isProtected(address))
+      return;
     memoryWriteListener.forAll(l -> l.writtingMemoryAt(address, value));
     doWrite(address, value);
+  }
+
+  public void protect(int from, int to) {
+    protectedAddresses.set(from, to);
+  }
+
+  public void unprotect(int from, int to) {
+    protectedAddresses.clear(from, to);
   }
 
   public void addMemoryWriteListener(MemoryWriteListener memoryWriteListener) {

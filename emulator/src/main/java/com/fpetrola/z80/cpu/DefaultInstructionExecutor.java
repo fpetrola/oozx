@@ -36,28 +36,23 @@ public class DefaultInstructionExecutor implements InstructionExecutor {
   private final Set<Instruction> executingInstructions = new HashSet<>();
   private final Map<java.lang.Integer, Instruction> instructions = new HashMap<>();
 
-  private final Consumer<Instruction> afterExecutionAction;
+  private final boolean skipRepeating;
   private ExecutionListener dummyExecutionListener= new DummyExecutionListener();
   private ExecutionListener executionListener= dummyExecutionListener;
 
   @Inject
   public DefaultInstructionExecutor(State state, boolean noRepeat) {
     this.pc = state.getPc();
-    afterExecutionAction = noRepeat ? (instruction1 -> {
-      if (instruction1 instanceof RepeatingInstruction repeatingInstruction)
-        repeatingInstruction.setNextPC(-1);
-    }) : ((a) -> {
-    });
+    skipRepeating = noRepeat;
   }
 
   public Instruction execute(Instruction instruction) {
     executionListener.beforeExecution(instruction);
 
-    instruction.execute();
+    if (!(skipRepeating && instruction instanceof RepeatingInstruction))
+      instruction.execute();
 
     executionListener.afterExecution(instruction);
-
-    afterExecutionAction.accept(instruction);
 
     int nextPC = ((AbstractInstruction) instruction).getNextPC();
     if (nextPC == -1) {
@@ -76,6 +71,9 @@ public class DefaultInstructionExecutor implements InstructionExecutor {
   }
 
   public void addTopExecutionListener(ExecutionListener executionListener) {
+    this.executionListener = this.executionListener == dummyExecutionListener
+        ? executionListener
+        : new ExecutionListeners(executionListener, this.executionListener);
   }
 
   public boolean isExecuting(Instruction instruction) {

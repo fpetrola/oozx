@@ -22,90 +22,62 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
+import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
-import com.fpetrola.z80.se.instructions.SEInstructionFactory;
+import com.fpetrola.z80.se.StackListener;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
 public class JPRegisterAddressAction extends AddressAction {
-  public DynamicJPData dynamicJPData;
-  private LinkedList<java.lang.Integer> cases = new LinkedList<>();
+  private final Set<Integer> invocations;
+  private final LinkedList<Integer> cases;
+  private Integer currentCase;
 
-  public JPRegisterAddressAction(Instruction instruction, int pcValue, boolean alwaysTrue, RoutineExecutorHandler routineExecutorHandler) {
+  public JPRegisterAddressAction(Instruction instruction, int pcValue, boolean alwaysTrue, RoutineExecutorHandler routineExecutorHandler, Set<Integer> invocations) {
     super(pcValue, true, instruction, alwaysTrue, routineExecutorHandler);
+    this.invocations = invocations;
+    cases = routineExecutorHandler.unexploredJumpTargets(pcValue, invocations);
   }
 
   public boolean processBranch(Instruction instruction) {
     ConditionalInstruction conditionalInstruction = (ConditionalInstruction) instruction;
-    pollCases();
     boolean doBranch = getDoBranch();
 
-    if (doBranch) {
+    if (doBranch && !cases.isEmpty()) {
       State state = routineExecutionHandler.getState();
-      int t = state.getMemory().read16Bits(state.getRegisterSP().read());
-      if (t == address + 1) {
-        int jumpAddress = conditionalInstruction.calculateJumpAddress();
-        if (jumpAddress > 16384)
-          routineExecutionHandler.createRoutineExecution(jumpAddress);
-        else System.out.println("JP (HL) -> " + Helper.formatAddress(jumpAddress));
-      }
+      pollNextCase();
+
+      routineExecutionHandler.getStackAnalyzer().listenEvents(new StackListener() {
+        public boolean simulatedCall(int pcValue, int jumpAddress, Set<Integer> jumpAddresses, int returnAddress) {
+          routineExecutionHandler.createRoutineExecution(currentCase);
+          System.out.println("JP (HL) -> " + Helper.formatAddress(jumpAddress));
+          return StackListener.super.simulatedCall(pcValue, jumpAddress, jumpAddresses, returnAddress);
+        }
+      });
     }
-    return doBranch;
+    if (currentCase != null)
+      ((Register) conditionalInstruction.getPositionOpcodeReference()).write(currentCase);
+    return doBranch && currentCase != null;
   }
 
-  @Override
   public int getNext(int executedInstructionAddress, int currentPc) {
-    pending = false;
-    return currentPc;
+    setPending(false);
+    if (currentCase != null)
+      return currentCase;
+    else
+      return routineExecutionHandler.getCurrentRoutineExecution().getNextPending().address;
+  }
+
+  private void pollNextCase() {
+    currentCase = cases.poll();
+    changed();
   }
 
   @Override
   public boolean isPending() {
     return pending || !cases.isEmpty();
-  }
-
-  public void setDynamicJPData(DynamicJPData dynamicJPData) {
-    this.dynamicJPData = dynamicJPData;
-    this.cases.addAll(dynamicJPData.cases);
-  }
-
-  public void pollCases() {
-    java.lang.Integer poll = cases.poll();
-    if (poll != null) {
-      SEInstructionFactory.SeJP jp = (SEInstructionFactory.SeJP) instruction;
-      jp.lastData = poll;
-    }
-  }
-
-  public static class DynamicJPData {
-    private final int pc;
-    private final int pointer;
-    private final int pointerAddress;
-    public Set<java.lang.Integer> cases = new HashSet<>();
-
-    public DynamicJPData(int pc, int pointer, int pointerAddress) {
-      this.pc = pc;
-      this.pointer = pointer;
-      this.pointerAddress = pointerAddress;
-    }
-
-    public void addCase(int aCase) {
-      System.out.println("0x" + Helper.formatAddress(pointerAddress()) + ":  " + Helper.formatAddress(aCase));
-      cases.add(aCase);
-    }
-
-    public int pc() {
-      return pc;
-    }
-
-    public int pointer() {
-      return pointer;
-    }
-
-    public int pointerAddress() {
-      return pointerAddress;
-    }
   }
 }

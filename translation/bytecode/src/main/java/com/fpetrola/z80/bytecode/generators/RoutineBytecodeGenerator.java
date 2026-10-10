@@ -18,23 +18,40 @@
 
 package com.fpetrola.z80.bytecode.generators;
 
+import com.fpetrola.z80.routines.CodeVersions;
+import com.fpetrola.z80.routines.RoutineManager;
+
+import com.fpetrola.z80.opcodes.references.*;
+import com.fpetrola.z80.instructions.impl.JP;
+import com.fpetrola.z80.instructions.impl.Ld;
+import com.fpetrola.z80.instructions.impl.Pop;
+import com.fpetrola.z80.instructions.impl.Push;
+import com.fpetrola.z80.transformations.StackAnalyzer;
+import com.fpetrola.z80.instructions.impl.Ret;
+import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.bytecode.generators.helpers.*;
 import com.fpetrola.z80.helpers.Helper;
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.minizx.StackException;
+import com.fpetrola.z80.tstates.UncontendedTiming;
+import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.registers.Plain16BitRegister;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineVisitor;
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.MultiSet;
 import org.cojen.maker.Field;
 import org.cojen.maker.Label;
 import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
 
 import java.util.*;
+import java.util.stream.Stream;
 import java.util.function.Supplier;
 
 public class RoutineBytecodeGenerator {
@@ -51,8 +68,7 @@ public class RoutineBytecodeGenerator {
   public Map<String, Register> registerByVariable = new HashMap<>();
   public Map<Register, Variable> variablesByRegister = new HashMap<>();
   protected final Map<java.lang.Integer, Label> insertLabels = new HashMap<>();
-  public DefaultTargetFlagInstruction lastTargetFlagInstruction;
-  private PendingFlagUpdate pendingFlag;
+  private final Map<java.lang.Integer, Label> labelsAfterLeavingCalls = new HashMap<>();
   public Instruction currentInstruction;
   public Register currentRegister;
 
@@ -114,16 +130,30 @@ public class RoutineBytecodeGenerator {
             Runnable instructionGenerator = () -> {
               context.pc.write(address);
 
-              if (address == 37527)
+              if (address == 0xB94E)
                 System.out.print("");
 
               currentInstruction = instruction;
               generateInstruction(address, instruction, firstAddress);
 
-              int nextAddress = address + instruction.getLength();
-              List<Routine> list2 = routines.stream().filter(routine1 -> routine1.isVirtual() && routine1 != routine && routine1.getEntryPoint() == nextAddress).toList();
-              if (!list2.isEmpty())
-                invokeInnerIfAvailable(nextAddress, list2);
+              int nextAddress = instruction instanceof Call ? stackAnalyzer().callContinuations.getOrDefault(address, address + instruction.getLength() & 0xffff) : address + instruction.getLength() & 0xffff;
+              if (!routine.contains(nextAddress) && catchPoints().containsKey(address))
+                labelsAfterLeavingCalls.put(address, mm.label().here());
+              if (fallsThrough(address, instruction) && routine.contains(nextAddress) && getLabel(nextAddress) == null) {
+                mm.invoke("untranslated", nextAddress);
+                returnFromMethod();
+              }
+              if (fallsThrough(address, instruction) && routine.contains(nextAddress) && getLabel(nextAddress) != null && (nextAddress <= address || java.util.stream.IntStream.range(address + 1, nextAddress).anyMatch(a -> routine.contains(a) && context.routineManager.getInstructionAt(a) != null && context.routineManager.getInstructionAt(a) != instruction)))
+                mm.goto_(getLabel(nextAddress));
+              Routine continuationOwner = context.routineManager.findRoutineAt(nextAddress);
+              if (fallsThrough(address, instruction) && !routine.contains(nextAddress) && continuationOwner != null && (continuationOwner.getEntryPoint() == nextAddress ? !continuationOwner.isVirtual() : context.routineManager.isEnteredFromOutside(continuationOwner, nextAddress)))
+                tailJump(nextAddress, address);
+              if (fallsThrough(address, instruction) && routines.stream().anyMatch(routine1 -> routine1.isVirtual() && routine1 != routine && routine1.getEntryPoint() == nextAddress))
+                tailJump(nextAddress, address);
+              if (fallsThrough(address, instruction) && !(instruction instanceof Call) && !routine.contains(nextAddress) && continuationOwner == null) {
+                mm.invoke("untranslated", nextAddress);
+                returnFromMethod();
+              }
 
             };
 
@@ -135,46 +165,51 @@ public class RoutineBytecodeGenerator {
       private void generateInstruction(int address, Instruction instruction, int firstAddress) {
         lastMemPc.write(address);
 
-        if (!(instruction instanceof ConditionalInstruction<?>) && pendingFlag != null) {
-          if (!pendingFlag.processed)
-            pendingFlag.update(false);
-        }
-
         int label = -1;
         if (getLabel(address) != null) {
           label = firstAddress;
           hereLabel(label);
         }
 
-        if (mutantCodeInInstruction(instruction, address)) {
-          mm.invoke("executeMutantCode", address);
+        List<RoutineManager.CodeVariant> variants = context.routineManager.codeVariantsAt(address);
+        if (!variants.isEmpty()) {
+          Variable hash = mm.invoke("codeHash", variants.get(0).variableStart(), variants.get(0).variableBytes().length);
+          variants.forEach(v -> hash.ifEq(v.hash(), () -> tailJump(v.relocated(address), -1)));
+          mm.invoke("unknownCodeVariant", address, variants.get(0).variableStart(), variants.get(0).variableBytes().length);
+        }
+        List<int[]> versions = codeVersions().instructionVersions(address);
+        if (!versions.isEmpty()) {
+          invokePcUncharged(address);
+          Variable hash = mm.invoke("codeHash", address, instruction.getLength());
+          Label done = mm.label();
+          versions.forEach(bytes -> hash.ifEq(Arrays.hashCode(bytes), () -> {
+            Instruction version = codeVersions().decode(address, bytes);
+            chargeTstates(UncontendedTiming.costOf(bytes)[version instanceof RepeatingInstruction ? 1 : 0]);
+            mm.invoke("fetched", ((AbstractInstruction) version).getRDelta());
+            version.accept(new InstructionsBytecodeGenerator(mm, RoutineBytecodeGenerator.this, address));
+            if (RoutineManager.fallsThrough(version))
+              done.goto_();
+          }));
+          executeMutantCode(address, instruction);
+          done.here();
+        } else if (mutantCodeInInstruction(instruction, address)) {
+          invokePcUncharged(address);
+          executeMutantCode(address, instruction);
+        } else if (routine.getVirtualPop().containsKey(address) && routine.getVirtualPop().get(address) == address) {
+          throwAtVirtualPop(address);
+          returnFromMethod();
         } else {
-          InstructionsBytecodeGenerator instructionsBytecodeGenerator = new InstructionsBytecodeGenerator(mm, label, RoutineBytecodeGenerator.this, address, pendingFlag);
+          invokePc(address);
+          InstructionsBytecodeGenerator instructionsBytecodeGenerator = new InstructionsBytecodeGenerator(mm, RoutineBytecodeGenerator.this, address);
           instruction.accept(instructionsBytecodeGenerator);
-          pendingFlag = instructionsBytecodeGenerator.pendingFlag;
 
           if (!instructionsBytecodeGenerator.incPopsAdded && routine.getVirtualPop().containsKey(address)) {
-            int nextAddress = routine.getVirtualPop().get(address) + 1;
-            throwStackException(nextAddress, StackException.class);
-//            getField("nextAddress").set(nextAddress);
+            throwAfterVirtualPop(address);
             returnFromMethod();
           }
         }
       }
 
-      private void invokeInnerIfAvailable(int address, List<Routine> list) {
-        Routine first = list.get(0);
-        if (first.getStartAddress() == address) {
-          invokeTransformedMethod(first.getStartAddress());
-          Routine routineAt = context.routineManager.findRoutineAt(first.getStartAddress());
-          if (routineAt.isCallable())
-            returnFromMethod();
-          else
-            System.out.println("dsgdg");
-        } else {
-          System.out.print("");
-        }
-      }
     });
 
     Label label1 = mm.label();
@@ -183,33 +218,121 @@ public class RoutineBytecodeGenerator {
     generators.forEach(g -> g.scopeAdjuster().run());
     generators.forEach(g -> g.labelGenerator().run());
 
+    new ArrayList<>(labels.keySet()).stream().filter(address -> routine.contains(address) && context.routineManager.isEnteredFromOutside(routine, address)).forEach(address -> mm.invoke("isNextPC", address).ifTrue(getLabel(address)::goto_));
+
     Label label = getLabel(routine.getEntryPoint());
     if (label != null)
       label.goto_();
     generators.forEach(g -> g.instructionGenerator().run());
 
     positionedLabels.forEach(l -> labels.get(l).here());
-    Label label2 = mm.label();
-    label2.here();
+    returnFromMethod();
 
-    List<java.lang.Integer> integers = routine.getReturnPoints().values().stream().toList();
-    if (!integers.isEmpty())
-      mm.catch_(label1, StackException.class, (Variable exception) -> {
-        Variable value = mm.new_(int[].class, integers.size());
-        for (int i = 0; i < integers.size(); i++) {
-          value.aset(i, integers.get(i));
-        }
-        mm.invoke("isOwnAddress", exception, value).ifTrue(label1::goto_);
-        exception.throw_();
+    MultiValuedMap<Integer, Integer> catchPoints = catchPoints();
+    List<Integer> returnPoints = catchPoints.values().stream().toList();
+    List<Integer> returnPointsDropped = routine.getReturnPointsDropped().values().stream().toList();
+
+    if (!returnPoints.isEmpty() || !returnPointsDropped.isEmpty()) {
+//      returnPoints = returnPoints.stream().filter(i -> routine.contains(i)).toList();
+
+      Set<Integer> keys = new HashSet<>(catchPoints.keys());
+      keys.forEach(entry -> {
+        Integer key = entry;
+        Label tryStart = getLabel(key);
+        int continuation = stackAnalyzer().callContinuations.getOrDefault(key, context.routineManager.addressAfter(key));
+        Label tryEnd = routine.contains(continuation) ? getLabel(continuation) : labelsAfterLeavingCalls.get(key);
+        var e = mm.catch_(tryStart, tryEnd, StackException.class);
+        Collection<Integer> integers = catchPoints.get(key);
+        Variable points = mm.new_(int[].class, integers.size());
+        int slot = 0;
+        for (int point : integers)
+          points.aset(slot++, point);
+        Variable nextAddress = mm.invoke("ownAddress", e, points);
+
+        integers.forEach(i -> {
+          nextAddress.ifEq(i, () -> {
+            loadPoppedReturnAddress(i, key);
+            Label label3 = getLabel(i);
+            if (label3 != null)
+              label3.goto_();
+            else if (context.routineManager.getInstructionAt(i) instanceof Ret ret && ret.getCondition() instanceof ConditionAlwaysTrue) {
+              invokePc(i);
+              returnFromMethod();
+            } else if (context.routineManager.getInstructionAt(i) instanceof JP jp && jp.getCondition() instanceof ConditionAlwaysTrue && getLabel(RoutineManager.fixedJumpTarget(jp)) != null) {
+              invokePc(i);
+              getLabel(RoutineManager.fixedJumpTarget(jp)).goto_();
+            } else if (context.routineManager.getInstructionAt(i) instanceof Pop && context.routineManager.findRoutineAt(i) == null) {
+              invokePc(i);
+              throwStackException(context.routineManager.addressAfter(i), StackException.class);
+            } else
+              tailJump(i, -1);
+          });
+        });
+        returnFromMethod();
       });
 
-    invokeReturnPoints();
+      List<Integer> droppedPoints = new ArrayList<>(new HashSet<>(returnPointsDropped));
+      if (!droppedPoints.isEmpty()) {
+        mm.catch_(label1, StackException.class, (Variable exception) -> {
+          Variable points = mm.new_(int[].class, droppedPoints.size());
+          for (int i = 0; i < droppedPoints.size(); i++)
+            points.aset(i, droppedPoints.get(i));
+          mm.invoke("isOwnAddress", exception, points).ifTrue(label1::goto_);
+          exception.throw_();
+        });
+      }
+
+//      mm.catch_(label10, StackException.class, (Variable exception) -> {
+//        ArrayList<Integer> points = new ArrayList<>(returnPoints);
+//        points.addAll(returnPointsDropped);
+//        int size = points.size();
+//        Variable value = mm.new_(int[].class, size);
+//
+//        for (int i = 0; i < size; i++) {
+//          value.aset(i, points.get(i));
+//        }
+//        mm.invoke("isOwnAddress", exception, value).ifTrue(() -> {
+////          label1.goto_();
+//          mm.invoke("DE");
+//        });
+//        exception.throw_();
+//      });
+    }
 
   }
 
   private boolean mutantCodeInInstruction(Instruction instruction, int address) {
-    Set<java.lang.Integer> mutantAddress = (Set<java.lang.Integer>) context.symbolicExecutionAdapter.getMutantAddress();
-    return mutantAddress.stream().anyMatch(a1 -> a1 >= address && a1 < address + instruction.getLength());
+    Set<java.lang.Integer> mutantAddress = codeVersions().mutant();
+    Set<java.lang.Integer> operands = CodeVersions.operandOffsets(instruction);
+    return java.util.stream.IntStream.range(0, instruction.getLength()).anyMatch(i -> mutantAddress.contains(address + i) && !operands.contains(i));
+  }
+
+  private void executeMutantCode(int address, Instruction instruction) {
+    Variable executedUpTo = mm.invoke("executeMutantCode", address);
+    int next = address + instruction.getLength() & 0xffff;
+    Runnable leave = () -> {
+      for (int inside = address + 1; inside < address + instruction.getLength(); inside++)
+        if (getLabel(inside) != null) {
+          Label overlapping = getLabel(inside);
+          executedUpTo.ifEq(inside, overlapping::goto_);
+        }
+      int target = instruction instanceof Call ? -1 : RoutineManager.fixedJumpTarget(instruction);
+      if (target != -1 && getLabel(target) != null)
+        executedUpTo.ifEq(target, getLabel(target)::goto_);
+      executedUpTo.ifNe(-1, () -> mm.invoke("jump", executedUpTo));
+      returnFromMethod();
+    };
+    if (fallsThrough(address, instruction))
+      executedUpTo.ifNe(next, leave);
+    else {
+      if (getLabel(next) != null)
+        executedUpTo.ifEq(next, getLabel(next)::goto_);
+      leave.run();
+    }
+  }
+
+  private CodeVersions codeVersions() {
+    return stackAnalyzer().codeVersions;
   }
 
   protected void addField(String name) {
@@ -217,7 +340,7 @@ public class RoutineBytecodeGenerator {
     Variable field = mm.field(name);
     registers.put(name, field);
 
-    if (name.length() == 2 || name.equals("R")) field = new Composed16BitRegisterVariable(mm, name);
+    if (name.length() == 2 || name.equals("R") || true) field = new Composed16BitRegisterVariable(mm, name, context);
 
     variables.put(name, field);
   }
@@ -277,7 +400,8 @@ public class RoutineBytecodeGenerator {
   }
 
   protected MethodMaker createMethod(int address, String methodName) {
-    return context.cm.addMethod(void.class, methodName).public_();
+    Routine owner = context.routineManager.findRoutineAt(address);
+    return context.cm.addMethod(isJumpMember(owner) && owner.getEntryPoint() == address ? int.class : void.class, methodName).public_();
   }
 
   public  Variable getField(String name) {
@@ -310,58 +434,175 @@ public class RoutineBytecodeGenerator {
   }
 
   public Variable getVariableFromMemory(Object variable, String bits) {
-    Object variable1 = getRealVariable(variable);
-    if (context.syncEnabled) {
-      List<Object> params = new ArrayList<>();
-      params.add(variable1);
-      params.add(lastMemPc.read());
-      addOtherMemSyncParameters(params);
-      return mm.invoke("mem" + bits, params.toArray());
-    } else {
-      if (bits.equals("16"))
-        return mm.invoke("mem" + bits, variable1);
-      else
-        return memory.aget(variable1);
-    }
+    List<Object> params = new ArrayList<>();
+    params.add(getRealVariable(variable));
+    params.add(lastMemPc.read());
+    addOtherMemSyncParameters(params);
+    return mm.invoke("mem" + bits, params.toArray());
   }
 
   public void writeVariableToMemory(Object o, Object variable, String bits) {
-    Object variable1 = getRealVariable(variable);
-    Object o1 = getRealVariable(o);
-    if (context.syncEnabled) {
-      List<Object> params = new ArrayList<>();
-      params.add(variable1);
-      params.add(o1);
-      params.add(lastMemPc.read());
-      addOtherMemSyncParameters(params);
-
-      mm.invoke("wMem" + bits, params.toArray());
-    } else {
-      if (bits.equals("16"))
-        mm.invoke("wMem" + bits, variable1, o1);
-      else {
-//        memory.aset(variable1, o1);
-        memory.aset(variable1, o1 instanceof Variable variable2 ? variable2 : (java.lang.Integer) o1 & 0xff);
-      }
-    }
+    List<Object> params = new ArrayList<>();
+    params.add(getRealVariable(variable));
+    params.add(getRealVariable(o));
+    params.add(lastMemPc.read());
+    addOtherMemSyncParameters(params);
+    mm.invoke("wMem" + bits, params.toArray());
   }
 
   protected void addOtherMemSyncParameters(List<Object> params) {
   }
 
   public Variable getExistingVariable(String hl) {
-    return getRealVariable(variables.get(hl));
+    return variables.get(hl);
+  }
+
+  public void jumpInto(int target) {
+    inPagedBank(target, this::enter);
+  }
+
+  /** From code outside the paged window, a target where another bank has code is reached at that bank's copy while the bank is paged; code relocated out of a bank always reaches its own copy. */
+  public void inPagedBank(int target, java.util.function.IntConsumer reach) {
+    Label done = mm.label();
+    List<RoutineManager.CodeVariant> banked = inOwnBank(target) == target && routine.getEntryPoint() < com.fpetrola.z80.memory.MemoryBanks.WINDOW ? context.routineManager.bankVariantsAt(target) : List.of();
+    Variable bank = banked.isEmpty() ? null : mm.invoke("bank");
+    banked.forEach(variant -> bank.ifEq(variant.bank(), () -> {
+      reach.accept(variant.relocated(target));
+      done.goto_();
+    }));
+    reach.accept(inOwnBank(target));
+    done.here();
+  }
+
+  private void enter(int address) {
+    Routine owner = context.routineManager.findRoutineAt(address);
+    if (owner != null && context.routineManager.isEnteredFromOutside(owner, address)) {
+      mm.invoke("setNextAddress", address);
+      invokeTransformedMethod(owner.getEntryPoint());
+    } else if (owner != null)
+      invokeTransformedMethod(address);
+    else if (stackAnalyzer().trampolineRegister(address) != null)
+      throughTrampoline(address, stackAnalyzer().trampolineRegister(address), stackAnalyzer().dynamicInvocation.get(address));
+    else
+      mm.invoke("untranslated", address);
+  }
+
+  /** An instruction that only jumps through a register (the ROM's JP (HL) at 006F, CALL-JUMP's at 162C) goes on at the targets recorded for it. */
+  public void throughTrampoline(int trampoline, RegisterName register, Collection<Integer> targets) {
+    invokePc(trampoline, register == RegisterName.HL ? 1 : 2, register == RegisterName.HL ? 4 : 8);
+    dispatch(mm.invoke(register.name()), targets.stream());
+  }
+
+  private void dispatch(Variable address, Stream<Integer> knownTargets) {
+    Label reached = mm.label();
+    knownTargets.distinct().sorted().forEach(target -> address.ifEq(target, () -> {
+      jumpInto(target);
+      reached.goto_();
+    }));
+    mm.invoke("jump", address);
+    reached.here();
+  }
+
+  private int inOwnBank(int address) {
+    return context.routineManager.bankVariantsAt(address).stream().filter(v -> routine.getEntryPoint() >= v.relocatedAt() && routine.getEntryPoint() < v.relocated(v.end())).findFirst().map(v -> v.relocated(address)).orElse(address);
+  }
+
+  public void tailJump(int target, int site) {
+    int address = inOwnBank(target);
+    Routine owner = context.routineManager.findRoutineAt(address);
+    if (isJumpMember(routine) && isJumpMember(owner) && (site == -1 || ownDataLeftForOthers(site).isEmpty())) {
+      if (owner.getEntryPoint() != address)
+        mm.invoke("setNextAddress", address);
+      mm.return_(owner.getEntryPoint());
+    } else {
+      jumpInto(address);
+      if (site != -1)
+        leaveWithOwnData(site);
+      returnFromMethod();
+    }
+  }
+
+  private boolean isJumpMember(Routine candidate) {
+    return candidate != null && context.routinesInJumpCycles().contains(candidate);
   }
 
   public Variable invokeTransformedMethod(int jumpLabel) {
     String labelName = createLabelName(jumpLabel);
     Variable invoke = null;
     try {
-      invoke = mm.invoke(labelName);
+      Routine target = context.routineManager.findRoutineAt(jumpLabel);
+      invoke = isJumpMember(target) && target.getEntryPoint() == jumpLabel ? mm.invoke("runJumps", jumpLabel) : mm.invoke(labelName);
     } catch (Exception e) {
-      System.out.println("not found: "+ labelName);
+      System.out.println("not found: " + labelName + " (" + e + ")" + " from " + routine + " at " + Helper.formatAddress(context.pc.read()) + " callers " + context.routineManager.callers.get(jumpLabel) + " owner " + context.routineManager.findRoutineAt(jumpLabel));
     }
     return invoke;
+  }
+
+  private boolean fallsThrough(int address, Instruction instruction) {
+    return RoutineManager.fallsThrough(instruction) || codeVersions().instructionVersions(address).stream().anyMatch(bytes -> RoutineManager.fallsThrough(codeVersions().decode(address, bytes)));
+  }
+
+  private void invokePc(int address) {
+    if (context.routineManager.getInstructionAt(address) instanceof AbstractInstruction instruction)
+      invokePc(address, instruction.getRDelta());
+  }
+
+  public void invokePc(int address, int rDelta) {
+    invokePc(address, rDelta, costOf(address)[context.routineManager.getInstructionAt(address) instanceof RepeatingInstruction ? 1 : 0]);
+  }
+
+  public void invokePc(int address, int rDelta, int cost) {
+    if (!context.direct)
+      mm.invoke("pc", context.routineManager.originalAddress(address), rDelta, cost);
+  }
+
+  public void chargeTstates(int tstates) {
+    if (!context.direct && tstates != 0)
+      mm.invoke("tstates", tstates);
+  }
+
+  /** The site charges nothing itself: whichever version or fallback runs there charges its own cost. */
+  private void invokePcUncharged(int address) {
+    invokePc(address, 0, 0);
+  }
+
+  /** The T-states of the instruction at the address on its cheapest and dearest path, measured on the emulator's own timing model. */
+  public int[] costOf(int address) {
+    Instruction instruction = context.routineManager.getInstructionAt(address);
+    if (instruction == null)
+      return new int[]{0, 0};
+    int[] bytes = new int[instruction.getLength()];
+    for (int i = 0; i < bytes.length; i++)
+      bytes[i] = context.symbolicExecutionAdapter.state.getMemory().read(address + i & 0xffff, 0);
+    return UncontendedTiming.costOf(bytes);
+  }
+
+  public boolean virtualPopOnBranch(int address) {
+    Integer pop = routine.getVirtualPop().get(address);
+    return pop != null && pop != context.routineManager.addressAfter(address);
+  }
+
+  private void loadPoppedReturnAddress(int returnPoint, int callSite) {
+    for (int length = 1; length <= 2; length++)
+      if (context.routineManager.getInstructionAt(returnPoint - length) instanceof Pop pop && pop.getLength() == length)
+        getExistingVariable((Register) pop.getTarget()).set(pushesReturnAddress(callSite) ? mm.invoke("pop") : context.routineManager.originalAddress(context.routineManager.addressAfter(callSite)));
+  }
+
+  public void throwAfterVirtualPop(int address) {
+    throwAtVirtualPop(routine.getVirtualPop().get(address));
+  }
+
+  private void throwAtVirtualPop(int pop) {
+    invokePc(pop);
+    Instruction instruction = context.routineManager.getInstructionAt(pop);
+    if (instruction instanceof Ld stackReset) {
+      context.pc.write(pop);
+      stackReset.accept(new InstructionsBytecodeGenerator(mm, this, pop));
+    }
+    if (instruction instanceof Pop popped)
+      mm.new_(StackException.class, context.routineManager.addressAfter(pop), ((Register) popped.getTarget()).getName()).throw_();
+    else
+      throwStackException(context.routineManager.addressAfter(pop), StackException.class);
   }
 
   public void throwStackException(Object nextAddress, Class<? extends Exception> type) {
@@ -370,38 +611,77 @@ public class RoutineBytecodeGenerator {
   }
 
   protected void returnFromMethod() {
-    mm.return_();
+    if (isJumpMember(routine))
+      mm.return_(-1);
+    else
+      mm.return_();
   }
 
-  void invokeReturnPoints() {
-    Label label2 = labels.get(routine.getEntryPoint());
-    List<java.lang.Integer> i = routine.getReturnPoints().values().stream().toList();
-    List<java.lang.Integer> integers = new ArrayList<>(new HashSet<>(i));
-//    label2.insert(() -> {
-//      Variable nextAddress = getField("nextAddress").get();
-//      nextAddress.ifNe(0, () -> throwStackException(nextAddress, NotSolvedStackException.class));
-//    });
-    if (!integers.isEmpty()) {
-      List<java.lang.Integer> integers1 = integers.subList(0, Math.min(1, integers.size() - 1));
-      integers.forEach(ga -> insertIfNextPc(ga, label2));
+  private MultiValuedMap<Integer, Integer> catchPoints() {
+    return context.routineManager.catchPointsOfCallsIn(routine);
+  }
+
+  private StackAnalyzer stackAnalyzer() {
+    return context.symbolicExecutionAdapter.getStackAnalyzer();
+  }
+
+  public Integer plantedContinuation(int push) {
+    Collection<Integer> values = stackAnalyzer().pushedValues.get(push);
+    if (!stackAnalyzer().dataConsumedBy.containsValue(push) || stackAnalyzer().pushesTakenByPops.contains(push) || stackAnalyzer().observesStackLayout() || !context.routineManager.plantsAContinuation(push, values))
+      return null;
+    int value = values.iterator().next();
+    Routine target = context.routineManager.findRoutineAt(value);
+    return target != null && target.getEntryPoint() == value ? value : null;
+  }
+
+  public List<Integer> ownPushesConsumedAt(int ret) {
+    return stackAnalyzer().dataConsumedBy.get(ret).stream().filter(routine::contains).toList();
+  }
+
+  public boolean pushesReturnAddress(int callSite) {
+    return stackAnalyzer().poppedCallSites.containsKey(callSite) && !routine.getReturnPoints().containsKey(callSite) || context.routineManager.pushedReturnSites.contains(callSite);
+  }
+
+  public void resumeAtPushed(int site, Variable value) {
+    stackAnalyzer().dataOnTopAt.get(site).stream().flatMap(push -> stackAnalyzer().pushedValues.get(push).stream()).distinct().forEach(pushed -> value.ifEq(pushed, () -> {
+      if (getLabel(pushed) != null)
+        mm.goto_(getLabel(pushed));
+      else {
+        jumpInto(pushed);
+        returnFromMethod();
+      }
+    }));
+    mm.invoke("jump", value);
+    returnFromMethod();
+  }
+
+  public boolean leavesAPlantedContinuation(int site) {
+    return ownDataLeftForOthers(site).stream().anyMatch(push -> plantedContinuation(push) != null);
+  }
+
+  private List<Integer> ownDataLeftForOthers(int site) {
+    Instruction leaving = context.routineManager.getInstructionAt(site);
+    Stream<Integer> below = stackAnalyzer().dataOnTopAt.get(site).stream();
+    Stream<Integer> onTop = leaving instanceof Ret ? stackAnalyzer().getInvocationsSet(site).stream().flatMap(target -> stackAnalyzer().dataOnTopAt.get(target).stream()) : leaving instanceof Push ? Stream.concat(Stream.of(site), below) : below;
+    return onTop.distinct().filter(push -> routine.contains(push) && consumedOutside(push)).toList();
+  }
+
+  public void leaveWithOwnData(int site) {
+    for (int push : ownDataLeftForOthers(site)) {
+      Integer continuation = plantedContinuation(push);
+      if (continuation != null)
+        invokeTransformedMethod(continuation);
+      else {
+        Variable value = mm.invoke("pop");
+        List<Integer> consumers = stackAnalyzer().dataConsumedBy.entries().stream().filter(e -> e.getValue() == push && !stackAnalyzer().shiftedReturns.containsKey(e.getKey())).map(Map.Entry::getKey).toList();
+        if (!consumers.isEmpty())
+          dispatch(value, consumers.stream().flatMap(ret -> stackAnalyzer().dynamicInvocation.get(ret).stream()));
+      }
     }
   }
 
-  private void insertIfNextPc(java.lang.Integer ga, Label label2) {
-    label2.insert(() -> {
-      Variable isNextPC = mm.invoke("isNextPC", ga);
-      isNextPC.ifTrue(() -> {
-        Label label1 = getLabel(ga);
-        if (label1 != null) {
-          label1.goto_();
-        } else {
-          throwStackException(ga + 1, StackException.class);
-//              Variable nextAddress = routineByteCodeGenerator.getField("nextAddress");
-//              nextAddress.set(ga + 1);
-//              routineByteCodeGenerator.returnFromMethod();
-        }
-      });
-    });
+  private boolean consumedOutside(int push) {
+    return stackAnalyzer().dataConsumedBy.entries().stream().anyMatch(e -> e.getValue() == push && !routine.contains(e.getKey()));
   }
 
   public static class RoutineRegisterAccumulator<S> implements RoutineVisitor<List<S>> {

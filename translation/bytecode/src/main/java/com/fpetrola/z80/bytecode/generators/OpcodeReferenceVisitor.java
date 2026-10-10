@@ -55,7 +55,6 @@ public class OpcodeReferenceVisitor implements InstructionVisitor<Object> {
   }
 
   public void visitMemoryAccessOpcodeReference(MemoryAccessOpcodeReference memoryAccessOpcodeReference) {
-    Variable memoryField = routineByteCodeGenerator.getField("memory");
     int o = memoryAccessOpcodeReference.getC().read();
     if (isTarget) result = new WriteArrayVariable(routineByteCodeGenerator, () -> o, "");
     else result = getFromMemory(o);
@@ -69,7 +68,7 @@ public class OpcodeReferenceVisitor implements InstructionVisitor<Object> {
     Variable variable = (Variable) opcodeReferenceVisitor.getResult();
 
     byte value = memoryPlusRegister8BitReference.fetchRelative();
-    Variable variablePlusDelta = value > 0 ? variable.add(value) : variable;
+    Variable variablePlusDelta = variable.add(value);
     if (isTarget)
       result = new WriteArrayVariable(routineByteCodeGenerator, () -> variablePlusDelta, "");
     else {
@@ -79,20 +78,21 @@ public class OpcodeReferenceVisitor implements InstructionVisitor<Object> {
 
 
   public void visitIndirectMemory8BitReference(IndirectMemory8BitReference indirectMemory8BitReference) {
-    Object variable;
-    if (indirectMemory8BitReference.getTarget() instanceof Memory16BitReference memory16BitReference) {
-      variable = memory16BitReference.read();
-    } else {
-      Register target = (Register) indirectMemory8BitReference.getTarget();
-      OpcodeReferenceVisitor opcodeReferenceVisitor = new OpcodeReferenceVisitor(false, routineByteCodeGenerator);
-      target.accept(opcodeReferenceVisitor);
-
-      variable = opcodeReferenceVisitor.getResult();
-    }
+    Object variable = addressOf(indirectMemory8BitReference.getTarget());
     if (isTarget) result = new WriteArrayVariable(routineByteCodeGenerator, () -> variable, "");
     else {
       result = getFromMemory(variable);
     }
+  }
+
+  private Object addressOf(ImmutableOpcodeReference target) {
+    if (target instanceof Memory16BitReference nn) {
+      Integer operand = modifiedOperand(nn.getDelta(), 2);
+      return operand == null ? nn.read() : getFromMemory16(operand);
+    }
+    OpcodeReferenceVisitor opcodeReferenceVisitor = new OpcodeReferenceVisitor(false, routineByteCodeGenerator);
+    target.accept(opcodeReferenceVisitor);
+    return opcodeReferenceVisitor.getResult();
   }
 
   private Variable getFromMemory(Object variable) {
@@ -102,16 +102,7 @@ public class OpcodeReferenceVisitor implements InstructionVisitor<Object> {
 
   @Override
   public void visitIndirectMemory16BitReference(IndirectMemory16BitReference indirectMemory16BitReference) {
-    Object variable;
-    if (indirectMemory16BitReference.getTarget() instanceof Memory16BitReference memory16BitReference) {
-      variable = memory16BitReference.read();
-    } else {
-      Register target = (Register) indirectMemory16BitReference.getTarget();
-      OpcodeReferenceVisitor opcodeReferenceVisitor = new OpcodeReferenceVisitor(false, routineByteCodeGenerator);
-      target.accept(opcodeReferenceVisitor);
-
-      variable = opcodeReferenceVisitor.getResult();
-    }
+    Object variable = addressOf(indirectMemory16BitReference.getTarget());
     if (isTarget) result = new WriteArrayVariable(routineByteCodeGenerator, () -> variable, "16");
     else {
       result = getFromMemory16(variable);
@@ -120,6 +111,28 @@ public class OpcodeReferenceVisitor implements InstructionVisitor<Object> {
 
   private Variable getFromMemory16(Object variable) {
     return routineByteCodeGenerator.getVariableFromMemory(variable, "16");
+  }
+
+  public boolean visitMemory8BitReference(Memory8BitReference operand) {
+    return readsModifiedOperand(operand.getDelta(), 1, this::getFromMemory);
+  }
+
+  public boolean visitMemory16BitReference(Memory16BitReference operand) {
+    return readsModifiedOperand(operand.getDelta(), 2, this::getFromMemory16);
+  }
+
+  private Integer modifiedOperand(int delta, int length) {
+    int pc = routineByteCodeGenerator.context.pc.read(), address = routineByteCodeGenerator.context.routineManager.originalAddress(pc) + delta & 0xffff;
+    java.util.Set<?> modified = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer().codeVersions.mutant();
+    return java.util.stream.IntStream.of(address, pc + delta & 0xffff).anyMatch(at -> modified.contains(at) || length == 2 && modified.contains(at + 1 & 0xffff)) ? address : null;
+  }
+
+  private boolean readsModifiedOperand(int delta, int length, java.util.function.Function<Object, Object> reader) {
+    Integer address = modifiedOperand(delta, length);
+    if (address == null)
+      return false;
+    result = reader.apply(address);
+    return true;
   }
 
   @Override

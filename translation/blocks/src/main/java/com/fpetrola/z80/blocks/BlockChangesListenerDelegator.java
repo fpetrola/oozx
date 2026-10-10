@@ -18,11 +18,11 @@
 
 package com.fpetrola.z80.blocks;
 
-public class BlockChangesListenerDelegator implements BlockChangesListener {
-  private final BlockChangesListener blockChangesListener;
+public class BlockChangesListenerDelegator implements ParentChildChangesListener<Block> {
+  private final ParentChildChangesListener<Block> blockChangesListener;
   private final boolean delegationEnabled= true;
 
-  public BlockChangesListenerDelegator(BlockChangesListener blockChangesListener) {
+  public BlockChangesListenerDelegator(ParentChildChangesListener<Block> blockChangesListener) {
 
     this.blockChangesListener = blockChangesListener;
   }

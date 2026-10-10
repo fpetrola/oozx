@@ -19,12 +19,18 @@
 package com.fpetrola.z80.se.actions;
 
 import com.fpetrola.z80.instructions.impl.Call;
+import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.se.RoutineExecution;
 import com.fpetrola.z80.se.RoutineExecutorHandler;
 
 public class CallAddressAction extends AddressAction {
   private final Call call;
+  private int calleeAddress;
+  private RoutineExecution calleeRoutineExecution;
+  private boolean calleePending= true;
+  private boolean steppedOver;
+  private RegisterName throughRegister;
 
   public CallAddressAction(int pcValue, Call call, boolean alwaysTrue, RoutineExecutorHandler routineExecutorHandler) {
     super(pcValue, true, call, alwaysTrue, routineExecutorHandler);
@@ -33,13 +39,34 @@ public class CallAddressAction extends AddressAction {
   }
 
   public boolean processBranch(Instruction instruction) {
+    int target = call.getJumpAddress();
+    if (!routineExecutionHandler.getRoutineManager().isCode(target)) {
+      throughRegister = routineExecutionHandler.getStackAnalyzer().trampolineRegister(target);
+      target = throughRegister == null ? -1 : routineExecutionHandler.getState().getRegister(throughRegister).read();
+      if (!routineExecutionHandler.getRoutineManager().isCode(target)) {
+        if (!steppedOver) {
+          steppedOver = true;
+          changed();
+        }
+        return false;
+      }
+    }
     boolean doBranch = getDoBranch();
     if (doBranch) {
-      int jumpAddress = call.getJumpAddress();
-      RoutineExecution routineExecutionAt = routineExecutionHandler.findRoutineExecutionAt(jumpAddress);
-      if (routineExecutionAt != null)
-        return false;
-      routineExecutionHandler.createRoutineExecution(jumpAddress);
+      calleeAddress = target;
+      calleeRoutineExecution = routineExecutionHandler.findRoutineExecutionAt(calleeAddress);
+      if (owner != null && calleeRoutineExecution != null)
+        owner.dependsOn(calleeRoutineExecution);
+      if (calleeRoutineExecution != null) {
+        calleePending = !routineExecutionHandler.getStackFrames().contains(calleeAddress) && calleeRoutineExecution.isPending();
+        if (calleePending)
+          routineExecutionHandler.pushRoutineExecution(calleeRoutineExecution);
+        return calleePending;
+      } else {
+        calleeRoutineExecution = routineExecutionHandler.createRoutineExecution(calleeAddress);
+        if (owner != null)
+          owner.dependsOn(calleeRoutineExecution);
+      }
     }
     return doBranch;
   }
@@ -49,8 +76,26 @@ public class CallAddressAction extends AddressAction {
   }
 
   @Override
+  public boolean isPending() {
+    return isPending(new java.util.HashSet<>());
+  }
+
+  @Override
+  public boolean isPending(java.util.Set<RoutineExecution> visited) {
+    if (routineExecutionHandler.getCurrentRoutineExecution() == null)
+      return false;
+    return pending || !steppedOver && calleeRoutineExecution != null && !routineExecutionHandler.getStackFrames().contains(calleeRoutineExecution.getStart()) && calleeRoutineExecution.isPending(visited);
+  }
+
+  @Override
   public int getNext(int executedInstructionAddress, int currentPc) {
-    pending = branch;
+    setPending(branch && !steppedOver);
+    if (steppedOver)
+      return currentPc;
+    if (throughRegister != null && currentPc == call.getJumpAddress())
+      currentPc = routineExecutionHandler.getState().getRegister(throughRegister).read();
+    if (currentPc == routineExecutionHandler.getRoutineManager().addressAfter(address))
+      currentPc = routineExecutionHandler.getStackAnalyzer().callContinuations.getOrDefault(address, currentPc);
     return super.getNext(executedInstructionAddress, currentPc);
   }
 }

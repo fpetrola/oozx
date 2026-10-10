@@ -18,19 +18,25 @@
 
 package com.fpetrola.z80.bytecode.generators;
 
+import com.fpetrola.z80.transformations.StackAnalyzer;
+import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.bytecode.generators.helpers.BytecodeGenerationContext;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.minizx.emulation.GameData;
+import com.fpetrola.z80.minizx.emulation.LocalMemory;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
+import org.apache.commons.collections4.CollectionUtils;
 import org.cojen.maker.ClassMaker;
 import org.cojen.maker.ClassMaker2;
+import org.cojen.maker.Label;
 import org.cojen.maker.MethodMaker;
+import org.cojen.maker.Variable;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static com.fpetrola.z80.bytecode.generators.MemoryType.*;
 
 public class StateBytecodeGenerator {
   private final String className;
@@ -41,9 +47,10 @@ public class StateBytecodeGenerator {
   private final Class<?> executionSuperClass;
   private final SymbolicExecutionAdapter symbolicExecutionAdapter;
   private final String base64Memory;
+  private final GameData gameData;
   private Map<String, byte[]> bytecodes = new HashMap<>();
 
-  public StateBytecodeGenerator(String className, RoutineManager routineManager, State state, boolean translation, Class<?> translationSuperClass, Class<?> executionSuperClass, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory) {
+  public StateBytecodeGenerator(String className, RoutineManager routineManager, State state, boolean translation, Class<?> translationSuperClass, Class<?> executionSuperClass, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory, GameData gameData) {
     this.className = className;
     this.routineManager = routineManager;
     this.state = state;
@@ -52,6 +59,7 @@ public class StateBytecodeGenerator {
     this.executionSuperClass = executionSuperClass;
     this.symbolicExecutionAdapter = symbolicExecutionAdapter;
     this.base64Memory = base64Memory;
+    this.gameData = gameData;
   }
 
   private ClassMaker translate() {
@@ -63,8 +71,7 @@ public class StateBytecodeGenerator {
     ClassMaker classMaker = ClassMaker2.beginExternal(className, classLoader).public_();
     if (translation) {
       classMaker.extend(translationSuperClass);
-    }
-    else {
+    } else {
       classMaker.extend(executionSuperClass);
     }
 
@@ -75,14 +82,43 @@ public class StateBytecodeGenerator {
 
     if (translation) {
       MethodMaker getProgramBytesMaker = classMaker.addMethod(String.class, "getProgramBytes").public_();
-      getProgramBytesMaker.return_(base64Memory);
+      Variable bytes = getProgramBytesMaker.var(String.class).set(base64Memory.substring(0, Math.min(60000, base64Memory.length())));
+      for (int from = 60000; from < base64Memory.length(); from += 60000)
+        bytes = bytes.invoke("concat", base64Memory.substring(from, Math.min(from + 60000, base64Memory.length())));
+      getProgramBytesMaker.return_(bytes);
+    }
+    if (symbolicExecutionAdapter.getStackAnalyzer().layoutCallSites.contains(StackAnalyzer.INTERRUPT))
+      classMaker.addMethod(boolean.class, "pushesInterruptReturns").public_().return_(true);
+    List<RoutineManager.CodeVariant> bankCopies = routineManager.codeVariants.stream().filter(copy -> copy.bank() != -1).toList();
+    if (!bankCopies.isEmpty()) {
+      MethodMaker pagedCopy = classMaker.addMethod(int.class, "pagedCopy", int.class).protected_();
+      Variable address = pagedCopy.param(0), bank = pagedCopy.invoke("bank");
+      bankCopies.forEach(copy -> bank.ifEq(copy.bank(), () -> address.ifGe(copy.start(), () -> address.ifLt(copy.end(), () -> pagedCopy.return_(address.add(copy.relocatedAt() - copy.start()))))));
+      pagedCopy.return_(address);
     }
 
-    BytecodeGenerationContext bytecodeGenerationContext = new BytecodeGenerationContext(routineManager, classMaker, state.getPc(), symbolicExecutionAdapter);
+    BytecodeGenerationContext bytecodeGenerationContext = new BytecodeGenerationContext(routineManager, classMaker, state.getPc(), symbolicExecutionAdapter, gameData, !translation);
+
+//    Routine routine1 = routineManager.getRoutines().stream().filter(r -> r.getEntryPoint() == 34463).findFirst().get();
+//    Block block = routine1.getBlocks().get(0);
+//    routine1.removeBlock(block);
+//    routine1.setEntryPoint(34762);
+//    routineManager.addRoutine(new Routine(block, 34463, true));
+////    routine1.split(34762);
+
+    routineManager.planPoppedReturnsOfRewrittenCalls(symbolicExecutionAdapter.getStackAnalyzer());
+    routineManager.planEntries(symbolicExecutionAdapter.getStackAnalyzer());
+    new ArrayList<>(routineManager.getRoutines()).forEach(this::splitIfTooLargeForOneMethod);
+    routineManager.planNonLocalReturns(symbolicExecutionAdapter.getStackAnalyzer(), bytecodeGenerationContext.routinesInJumpCycles());
     List<Routine> routines = routineManager.getRoutinesInDepth();
 
     RoutineBytecodeGenerator routineBytecodeGenerator1 = new RoutineBytecodeGenerator(bytecodeGenerationContext, null);
     routineBytecodeGenerator1.createMethod(0);
+
+    routines.sort(Comparator.comparingInt(Routine::getEntryPoint));
+
+    int[] jumpMembers = bytecodeGenerationContext.routinesInJumpCycles().stream().mapToInt(Routine::getEntryPoint).sorted().toArray();
+    MethodMaker runJumps = jumpMembers.length > 0 ? classMaker.addMethod(void.class, "runJumps", int.class).public_() : null;
 
     routines.forEach(routine -> {
       routine.optimize();
@@ -92,11 +128,73 @@ public class StateBytecodeGenerator {
 
     routines.forEach(routine -> {
       System.out.println(routine);
-      RoutineBytecodeGenerator routineBytecodeGenerator = new RoutineBytecodeGenerator(bytecodeGenerationContext, routine);
-      routineBytecodeGenerator.generate();
+      if (true || !routine.toString().contains("{7D9E:DE53}")) {
+        RoutineBytecodeGenerator routineBytecodeGenerator = new RoutineBytecodeGenerator(bytecodeGenerationContext, routine);
+        routineBytecodeGenerator.generate();
+      }
     });
 
+    routineManager.externalEntries.forEach(entry -> {
+      Routine owner = routineManager.findRoutineAt(entry);
+      if (owner != null && owner.getEntryPoint() != entry) {
+        MethodMaker entryMethod = new RoutineBytecodeGenerator(bytecodeGenerationContext, owner).getMethod(entry);
+        entryMethod.invoke("setNextAddress", entry);
+        if (bytecodeGenerationContext.routinesInJumpCycles().contains(owner))
+          entryMethod.invoke("runJumps", owner.getEntryPoint());
+        else
+          entryMethod.invoke(RoutineBytecodeGenerator.createLabelName(owner.getEntryPoint()));
+        entryMethod.return_();
+      }
+    });
+
+    if (jumpMembers.length > 0) {
+      Variable next = runJumps.var(int.class).set(runJumps.param(0));
+      Label loop = runJumps.label().here(), exit = runJumps.label();
+      Label[] members = java.util.stream.IntStream.range(0, jumpMembers.length).mapToObj(i -> runJumps.label()).toArray(Label[]::new);
+      next.switch_(exit, jumpMembers, members);
+      for (int i = 0; i < jumpMembers.length; i++) {
+        members[i].here();
+        next.set(runJumps.invoke(RoutineBytecodeGenerator.createLabelName(jumpMembers[i])));
+        loop.goto_();
+      }
+      exit.here();
+    }
+
     return classMaker;
+  }
+
+  private static final int MAX_ROUTINE_BYTES = 1500;
+
+  private void splitIfTooLargeForOneMethod(Routine routine) {
+    if (size(routine) > MAX_ROUTINE_BYTES)
+      split(routine).forEach(this::splitIfTooLargeForOneMethod);
+  }
+
+  public boolean splitRoutineAt(int entryPoint) {
+    Routine routine = routineManager.findRoutineAt(entryPoint);
+    return routine != null && !split(routine).isEmpty();
+  }
+
+  private List<Routine> split(Routine routine) {
+    List<Block> blocks = routine.getBlocks().stream().sorted(Comparator.comparingInt(b -> b.getRangeHandler().getStartAddress())).toList();
+    if (blocks.size() > 1) {
+      List<Routine> pieces = new ArrayList<>(List.of(routine));
+      blocks.subList(1, blocks.size()).forEach(block -> pieces.add(routine.split(block.getRangeHandler().getStartAddress())));
+      return pieces;
+    }
+    return cutNearestToMiddleOf(blocks.get(0)).map(target -> List.of(routine.split(target), routine)).orElse(List.of());
+  }
+
+  private Optional<Integer> cutNearestToMiddleOf(Block block) {
+    int start = block.getRangeHandler().getStartAddress(), end = block.getRangeHandler().getEndAddress(), middle = (start + end) / 2;
+    Comparator<Integer> nearestToMiddle = Comparator.comparingInt(target -> Math.abs(target - middle));
+    return java.util.stream.Stream.concat(routineManager.callers.keySet().stream(), java.util.stream.IntStream.rangeClosed(start, end).map(address -> RoutineManager.fixedJumpTarget(routineManager.getInstructionAt(address))).boxed())
+        .filter(target -> target > start && target <= end).min(nearestToMiddle)
+        .or(() -> java.util.stream.IntStream.range(start + 1, end).filter(address -> routineManager.getInstructionAt(address) != null && routineManager.getInstructionAt(address) != routineManager.getInstructionAt(address - 1)).boxed().min(nearestToMiddle));
+  }
+
+  private static int size(Routine routine) {
+    return routine.getBlocks().stream().mapToInt(b -> b.getRangeHandler().getEndAddress() - b.getRangeHandler().getStartAddress() + 1).sum();
   }
 
   public Map<String, byte[]> getBytecode() {
@@ -104,11 +202,5 @@ public class StateBytecodeGenerator {
     byte[] bytes = translate.finishBytes();
     bytecodes.put(className, bytes);
     return bytecodes;
-  }
-
-  public List<Class<?>> getNewClass() {
-    ClassMaker translate = translate();
-    Class<?> finish1 = translate.finish();
-    return Arrays.asList(finish1);
   }
 }

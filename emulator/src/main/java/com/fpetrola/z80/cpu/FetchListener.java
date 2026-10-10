@@ -28,4 +28,8 @@ public interface FetchListener {
   default void beforeFetch() {
 
   }
+
+  default void interruptedTo(int vector) {
+
+  }
 }

@@ -19,25 +19,35 @@
 package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.instructions.cache.InstructionCache;
-import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.opcodes.references.OpcodeConditions;
+import com.fpetrola.z80.registers.RegisterName;
 
 public class CachedInstructionFetcher extends DefaultInstructionFetcher {
-  protected InstructionCache instructionCache;
+  protected final InstructionCache instructionCache;
 
   public CachedInstructionFetcher(State aState, InstructionFactory instructionFactory, boolean clone) {
-    super(aState, instructionFactory, clone, false);
-    instructionCache = new InstructionCache(aState.getMemory(), new DefaultInstructionFactory(aState));
+    this(aState, OpcodeConditions.createOpcodeConditions(aState.getFlag(), aState.getRegister(RegisterName.B)), instructionFactory, clone);
+  }
+
+  public CachedInstructionFetcher(State aState, OpcodeConditions opcodeConditions, InstructionFactory instructionFactory, boolean clone) {
+    super(aState, opcodeConditions, instructionFactory, clone, false);
+    instructionCache = new InstructionCache(aState.getMemory(), instructionFactory);
   }
 
   public Instruction fetchNextInstruction() {
     pcValue = state.getPc().read();
     InstructionCache.CacheEntry cacheEntry = instructionCache.getCacheEntryAt(pcValue);
-    Instruction result = super.fetchNextInstruction();
-    if (cacheEntry == null)
-      instructionCache.cacheInstruction(pcValue, result);
-    return result;
+    if (cacheEntry != null && !cacheEntry.isMutable())
+      return cacheEntry.getInstruction();
+    int rBefore = registerR.read();
+    Instruction fetched = super.fetchNextInstruction();
+    if (fetched instanceof AbstractInstruction abstractInstruction)
+      abstractInstruction.setRDelta((registerR.read() - rBefore) & 0x7F);
+    instructionCache.cacheInstruction(pcValue, fetched);
+    return instructionCache.getCacheEntryAt(pcValue).getInstruction();
   }
 
   public void reset() {

@@ -18,8 +18,9 @@
 
 package com.fpetrola.z80.instructions.cache;
 
+import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.instructions.factory.DefaultInstructionFactory;
+import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.memory.Memory;
 
 import java.util.ArrayList;
@@ -72,14 +73,14 @@ public class InstructionCache {
 
     public void run() {
       for (int j = 0; j < length; j++) {
-        opcodesCache.set(pcValue + j, mutableOpcode);
-        cacheInvalidators[pcValue + j] = null;
+        opcodesCache.set(pcValue + j & 0xffff, mutableOpcode);
+        cacheInvalidators[pcValue + j & 0xffff] = null;
       }
     }
 
     public void set() {
       for (int j = 0; j < length; j++) {
-        cacheInvalidators[pcValue + j] = this;
+        cacheInvalidators[pcValue + j & 0xffff] = this;
       }
     }
   }
@@ -98,13 +99,15 @@ public class InstructionCache {
 
   private final InstructionCloner instructionCloner;
 
-  public InstructionCache(Memory memory, DefaultInstructionFactory instructionFactory) {
+  public InstructionCache(Memory memory, InstructionFactory instructionFactory) {
     instructionCloner = new InstructionCloner(instructionFactory);
     memory.addMemoryWriteListener(new CacheInvalidatorMemoryWriteListener(cacheInvalidators));
   }
 
   public void cacheInstruction(int pcValue, Instruction instruction) {
     Instruction clone = instructionCloner.clone(instruction);
+    if (instruction instanceof AbstractInstruction original && clone instanceof AbstractInstruction copy)
+      copy.setRDelta(original.getRDelta());
     opcodesCache.set(pcValue, new CacheEntry(clone));
     new InstructionCacheInvalidator(pcValue, clone.getLength()).set();
   }

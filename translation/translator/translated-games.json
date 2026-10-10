@@ -1,0 +1,131 @@
+{
+  "game": "batman",
+  "mode": "replay",
+  "recording": null,
+  "games": {
+    "exolon": {
+      "title": "Exolon",
+      "type": "Exolon",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/1686/exolon.rzx",
+      "entry": "8057"
+    },
+    "renegade": {
+      "title": "Renegade",
+      "type": "Renegade",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/4082/renegade48-random.rzx",
+      "entry": "F280"
+    },
+    "renegade128": {
+      "title": "Renegade (128K)",
+      "type": "Renegade128",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/renegade.rzx",
+      "entry": "6004"
+    },
+    "batman": {
+      "title": "Batman The Movie (128K)",
+      "type": "Batman",
+      "recording": "/home/fernando/detodo/spectrum/rzx-archive/batman.rzx",
+      "entry": "5F9F"
+    },
+    "targetrenegade": {
+      "title": "Target: Renegade (128K)",
+      "type": "TargetRenegade",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/4087/target.rzx",
+      "entry": "BFBF"
+    },
+    "fairlight": {
+      "title": "Fairlight",
+      "type": "Fairlight",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/1712/fairlight48.rzx",
+      "entry": "F0DC"
+    },
+    "skooldaze": {
+      "title": "Skool Daze",
+      "type": "Skooldaze",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/4549/skooldaze.rzx",
+      "entry": "673F"
+    },
+    "headoverheels": {
+      "title": "Head over Heels",
+      "type": "HeadOverHeels",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/2259/head.rzx",
+      "entry": "FFFF"
+    },
+    "rainbowislands": {
+      "title": "Rainbow Islands",
+      "type": "RainbowIslands",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/724/x/rainbow.rzx",
+      "entry": "7C12"
+    },
+    "rtype": {
+      "title": "R-Type",
+      "type": "RType",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/4256/rtype-random.rzx",
+      "entry": "BF60"
+    },
+    "zynaps": {
+      "title": "Zynaps",
+      "type": "Zynaps",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/5890/zynaps.rzx",
+      "entry": "A9E4"
+    },
+    "greatescape": {
+      "title": "The Great Escape",
+      "type": "GreatEscape",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/2125/greatescape_moneybagending.rzx",
+      "entry": "F510"
+    },
+    "manicminer": {
+      "title": "Manic Miner",
+      "type": "ManicMiner",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/3012/manicnoliveslost.rzx",
+      "entry": "92FB"
+    },
+    "dynamitedan2": {
+      "title": "Dynamite Dan II",
+      "type": "DynamiteDan2",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/1553/dynamitedan2.rzx",
+      "entry": "6B94"
+    },
+    "dynamitedan": {
+      "title": "Dynamite Dan",
+      "type": "DynamiteDan",
+      "recording": "/home/fernando/detodo/spectrum/dynamitedan/dynamitedan.rzx"
+    },
+    "monty": {
+      "title": "Monty on the Run",
+      "type": "MontyOnTheRun",
+      "recording": "/home/fernando/detodo/spectrum/montyontherun.rzx",
+      "entry": "AAC5"
+    },
+    "wally": {
+      "title": "Everyone's a Wally",
+      "type": "Wally",
+      "recording": "/home/fernando/detodo/spectrum/eawally/eawallyCsabaComplete.rzx"
+    },
+    "emlyn": {
+      "title": "Emlyn Hughes International Soccer",
+      "type": "Emlyn",
+      "recording": "/home/fernando/detodo/spectrum/emlyn_r4.rzx",
+      "entry": "FE65"
+    },
+    "dizzy": {
+      "title": "Dizzy",
+      "type": "Dizzy",
+      "recording": "/home/fernando/detodo/spectrum/dizzy/Dizzy RZX - The Long Way.rzx",
+      "entry": "F85B"
+    },
+    "equinox": {
+      "title": "Equinox",
+      "type": "Equinox",
+      "recording": "/home/fernando/detodo/spectrum/equinox/equinox.rzx",
+      "entry": "5B8D"
+    },
+    "jetsetwilly": {
+      "title": "Jet Set Willy",
+      "type": "JetSetWilly",
+      "snapshot": "/home/fernando/detodo/spectrum/versions/oozx/doc/jsw/jsw-clasico.z80",
+      "entry": "869F"
+    }
+  }
+}

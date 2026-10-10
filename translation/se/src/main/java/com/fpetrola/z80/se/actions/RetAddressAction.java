@@ -38,7 +38,7 @@ public class RetAddressAction extends AddressAction {
 
     lastRoutineExecution = routineExecutionHandler.getCurrentRoutineExecution();
     lastRoutineExecution.setRetInstruction(pcValue);
-    if (!lastRoutineExecution.hasPendingPoints() && doBranch) {
+    if (doBranch && !lastRoutineExecution.hasPendingPoints()) {
 //      DataflowService dataflowService = routineExecutionHandler.getDataflowService();
 //      if (dataflowService.isSyntheticReturnAddress()) {
 //        int returnAddress = dataflowService.findCurrentReturnAddress().intValue();
@@ -58,7 +58,7 @@ public class RetAddressAction extends AddressAction {
     int result;
     int retInstruction = lastRoutineExecution.getRetInstruction();
     if (alwaysTrue) {
-      pending = false;
+      setPending(false);
       int result1 = currentPc;
       if (retInstruction == executedInstructionAddress && lastRoutineExecution.hasPendingPoints())
         result1 = lastRoutineExecution.getNextPending().address;

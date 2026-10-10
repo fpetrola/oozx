@@ -19,7 +19,6 @@
 package com.fpetrola.z80.se;
 
 
-import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.JP;
 import com.fpetrola.z80.instructions.impl.Ret;
@@ -29,11 +28,16 @@ import com.fpetrola.z80.se.actions.*;
 
 import java.util.*;
 
+import static com.fpetrola.z80.helpers.Helper.formatAddress;
+
 public class RoutineExecution {
   private final RoutineExecutorHandler routineExecutorHandler;
   private int retInstruction = -1;
   private int start;
-  private Map<java.lang.Integer, AddressAction> actions = new HashMap<>();
+  private Map<Integer, AddressAction> actions = new HashMap<>();
+  private List<RoutineExecution> callees = new ArrayList<>();
+  private final Set<RoutineExecution> callers = new HashSet<>();
+  private boolean nothingPending, noPendingPoints;
 
   public RoutineExecution(RoutineExecutorHandler routineExecutorHandler, int start) {
     this.routineExecutorHandler = routineExecutorHandler;
@@ -41,11 +45,47 @@ public class RoutineExecution {
   }
 
   public boolean hasPendingPoints() {
-    return actions.values().stream().anyMatch(AddressAction::isPending);
+    if (!noPendingPoints)
+      noPendingPoints = !hasPendingPoints(new java.util.HashSet<>());
+    return !noPendingPoints;
+  }
+
+  public boolean hasPendingPoints(java.util.Set<RoutineExecution> visited) {
+    return !noPendingPoints && visited.add(this) && pendingAction(visited);
+  }
+
+  public void dependsOn(RoutineExecution callee) {
+    callee.callers.add(this);
+    invalidate();
+  }
+
+  public void invalidate() {
+    invalidate(new HashSet<>());
+  }
+
+  private void invalidate(Set<RoutineExecution> seen) {
+    if (seen.add(this)) {
+      nothingPending = noPendingPoints = false;
+      callers.forEach(caller -> caller.invalidate(seen));
+    }
+  }
+
+  private boolean pendingAction(java.util.Set<RoutineExecution> visited) {
+    return actions.values().stream().anyMatch(action -> action.isPending(visited));
   }
 
   public AddressAction getNextPending() {
-    return actions.values().stream().filter(AddressAction::isPending).findFirst().orElse(getActionOrCreateInAddress(retInstruction));
+    AddressAction next = actions.values().stream().filter(AddressAction::isPending).findFirst().orElseGet(this::retInstructionAction);
+    next.resume();
+    return next;
+  }
+
+  private AddressAction retInstructionAction() {
+    return getAddressAction(retInstruction) instanceof BasicAddressAction ? getActionOrCreateInAddress(-1) : getActionOrCreateInAddress(retInstruction);
+  }
+
+  public List<AddressAction> getAllPending() {
+    return actions.values().stream().filter(AddressAction::isPending).toList();
   }
 
   public boolean hasActionAt(int address) {
@@ -72,9 +112,11 @@ public class RoutineExecution {
   }
 
   public void replaceAddressAction(AddressAction addressAction) {
-    if (addressAction.address == 36199)
-      System.out.println("replaced?");
-    actions.put(addressAction.address, addressAction);
+    AddressAction replaced = actions.put(addressAction.address, addressAction);
+    if (replaced != null)
+      addressAction.keepStackStorageOf(replaced);
+    addressAction.ownedBy(this);
+    invalidate();
   }
 
 
@@ -95,7 +137,7 @@ public class RoutineExecution {
     } else if (instruction instanceof Call call) {
       return new CallAddressAction(pcValue, call, alwaysTrue, routineExecutorHandler);
     } else if (instruction instanceof JP jp && jp.getPositionOpcodeReference() instanceof Register) {
-      return new JPRegisterAddressAction(instruction, pcValue, alwaysTrue, routineExecutorHandler);
+      return new JPRegisterAddressAction(instruction, pcValue, alwaysTrue, routineExecutorHandler, routineExecutorHandler.getStackAnalyzer().getInvocationsSet(pcValue));
     } else {
       return new ConditionalInstructionAddressAction(instruction, pcValue, alwaysTrue, routineExecutorHandler);
     }
@@ -114,7 +156,7 @@ public class RoutineExecution {
   }
 
   public String toString() {
-    return "RoutineExecution{start=%s, retInstruction=%s}".formatted(Helper.formatAddress(start), Helper.formatAddress(retInstruction));
+    return "RoutineExecution{start=%s, retInstruction=%s, pending=%s}".formatted(formatAddress(start), formatAddress(retInstruction), getAllPending().toString());
   }
 
   public int getStart() {
@@ -127,5 +169,20 @@ public class RoutineExecution {
 
   public boolean contains(int address) {
     return actions.containsKey(address);
+  }
+
+  public void addCallee(RoutineExecution routineExecution) {
+    callees.add(routineExecution);
+    dependsOn(routineExecution);
+  }
+
+  public boolean isPending() {
+    if (!nothingPending)
+      nothingPending = !isPending(new java.util.HashSet<>());
+    return !nothingPending;
+  }
+
+  public boolean isPending(java.util.Set<RoutineExecution> visited) {
+    return !nothingPending && visited.add(this) && (pendingAction(visited) || callees.stream().anyMatch(callee -> !routineExecutorHandler.getStackFrames().contains(callee.start) && callee.isPending(visited)));
   }
 }

@@ -18,25 +18,48 @@
 
 package com.fpetrola.z80.minizx;
 
+import com.fpetrola.z80.cpu.OOZ80;
+import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
+import com.fpetrola.z80.minizx.emulation.MockedMemory;
+import com.fpetrola.z80.memory.MemoryBanks;
+import com.fpetrola.z80.tstates.UncontendedTiming;
+import java.util.Map;
+import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.Plain16BitRegister;
+import com.fpetrola.z80.registers.Plain8BitRegister;
+import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.instructions.impl.*;
+import com.fpetrola.z80.registers.RegisterName;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.cpu.IO;
-
-import java.util.Arrays;
-import java.util.Stack;
+import com.fpetrola.z80.minizx.sync.SyncChecker;
+import java.lang.reflect.Method;
+import java.util.*;
 
 public abstract class SpectrumApplication {
-  public static final int INITIAL_SP_VALUE = 1234;
-  public int A;
-  public int F;
-  public int B;
-  public int C;
-  public int D;
-  public int E;
-  public int H;
-  public int L;
-  public int IXH;
+  public SyncChecker syncChecker = new SyncChecker() {
+    public int getByteFromEmu(Integer index) {
+      return mem[index];
+    }
+  };
+
+  public static final int INITIAL_SP_VALUE = 1234, ROM_END = 0x4000;
+  public Deque<Integer> methodStack = new ArrayDeque<>();
+  protected int A;
+  protected int F;
+  protected int B;
+  protected int C;
+  protected int D;
+  protected int E;
+  protected int H;
+  protected int L;
+
   public int IXL;
-  public int IYH;
+  public int IXH;
   public int IYL;
+  public int IYH;
+
+  private int lastStackDepth;
 
   public void setNextAddress(int nextAddress) {
     this.nextAddress = nextAddress;
@@ -47,27 +70,218 @@ public abstract class SpectrumApplication {
 
   public int[] mem = new int[0x10000];
   static public IO io;
-  private final Stack<java.lang.Integer> stack = new Stack<>();
-  protected int carry;
 
   public boolean isOwnAddress(StackException stackException, int... integers) {
     nextAddress = stackException.getNextPC();
     return Arrays.stream(integers).anyMatch(a -> a == nextAddress);
   }
 
-  public void executeMutantCode(int address) {
-    if (mem[address] == 0x77) {
-      wMem(HL(), A, address);
-    } else if (mem[address] == 0x7E) {
-      A = mem(HL(), address);
-    } else if (mem[address] == 0x12) {
-      wMem(DE(), A, address);
-    } else if (mem[address] == 0x16) {
-      D = mem[address + 1];
-    }
-
-//    System.out.println("mutant at: " + address);
+  public int ownAddress(StackException stackException, int... integers) {
+    if (!isOwnAddress(stackException, integers))
+      throw stackException;
+    int own = nextAddress;
+    nextAddress = 0;
+    return own;
   }
+
+  private OOZ80 mutantExecutor;
+
+  public int executeMutantCode(int address) {
+    if (mutantExecutor == null)
+      mutantExecutor = EmulatedMiniZX.createTimedOOZ80(new DefaultMiniZXIO() {
+        public int in(int port) {
+          return SpectrumApplication.this.in(port);
+        }
+
+        public void out(int port, int value) {
+          SpectrumApplication.this.out(port, value);
+        }
+      });
+    ((MockedMemory) mutantExecutor.getState().getMemory()).init(() -> mem);
+    State state = mutantExecutor.getState();
+    storeRegisters(state);
+    state.getPc().write(address);
+    int r = R;
+    state.getRegisterR().write(r);
+    long before = state.clock.getTStates();
+    Instruction instruction = mutantExecutor.getInstructionFetcher().fetchNextInstruction();
+    if (instruction instanceof Call call) {
+      boolean taken = call.getCondition().conditionMet(call);
+      tstates += costAt(address, call.getLength())[taken ? 1 : 0];
+      fetched(1);
+      if (taken)
+        invokeMethod(call.calculateJumpAddress());
+      return address + call.getLength();
+    }
+    if (instruction instanceof Ret ret) {
+      boolean taken = ret.getCondition().conditionMet(ret);
+      tstates += costAt(address, ret.getLength())[taken ? 1 : 0];
+      fetched(1);
+      return taken ? -1 : address + ret.getLength();
+    }
+    mutantExecutor.getInstructionExecutor().execute(instruction);
+    tstates += state.clock.getTStates() - before;
+    loadRegisters(state);
+    fetchCounter += Math.min(state.getRegisterR().read() - r & 0x7f, 2);
+    R = R & 0x80 | state.getRegisterR().read() & 0x7f;
+    return state.getPc().read();
+  }
+
+  public void fetched(int count) {
+    R = R & 0x80 | R + count & 0x7f;
+    fetchCounter += count;
+  }
+
+  private int[] costAt(int address, int length) {
+    return UncontendedTiming.costOf(java.util.Arrays.copyOfRange(mem, address, address + length));
+  }
+
+  public void storeRegisters(State state) {
+    state.getRegister(RegisterName.AF).write(AF());
+    state.getRegister(RegisterName.BC).write(BC());
+    state.getRegister(RegisterName.DE).write(DE());
+    state.getRegister(RegisterName.HL).write(HL());
+    state.getRegister(RegisterName.AFx).write(AFx());
+    state.getRegister(RegisterName.BCx).write(BCx());
+    state.getRegister(RegisterName.DEx).write(DEx());
+    state.getRegister(RegisterName.HLx).write(HLx());
+    state.getRegister(RegisterName.IX).write(IX());
+    state.getRegister(RegisterName.IY).write(IY());
+    state.getRegisterSP().write(SP);
+    state.getRegisterR().write(R);
+    state.getRegI().write(I);
+    state.setIff1(iff);
+    state.setIff2(iff2);
+    state.setIntMode(State.InterruptionMode.values()[interruptMode]);
+  }
+
+  public int codeHash(int start, int length) {
+    return Arrays.hashCode(java.util.stream.IntStream.range(start, start + length).map(address -> mem[address & 0xffff]).toArray());
+  }
+
+  public void unknownCodeVariant(int address, int variableStart, int length) {
+    StringBuilder bytes = new StringBuilder();
+    for (int i = variableStart; i < variableStart + length; i++)
+      bytes.append("%02x".formatted(mem[i]));
+    throw new IllegalStateException("code at %04X was rewritten into a shape that was not translated: %04X = %s".formatted(address, variableStart, bytes));
+  }
+
+  public void untranslated(int address) {
+    throw new IllegalStateException("no translated routine at %04X".formatted(address));
+  }
+
+  public void jump(int address) {
+    invokeMethod(address);
+  }
+
+  /** Where the code at this address was translated: a class with code of other banks overrides it to send their window to its copies. */
+  protected int pagedCopy(int address) {
+    return address;
+  }
+
+  protected void invokeMethod(int address) {
+    try {
+      Method method;
+      int translated = pagedCopy(address);
+      try {
+        method = getClass().getMethod("$" + Integer.toHexString(translated).toUpperCase());
+      } catch (NoSuchMethodException decimalNamed) {
+        method = getClass().getMethod("$" + translated);
+      }
+      if (method.invoke(this) instanceof Integer next && next != -1)
+        getClass().getMethod("runJumps", int.class).invoke(this, next);
+    } catch (java.lang.reflect.InvocationTargetException e) {
+      if (e.getCause() instanceof RuntimeException runtime)
+        throw runtime;
+      throw new RuntimeException(e.getCause());
+    } catch (ReflectiveOperationException e) {
+      throw new IllegalStateException("no translated routine at %04X".formatted(address), e);
+    }
+  }
+
+
+
+  private final Register aluTarget = new Plain8BitRegister("target");
+  private final Register aluSource = new Plain8BitRegister("source");
+  private final Register aluFlag = new Plain8BitRegister("F");
+  private final Register wideTarget = new Plain16BitRegister("wideTarget");
+  private final Register wideSource = new Plain16BitRegister("wideSource");
+  private final Map<String, Instruction> alu = Map.ofEntries(
+      Map.entry("add", new Add(aluTarget, aluSource, aluFlag)), Map.entry("adc", new Adc(aluTarget, aluSource, aluFlag)),
+      Map.entry("sub", new Sub(aluTarget, aluSource, aluFlag)), Map.entry("sbc", new Sbc(aluTarget, aluSource, aluFlag)),
+      Map.entry("and", new And(aluTarget, aluSource, aluFlag)), Map.entry("or", new Or(aluTarget, aluSource, aluFlag)),
+      Map.entry("xor", new Xor(aluTarget, aluSource, aluFlag)), Map.entry("cp", new Cp(aluTarget, aluSource, aluFlag)),
+      Map.entry("inc", new Inc(aluTarget, aluFlag)), Map.entry("dec", new Dec(aluTarget, aluFlag)),
+      Map.entry("neg", new Neg(aluTarget, aluFlag)), Map.entry("cpl", new CPL(aluTarget, aluFlag)), Map.entry("daa", new DAA(aluTarget, aluFlag)),
+      Map.entry("scf", new SCF(aluFlag, aluTarget)), Map.entry("ccf", new CCF(aluFlag, aluTarget)),
+      Map.entry("rlca", new RLCA(aluTarget, aluFlag)), Map.entry("rrca", new RRCA(aluTarget, aluFlag)),
+      Map.entry("rla", new RLA(aluTarget, aluFlag)), Map.entry("rra", new RRA(aluTarget, aluFlag)),
+      Map.entry("rlc", new RLC(aluTarget, aluFlag)), Map.entry("rrc", new RRC(aluTarget, aluFlag)),
+      Map.entry("rl", new RL(aluTarget, aluFlag)), Map.entry("rr", new RR(aluTarget, aluFlag)),
+      Map.entry("sla", new SLA(aluTarget, aluFlag)), Map.entry("sra", new SRA(aluTarget, aluFlag)),
+      Map.entry("srl", new SRL(aluTarget, aluFlag)), Map.entry("sll", new SLL(aluTarget, aluFlag)),
+      Map.entry("add16", new Add16(wideTarget, wideSource, aluFlag)), Map.entry("adc16", new Adc16(wideTarget, wideSource, aluFlag)),
+      Map.entry("sbc16", new Sbc16(wideTarget, wideSource, aluFlag)));
+
+  public int alu(String operation, int target, int source) {
+    Instruction instruction = alu.get(operation);
+    boolean wide = operation.endsWith("16");
+    Register result = wide ? wideTarget : aluTarget;
+    result.write(target);
+    (wide ? wideSource : aluSource).write(source);
+    aluFlag.write(F);
+    instruction.execute();
+    F(aluFlag.read());
+    return result.read();
+  }
+
+  public int alu(String operation, int target) {
+    return alu(operation, target, 0);
+  }
+
+  public void rld() {
+    int memory = mem[HL()];
+    wMem(HL(), (memory << 4 | A & 0x0f) & 0xff);
+    nibblesRotated(A & 0xf0 | memory >> 4);
+  }
+
+  public void rrd() {
+    int memory = mem[HL()];
+    wMem(HL(), (A & 0x0f) << 4 | memory >> 4);
+    nibblesRotated(A & 0xf0 | memory & 0x0f);
+  }
+
+  private void nibblesRotated(int a) {
+    int carry = F & 1;
+    A(alu("or", a, 0));
+    F(F & ~1 | carry);
+  }
+
+  public void bit(int n, int value) {
+    BIT bit = new BIT(aluTarget, n, aluFlag, new Plain16BitRegister("memptr"));
+    aluTarget.write(value);
+    aluFlag.write(F);
+    bit.execute();
+    F(aluFlag.read());
+  }
+
+  public boolean flag(int mask, boolean negate) {
+    return ((F & mask) == mask) != negate;
+  }
+
+  public int inc16(int value1) {
+    return (value1 + 1) & 0xffff;
+  }
+
+
+  public int dec16(int value1) {
+    return (value1 - 1) & 0xffff;
+  }
+
+
+
+
+
 
   public void SP(int value) {
     SP = value;
@@ -85,7 +299,7 @@ public abstract class SpectrumApplication {
 
   public int exAF(int AF) {
     int temp1 = AFx();
-    AFx(AF());
+    AFx(AF);
     AF(temp1);
     return temp1;
   }
@@ -112,27 +326,36 @@ public abstract class SpectrumApplication {
   }
 
   public void push(int value) {
-    if (SP != INITIAL_SP_VALUE) {
-      wMem16(SP, value);
-      SP -= 2;
-    } else
-      stack.push(value);
-//    if (stack.size() > 100)
-//      System.out.println("mmmmmm push");
+    SP = SP - 2 & 0xffff;
+    wMem(SP, value & 0xff);
+    wMem(SP + 1 & 0xffff, value >> 8 & 0xff);
   }
 
   public int pop() {
-    if (SP != INITIAL_SP_VALUE) {
-      int i = mem16(SP);
-      SP += 2;
-      return i;
-    } else
-      return stack.pop();
+    int value = mem[SP] | mem[SP + 1 & 0xffff] << 8;
+    SP = SP + 2 & 0xffff;
+    return value;
   }
 
-  public int carry(int f) {
-    return f & 1;
+  public int bank() {
+    return banks == null ? -1 : banks.bank();
   }
+
+  public void popInto(String pair) {
+    int value = pop();
+    switch (pair) {
+      case "AF" -> AF(value);
+      case "BC" -> BC(value);
+      case "DE" -> DE(value);
+      case "HL" -> HL(value);
+      case "IX" -> IX(value);
+      default -> IY(value);
+    }
+  }
+
+
+
+
 
   public boolean isNextPC(int nextPC) {
     boolean matches = nextAddress == nextPC;
@@ -142,171 +365,215 @@ public abstract class SpectrumApplication {
   }
 
   public SpectrumApplication() {
-    Arrays.fill(getMem(), 0);
+    Arrays.fill(mem, 0);
+    io = new DefaultMiniZXIO();
   }
 
   public int in(int port, int pc) {
     return io.in(port);
   }
 
-  public int l(int value) {
-    return value & 0xff;
-  }
+  private static final int BLOCK_REPEAT = 21, BLOCK_END = 16;
+  public long tstates;
+  public int fetchCounter;
+  public MiniZXSound sound;
+  public MemoryBanks banks;
 
-  public int h(int value) {
-    return value >> 8 & 0xff;
-  }
-
-  public int reg16low(int reg16, int low) {
-    return reg16 & 255 | low << 8;
-  }
-
-  public int reg16high(int reg16, int high) {
-    return reg16 & 0xFF00 | high;
+  public int inC(int port, int pc) {
+    int value = in(port, pc);
+    aluFlag.write(F);
+    new In.InAluOperation().execute2ValuesAndCarry(value, F, aluFlag);
+    F(aluFlag.read());
+    return value;
   }
 
   public int mem(int address, int pc) {
-    return getMem()[address] & 0xff;
-  }
-
-  public int mem(int address, int pc, int AF, int BC, int DE, int HL, int IX, int IY, int A, int F, int B, int C, int D, int E, int H, int L, int IXL, int IXH, int IYL, int IYH) {
-    updateRegisters(AF, BC, DE, HL, IX, IY, A, F, B, C, D, E, H, L, IXL, IXH, IYL, IYH);
-    return mem(address, pc);
-  }
-
-  private void updateRegisters(int AF, int BC, int DE, int HL, int IX, int IY, int A, int F, int B, int C, int D, int E, int H, int L, int IXL, int IXH, int IYL, int IYH) {
-    this.AF = AF;
-    this.BC = BC;
-    this.DE = DE;
-    this.HL = HL;
-    this.IX = IX;
-    this.IY = IY;
-    this.A = A;
-    this.F = F;
-    this.B = B;
-    this.C = C;
-    this.D = D;
-    this.H = H;
-    this.L = L;
-    this.IXL = IXL;
-    this.IXH = IXH;
-    this.IYL = IYL;
-    this.IYH = IYH;
+    return mem[address];
   }
 
   public void wMem(int address, int value, int pc) {
     wMem(address, value);
   }
 
-  public void wMem(int address, int value, int pc, int AF, int BC, int DE, int HL, int IX, int IY, int A, int F, int B, int C, int D, int E, int H, int L, int IXL, int IXH, int IYL, int IYH) {
-    updateRegisters(AF, BC, DE, HL, IX, IY, A, F, B, C, D, E, H, L, IXL, IXH, IYL, IYH);
-    wMem(address, value, pc);
-  }
-
   public void wMem16(int address, int value, int pc) {
-    getMem()[address] = value & 0xFF;
-    getMem()[address + 1] = value >> 8;
-  }
-
-  public void wMem16(int address, int value, int pc, int AF, int BC, int DE, int HL, int IX, int IY, int A, int F, int B, int C, int D, int E, int H, int L, int IXL, int IXH, int IYL, int IYH) {
-    updateRegisters(AF, BC, DE, HL, IX, IY, A, F, B, C, D, E, H, L, IXL, IXH, IYL, IYH);
-    wMem16(address, value, pc);
+    wMem(address, value & 0xFF);
+    wMem(address + 1 & 0xffff, value >>> 8);
   }
 
   public int mem16(int address, int pc) {
-    return mem(address + 1) * 256 + mem(address);
-  }
-
-  public int mem16(int address, int pc, int AF, int BC, int DE, int HL, int IX, int IY, int A, int F, int B, int C, int D, int E, int H, int L, int IXL, int IXH, int IYL, int IYH) {
-    updateRegisters(AF, BC, DE, HL, IX, IY, A, F, B, C, D, E, H, L, IXL, IXH, IYL, IYH);
-    return mem16(address, pc);
+    return (mem[address + 1] << 8) + mem[address];
   }
 
   public int mem(int address) {
-//    waitNanos(40);
-    return getMem()[address] & 0xff;
+    return mem[address];
   }
 
   public void wMem(int address, int value) {
-//    waitNanos(40);
-    getMem()[address] = value & 0xff;
+    if (address >= ROM_END)
+      mem[address] = value;
   }
 
-  public void waitNanos(int i) {
+  public static void waitNanos(int i) {
     long start = System.nanoTime();
     while (start + i >= System.nanoTime()) ;
   }
 
-  public void waitMilis(int i) {
-    long start = System.currentTimeMillis();
-    while (start + i >= System.currentTimeMillis()) ;
+  public void pc(int address, int rdelta) {
+    PC = address;
   }
 
-  public void wMem16(int address, int value) {
-    value = value & 0xffff;
-    getMem()[address + 1] = value >> 8;
-    getMem()[address] = value & 0xFF;
+  public void pc(int address, int rdelta, int cost) {
+    pc(address, rdelta);
+    tstates += cost;
   }
 
-  public int mem16(int i) {
-    return (mem(i + 1) * 256 + mem(i)) & 0xffff;
+  public void tstates(int extra) {
+    tstates += extra;
   }
 
-  public int[] result(int... results) {
-    return results;
+  public void out(int port, int value) {
+    if (banks != null && MemoryBanks.pages(port))
+      banks.write(value, mem);
+    io.out(port, value);
+    if (sound != null)
+      sound.out(tstates, port, value);
   }
 
-  public int[] ldir(int HL, int DE, int BC) {
-    while (BC != 0) {
-      wMem(DE, mem(HL));
-      BC--;
-      HL++;
-      DE++;
-    }
-    return new int[]{HL, DE, BC};
+  public void halt(int address) {
   }
 
-  public void ldir() {
+  public void ldir(int address) {
+    ldi();
     while (BC() != 0) {
-//      wMem(DE(), mem(HL()));
-      mem[DE()] = mem[HL()];
-      BC(BC() - 1);
-      HL(HL() + 1);
-      DE(DE() + 1);
+      pc(address, 2, BLOCK_REPEAT);
+      ldi();
     }
+    tstates -= BLOCK_REPEAT - BLOCK_END;
   }
 
-  public void lddr() {
+  public void ldi() {
+    blockStep(1, true);
+  }
+
+  public void lddr(int address) {
+    ldd();
     while (BC() != 0) {
-      wMem(DE(), mem(HL()));
-      BC(BC() - 1);
-      HL(HL() - 1);
-      DE(DE() - 1);
+      pc(address, 2, BLOCK_REPEAT);
+      ldd();
     }
+    tstates -= BLOCK_REPEAT - BLOCK_END;
   }
 
-  public int[] cpir(int HL, int BC, int A) {
-    int result = -1;
-    while (BC != 0 && result != A) {
-      result = mem(HL);
-      BC--;
-      HL++;
+  public void ldd() {
+    blockStep(-1, true);
+  }
+
+  public void cpir(int address) {
+    cpi();
+    while (BC() != 0 && (F & 0x40) == 0) {
+      pc(address, 2, BLOCK_REPEAT);
+      cpi();
     }
-    return new int[]{HL, BC};
+    tstates -= BLOCK_REPEAT - BLOCK_END;
   }
 
-  public void cpir() {
-    int result = -1;
-    while (BC() != 0 && result != A) {
-      result = mem(HL());
-      BC(BC() - 1);
-      HL(HL() + 1);
+  public void cpi() {
+    blockStep(1, false);
+  }
+
+  public void cpdr(int address) {
+    cpd();
+    while (BC() != 0 && (F & 0x40) == 0) {
+      pc(address, 2, BLOCK_REPEAT);
+      cpd();
     }
+    tstates -= BLOCK_REPEAT - BLOCK_END;
   }
 
-  public void cpdr() {
-
+  public void cpd() {
+    blockStep(-1, false);
   }
+
+  public void outi() {
+    outStep(1);
+  }
+
+  public void outd() {
+    outStep(-1);
+  }
+
+  private void outStep(int direction) {
+    int value = mem[HL()];
+    B(B() - 1 & 0xff);
+    out(BC(), value);
+    HL(HL() + direction & 0xffff);
+    int sum = value + L();
+    F(((value & 0x80) != 0 ? 0x02 : 0) | (sum > 0xff ? 0x11 : 0) | (Integer.bitCount(sum & 7 ^ B()) % 2 == 0 ? 0x04 : 0) | B() & 0xa8 | (B() == 0 ? 0x40 : 0));
+  }
+
+  private void blockStep(int direction, boolean copy) {
+    int hl = HL();
+    if (copy) {
+      int de = DE();
+      wMem(de, mem[hl]);
+      DE(de + direction & 0xffff);
+    }
+    HL(hl + direction & 0xffff);
+    BC(BC() - 1 & 0xffff);
+    int carry = F & 0x01;
+    if (!copy)
+      alu("cp", A, mem[hl]);
+    F(F & (copy ? ~0x16 : ~0x05) | (copy ? 0 : carry) | (BC() != 0 ? 0x04 : 0));
+  }
+
+
+  public void loadState(State state) {
+    System.arraycopy(state.getMemory().getData(), 0, mem, 0, mem.length);
+    if (state.getMemory() instanceof MockedMemory memory && memory.banks != null)
+      banks = memory.banks.copyOf(memory.getData());
+    loadRegisters(state);
+  }
+
+  private void loadRegisters(State state) {
+    AF(state.getRegister(RegisterName.AF).read());
+    BC(state.getRegister(RegisterName.BC).read());
+    DE(state.getRegister(RegisterName.DE).read());
+    HL(state.getRegister(RegisterName.HL).read());
+    AFx(state.getRegister(RegisterName.AFx).read());
+    BCx(state.getRegister(RegisterName.BCx).read());
+    DEx(state.getRegister(RegisterName.DEx).read());
+    HLx(state.getRegister(RegisterName.HLx).read());
+    IX(state.getRegister(RegisterName.IX).read());
+    IY(state.getRegister(RegisterName.IY).read());
+    SP(state.getRegisterSP().read());
+    R(state.getRegisterR().read());
+    I = state.getRegI().read();
+    iff = state.isIff1();
+    iff2 = state.isIff2();
+    interruptMode = state.getInterruptionMode().ordinal();
+  }
+
+  public void im(int mode) {
+    interruptMode = mode;
+  }
+
+  public void ei() {
+    iff = iff2 = true;
+  }
+
+  public void di() {
+    iff = iff2 = false;
+  }
+
+  public boolean isIff() {
+    return iff;
+  }
+
+  public boolean acceptsInterrupt() {
+    return iff;
+  }
+
+
 
   public void AF(int value) {
     AF = value & 0xffff;
@@ -334,87 +601,20 @@ public abstract class SpectrumApplication {
 
   public void IX(int value) {
     IX = value & 0xffff;
-    IXH = IX >> 8;
-    IXL = IX & 0xFF;
   }
 
   public void IY(int value) {
     IY = value & 0xffff;
-    IYH = IY >> 8;
-    IYL = IY & 0xFF;
   }
 
   public int pair(int a, int f) {
     return ((a & 0xFF) << 8) | (f & 0xFF);
   }
 
-//  public int[] rlc(int a, int F) {
-//    F = (a & 128) >> 7;
-//    int i = ((a << 1) & 0xfe) | (a & 0xFF) >> 7;
-//    return new int[]{i & 0xff, F};
-//  }
-//
-//  public int[] rl(int a, int F) {
-//    int lastCarry = carry(F) & 0x01;
-//    F = (a & 128) >> 7;
-//    int i = ((a << 1) & 0xfe) | lastCarry;
-//    return new int[]{i & 0xff, F};
-//  }
 
-  public int rrc(int a) {
-    F = carry = a & 1;
-    return ((a & 0xff) >> 1) | ((a & 0x01) << 7) & 0xff;
-  }
 
-  public int rr(int a) {
-    int lastCarry = (carry(F) & 0x01) << 7;
-    F = carry = a & 1;
-    return ((a & 0xff) >> 1) | lastCarry;
-  }
 
-  public int rlc(int a) {
-    F = carry = (a & 128) >> 7;
-    return ((a << 1) & 0xfe) | (a & 0xFF) >> 7;
-  }
 
-  public int rl(int a) {
-    int lastCarry = carry(F) & 0x01;
-    F = carry = (a & 128) >> 7;
-    return ((a << 1) & 0xfe) | lastCarry;
-  }
-
-  public int sl(int a) {
-    int lastCarry = 0;
-    F = carry = (a & 128) >> 7;
-    return ((a << 1) & 0xfe) | lastCarry;
-  }
-
-  public int sr(int a) {
-    F = carry = (a & 1) >> 7;
-    return ((a & 0xff) >> 1);
-  }
-
-  public int getCarry() {
-    return carry;
-  }
-
-  public void ccf() {
-    carry = ~carry;
-  }
-
-  public void update16Registers() {
-    AF(pair(A, F));
-    BC(pair(B, C));
-    DE(pair(D, E));
-    HL(pair(H, L));
-    IX(pair(IXH, IXL));
-    IY(pair(IYH, IYL));
-
-    AFx(pair(Ax, Fx));
-    BCx(pair(Bx, Cx));
-    DEx(pair(Dx, Ex));
-    HLx(pair(Hx, Lx));
-  }
 
 
   public int AF;
@@ -437,17 +637,32 @@ public abstract class SpectrumApplication {
   public int IY;
   public int PC;
   public int SP = INITIAL_SP_VALUE;
-  public int I;
+  protected int I;
+  protected boolean iff, iff2;
+  protected int interruptMode = 1;
 
   public int R() {
     return R;
+  }
+
+  public int ldAR() {
+    return ldInterruptRegister(R);
+  }
+
+  public int ldAI() {
+    return ldInterruptRegister(I);
+  }
+
+  private int ldInterruptRegister(int value) {
+    F(F & 0x01 | value & 0xa8 | (value == 0 ? 0x40 : 0) | (iff2 ? 0x04 : 0));
+    return value;
   }
 
   public void R(int r) {
     R = r;
   }
 
-  public int R;
+  protected int R;
   public int IR;
   public int VIRTUAL;
   public int MEMPTR;
@@ -477,19 +692,19 @@ public abstract class SpectrumApplication {
   }
 
   public int AF() {
-    return ((A & 0xFF) << 8) | (F & 0xFF);
+    return AF;
   }
 
   public int BC() {
-    return ((B & 0xFF) << 8) | (C & 0xFF);
+    return BC;
   }
 
   public int DE() {
-    return ((D & 0xFF) << 8) | (E & 0xFF);
+    return DE;
   }
 
   public int HL() {
-    return ((H & 0xFF) << 8) | (L & 0xFF);
+    return HL;
   }
 
   public int AFx() {
@@ -509,11 +724,11 @@ public abstract class SpectrumApplication {
   }
 
   public int IX() {
-    return ((IXH & 0xFF) << 8) | (IXL & 0xFF);
+    return IX;
   }
 
   public int IY() {
-    return ((IYH & 0xFF) << 8) | (IYL & 0xFF);
+    return IY;
   }
 
   public int[] getMem() {
@@ -523,4 +738,210 @@ public abstract class SpectrumApplication {
   public int in(int port) {
     return io.in(port);
   }
+
+  public int A_16() {
+    return AF >> 8;
+  }
+
+  public int AF_8() {
+    int i = A << 8 | AF & 0xff;
+//    AF= i;
+    return i;
+  }
+
+  public int B_16() {
+    int i = BC >> 8;
+    B = i & 0xff;
+    return B;
+  }
+
+  public int C_16() {
+    int i = BC & 0xff;
+    C = i;
+    return C;
+  }
+
+  public int BC_8() {
+    int i = B << 8 | BC & 0xff;
+    BC = i;
+    return BC;
+  }
+
+  public int D_16() {
+    int i = DE >> 8;
+    D = i;
+    return D;
+  }
+
+  public int E_16() {
+    int i = DE & 0xff;
+    E = i;
+    return E;
+  }
+
+  public int DE_8() {
+    int i = D << 8 | DE & 0xff;
+//    DE = i;
+    return i;
+  }
+
+  public int H_16() {
+    int i = HL >> 8;
+    H = i;
+    return H;
+  }
+
+  public int L_16() {
+    int i = HL & 0xff;
+    L = i;
+    return L;
+  }
+
+  public int HL_8() {
+    int i = H << 8 | HL & 0xff;
+    HL = i;
+    return i;
+  }
+
+  public int A() {
+    return A;
+  }
+
+  public void A(int a) {
+    A = a;
+    AF = A << 8 | AF & 0xff;
+  }
+
+  public int F() {
+    return F;
+  }
+
+  public void F(int f) {
+    F = f;
+    AF = AF & 0xff00 | F & 0xff;
+  }
+
+  public int B() {
+    return B;
+  }
+
+  public void B(int b) {
+    B = b & 0xff;
+    BC = B << 8 | BC & 0xff;
+  }
+
+  public void B_16(int b) {
+    BC = BC & 0xff | ((b & 0xff) << 8);
+  }
+
+  public int C() {
+//    int i = BC & 0xff;
+//    if (i != C)
+//      System.out.println("asfsaf");
+    return C;
+  }
+
+  public void C(int c) {
+    C = c;
+    BC = BC & 0xff00 | c & 0xff;
+  }
+
+  public void C_16(int c) {
+    C = c;
+    BC = BC & 0xff00 | c & 0xff;
+  }
+
+  public int D() {
+    return D;
+  }
+
+  public void D(int d) {
+    D = d;
+    DE = D << 8 | DE & 0xff;
+  }
+
+  public int E() {
+    return E;
+  }
+
+  public void E(int e) {
+    E = e;
+    DE = DE & 0xff00 | e & 0xff;
+  }
+
+  public int H() {
+    int i = (HL & 0xff00) >> 8;
+//    if (i != H)
+//      System.out.println("asfsaf");
+    return H;
+  }
+
+  public void H(int h) {
+    H = h & 0xff;
+    HL = H << 8 | HL & 0xff;
+  }
+
+  public int L() {
+    int i = (HL & 0xff);
+//    if (i != L)
+//      System.out.println("asfsaf");
+    return L;
+  }
+
+  public void L(int l) {
+    L = l;
+    HL = HL & 0xff00 | l & 0xff;
+  }
+
+  public int IXH() {
+    return IX >> 8;
+  }
+
+  public void IXH(int IXH) {
+    this.IX = IXH << 8 | (IX & 0xff);
+  }
+
+  public int IXL() {
+    return IX & 0xff;
+  }
+
+  public void IXL(int IXL) {
+    this.IX = (IX & 0xff00) | IXL;
+  }
+
+  public int IYH() {
+    return IY >> 8;
+  }
+
+  public void IYH(int IYH) {
+    this.IY = IYH << 8 | (IY & 0xff);
+  }
+
+  public int IYL() {
+    return IY & 0xff;
+  }
+
+  public void IYL(int IYL) {
+    this.IY = (IY & 0xff00) | IYL;
+  }
+
+  public int I() {
+    return I;
+  }
+
+  public void I(int i) {
+    I = i;
+  }
+
+  public int getR() {
+    return R;
+  }
+
+  public void setR(int r) {
+    R = r;
+  }
+
+    protected void pc(char c) {
+      pc(c, 1);
+    }
 }
