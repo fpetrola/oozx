@@ -630,7 +630,7 @@ public class RoutineBytecodeGenerator {
   }
 
   public boolean pushesReturnAddress(int callSite) {
-    return stackAnalyzer().poppedCallSites.containsKey(callSite) && !routine.getReturnPoints().containsKey(callSite) || context.routineManager.pushedReturnSites.contains(callSite);
+    return context.routineManager.pushesReturnAddress(callSite, routine, stackAnalyzer());
   }
 
   public void resumeAtPushed(int site, Variable value) {

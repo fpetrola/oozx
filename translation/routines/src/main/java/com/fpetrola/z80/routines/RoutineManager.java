@@ -454,6 +454,11 @@ public class RoutineManager {
   public record RetExit(Exit kind, int continuation) {
   }
 
+  /** A CALL pushes its return address for real when a POP takes it outside the routine's own return points, or when a plan needs it on the stack (layout, non-local returns). */
+  public boolean pushesReturnAddress(int callSite, Routine routine, StackAnalyzer stackAnalyzer) {
+    return stackAnalyzer.poppedCallSites.containsKey(callSite) && !routine.getReturnPoints().containsKey(callSite) || pushedReturnSites.contains(callSite);
+  }
+
   /** A JP through a register after pushing where to go on is a call; otherwise it goes on at its recorded targets, and a shifted return has nowhere else to go. */
   public Exit exitOfJump(int site, Routine routine, StackAnalyzer stackAnalyzer) {
     if (stackAnalyzer.getSimulatedCallsPcs().contains(site) && ownDataLeftForOthers(site, routine, stackAnalyzer).stream().noneMatch(push -> plantedContinuation(push, stackAnalyzer) != null))
