@@ -5284,8 +5284,7 @@ public class MontyOnTheRun extends MiniZX {
                         this.pc('\u9752', 1, 5);
                         if(this.flag(64, false)) {
                            this.tstates(6);
-                           int var74 = this.pop();
-                           throw new StackException(var74);
+                           return;
                         }
 
                         this.pc('\u9753', 1, 4);
@@ -5883,7 +5882,7 @@ public class MontyOnTheRun extends MiniZX {
    }
 
    public void $9932() {
-      label353:
+      label352:
       while(true) {
          this.pc('\u9932', 1, 13);
          int var1 = this.mem('\ue315', '\u9932');
@@ -5893,29 +5892,29 @@ public class MontyOnTheRun extends MiniZX {
          this.alu("cp", var2, 37);
          this.pc('\u9937', 1, 10);
          if(!this.flag(64, false)) {
-            label294: {
+            label293: {
                this.pc('\u993a', 1, 7);
-               int var139 = this.A();
-               this.alu("cp", var139, 30);
+               int var143 = this.A();
+               this.alu("cp", var143, 30);
                this.pc('\u993c', 1, 7);
                if(this.flag(1, false)) {
                   this.tstates(5);
                } else {
                   this.pc('\u993e', 1, 7);
-                  int var140 = this.A();
-                  this.alu("cp", var140, 34);
+                  int var144 = this.A();
+                  this.alu("cp", var144, 34);
                   this.pc('\u9940', 1, 7);
                   if(this.flag(1, true)) {
                      this.tstates(5);
                   } else {
                      this.pc('\u9942', 1, 13);
-                     int var141 = this.mem('\u9344', '\u9942');
-                     this.A(var141);
+                     int var145 = this.mem('\u9344', '\u9942');
+                     this.A(var145);
                      this.pc('\u9945', 1, 4);
-                     int var142 = this.A();
-                     int var143 = this.A();
-                     int var144 = this.alu("or", var143, var142);
-                     this.A(var144);
+                     int var146 = this.A();
+                     int var147 = this.A();
+                     int var148 = this.alu("or", var147, var146);
+                     this.A(var148);
                      this.pc('\u9946', 1, 7);
                      if(!this.flag(64, true)) {
                         this.pc('\u9948', 1, 17);
@@ -5923,7 +5922,7 @@ public class MontyOnTheRun extends MiniZX {
                         this.pc('\u994b', 1, 17);
                         this.$91BC();
                         this.pc('\u994e', 1, 12);
-                        break label294;
+                        break label293;
                      }
 
                      this.tstates(5);
@@ -5939,18 +5938,19 @@ public class MontyOnTheRun extends MiniZX {
             this.pc('\u9956', 1, 17);
             this.$B47F();
 
-            label356: {
-               label357: {
+            label355: {
+               label356: {
                   try {
                      this.pc('\u9959', 1, 17);
                      this.$A72F();
-                  } catch (StackException var233) {
-                     if(var233.getNextPC() == '\u879f') {
+                  } catch (StackException var243) {
+                     int[] var150 = new int[]{'\u879f'};
+                     if(this.ownAddress(var243, var150) == '\u879f') {
                         this.HL('\u995c');
-                        break label357;
+                        break label356;
                      }
 
-                     throw var233;
+                     return;
                   }
 
                   this.pc('\u995c', 1, 17);
@@ -5959,49 +5959,53 @@ public class MontyOnTheRun extends MiniZX {
                   try {
                      this.pc('\u995f', 1, 17);
                      this.$84FD();
-                  } catch (StackException var232) {
-                     if(var232.getNextPC() != '\u879f') {
-                        throw var232;
+                  } catch (StackException var246) {
+                     int[] var159 = new int[]{'\u879f'};
+                     if(this.ownAddress(var246, var159) == '\u879f') {
+                        this.HL('\u9962');
+                        break label356;
                      }
 
-                     this.HL('\u9962');
-                     break label357;
+                     return;
                   }
 
                   try {
                      this.pc('\u9962', 1, 17);
                      this.$8689();
-                  } catch (StackException var236) {
-                     if(var236.getNextPC() == '\u879f') {
+                  } catch (StackException var245) {
+                     int[] var161 = new int[]{'\u879f'};
+                     if(this.ownAddress(var245, var161) == '\u879f') {
                         this.HL('\u9965');
-                        break label357;
+                        break label356;
                      }
 
-                     throw var236;
+                     return;
                   }
 
                   try {
                      this.pc('\u9965', 1, 17);
                      this.$8F9D();
-                  } catch (StackException var235) {
-                     if(var235.getNextPC() == '\u879f') {
+                  } catch (StackException var247) {
+                     int[] var163 = new int[]{'\u879f'};
+                     if(this.ownAddress(var247, var163) == '\u879f') {
                         this.HL('\u9968');
-                        break label357;
+                        break label356;
                      }
 
-                     throw var235;
+                     return;
                   }
 
                   try {
                      this.pc('\u9968', 1, 17);
                      this.$8FE8();
-                  } catch (StackException var234) {
-                     if(var234.getNextPC() == '\u879f') {
+                  } catch (StackException var244) {
+                     int[] var165 = new int[]{'\u879f'};
+                     if(this.ownAddress(var244, var165) == '\u879f') {
                         this.HL('\u996b');
-                        break label357;
+                        break label356;
                      }
 
-                     throw var234;
+                     return;
                   }
 
                   this.pc('\u996b', 1, 17);
@@ -6012,17 +6016,18 @@ public class MontyOnTheRun extends MiniZX {
                   try {
                      this.pc('\u9971', 1, 17);
                      this.$A550();
-                  } catch (StackException var230) {
-                     if(var230.getNextPC() == '\ua56f') {
+                  } catch (StackException var241) {
+                     int[] var167 = new int[]{'\ua56f'};
+                     if(this.ownAddress(var241, var167) == '\ua56f') {
                         this.HL('\u9974');
                         this.pc('\ua56f', 1, 13);
-                        int var158 = this.mem('\u934e', '\ua56f');
-                        this.A(var158);
+                        int var168 = this.mem('\u934e', '\ua56f');
+                        this.A(var168);
                         this.pc('\ua572', 1, 4);
-                        int var159 = this.A();
-                        int var160 = this.A();
-                        int var161 = this.alu("or", var160, var159);
-                        this.A(var161);
+                        int var169 = this.A();
+                        int var170 = this.A();
+                        int var171 = this.alu("or", var170, var169);
+                        this.A(var171);
                         this.pc('\ua573', 1, 5);
                         if(this.flag(64, false)) {
                            this.tstates(6);
@@ -6032,8 +6037,8 @@ public class MontyOnTheRun extends MiniZX {
                         this.pc('\ua574', 1, 10);
                         this.HL(0);
                         this.pc('\ua577', 1, 16);
-                        int var162 = this.HL();
-                        this.wMem16('\ub87c', var162, '\ua577');
+                        int var172 = this.HL();
+                        this.wMem16('\ub87c', var172, '\ua577');
                         this.pc('\ua57a', 1, 17);
                         this.$B84A();
                         this.pc('\ua57d', 2, 14);
@@ -6065,18 +6070,18 @@ public class MontyOnTheRun extends MiniZX {
                            this.pc('\ua5a1', 1, 4);
                            this.halt('\ua5a1');
                            this.pc('\ua5a2', 1, 11);
-                           int var163 = this.BC();
-                           this.push(var163);
+                           int var173 = this.BC();
+                           this.push(var173);
                            this.pc('\ua5a3', 1, 17);
                            this.$AE3E();
                            this.pc('\ua5a6', 1, 13);
-                           int var164 = this.mem('\uaef0', '\ua5a6');
-                           this.A(var164);
+                           int var174 = this.mem('\uaef0', '\ua5a6');
+                           this.A(var174);
                            this.pc('\ua5a9', 1, 4);
-                           int var165 = this.A();
-                           int var166 = this.A();
-                           int var167 = this.alu("or", var166, var165);
-                           this.A(var167);
+                           int var175 = this.A();
+                           int var176 = this.A();
+                           int var177 = this.alu("or", var176, var175);
+                           this.A(var177);
                            this.pc('\ua5aa', 1, 5);
                            if(this.flag(64, true)) {
                               this.tstates(6);
@@ -6084,17 +6089,17 @@ public class MontyOnTheRun extends MiniZX {
                            }
 
                            this.pc('\ua5ab', 1, 11);
-                           int var168 = this.A() << 8 | 254;
-                           int var169 = this.in(var168, '\ua5ab');
-                           this.A(var169);
+                           int var178 = this.A() << 8 | 254;
+                           int var179 = this.in(var178, '\ua5ab');
+                           this.A(var179);
                            this.pc('\ua5ad', 1, 7);
-                           int var170 = this.A();
-                           int var171 = this.alu("and", var170, 31);
-                           this.A(var171);
+                           int var180 = this.A();
+                           int var181 = this.alu("and", var180, 31);
+                           this.A(var181);
                            this.pc('\ua5af', 1, 7);
-                           int var172 = this.A();
-                           int var173 = this.alu("xor", var172, 31);
-                           this.A(var173);
+                           int var182 = this.A();
+                           int var183 = this.alu("xor", var182, 31);
+                           this.A(var183);
                            this.pc('\ua5b1', 1, 5);
                            if(this.flag(64, true)) {
                               this.tstates(6);
@@ -6102,11 +6107,11 @@ public class MontyOnTheRun extends MiniZX {
                            }
 
                            this.pc('\ua5b2', 1, 10);
-                           int var174 = this.pop();
-                           this.BC(var174);
+                           int var184 = this.pop();
+                           this.BC(var184);
                            this.pc('\ua5b3', 1, 8);
-                           int var175 = this.B() - 1 & 255;
-                           this.B(var175);
+                           int var185 = this.B() - 1 & 255;
+                           this.B(var185);
                            if(this.B() == 0) {
                               this.pc('\ua5b5', 1, 10);
                               return;
@@ -6116,17 +6121,17 @@ public class MontyOnTheRun extends MiniZX {
                         }
                      }
 
-                     throw var230;
+                     return;
                   }
 
                   this.pc('\u9974', 1, 13);
-                  int var176 = this.mem('\u9a74', '\u9974');
-                  this.A(var176);
+                  int var186 = this.mem('\u9a74', '\u9974');
+                  this.A(var186);
                   this.pc('\u9977', 1, 4);
-                  int var177 = this.A();
-                  int var178 = this.A();
-                  int var179 = this.alu("or", var178, var177);
-                  this.A(var179);
+                  int var187 = this.A();
+                  int var188 = this.A();
+                  int var189 = this.alu("or", var188, var187);
+                  this.A(var189);
 
                   try {
                      this.pc('\u9978', 1, 10);
@@ -6134,14 +6139,15 @@ public class MontyOnTheRun extends MiniZX {
                         this.tstates(7);
                         this.$9A58();
                      }
-                     break label356;
-                  } catch (StackException var231) {
-                     if(var231.getNextPC() != '\u879f') {
-                        throw var231;
+                     break label355;
+                  } catch (StackException var242) {
+                     int[] var191 = new int[]{'\u879f'};
+                     if(this.ownAddress(var242, var191) != '\u879f') {
+                        return;
                      }
-                  }
 
-                  this.HL('\u997b');
+                     this.HL('\u997b');
+                  }
                }
 
                this.pc('\u879f', 1, 4);
@@ -6153,17 +6159,17 @@ public class MontyOnTheRun extends MiniZX {
                   this.pc('\u87a2', 1, 4);
                   this.halt('\u87a2');
                   this.pc('\u87a3', 1, 11);
-                  int var146 = this.A() << 8 | 254;
-                  int var147 = this.in(var146, '\u87a3');
-                  this.A(var147);
+                  int var151 = this.A() << 8 | 254;
+                  int var152 = this.in(var151, '\u87a3');
+                  this.A(var152);
                   this.pc('\u87a5', 1, 7);
-                  int var148 = this.A();
-                  int var149 = this.alu("and", var148, 31);
-                  this.A(var149);
+                  int var153 = this.A();
+                  int var154 = this.alu("and", var153, 31);
+                  this.A(var154);
                   this.pc('\u87a7', 1, 7);
-                  int var150 = this.A();
-                  int var151 = this.alu("xor", var150, 31);
-                  this.A(var151);
+                  int var155 = this.A();
+                  int var156 = this.alu("xor", var155, 31);
+                  this.A(var156);
                   this.pc('\u87a9', 1, 5);
                   if(this.flag(64, true)) {
                      this.tstates(6);
@@ -6171,8 +6177,8 @@ public class MontyOnTheRun extends MiniZX {
                   }
 
                   this.pc('\u87aa', 1, 8);
-                  int var152 = this.B() - 1 & 255;
-                  this.B(var152);
+                  int var157 = this.B() - 1 & 255;
+                  this.B(var157);
                   if(this.B() == 0) {
                      this.pc('\u87ac', 1, 10);
                      return;
@@ -6183,11 +6189,11 @@ public class MontyOnTheRun extends MiniZX {
             }
 
             this.pc('\u997b', 1, 13);
-            int var181 = this.mem('\uff02', '\u997b');
-            this.A(var181);
+            int var192 = this.mem('\uff02', '\u997b');
+            this.A(var192);
             this.pc('\u997e', 1, 7);
-            int var182 = this.A();
-            this.alu("cp", var182, 236);
+            int var193 = this.A();
+            this.alu("cp", var193, 236);
             this.pc('\u9980', 1, 7);
             if(this.flag(1, true)) {
                this.tstates(5);
@@ -6198,19 +6204,19 @@ public class MontyOnTheRun extends MiniZX {
                this.pc('\u99a8', 1, 7);
                if(!this.flag(64, true)) {
                   this.pc('\u99aa', 1, 13);
-                  int var223 = this.mem('\uff02', '\u99aa');
-                  this.A(var223);
+                  int var234 = this.mem('\uff02', '\u99aa');
+                  this.A(var234);
                   this.pc('\u99ad', 1, 4);
-                  int var224 = this.A();
-                  int var225 = this.alu("dec", var224);
-                  this.A(var225);
+                  int var235 = this.A();
+                  int var236 = this.alu("dec", var235);
+                  this.A(var236);
                   this.pc('\u99ae', 1, 4);
-                  int var226 = this.A();
-                  int var227 = this.alu("dec", var226);
-                  this.A(var227);
+                  int var237 = this.A();
+                  int var238 = this.alu("dec", var237);
+                  this.A(var238);
                   this.pc('\u99af', 1, 13);
-                  int var228 = this.A();
-                  this.wMem('\uff02', var228, '\u99af');
+                  int var239 = this.A();
+                  this.wMem('\uff02', var239, '\u99af');
                   this.pc('\u99b2', 1, 10);
                   continue;
                }
@@ -6219,12 +6225,12 @@ public class MontyOnTheRun extends MiniZX {
                this.pc('\u99b5', 1, 7);
                this.A(4);
                this.pc('\u99b7', 1, 13);
-               int var229 = this.A();
-               this.wMem('\uff02', var229, '\u99b7');
+               int var240 = this.A();
+               this.wMem('\uff02', var240, '\u99b7');
             } else {
                this.pc('\u9982', 1, 7);
-               int var183 = this.A();
-               this.alu("cp", var183, 4);
+               int var194 = this.A();
+               this.alu("cp", var194, 4);
                this.pc('\u9984', 1, 7);
                if(this.flag(1, false)) {
                   this.tstates(5);
@@ -6235,19 +6241,19 @@ public class MontyOnTheRun extends MiniZX {
                   this.pc('\u99cf', 1, 7);
                   if(!this.flag(64, true)) {
                      this.pc('\u99d1', 1, 13);
-                     int var216 = this.mem('\uff02', '\u99d1');
-                     this.A(var216);
+                     int var227 = this.mem('\uff02', '\u99d1');
+                     this.A(var227);
                      this.pc('\u99d4', 1, 4);
-                     int var217 = this.A();
-                     int var218 = this.alu("inc", var217);
-                     this.A(var218);
+                     int var228 = this.A();
+                     int var229 = this.alu("inc", var228);
+                     this.A(var229);
                      this.pc('\u99d5', 1, 4);
-                     int var219 = this.A();
-                     int var220 = this.alu("inc", var219);
-                     this.A(var220);
+                     int var230 = this.A();
+                     int var231 = this.alu("inc", var230);
+                     this.A(var231);
                      this.pc('\u99d6', 1, 13);
-                     int var221 = this.A();
-                     this.wMem('\uff02', var221, '\u99d6');
+                     int var232 = this.A();
+                     this.wMem('\uff02', var232, '\u99d6');
                      this.pc('\u99d9', 1, 10);
                      continue;
                   }
@@ -6256,16 +6262,16 @@ public class MontyOnTheRun extends MiniZX {
                   this.pc('\u99dc', 1, 7);
                   this.A(234);
                   this.pc('\u99de', 1, 13);
-                  int var222 = this.A();
-                  this.wMem('\uff02', var222, '\u99de');
+                  int var233 = this.A();
+                  this.wMem('\uff02', var233, '\u99de');
                   this.pc('\u99e1', 1, 12);
                } else {
                   this.pc('\u9986', 1, 13);
-                  int var184 = this.mem('\uff03', '\u9986');
-                  this.A(var184);
+                  int var195 = this.mem('\uff03', '\u9986');
+                  this.A(var195);
                   this.pc('\u9989', 1, 7);
-                  int var185 = this.A();
-                  this.alu("cp", var185, 175);
+                  int var196 = this.A();
+                  this.alu("cp", var196, 175);
                   this.pc('\u998b', 1, 7);
                   if(this.flag(1, true)) {
                      this.tstates(5);
@@ -6276,19 +6282,19 @@ public class MontyOnTheRun extends MiniZX {
                      this.pc('\u99e8', 1, 7);
                      if(!this.flag(64, true)) {
                         this.pc('\u99ea', 1, 13);
-                        int var209 = this.mem('\uff03', '\u99ea');
-                        this.A(var209);
+                        int var220 = this.mem('\uff03', '\u99ea');
+                        this.A(var220);
                         this.pc('\u99ed', 1, 4);
-                        int var210 = this.A();
-                        int var211 = this.alu("dec", var210);
-                        this.A(var211);
+                        int var221 = this.A();
+                        int var222 = this.alu("dec", var221);
+                        this.A(var222);
                         this.pc('\u99ee', 1, 4);
-                        int var212 = this.A();
-                        int var213 = this.alu("dec", var212);
-                        this.A(var213);
+                        int var223 = this.A();
+                        int var224 = this.alu("dec", var223);
+                        this.A(var224);
                         this.pc('\u99ef', 1, 13);
-                        int var214 = this.A();
-                        this.wMem('\uff03', var214, '\u99ef');
+                        int var225 = this.A();
+                        this.wMem('\uff03', var225, '\u99ef');
                         this.pc('\u99f2', 1, 10);
                         continue;
                      }
@@ -6297,25 +6303,25 @@ public class MontyOnTheRun extends MiniZX {
                      this.pc('\u99f5', 1, 7);
                      this.A(33);
                      this.pc('\u99f7', 1, 13);
-                     int var215 = this.A();
-                     this.wMem('\uff03', var215, '\u99f7');
+                     int var226 = this.A();
+                     this.wMem('\uff03', var226, '\u99f7');
                      this.pc('\u99fa', 1, 12);
                   } else {
                      this.pc('\u998d', 1, 7);
-                     int var186 = this.A();
-                     this.alu("cp", var186, 33);
+                     int var197 = this.A();
+                     this.alu("cp", var197, 33);
                      this.pc('\u998f', 1, 7);
                      if(!this.flag(1, false)) {
                         this.pc('\u9991', 1, 10);
                         this.BC(32766);
                         this.pc('\u9994', 2, 12);
-                        int var187 = this.BC();
-                        int var188 = this.inC(var187, '\u9994');
-                        this.A(var188);
+                        int var198 = this.BC();
+                        int var199 = this.inC(var198, '\u9994');
+                        this.A(var199);
                         this.pc('\u9996', 1, 7);
-                        int var189 = this.A();
-                        int var190 = this.alu("and", var189, 1);
-                        this.A(var190);
+                        int var200 = this.A();
+                        int var201 = this.alu("and", var200, 1);
+                        this.A(var201);
                         this.pc('\u9998', 1, 7);
                         if(this.flag(64, true)) {
                            this.tstates(5);
@@ -6325,13 +6331,13 @@ public class MontyOnTheRun extends MiniZX {
                         this.pc('\u999a', 1, 7);
                         this.B(254);
                         this.pc('\u999c', 2, 12);
-                        int var191 = this.BC();
-                        int var192 = this.inC(var191, '\u999c');
-                        this.A(var192);
+                        int var202 = this.BC();
+                        int var203 = this.inC(var202, '\u999c');
+                        this.A(var203);
                         this.pc('\u999e', 1, 7);
-                        int var193 = this.A();
-                        int var194 = this.alu("and", var193, 1);
-                        this.A(var194);
+                        int var204 = this.A();
+                        int var205 = this.alu("and", var204, 1);
+                        this.A(var205);
                         this.pc('\u99a0', 1, 7);
                         if(this.flag(64, true)) {
                            this.tstates(5);
@@ -6350,19 +6356,19 @@ public class MontyOnTheRun extends MiniZX {
                      this.pc('\u9a01', 1, 7);
                      if(!this.flag(64, true)) {
                         this.pc('\u9a03', 1, 13);
-                        int var195 = this.mem('\uff03', '\u9a03');
-                        this.A(var195);
+                        int var206 = this.mem('\uff03', '\u9a03');
+                        this.A(var206);
                         this.pc('\u9a06', 1, 4);
-                        int var196 = this.A();
-                        int var197 = this.alu("inc", var196);
-                        this.A(var197);
+                        int var207 = this.A();
+                        int var208 = this.alu("inc", var207);
+                        this.A(var208);
                         this.pc('\u9a07', 1, 4);
-                        int var198 = this.A();
-                        int var199 = this.alu("inc", var198);
-                        this.A(var199);
+                        int var209 = this.A();
+                        int var210 = this.alu("inc", var209);
+                        this.A(var210);
                         this.pc('\u9a08', 1, 13);
-                        int var200 = this.A();
-                        this.wMem('\uff03', var200, '\u9a08');
+                        int var211 = this.A();
+                        this.wMem('\uff03', var211, '\u9a08');
                         this.pc('\u9a0b', 1, 10);
                         continue;
                      }
@@ -6371,30 +6377,30 @@ public class MontyOnTheRun extends MiniZX {
                      this.pc('\u9a0e', 1, 7);
                      this.A(173);
                      this.pc('\u9a10', 1, 13);
-                     int var201 = this.A();
-                     this.wMem('\uff03', var201, '\u9a10');
+                     int var212 = this.A();
+                     this.wMem('\uff03', var212, '\u9a10');
                      this.pc('\u9a13', 1, 12);
                   }
                }
             }
 
             this.pc('\u99ba', 1, 4);
-            int var202 = this.A();
-            int var203 = this.A();
-            int var204 = this.alu("xor", var203, var202);
-            this.A(var204);
+            int var213 = this.A();
+            int var214 = this.A();
+            int var215 = this.alu("xor", var214, var213);
+            this.A(var215);
             this.pc('\u99bb', 1, 13);
-            int var205 = this.A();
-            this.wMem('\uff08', var205, '\u99bb');
+            int var216 = this.A();
+            this.wMem('\uff08', var216, '\u99bb');
             this.pc('\u99be', 1, 13);
-            int var206 = this.A();
-            this.wMem('\uff09', var206, '\u99be');
+            int var217 = this.A();
+            this.wMem('\uff09', var217, '\u99be');
             this.pc('\u99c1', 1, 16);
-            int var207 = this.mem16('\uff02', '\u99c1');
-            this.HL(var207);
+            int var218 = this.mem16('\uff02', '\u99c1');
+            this.HL(var218);
             this.pc('\u99c4', 1, 16);
-            int var208 = this.HL();
-            this.wMem16('\u87c2', var208, '\u99c4');
+            int var219 = this.HL();
+            this.wMem16('\u87c2', var219, '\u99c4');
             this.pc('\u99c7', 1, 10);
          } else {
             this.pc('\u9b30', 1, 7);
@@ -6466,34 +6472,35 @@ public class MontyOnTheRun extends MiniZX {
             this.wMem16('\ub793', var17, '\u9b72');
 
             while(true) {
-               label349:
+               label348:
                while(true) {
                   this.pc('\u9b75', 1, 17);
                   this.$9A75();
                   this.pc('\u9b78', 1, 17);
                   this.$9A15();
 
-                  label364: {
+                  label363: {
                      try {
                         this.pc('\u9b7b', 1, 17);
                         this.$A77B();
-                     } catch (StackException var239) {
-                        if(var239.getNextPC() == '\u9d32') {
+                     } catch (StackException var250) {
+                        int[] var19 = new int[]{'\u9d32'};
+                        if(this.ownAddress(var250, var19) == '\u9d32') {
                            this.HL('\u9b7e');
-                           break label364;
+                           break label363;
                         }
 
-                        throw var239;
+                        return;
                      }
 
                      this.pc('\u9b7e', 1, 13);
-                     int var26 = this.mem('\u9a74', '\u9b7e');
-                     this.A(var26);
+                     int var27 = this.mem('\u9a74', '\u9b7e');
+                     this.A(var27);
                      this.pc('\u9b81', 1, 4);
-                     int var27 = this.A();
                      int var28 = this.A();
-                     int var29 = this.alu("or", var28, var27);
-                     this.A(var29);
+                     int var29 = this.A();
+                     int var30 = this.alu("or", var29, var28);
+                     this.A(var30);
 
                      try {
                         this.pc('\u9b82', 1, 10);
@@ -6501,43 +6508,44 @@ public class MontyOnTheRun extends MiniZX {
                            this.tstates(7);
                            this.$9D08();
                         }
-                     } catch (StackException var240) {
-                        if(var240.getNextPC() == '\u9d32') {
+                     } catch (StackException var251) {
+                        int[] var32 = new int[]{'\u9d32'};
+                        if(this.ownAddress(var251, var32) == '\u9d32') {
                            this.HL('\u9b85');
-                           break label364;
+                           break label363;
                         }
 
-                        throw var240;
+                        return;
                      }
 
                      this.pc('\u9b85', 1, 13);
-                     int var31 = this.mem('\uff02', '\u9b85');
-                     this.A(var31);
+                     int var33 = this.mem('\uff02', '\u9b85');
+                     this.A(var33);
                      this.pc('\u9b88', 1, 7);
-                     int var32 = this.A();
-                     this.alu("cp", var32, 232);
+                     int var34 = this.A();
+                     this.alu("cp", var34, 232);
                      this.pc('\u9b8a', 1, 10);
                      if(this.flag(1, true)) {
                         this.pc('\u9c30', 1, 10);
                         this.HL(0);
                         this.pc('\u9c33', 1, 16);
-                        int var33 = this.HL();
-                        this.wMem16('\ub783', var33, '\u9c33');
+                        int var35 = this.HL();
+                        this.wMem16('\ub783', var35, '\u9c33');
                         this.pc('\u9c36', 1, 16);
-                        int var34 = this.HL();
-                        this.wMem16('\ub785', var34, '\u9c36');
+                        int var36 = this.HL();
+                        this.wMem16('\ub785', var36, '\u9c36');
                         this.pc('\u9c39', 1, 16);
-                        int var35 = this.mem16('\ub773', '\u9c39');
-                        this.HL(var35);
+                        int var37 = this.mem16('\ub773', '\u9c39');
+                        this.HL(var37);
                         this.pc('\u9c3c', 1, 4);
-                        int var36 = this.H();
-                        this.A(var36);
+                        int var38 = this.H();
+                        this.A(var38);
                         this.pc('\u9c3d', 1, 7);
                         this.H(127);
                         this.pc('\u9c3f', 1, 4);
-                        int var37 = this.H();
-                        int var38 = this.A();
-                        this.alu("cp", var38, var37);
+                        int var39 = this.H();
+                        int var40 = this.A();
+                        this.alu("cp", var40, var39);
                         this.pc('\u9c40', 1, 7);
                         if(this.flag(1, true)) {
                            this.tstates(5);
@@ -6545,9 +6553,9 @@ public class MontyOnTheRun extends MiniZX {
                            this.pc('\u9c42', 1, 7);
                            this.H(87);
                            this.pc('\u9c44', 1, 4);
-                           int var39 = this.H();
-                           int var40 = this.A();
-                           this.alu("cp", var40, var39);
+                           int var41 = this.H();
+                           int var42 = this.A();
+                           this.alu("cp", var42, var41);
                            this.pc('\u9c45', 1, 7);
                            if(this.flag(1, true)) {
                               this.tstates(5);
@@ -6558,23 +6566,23 @@ public class MontyOnTheRun extends MiniZX {
                         }
 
                         this.pc('\u9c49', 1, 4);
-                        int var41 = this.A();
-                        int var42 = this.A();
-                        int var43 = this.alu("xor", var42, var41);
-                        this.A(var43);
-                        this.pc('\u9c4a', 1, 13);
+                        int var43 = this.A();
                         int var44 = this.A();
-                        this.wMem('\u9b2f', var44, '\u9c4a');
+                        int var45 = this.alu("xor", var44, var43);
+                        this.A(var45);
+                        this.pc('\u9c4a', 1, 13);
+                        int var46 = this.A();
+                        this.wMem('\u9b2f', var46, '\u9c4a');
                         this.pc('\u9c4d', 1, 7);
                         this.L(224);
                         this.pc('\u9c4f', 1, 16);
-                        int var45 = this.HL();
-                        this.wMem16('\ub773', var45, '\u9c4f');
+                        int var47 = this.HL();
+                        this.wMem16('\ub773', var47, '\u9c4f');
                         this.pc('\u9c52', 1, 7);
                         this.L(240);
                         this.pc('\u9c54', 1, 16);
-                        int var46 = this.HL();
-                        this.wMem16('\ub775', var46, '\u9c54');
+                        int var48 = this.HL();
+                        this.wMem16('\ub775', var48, '\u9c54');
                         this.pc('\u9c57', 1, 17);
                         this.$88F3();
                         this.pc('\u9c5a', 1, 4);
@@ -6582,18 +6590,18 @@ public class MontyOnTheRun extends MiniZX {
                         this.pc('\u9c5b', 1, 17);
                         this.$B47F();
                         this.pc('\u9c5e', 1, 13);
-                        int var47 = this.mem('\ub774', '\u9c5e');
-                        this.A(var47);
+                        int var49 = this.mem('\ub774', '\u9c5e');
+                        this.A(var49);
                         this.pc('\u9c61', 1, 7);
-                        int var48 = this.A();
-                        this.alu("cp", var48, 87);
+                        int var50 = this.A();
+                        this.alu("cp", var50, 87);
                         this.pc('\u9c63', 1, 7);
                         if(this.flag(1, false)) {
                            this.tstates(5);
                         } else {
                            this.pc('\u9c65', 1, 7);
-                           int var49 = this.A();
-                           this.alu("cp", var49, 96);
+                           int var51 = this.A();
+                           this.alu("cp", var51, 96);
                            this.pc('\u9c67', 1, 7);
                            if(this.flag(1, true)) {
                               this.tstates(5);
@@ -6609,19 +6617,19 @@ public class MontyOnTheRun extends MiniZX {
                               this.pc('\u9c72', 1, 7);
                               this.L(224);
                               this.pc('\u9c74', 1, 16);
-                              int var50 = this.HL();
-                              this.wMem16('\ub773', var50, '\u9c74');
+                              int var52 = this.HL();
+                              this.wMem16('\ub773', var52, '\u9c74');
                               this.pc('\u9c77', 1, 16);
-                              int var51 = this.HL();
-                              this.wMem16('\ub77b', var51, '\u9c77');
+                              int var53 = this.HL();
+                              this.wMem16('\ub77b', var53, '\u9c77');
                               this.pc('\u9c7a', 1, 7);
                               this.L(240);
                               this.pc('\u9c7c', 1, 16);
-                              int var52 = this.HL();
-                              this.wMem16('\ub775', var52, '\u9c7c');
+                              int var54 = this.HL();
+                              this.wMem16('\ub775', var54, '\u9c7c');
                               this.pc('\u9c7f', 1, 16);
-                              int var53 = this.HL();
-                              this.wMem16('\ub77d', var53, '\u9c7f');
+                              int var55 = this.HL();
+                              this.wMem16('\ub77d', var55, '\u9c7f');
                            }
                         }
 
@@ -6637,18 +6645,18 @@ public class MontyOnTheRun extends MiniZX {
                            this.pc('\u9c8c', 1, 10);
                            this.HL(0);
                            this.pc('\u9c8f', 1, 16);
-                           int var54 = this.HL();
-                           this.wMem16('\u8977', var54, '\u9c8f');
+                           int var56 = this.HL();
+                           this.wMem16('\u8977', var56, '\u9c8f');
                            this.pc('\u9c92', 1, 13);
-                           int var55 = this.mem('\uafdc', '\u9c92');
-                           this.A(var55);
+                           int var57 = this.mem('\uafdc', '\u9c92');
+                           this.A(var57);
                            this.pc('\u9c95', 2, 8);
-                           int var56 = this.A();
-                           this.bit(7, var56);
+                           int var58 = this.A();
+                           this.bit(7, var58);
                            this.pc('\u9c97', 1, 7);
                            if(!this.flag(64, false)) {
                               this.pc('\u9c99', 1, 10);
-                              continue label349;
+                              continue label348;
                            }
 
                            this.tstates(5);
@@ -6656,8 +6664,8 @@ public class MontyOnTheRun extends MiniZX {
                      }
 
                      this.pc('\u9b8d', 1, 7);
-                     int var57 = this.A();
-                     this.alu("cp", var57, 8);
+                     int var59 = this.A();
+                     this.alu("cp", var59, 8);
                      this.pc('\u9b8f', 1, 7);
                      if(this.flag(1, true)) {
                         this.tstates(5);
@@ -6665,39 +6673,39 @@ public class MontyOnTheRun extends MiniZX {
                      }
 
                      this.pc('\u9b91', 1, 16);
-                     int var58 = this.mem16('\ub783', '\u9b91');
-                     this.HL(var58);
+                     int var60 = this.mem16('\ub783', '\u9b91');
+                     this.HL(var60);
                      this.pc('\u9b94', 1, 11);
-                     int var59 = this.HL();
-                     this.push(var59);
+                     int var61 = this.HL();
+                     this.push(var61);
                      this.pc('\u9b95', 1, 7);
                      this.A(38);
                      this.pc('\u9b97', 1, 13);
-                     int var60 = this.A();
-                     this.wMem('\ue315', var60, '\u9b97');
+                     int var62 = this.A();
+                     this.wMem('\ue315', var62, '\u9b97');
                      this.pc('\u9b9a', 1, 17);
                      this.$87C4();
                      this.pc('\u9b9d', 1, 10);
-                     int var61 = this.pop();
-                     this.HL(var61);
+                     int var63 = this.pop();
+                     this.HL(var63);
                      this.pc('\u9b9e', 1, 16);
-                     int var62 = this.HL();
-                     this.wMem16('\ub783', var62, '\u9b9e');
+                     int var64 = this.HL();
+                     this.wMem16('\ub783', var64, '\u9b9e');
                      this.pc('\u9ba1', 1, 16);
-                     int var63 = this.HL();
-                     this.wMem16('\ub785', var63, '\u9ba1');
+                     int var65 = this.HL();
+                     this.wMem16('\ub785', var65, '\u9ba1');
                      this.pc('\u9ba4', 1, 16);
-                     int var64 = this.mem16('\uff02', '\u9ba4');
-                     this.HL(var64);
+                     int var66 = this.mem16('\uff02', '\u9ba4');
+                     this.HL(var66);
                      this.pc('\u9ba7', 1, 4);
-                     int var65 = this.H();
-                     this.A(var65);
+                     int var67 = this.H();
+                     this.A(var67);
                      this.pc('\u9ba8', 1, 7);
                      this.H(127);
                      this.pc('\u9baa', 1, 4);
-                     int var66 = this.H();
-                     int var67 = this.A();
-                     this.alu("cp", var67, var66);
+                     int var68 = this.H();
+                     int var69 = this.A();
+                     this.alu("cp", var69, var68);
                      this.pc('\u9bab', 1, 7);
                      if(this.flag(1, true)) {
                         this.tstates(5);
@@ -6705,9 +6713,9 @@ public class MontyOnTheRun extends MiniZX {
                         this.pc('\u9bad', 1, 7);
                         this.H(87);
                         this.pc('\u9baf', 1, 4);
-                        int var68 = this.H();
-                        int var69 = this.A();
-                        this.alu("cp", var69, var68);
+                        int var70 = this.H();
+                        int var71 = this.A();
+                        this.alu("cp", var71, var70);
                         this.pc('\u9bb0', 1, 7);
                         if(this.flag(1, true)) {
                            this.tstates(5);
@@ -6718,37 +6726,37 @@ public class MontyOnTheRun extends MiniZX {
                      }
 
                      this.pc('\u9bb4', 1, 4);
-                     int var70 = this.A();
-                     int var71 = this.A();
-                     int var72 = this.alu("xor", var71, var70);
-                     this.A(var72);
-                     this.pc('\u9bb5', 1, 13);
+                     int var72 = this.A();
                      int var73 = this.A();
-                     this.wMem('\u9b2f', var73, '\u9bb5');
+                     int var74 = this.alu("xor", var73, var72);
+                     this.A(var74);
+                     this.pc('\u9bb5', 1, 13);
+                     int var75 = this.A();
+                     this.wMem('\u9b2f', var75, '\u9bb5');
                      this.pc('\u9bb8', 1, 7);
                      this.L(214);
                      this.pc('\u9bba', 1, 16);
-                     int var74 = this.HL();
-                     this.wMem16('\ub773', var74, '\u9bba');
+                     int var76 = this.HL();
+                     this.wMem16('\ub773', var76, '\u9bba');
                      this.pc('\u9bbd', 1, 16);
-                     int var75 = this.HL();
-                     this.wMem16('\u9d69', var75, '\u9bbd');
+                     int var77 = this.HL();
+                     this.wMem16('\u9d69', var77, '\u9bbd');
                      this.pc('\u9bc0', 1, 7);
                      this.L(230);
                      this.pc('\u9bc2', 1, 16);
-                     int var76 = this.HL();
-                     this.wMem16('\ub775', var76, '\u9bc2');
+                     int var78 = this.HL();
+                     this.wMem16('\ub775', var78, '\u9bc2');
                      this.pc('\u9bc5', 1, 16);
-                     int var77 = this.HL();
-                     this.wMem16('\u9d6b', var77, '\u9bc5');
+                     int var79 = this.HL();
+                     this.wMem16('\u9d6b', var79, '\u9bc5');
                      this.pc('\u9bc8', 1, 10);
                      this.HL(0);
                      this.pc('\u9bcb', 1, 16);
-                     int var78 = this.HL();
-                     this.wMem16('\ub77b', var78, '\u9bcb');
+                     int var80 = this.HL();
+                     this.wMem16('\ub77b', var80, '\u9bcb');
                      this.pc('\u9bce', 1, 16);
-                     int var79 = this.HL();
-                     this.wMem16('\ub77d', var79, '\u9bce');
+                     int var81 = this.HL();
+                     this.wMem16('\ub77d', var81, '\u9bce');
 
                      while(true) {
                         this.pc('\u9bd1', 1, 17);
@@ -6759,23 +6767,24 @@ public class MontyOnTheRun extends MiniZX {
                         try {
                            this.pc('\u9bd7', 1, 17);
                            this.$A77B();
-                        } catch (StackException var238) {
-                           if(var238.getNextPC() == '\u9d32') {
+                        } catch (StackException var248) {
+                           int[] var83 = new int[]{'\u9d32'};
+                           if(this.ownAddress(var248, var83) == '\u9d32') {
                               this.HL('\u9bda');
                               break;
                            }
 
-                           throw var238;
+                           return;
                         }
 
                         this.pc('\u9bda', 1, 13);
-                        int var81 = this.mem('\u9a74', '\u9bda');
-                        this.A(var81);
-                        this.pc('\u9bdd', 1, 4);
-                        int var82 = this.A();
-                        int var83 = this.A();
-                        int var84 = this.alu("or", var83, var82);
+                        int var84 = this.mem('\u9a74', '\u9bda');
                         this.A(var84);
+                        this.pc('\u9bdd', 1, 4);
+                        int var85 = this.A();
+                        int var86 = this.A();
+                        int var87 = this.alu("or", var86, var85);
+                        this.A(var87);
 
                         try {
                            this.pc('\u9bde', 1, 10);
@@ -6783,62 +6792,63 @@ public class MontyOnTheRun extends MiniZX {
                               this.tstates(7);
                               this.$9D08();
                            }
-                        } catch (StackException var237) {
-                           if(var237.getNextPC() == '\u9d32') {
+                        } catch (StackException var249) {
+                           int[] var89 = new int[]{'\u9d32'};
+                           if(this.ownAddress(var249, var89) == '\u9d32') {
                               this.HL('\u9be1');
                               break;
                            }
 
-                           throw var237;
+                           return;
                         }
 
                         this.pc('\u9be1', 1, 13);
-                        int var86 = this.mem('\uff02', '\u9be1');
-                        this.A(var86);
+                        int var90 = this.mem('\uff02', '\u9be1');
+                        this.A(var90);
                         this.pc('\u9be4', 1, 7);
-                        int var87 = this.A();
-                        this.alu("cp", var87, 8);
+                        int var91 = this.A();
+                        this.alu("cp", var91, 8);
                         this.pc('\u9be6', 1, 10);
                         if(!this.flag(1, false)) {
                            this.pc('\u9be9', 1, 7);
-                           int var116 = this.A();
-                           this.alu("cp", var116, 232);
+                           int var120 = this.A();
+                           this.alu("cp", var120, 232);
                            this.pc('\u9beb', 1, 7);
                            if(!this.flag(1, false)) {
                               this.pc('\u9bed', 1, 16);
-                              int var117 = this.mem16('\ub783', '\u9bed');
-                              this.HL(var117);
+                              int var121 = this.mem16('\ub783', '\u9bed');
+                              this.HL(var121);
                               this.pc('\u9bf0', 1, 11);
-                              int var118 = this.HL();
-                              this.push(var118);
+                              int var122 = this.HL();
+                              this.push(var122);
                               this.pc('\u9bf1', 1, 7);
                               this.A(37);
                               this.pc('\u9bf3', 1, 13);
-                              int var119 = this.A();
-                              this.wMem('\ue315', var119, '\u9bf3');
+                              int var123 = this.A();
+                              this.wMem('\ue315', var123, '\u9bf3');
                               this.pc('\u9bf6', 1, 17);
                               this.$87C4();
                               this.pc('\u9bf9', 1, 10);
-                              int var120 = this.pop();
-                              this.HL(var120);
+                              int var124 = this.pop();
+                              this.HL(var124);
                               this.pc('\u9bfa', 1, 16);
-                              int var121 = this.HL();
-                              this.wMem16('\ub783', var121, '\u9bfa');
+                              int var125 = this.HL();
+                              this.wMem16('\ub783', var125, '\u9bfa');
                               this.pc('\u9bfd', 1, 16);
-                              int var122 = this.HL();
-                              this.wMem16('\ub785', var122, '\u9bfd');
+                              int var126 = this.HL();
+                              this.wMem16('\ub785', var126, '\u9bfd');
                               this.pc('\u9c00', 1, 16);
-                              int var123 = this.mem16('\uff02', '\u9c00');
-                              this.HL(var123);
+                              int var127 = this.mem16('\uff02', '\u9c00');
+                              this.HL(var127);
                               this.pc('\u9c03', 1, 4);
-                              int var124 = this.H();
-                              this.A(var124);
+                              int var128 = this.H();
+                              this.A(var128);
                               this.pc('\u9c04', 1, 7);
                               this.H(127);
                               this.pc('\u9c06', 1, 4);
-                              int var125 = this.H();
-                              int var126 = this.A();
-                              this.alu("cp", var126, var125);
+                              int var129 = this.H();
+                              int var130 = this.A();
+                              this.alu("cp", var130, var129);
                               this.pc('\u9c07', 1, 7);
                               if(this.flag(1, true)) {
                                  this.tstates(5);
@@ -6846,9 +6856,9 @@ public class MontyOnTheRun extends MiniZX {
                                  this.pc('\u9c09', 1, 7);
                                  this.H(87);
                                  this.pc('\u9c0b', 1, 4);
-                                 int var127 = this.H();
-                                 int var128 = this.A();
-                                 this.alu("cp", var128, var127);
+                                 int var131 = this.H();
+                                 int var132 = this.A();
+                                 this.alu("cp", var132, var131);
                                  this.pc('\u9c0c', 1, 7);
                                  if(this.flag(1, true)) {
                                     this.tstates(5);
@@ -6859,39 +6869,39 @@ public class MontyOnTheRun extends MiniZX {
                               }
 
                               this.pc('\u9c10', 1, 4);
-                              int var129 = this.A();
-                              int var130 = this.A();
-                              int var131 = this.alu("xor", var130, var129);
-                              this.A(var131);
+                              int var133 = this.A();
+                              int var134 = this.A();
+                              int var135 = this.alu("xor", var134, var133);
+                              this.A(var135);
                               this.pc('\u9c11', 1, 13);
-                              int var132 = this.A();
-                              this.wMem('\u9b2f', var132, '\u9c11');
+                              int var136 = this.A();
+                              this.wMem('\u9b2f', var136, '\u9c11');
                               this.pc('\u9c14', 1, 7);
                               this.L(10);
                               this.pc('\u9c16', 1, 16);
-                              int var133 = this.HL();
-                              this.wMem16('\ub773', var133, '\u9c16');
+                              int var137 = this.HL();
+                              this.wMem16('\ub773', var137, '\u9c16');
                               this.pc('\u9c19', 1, 16);
-                              int var134 = this.HL();
-                              this.wMem16('\u9d69', var134, '\u9c19');
+                              int var138 = this.HL();
+                              this.wMem16('\u9d69', var138, '\u9c19');
                               this.pc('\u9c1c', 1, 7);
                               this.L(26);
                               this.pc('\u9c1e', 1, 16);
-                              int var135 = this.HL();
-                              this.wMem16('\ub775', var135, '\u9c1e');
+                              int var139 = this.HL();
+                              this.wMem16('\ub775', var139, '\u9c1e');
                               this.pc('\u9c21', 1, 16);
-                              int var136 = this.HL();
-                              this.wMem16('\u9d6b', var136, '\u9c21');
+                              int var140 = this.HL();
+                              this.wMem16('\u9d6b', var140, '\u9c21');
                               this.pc('\u9c24', 1, 10);
                               this.HL(0);
                               this.pc('\u9c27', 1, 16);
-                              int var137 = this.HL();
-                              this.wMem16('\ub77b', var137, '\u9c27');
+                              int var141 = this.HL();
+                              this.wMem16('\ub77b', var141, '\u9c27');
                               this.pc('\u9c2a', 1, 16);
-                              int var138 = this.HL();
-                              this.wMem16('\ub77d', var138, '\u9c2a');
+                              int var142 = this.HL();
+                              this.wMem16('\ub77d', var142, '\u9c2a');
                               this.pc('\u9c2d', 1, 10);
-                              continue label349;
+                              continue label348;
                            }
 
                            this.tstates(5);
@@ -6899,23 +6909,23 @@ public class MontyOnTheRun extends MiniZX {
                            this.pc('\u9c9c', 1, 10);
                            this.HL(0);
                            this.pc('\u9c9f', 1, 16);
-                           int var88 = this.HL();
-                           this.wMem16('\ub783', var88, '\u9c9f');
+                           int var92 = this.HL();
+                           this.wMem16('\ub783', var92, '\u9c9f');
                            this.pc('\u9ca2', 1, 16);
-                           int var89 = this.HL();
-                           this.wMem16('\ub785', var89, '\u9ca2');
+                           int var93 = this.HL();
+                           this.wMem16('\ub785', var93, '\u9ca2');
                            this.pc('\u9ca5', 1, 16);
-                           int var90 = this.mem16('\ub773', '\u9ca5');
-                           this.HL(var90);
+                           int var94 = this.mem16('\ub773', '\u9ca5');
+                           this.HL(var94);
                            this.pc('\u9ca8', 1, 4);
-                           int var91 = this.H();
-                           this.A(var91);
+                           int var95 = this.H();
+                           this.A(var95);
                            this.pc('\u9ca9', 1, 7);
                            this.H(127);
                            this.pc('\u9cab', 1, 4);
-                           int var92 = this.H();
-                           int var93 = this.A();
-                           this.alu("cp", var93, var92);
+                           int var96 = this.H();
+                           int var97 = this.A();
+                           this.alu("cp", var97, var96);
                            this.pc('\u9cac', 1, 7);
                            if(this.flag(1, true)) {
                               this.tstates(5);
@@ -6923,9 +6933,9 @@ public class MontyOnTheRun extends MiniZX {
                               this.pc('\u9cae', 1, 7);
                               this.H(87);
                               this.pc('\u9cb0', 1, 4);
-                              int var94 = this.H();
-                              int var95 = this.A();
-                              this.alu("cp", var95, var94);
+                              int var98 = this.H();
+                              int var99 = this.A();
+                              this.alu("cp", var99, var98);
                               this.pc('\u9cb1', 1, 7);
                               if(this.flag(1, true)) {
                                  this.tstates(5);
@@ -6936,24 +6946,24 @@ public class MontyOnTheRun extends MiniZX {
                            }
 
                            this.pc('\u9cb5', 1, 4);
-                           int var96 = this.A();
-                           int var97 = this.A();
-                           int var98 = this.alu("xor", var97, var96);
-                           this.A(var98);
-                           this.pc('\u9cb6', 1, 13);
-                           int var99 = this.A();
-                           this.wMem('\u9b2f', var99, '\u9cb6');
-                           this.pc('\u9cb9', 1, 4);
                            int var100 = this.A();
-                           this.L(var100);
+                           int var101 = this.A();
+                           int var102 = this.alu("xor", var101, var100);
+                           this.A(var102);
+                           this.pc('\u9cb6', 1, 13);
+                           int var103 = this.A();
+                           this.wMem('\u9b2f', var103, '\u9cb6');
+                           this.pc('\u9cb9', 1, 4);
+                           int var104 = this.A();
+                           this.L(var104);
                            this.pc('\u9cba', 1, 16);
-                           int var101 = this.HL();
-                           this.wMem16('\ub773', var101, '\u9cba');
+                           int var105 = this.HL();
+                           this.wMem16('\ub773', var105, '\u9cba');
                            this.pc('\u9cbd', 1, 7);
                            this.L(16);
                            this.pc('\u9cbf', 1, 16);
-                           int var102 = this.HL();
-                           this.wMem16('\ub775', var102, '\u9cbf');
+                           int var106 = this.HL();
+                           this.wMem16('\ub775', var106, '\u9cbf');
                            this.pc('\u9cc2', 1, 17);
                            this.$88F3();
                            this.pc('\u9cc5', 1, 4);
@@ -6961,17 +6971,17 @@ public class MontyOnTheRun extends MiniZX {
                            this.pc('\u9cc6', 1, 17);
                            this.$B47F();
                            this.pc('\u9cc9', 1, 13);
-                           int var103 = this.mem('\ub774', '\u9cc9');
-                           this.A(var103);
+                           int var107 = this.mem('\ub774', '\u9cc9');
+                           this.A(var107);
                            this.pc('\u9ccc', 1, 7);
-                           int var104 = this.A();
-                           this.alu("cp", var104, 127);
+                           int var108 = this.A();
+                           this.alu("cp", var108, 127);
                            this.pc('\u9cce', 1, 7);
                            if(this.flag(1, false)) {
                               this.tstates(5);
                               this.pc('\u9cec', 1, 7);
-                              int var112 = this.A();
-                              this.alu("cp", var112, 56);
+                              int var116 = this.A();
+                              this.alu("cp", var116, 56);
                               this.pc('\u9cee', 1, 7);
                               if(!this.flag(1, true)) {
                                  this.pc('\u9cf0', 1, 7);
@@ -6979,22 +6989,22 @@ public class MontyOnTheRun extends MiniZX {
                                  this.pc('\u9cf2', 1, 7);
                                  this.L(230);
                                  this.pc('\u9cf4', 1, 16);
-                                 int var113 = this.HL();
-                                 this.wMem16('\uff02', var113, '\u9cf4');
+                                 int var117 = this.HL();
+                                 this.wMem16('\uff02', var117, '\u9cf4');
                                  this.pc('\u9cf7', 1, 7);
                                  this.A(39);
                                  this.pc('\u9cf9', 1, 13);
-                                 int var114 = this.A();
-                                 this.wMem('\ue315', var114, '\u9cf9');
+                                 int var118 = this.A();
+                                 this.wMem('\ue315', var118, '\u9cf9');
                                  this.pc('\u9cfc', 1, 17);
                                  this.$87C4();
                                  this.pc('\u9cff', 1, 10);
                                  this.HL(0);
                                  this.pc('\u9d02', 1, 16);
-                                 int var115 = this.HL();
-                                 this.wMem16('\uff09', var115, '\u9d02');
+                                 int var119 = this.HL();
+                                 this.wMem16('\uff09', var119, '\u9d02');
                                  this.pc('\u9d05', 1, 10);
-                                 continue label353;
+                                 continue label352;
                               }
 
                               this.tstates(5);
@@ -7010,19 +7020,19 @@ public class MontyOnTheRun extends MiniZX {
                               this.pc('\u9cd9', 1, 7);
                               this.L(0);
                               this.pc('\u9cdb', 1, 16);
-                              int var105 = this.HL();
-                              this.wMem16('\ub773', var105, '\u9cdb');
+                              int var109 = this.HL();
+                              this.wMem16('\ub773', var109, '\u9cdb');
                               this.pc('\u9cde', 1, 16);
-                              int var106 = this.HL();
-                              this.wMem16('\ub77b', var106, '\u9cde');
+                              int var110 = this.HL();
+                              this.wMem16('\ub77b', var110, '\u9cde');
                               this.pc('\u9ce1', 1, 7);
                               this.L(16);
                               this.pc('\u9ce3', 1, 16);
-                              int var107 = this.HL();
-                              this.wMem16('\ub775', var107, '\u9ce3');
+                              int var111 = this.HL();
+                              this.wMem16('\ub775', var111, '\u9ce3');
                               this.pc('\u9ce6', 1, 16);
-                              int var108 = this.HL();
-                              this.wMem16('\ub77d', var108, '\u9ce6');
+                              int var112 = this.HL();
+                              this.wMem16('\ub77d', var112, '\u9ce6');
                               this.pc('\u9ce9', 1, 10);
                            }
 
@@ -7038,14 +7048,14 @@ public class MontyOnTheRun extends MiniZX {
                               this.pc('\u9d79', 1, 10);
                               this.HL(0);
                               this.pc('\u9d7c', 1, 16);
-                              int var109 = this.HL();
-                              this.wMem16('\u8977', var109, '\u9d7c');
+                              int var113 = this.HL();
+                              this.wMem16('\u8977', var113, '\u9d7c');
                               this.pc('\u9d7f', 1, 13);
-                              int var110 = this.mem('\uafdc', '\u9d7f');
-                              this.A(var110);
+                              int var114 = this.mem('\uafdc', '\u9d7f');
+                              this.A(var114);
                               this.pc('\u9d82', 1, 7);
-                              int var111 = this.A();
-                              this.alu("cp", var111, 1);
+                              int var115 = this.A();
+                              this.alu("cp", var115, 1);
                               this.pc('\u9d84', 1, 7);
                               if(!this.flag(64, true)) {
                                  this.pc('\u9d86', 1, 10);
@@ -7067,17 +7077,17 @@ public class MontyOnTheRun extends MiniZX {
                      this.pc('\u9d35', 1, 4);
                      this.halt('\u9d35');
                      this.pc('\u9d36', 1, 11);
-                     int var19 = this.A() << 8 | 254;
-                     int var20 = this.in(var19, '\u9d36');
-                     this.A(var20);
+                     int var20 = this.A() << 8 | 254;
+                     int var21 = this.in(var20, '\u9d36');
+                     this.A(var21);
                      this.pc('\u9d38', 1, 7);
-                     int var21 = this.A();
-                     int var22 = this.alu("and", var21, 31);
-                     this.A(var22);
+                     int var22 = this.A();
+                     int var23 = this.alu("and", var22, 31);
+                     this.A(var23);
                      this.pc('\u9d3a', 1, 7);
-                     int var23 = this.A();
-                     int var24 = this.alu("xor", var23, 31);
-                     this.A(var24);
+                     int var24 = this.A();
+                     int var25 = this.alu("xor", var24, 31);
+                     this.A(var25);
                      this.pc('\u9d3c', 1, 5);
                      if(this.flag(64, true)) {
                         this.tstates(6);
@@ -7085,8 +7095,8 @@ public class MontyOnTheRun extends MiniZX {
                      }
 
                      this.pc('\u9d3d', 1, 8);
-                     int var25 = this.B() - 1 & 255;
-                     this.B(var25);
+                     int var26 = this.B() - 1 & 255;
+                     this.B(var26);
                      if(this.B() == 0) {
                         this.pc('\u9d3f', 1, 10);
                         return;
@@ -7646,7 +7656,7 @@ public class MontyOnTheRun extends MiniZX {
          this.$98AF();
       } else {
          this.pc('\u9d31', 1, 10);
-         throw new StackException('\u9d32');
+         throw new StackException('\u9d32', "HL");
       }
    }
 
@@ -8998,7 +9008,7 @@ public class MontyOnTheRun extends MiniZX {
                   this.pc('\ua56b', 1, 17);
                   this.$A649();
                   this.pc('\ua56e', 1, 10);
-                  throw new StackException('\ua56f');
+                  throw new StackException('\ua56f', "HL");
                }
             }
          }
@@ -9387,13 +9397,14 @@ public class MontyOnTheRun extends MiniZX {
             try {
                this.pc('\ua783', 1, 17);
                this.$A792();
-            } catch (StackException var6) {
-               if(var6.getNextPC() == '\ua7ac') {
+            } catch (StackException var8) {
+               int[] var3 = new int[]{'\ua7ac'};
+               if(this.ownAddress(var8, var3) == '\ua7ac') {
                   this.HL('\ua786');
                   break label37;
                }
 
-               throw var6;
+               return;
             }
 
             this.pc('\ua786', 1, 10);
@@ -9401,16 +9412,17 @@ public class MontyOnTheRun extends MiniZX {
             this.pc('\ua789', 1, 7);
             this.B(2);
             this.pc('\ua78b', 1, 16);
-            int var3 = this.mem16('\ub775', '\ua78b');
-            this.HL(var3);
+            int var4 = this.mem16('\ub775', '\ua78b');
+            this.HL(var4);
 
             try {
                this.pc('\ua78e', 1, 17);
                this.$A792();
                break label33;
-            } catch (StackException var5) {
-               if(var5.getNextPC() != '\ua7ac') {
-                  throw var5;
+            } catch (StackException var7) {
+               int[] var6 = new int[]{'\ua7ac'};
+               if(this.ownAddress(var7, var6) != '\ua7ac') {
+                  return;
                }
 
                this.HL('\ua791');
@@ -9483,7 +9495,7 @@ public class MontyOnTheRun extends MiniZX {
             if(this.flag(1, false)) {
                this.tstates(5);
                this.pc('\ua7ab', 1, 10);
-               throw new StackException('\ua7ac');
+               throw new StackException('\ua7ac', "HL");
             }
          }
 
@@ -9888,9 +9900,10 @@ public class MontyOnTheRun extends MiniZX {
    }
 
    public void $A901() {
-      this.pc('\ua901', 1, 0);
+      this.pc('\ua901', 0, 0);
       if(this.codeHash('\ua901', 2) == 1705) {
          this.tstates(12);
+         this.fetched(1);
          this.$A903();
       } else {
          int var1 = this.executeMutantCode('\ua901');
@@ -11540,7 +11553,7 @@ public class MontyOnTheRun extends MiniZX {
    }
 
    public void $AE02() {
-      this.pc('\uae02', 1, 0);
+      this.pc('\uae02', 0, 0);
       int var1 = this.executeMutantCode('\uae02');
       if(var1 != '\uae05') {
          if(var1 != -1) {
@@ -12686,10 +12699,11 @@ public class MontyOnTheRun extends MiniZX {
                               var71 = this.A();
                               var72 = this.alu("xor", var71, var70);
                               this.A(var72);
-                              this.pc('\ub159', 1, 0);
+                              this.pc('\ub159', 0, 0);
                               var73 = this.codeHash('\ub159', 2);
                               if(var73 == 1705) {
                                  this.tstates(12);
+                                 this.fetched(1);
                                  this.pc('\ub15b', 1, 11);
                                  var1 = this.HL();
                                  var2 = this.HL();
@@ -12762,6 +12776,7 @@ public class MontyOnTheRun extends MiniZX {
                                  this.A(var42);
                               } else if(var73 == 1713) {
                                  this.tstates(12);
+                                 this.fetched(1);
                                  this.pc('\ub163', 1, 11);
                                  var25 = this.HL();
                                  var26 = this.HL();
@@ -12794,6 +12809,7 @@ public class MontyOnTheRun extends MiniZX {
                                  this.A(var42);
                               } else if(var73 == 1709) {
                                  this.tstates(12);
+                                 this.fetched(1);
                                  this.pc('\ub15f', 1, 11);
                                  var13 = this.HL();
                                  var14 = this.HL();
@@ -12846,6 +12862,7 @@ public class MontyOnTheRun extends MiniZX {
                                  this.A(var42);
                               } else if(var73 == 1717) {
                                  this.tstates(12);
+                                 this.fetched(1);
                                  this.pc('\ub167', 1, 11);
                                  var37 = this.HL();
                                  var38 = this.HL();
@@ -12858,6 +12875,7 @@ public class MontyOnTheRun extends MiniZX {
                                  this.A(var42);
                               } else if(var73 == 1707) {
                                  this.tstates(12);
+                                 this.fetched(1);
                                  this.pc('\ub15d', 1, 11);
                                  var7 = this.HL();
                                  var8 = this.HL();
@@ -12920,6 +12938,7 @@ public class MontyOnTheRun extends MiniZX {
                                  this.A(var42);
                               } else if(var73 == 1711) {
                                  this.tstates(12);
+                                 this.fetched(1);
                                  this.pc('\ub161', 1, 11);
                                  var19 = this.HL();
                                  var20 = this.HL();
@@ -12962,6 +12981,7 @@ public class MontyOnTheRun extends MiniZX {
                                  this.A(var42);
                               } else if(var73 == 1715) {
                                  this.tstates(12);
+                                 this.fetched(1);
                                  this.pc('\ub165', 1, 11);
                                  var31 = this.HL();
                                  var32 = this.HL();
@@ -12984,9 +13004,10 @@ public class MontyOnTheRun extends MiniZX {
                                  this.A(var42);
                               } else if(var73 == 1719) {
                                  this.tstates(12);
+                                 this.fetched(1);
                               } else {
                                  var74 = this.executeMutantCode('\ub159');
-                                 if(var74 != '\ub15b') {
+                                 if(var74 != '\ub15b' && var74 != '\ub15b') {
                                     if(var74 != -1) {
                                        this.jump(var74);
                                     }
@@ -13428,10 +13449,11 @@ public class MontyOnTheRun extends MiniZX {
          var71 = this.A();
          var72 = this.alu("xor", var71, var70);
          this.A(var72);
-         this.pc('\ub159', 1, 0);
+         this.pc('\ub159', 0, 0);
          var73 = this.codeHash('\ub159', 2);
          if(var73 == 1705) {
             this.tstates(12);
+            this.fetched(1);
             this.pc('\ub15b', 1, 11);
             var1 = this.HL();
             var2 = this.HL();
@@ -13504,6 +13526,7 @@ public class MontyOnTheRun extends MiniZX {
             this.A(var42);
          } else if(var73 == 1713) {
             this.tstates(12);
+            this.fetched(1);
             this.pc('\ub163', 1, 11);
             var25 = this.HL();
             var26 = this.HL();
@@ -13536,6 +13559,7 @@ public class MontyOnTheRun extends MiniZX {
             this.A(var42);
          } else if(var73 == 1709) {
             this.tstates(12);
+            this.fetched(1);
             this.pc('\ub15f', 1, 11);
             var13 = this.HL();
             var14 = this.HL();
@@ -13588,6 +13612,7 @@ public class MontyOnTheRun extends MiniZX {
             this.A(var42);
          } else if(var73 == 1717) {
             this.tstates(12);
+            this.fetched(1);
             this.pc('\ub167', 1, 11);
             var37 = this.HL();
             var38 = this.HL();
@@ -13600,6 +13625,7 @@ public class MontyOnTheRun extends MiniZX {
             this.A(var42);
          } else if(var73 == 1707) {
             this.tstates(12);
+            this.fetched(1);
             this.pc('\ub15d', 1, 11);
             var7 = this.HL();
             var8 = this.HL();
@@ -13662,6 +13688,7 @@ public class MontyOnTheRun extends MiniZX {
             this.A(var42);
          } else if(var73 == 1711) {
             this.tstates(12);
+            this.fetched(1);
             this.pc('\ub161', 1, 11);
             var19 = this.HL();
             var20 = this.HL();
@@ -13704,6 +13731,7 @@ public class MontyOnTheRun extends MiniZX {
             this.A(var42);
          } else if(var73 == 1715) {
             this.tstates(12);
+            this.fetched(1);
             this.pc('\ub165', 1, 11);
             var31 = this.HL();
             var32 = this.HL();
@@ -13726,9 +13754,10 @@ public class MontyOnTheRun extends MiniZX {
             this.A(var42);
          } else if(var73 == 1719) {
             this.tstates(12);
+            this.fetched(1);
          } else {
             var74 = this.executeMutantCode('\ub159');
-            if(var74 != '\ub15b') {
+            if(var74 != '\ub15b' && var74 != '\ub15b') {
                if(var74 != -1) {
                   this.jump(var74);
                }
@@ -17553,396 +17582,6 @@ public class MontyOnTheRun extends MiniZX {
       }
    }
 
-   public void $D5C5() {
-      this.pc('\ud5c5', 1, 7);
-      int var1 = this.BC();
-      int var2 = this.mem(var1, '\ud5c5');
-      this.A(var2);
-      this.pc('\ud5c6', 1, 10);
-      this.BC(6148);
-      this.pc('\ud5c9', 1, 10);
-      this.BC(10241);
-      this.pc('\ud5cc', 1, 10);
-      this.BC(2306);
-      this.pc('\ud5cf', 1, 10);
-      this.BC(6154);
-      this.pc('\ud5d2', 1, 7);
-      int var3 = this.BC();
-      int var4 = this.mem(var3, '\ud5d2');
-      this.A(var4);
-      this.pc('\ud5d3', 1, 10);
-      this.BC(6150);
-      this.pc('\ud5d6', 1, 10);
-      this.BC(8197);
-      this.pc('\ud5d9', 1, 10);
-      this.BC(4108);
-      this.pc('\ud5dc', 1, 10);
-      this.BC(10244);
-      this.pc('\ud5df', 1, 10);
-      this.BC(4104);
-      this.pc('\ud5e2', 1, 10);
-      this.BC(4870);
-      this.pc('\ud5e5', 1, 7);
-      int var5 = this.BC();
-      int var6 = this.mem(var5, '\ud5e5');
-      this.A(var6);
-      this.pc('\ud5e6', 1, 6);
-      int var7 = this.BC();
-      int var8 = this.dec16(var7);
-      this.BC(var8);
-      this.pc('\ud5e7', 1, 7);
-      int var9 = this.A();
-      int var10 = this.DE();
-      this.wMem(var10, var9, '\ud5e7');
-      this.pc('\ud5e8', 1, 8);
-      int var11 = this.B() - 1 & 255;
-      this.B(var11);
-      if(this.B() != 0) {
-         this.tstates(5);
-      } else {
-         this.pc('\ud5ea', 1, 7);
-         int var12 = this.A();
-         int var13 = this.BC();
-         this.wMem(var13, var12, '\ud5ea');
-      }
-
-      this.pc('\ud5eb', 1, 7);
-      if(this.flag(1, false)) {
-         this.tstates(5);
-      } else {
-         this.pc('\ud5ed', 1, 7);
-         int var14 = this.BC();
-         int var15 = this.mem(var14, '\ud5ed');
-         this.A(var15);
-      }
-
-      this.pc('\ud5ee', 1, 4);
-      int var16 = this.C();
-      int var17 = this.alu("inc", var16);
-      this.C(var17);
-      this.pc('\ud5ef', 1, 6);
-      int var18 = this.BC();
-      int var19 = this.dec16(var18);
-      this.BC(var19);
-      this.pc('\ud5f0', 1, 7);
-      int var20 = this.DE();
-      int var21 = this.mem(var20, '\ud5f0');
-      this.A(var21);
-      this.pc('\ud5f1', 1, 6);
-      int var22 = this.BC();
-      int var23 = this.dec16(var22);
-      this.BC(var23);
-      this.pc('\ud5f2', 1, 7);
-      int var24 = this.BC();
-      int var25 = this.mem(var24, '\ud5f2');
-      this.A(var25);
-      this.pc('\ud5f3', 1, 6);
-      int var26 = this.DE();
-      int var27 = this.inc16(var26);
-      this.DE(var27);
-      this.pc('\ud5f4', 1, 7);
-      if(this.flag(64, true)) {
-         this.tstates(5);
-      } else {
-         this.pc('\ud5f6', 1, 7);
-         int var28 = this.A();
-         int var29 = this.BC();
-         this.wMem(var29, var28, '\ud5f6');
-      }
-
-      this.pc('\ud5f7', 1, 4);
-      int var30 = this.B();
-      this.C(var30);
-      this.pc('\ud5f8', 1, 10);
-      this.BC(3080);
-      this.pc('\ud5fb', 1, 10);
-      this.BC(14341);
-      this.pc('\ud5fe', 1, 10);
-      this.BC(6146);
-      this.pc('\ud601', 1, 10);
-      this.BC(3331);
-      this.pc('\ud604', 1, 10);
-      this.BC(3082);
-      this.pc('\ud607', 1, 10);
-      this.BC(8199);
-      this.pc('\ud60a', 1, 10);
-      this.BC(6147);
-      this.pc('\ud60d', 1, 10);
-      this.BC(3331);
-      this.pc('\ud610', 1, 10);
-      this.BC(3082);
-      this.pc('\ud613', 1, 10);
-      this.BC(4104);
-      this.pc('\ud616', 1, 10);
-      this.BC(6148);
-      this.pc('\ud619', 1, 10);
-      this.BC(3331);
-      this.pc('\ud61c', 1, 10);
-      this.BC(2819);
-      this.pc('\ud61f', 1, 7);
-      int var31 = this.BC();
-      int var32 = this.mem(var31, '\ud61f');
-      this.A(var32);
-      this.pc('\ud620', 1, 6);
-      int var33 = this.DE();
-      int var34 = this.inc16(var33);
-      this.DE(var34);
-      this.pc('\ud621', 1, 7);
-      int var35 = this.BC();
-      int var36 = this.mem(var35, '\ud621');
-      this.A(var36);
-      this.pc('\ud622', 1, 10);
-      this.BC(3074);
-      this.pc('\ud625', 1, 10);
-      this.BC(8198);
-      this.pc('\ud628', 1, 10);
-      this.BC(4100);
-      this.pc('\ud62b', 1, 10);
-      this.BC(3332);
-      this.pc('\ud62e', 1, 6);
-      int var37 = this.DE();
-      int var38 = this.inc16(var37);
-      this.DE(var38);
-      this.pc('\ud62f', 1, 7);
-      int var39 = this.BC();
-      int var40 = this.mem(var39, '\ud62f');
-      this.A(var40);
-      this.pc('\ud630', 1, 6);
-      int var41 = this.BC();
-      int var42 = this.dec16(var41);
-      this.BC(var42);
-      this.pc('\ud631', 1, 10);
-      this.BC(3078);
-      this.pc('\ud634', 1, 10);
-      this.BC(10244);
-      this.pc('\ud637', 1, 10);
-      this.BC(2053);
-      this.pc('\ud63a', 1, 10);
-      this.BC(3333);
-      this.pc('\ud63d', 1, 10);
-      this.BC(3082);
-      this.pc('\ud640', 1, 10);
-      this.BC(10245);
-      this.pc('\ud643', 1, 10);
-      this.BC(2052);
-      this.pc('\ud646', 1, 10);
-      this.BC(3333);
-      this.pc('\ud649', 1, 10);
-      this.BC(3082);
-      this.pc('\ud64c', 1, 10);
-      this.BC(16389);
-      this.pc('\ud64f', 1, 10);
-      this.BC(1);
-      this.pc('\ud652', 1, 4);
-      int var43 = this.D();
-      int var44 = this.A();
-      int var45 = this.alu("xor", var44, var43);
-      this.A(var45);
-      this.pc('\ud653', 1, 4);
-      int var46 = this.E();
-      int var47 = this.A();
-      int var48 = this.alu("or", var47, var46);
-      this.A(var48);
-      this.pc('\ud654', 1, 4);
-      int var49 = this.L();
-      int var50 = this.A();
-      int var51 = this.alu("add", var50, var49);
-      this.A(var51);
-
-      try {
-         this.pc('\ud655', 1, 10);
-         if(this.flag(4, true)) {
-            this.tstates(7);
-            this.push('\ud658');
-            this.$FFFF();
-            this.pop();
-         }
-      } catch (StackException var94) {
-         if(var94.getNextPC() != '\ud658') {
-            throw var94;
-         }
-      }
-
-      this.pc('\ud658', 1, 11);
-      this.$38();
-      this.pc('\ud659', 1, 11);
-      this.$38();
-      this.pc('\ud65a', 1, 7);
-      int var53 = this.HL();
-      int var54 = this.mem(var53, '\ud65a');
-      this.B(var54);
-      this.pc('\ud65b', 1, 4);
-      int var55 = this.H();
-      this.B(var55);
-      this.pc('\ud65c', 1, 4);
-      int var56 = this.H();
-      this.D(var56);
-      this.pc('\ud65d', 1, 4);
-      int var57 = this.L();
-      this.B(var57);
-      this.pc('\ud65e', 1, 11);
-      this.$38();
-      this.pc('\ud65f', 1, 11);
-      this.$38();
-      this.pc('\ud660', 1, 11);
-      this.$38();
-      this.pc('\ud661', 1, 11);
-      this.$38();
-      this.pc('\ud662', 1, 10);
-      this.BC(511);
-      this.pc('\ud665', 1, 4);
-      int var58 = this.L();
-      int var59 = this.alu("dec", var58);
-      this.L(var59);
-      this.pc('\ud666', 1, 4);
-      int var60 = this.AF();
-      this.exAF(var60);
-      this.pc('\ud667', 1, 10);
-      this.BC(2310);
-      this.pc('\ud66a', 1, 10);
-      this.BC(4633);
-      this.pc('\ud66d', 1, 10);
-      this.DE(2312);
-      this.pc('\ud670', 1, 4);
-      int var61 = this.AF();
-      this.exAF(var61);
-      this.pc('\ud671', 1, 11);
-      int var62 = this.BC();
-      int var63 = this.HL();
-      int var64 = this.alu("add16", var63, var62);
-      this.HL(var64);
-      this.pc('\ud672', 1, 13);
-      int var65 = this.mem(2049, '\ud672');
-      this.A(var65);
-      this.pc('\ud675', 1, 4);
-      int var66 = this.AF();
-      this.exAF(var66);
-      this.pc('\ud676', 1, 11);
-      int var67 = this.BC();
-      int var68 = this.HL();
-      int var69 = this.alu("add16", var68, var67);
-      this.HL(var69);
-      this.pc('\ud677', 1, 10);
-      this.BC(31234);
-      this.pc('\ud67a', 1, 10);
-      this.BC(8706);
-      this.pc('\ud67d', 1, 10);
-      this.BC(10760);
-      this.pc('\ud680', 1, 10);
-      this.BC(14850);
-      this.pc('\ud683', 1, 10);
-      this.BC(6661);
-      this.pc('\ud686', 1, 10);
-      this.BC(2305);
-      this.pc('\ud689', 1, 10);
-      this.BC(10759);
-      this.pc('\ud68c', 1, 10);
-      this.BC(2820);
-      this.pc('\ud68f', 1, 10);
-      this.BC(6659);
-      this.pc('\ud692', 1, 10);
-      this.BC(8708);
-      this.pc('\ud695', 1, 4);
-      int var70 = this.AF();
-      this.exAF(var70);
-      this.pc('\ud696', 1, 10);
-      this.BC(6663);
-      this.pc('\ud699', 1, 10);
-      this.BC(2822);
-      this.pc('\ud69c', 1, 10);
-      this.BC(4612);
-      this.pc('\ud69f', 1, 10);
-      this.BC(8707);
-      this.pc('\ud6a2', 1, 10);
-      this.BC(4617);
-      this.pc('\ud6a5', 1, 10);
-      this.DE(2312);
-      this.pc('\ud6a8', 1, 4);
-      int var71 = this.AF();
-      this.exAF(var71);
-      this.pc('\ud6a9', 1, 11);
-      int var72 = this.BC();
-      int var73 = this.HL();
-      int var74 = this.alu("add16", var73, var72);
-      this.HL(var74);
-      this.pc('\ud6aa', 1, 10);
-      this.BC(2817);
-      this.pc('\ud6ad', 1, 10);
-      this.BC(2565);
-      this.pc('\ud6b0', 1, 10);
-      this.BC(8709);
-      this.pc('\ud6b3', 1, 10);
-      this.BC(6662);
-      this.pc('\ud6b6', 1, 4);
-      int var75 = this.AF();
-      this.exAF(var75);
-      this.pc('\ud6b7', 1, 11);
-      int var76 = this.BC();
-      int var77 = this.HL();
-      int var78 = this.alu("add16", var77, var76);
-      this.HL(var78);
-      this.pc('\ud6b8', 1, 10);
-      this.BC(4354);
-      this.pc('\ud6bb', 1, 4);
-      int var79 = this.AF();
-      this.exAF(var79);
-      this.pc('\ud6bc', 1, 6);
-      int var80 = this.BC();
-      int var81 = this.dec16(var80);
-      this.BC(var81);
-      this.pc('\ud6bd', 1, 10);
-      this.BC(2565);
-      this.pc('\ud6c0', 1, 10);
-      this.BC(8708);
-      this.pc('\ud6c3', 1, 10);
-      this.BC(8709);
-      this.pc('\ud6c6', 1, 10);
-      this.BC(2824);
-      this.pc('\ud6c9', 1, 10);
-      this.BC(8716);
-      this.pc('\ud6cc', 1, 11);
-      int var82 = this.BC();
-      int var83 = this.HL();
-      int var84 = this.alu("add16", var83, var82);
-      this.HL(var84);
-      this.pc('\ud6cd', 1, 10);
-      this.BC(6658);
-      this.pc('\ud6d0', 1, 10);
-      this.BC(2825);
-      this.pc('\ud6d3', 1, 10);
-      this.BC(2056);
-      this.pc('\ud6d6', 1, 10);
-      this.BC(12801);
-      this.pc('\ud6d9', 1, 4);
-      int var85 = this.AF();
-      this.exAF(var85);
-      this.pc('\ud6da', 1, 10);
-      this.BC(14849);
-      this.pc('\ud6dd', 1, 10);
-      this.BC(2822);
-      this.pc('\ud6e0', 1, 10);
-      this.BC(16905);
-      this.pc('\ud6e3', 1, 10);
-      this.BC(1);
-      this.pc('\ud6e6', 1, 4);
-      int var86 = this.L();
-      int var87 = this.A();
-      int var88 = this.alu("add", var87, var86);
-      this.A(var88);
-      this.pc('\ud6e7', 1, 4);
-      int var89 = this.B();
-      int var90 = this.A();
-      int var91 = this.alu("xor", var90, var89);
-      this.A(var91);
-      this.pc('\ud6e8', 1, 11);
-      int var92 = this.A() << 8 | 255;
-      int var93 = this.A();
-      this.out(var92, var93);
-      this.pc('\ud6ea', 1, 11);
-      this.$38();
-      this.untranslated('\ud6eb');
-   }
-
    public void $E280() {
       this.pc('\ue280', 1, 4);
       this.di();
@@ -18360,45 +17999,53 @@ public class MontyOnTheRun extends MiniZX {
                this.pc('\ue32b', 1, 13);
                int var12 = this.A();
                this.wMem('\ue330', var12, '\ue32b');
-               this.pc('\ue32e', 2, 0);
+               this.pc('\ue32e', 0, 0);
                int var13 = this.codeHash('\ue32e', 3);
                if(var13 == 246078) {
                   this.tstates(19);
+                  this.fetched(2);
                   int var67 = this.IX() + 0;
                   int var68 = this.mem(var67, '\ue32e');
                   this.A(var68);
                } else if(var13 == 246079) {
                   this.tstates(19);
+                  this.fetched(2);
                   int var65 = this.IX() + 1;
                   int var66 = this.mem(var65, '\ue32e');
                   this.A(var66);
                } else if(var13 == 246080) {
                   this.tstates(19);
+                  this.fetched(2);
                   int var63 = this.IX() + 2;
                   int var64 = this.mem(var63, '\ue32e');
                   this.A(var64);
                } else if(var13 == 246081) {
                   this.tstates(19);
+                  this.fetched(2);
                   int var61 = this.IX() + 3;
                   int var62 = this.mem(var61, '\ue32e');
                   this.A(var62);
                } else if(var13 == 246082) {
                   this.tstates(19);
+                  this.fetched(2);
                   int var59 = this.IX() + 4;
                   int var60 = this.mem(var59, '\ue32e');
                   this.A(var60);
                } else if(var13 == 246083) {
                   this.tstates(19);
+                  this.fetched(2);
                   int var57 = this.IX() + 5;
                   int var58 = this.mem(var57, '\ue32e');
                   this.A(var58);
                } else if(var13 == 246084) {
                   this.tstates(19);
+                  this.fetched(2);
                   int var55 = this.IX() + 6;
                   int var56 = this.mem(var55, '\ue32e');
                   this.A(var56);
                } else if(var13 == 246085) {
                   this.tstates(19);
+                  this.fetched(2);
                   int var53 = this.IX() + 7;
                   int var54 = this.mem(var53, '\ue32e');
                   this.A(var54);
@@ -18426,45 +18073,53 @@ public class MontyOnTheRun extends MiniZX {
                this.pc('\ue337', 1, 13);
                int var19 = this.A();
                this.wMem('\ue33c', var19, '\ue337');
-               this.pc('\ue33a', 2, 0);
+               this.pc('\ue33a', 0, 0);
                int var20 = this.codeHash('\ue33a', 3);
                if(var20 == 246086) {
                   this.tstates(19);
+                  this.fetched(2);
                   int var51 = this.IX() + 8;
                   int var52 = this.mem(var51, '\ue33a');
                   this.A(var52);
                } else if(var20 == 246087) {
                   this.tstates(19);
+                  this.fetched(2);
                   int var49 = this.IX() + 9;
                   int var50 = this.mem(var49, '\ue33a');
                   this.A(var50);
                } else if(var20 == 246088) {
                   this.tstates(19);
+                  this.fetched(2);
                   int var47 = this.IX() + 10;
                   int var48 = this.mem(var47, '\ue33a');
                   this.A(var48);
                } else if(var20 == 246089) {
                   this.tstates(19);
+                  this.fetched(2);
                   int var45 = this.IX() + 11;
                   int var46 = this.mem(var45, '\ue33a');
                   this.A(var46);
                } else if(var20 == 246090) {
                   this.tstates(19);
+                  this.fetched(2);
                   int var43 = this.IX() + 12;
                   int var44 = this.mem(var43, '\ue33a');
                   this.A(var44);
                } else if(var20 == 246091) {
                   this.tstates(19);
+                  this.fetched(2);
                   int var41 = this.IX() + 13;
                   int var42 = this.mem(var41, '\ue33a');
                   this.A(var42);
                } else if(var20 == 246092) {
                   this.tstates(19);
+                  this.fetched(2);
                   int var39 = this.IX() + 14;
                   int var40 = this.mem(var39, '\ue33a');
                   this.A(var40);
                } else if(var20 == 246093) {
                   this.tstates(19);
+                  this.fetched(2);
                   int var37 = this.IX() + 15;
                   int var38 = this.mem(var37, '\ue33a');
                   this.A(var38);
@@ -23501,13 +23156,15 @@ public class MontyOnTheRun extends MiniZX {
    }
 
    public void $FDFD() {
-      this.pc('\ufdfd', 1, 0);
+      this.pc('\ufdfd', 0, 0);
       int var1 = this.codeHash('\ufdfd', 3);
       if(var1 == 218825) {
          this.tstates(10);
+         this.fetched(1);
          this.$9730();
       } else if(var1 == 217415) {
          this.tstates(10);
+         this.fetched(1);
          this.$E500();
       } else {
          int var2 = this.executeMutantCode('\ufdfd');
@@ -23516,11 +23173,6 @@ public class MontyOnTheRun extends MiniZX {
          }
 
       }
-   }
-
-   public void $FFFF() {
-      this.pc('\uffff', 1, 4);
-      this.untranslated(0);
    }
 
    public void $AA7C() {
