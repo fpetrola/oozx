@@ -112,8 +112,6 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
     });
     translateBankedCode(footprint);
     translateRomRoutines(footprint.romEntries().stream().filter(entry -> stackAnalyzer.trampolineRegister(entry) == null).mapToInt(Integer::intValue).toArray());
-    stackAnalyzer.dataConsumedBy.entries().stream().filter(e -> routineManager.findRoutineAt(e.getKey()) != routineManager.findRoutineAt(e.getValue()) && !routineManager.plantsAContinuation(e.getValue(), stackAnalyzer.pushedValues.get(e.getValue())))
-        .forEach(e -> routineManager.externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(e.getKey())));
   }
 
   public void translateRomRoutines(int... entries) {

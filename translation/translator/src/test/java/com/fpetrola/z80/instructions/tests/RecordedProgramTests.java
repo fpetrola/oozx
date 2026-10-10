@@ -715,6 +715,18 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aPushedContinuationInsideAnotherRoutineIsEnteredThere() {
+    // Head over Heels 72A8: PUSH 7305 before the shared code whose RET at 72F2 consumes it, 7305 lying inside routine 72BC; entered at 72A0 the same RET returns to the caller
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0xCD, 0x30, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x21, 0x43, 0x80, 0xE5, 0x18, 0x1A),
+        at(0x8030, 0x3E, 0x01, 0xC3, 0x40, 0x80),
+        at(0x8040, 0x06, 0x02, 0xC9, 0x0C, 0x18, 0xFC));
+    Assert.assertTrue(routineManager.externalEntries.contains(0x8043));
+    Assert.assertEquals(0x01, endValue("C"));
+  }
+
+  @Test
   public void anOperandThatCodeInAnotherBankRewritesIsReadFromThatBank() {
     // Batman The Movie C431: the music player in bank 3 rewrites the operand of its own LD A,n
     banked = true;
