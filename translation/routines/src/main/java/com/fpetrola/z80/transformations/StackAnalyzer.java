@@ -203,7 +203,7 @@ public class StackAnalyzer implements java.io.Serializable {
 
   public void init() {
     int start = state.getRegisterSP().read();
-    for (int count = 0; start > 0 && count < 20; count += 2) {
+    for (int count = 0; count < Math.min(20, start); count += 2) {
       int address = start - count;
       int value = state.getMemory().read16Bits(address);
       if (value > 23296)

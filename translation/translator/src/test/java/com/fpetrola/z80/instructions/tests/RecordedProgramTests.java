@@ -1181,6 +1181,14 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aForkWithTheStackNearAddressZeroStillExplores() {
+    // Everyone's a Wally FF02: its snapshot has SP 0000, and the stack analyzer of a fork read the words below SP at negative addresses, which aborted the fork
+    int[] memory = memoryOf(at(0x8000, 0x31, 0x04, 0x00, 0xAF, 0x20, 0x2A, 0x76, 0x18, 0xFD), at(0x8030, 0x3E, 0x05, 0x76));
+    RemoteZ80Translator.Footprint footprint = RemoteZ80Translator.footprint(stackAnalyzer -> EmulatedMiniZX.ofProgram(memory, START, STACK, 1000, stackAnalyzer), START);
+    Assert.assertTrue(footprint.explored().containsKey(0x8030));
+  }
+
+  @Test
   public void aFootprintSurvivesBeingSavedAndReadBack() throws Exception {
     // the footprint of a recording is saved to disk so that changes to the exploration or the generator do not replay the RZX
     int[] memory = new int[0x10000];
