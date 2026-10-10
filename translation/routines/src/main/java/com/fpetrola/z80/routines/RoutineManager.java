@@ -299,7 +299,7 @@ public class RoutineManager {
   }
 
   public boolean isCode(int address) {
-    return address >= codeStart && address < codeEnd && (originalAddress(address) != address || !interiors.contains(address) && !bankedOnly.contains(address));
+    return originalAddress(address) != address || address >= codeStart && address < codeEnd && !interiors.contains(address) && !bankedOnly.contains(address);
   }
 
   public boolean isCalledFrom(Routine routine, int callAddress) {

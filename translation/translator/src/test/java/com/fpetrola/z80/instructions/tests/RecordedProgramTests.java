@@ -610,8 +610,8 @@ public class RecordedProgramTests {
   }
 
   @Test
-  public void codeThatRunsInAnotherBankAtTheSameAddressIsTranslatedForThatBank() {
-    // Batman The Movie: the music player runs at C000-C8F7 in bank 3, where bank 0 holds the game's own code
+  public void codeThatRunsInAnotherBankIsTranslatedForThatBankFromACopyInScreenMemory() {
+    // Batman The Movie: the music player runs at C000-C8F7 in bank 3, where bank 0 holds the game's own code; Renegade 128's bank 1 (4192 bytes) found no gap below C000 next to the main code
     banked = true;
     translate(
         at(0x8000, 0x01, 0xFD, 0x7F, 0x3E, 0x13, 0xED, 0x79, 0x21, 0x00, 0x81, 0x11, 0x00, 0xC0, 0x01, 0x06, 0x00, 0xED, 0xB0, 0xCD, 0x00, 0xC0, 0x57,
@@ -619,6 +619,7 @@ public class RecordedProgramTests {
         at(0x8100, 0x3E, 0x05, 0xC3, 0x05, 0xC0, 0xC9),
         at(0xC000, 0x00, 0x3E, 0x07, 0xC9));
     Assert.assertEquals(List.of(3), routineManager.codeVariants.stream().map(RoutineManager.CodeVariant::bank).toList());
+    Assert.assertEquals(0x4000, routineManager.codeVariants.get(0).relocatedAt());
     Assert.assertEquals(0x0507, endValue("DE"));
   }
 
@@ -633,7 +634,8 @@ public class RecordedProgramTests {
         at(0x8100, 0x3E, 0x05, 0xC3, 0x05, 0xC0, 0xC9),
         at(0xC000, 0x00, 0x3E, 0x07, 0xC9),
         at(0x5B00, 0x3E, 0x09, 0xC3, 0x30, 0x80));
-    Assert.assertTrue(routineManager.codeVariants.get(0).relocatedAt() >= 0x5B05);
+    RoutineManager.CodeVariant copy = routineManager.codeVariants.get(0);
+    Assert.assertTrue(copy.relocated(copy.end()) <= 0x5B00 || copy.relocatedAt() >= 0x5B05);
     Assert.assertEquals(0x0507, endValue("DE"));
   }
 

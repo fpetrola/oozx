@@ -158,7 +158,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
     }
   }
 
-  /** Code that ran with another bank paged at C000 is translated from a copy away from C000, entered when that bank is paged. */
+  /** Code that ran with another bank paged at C000 is translated from a copy below C000, first in screen memory, which never runs as code, entered when that bank is paged. */
   public void translateBankedCode(RemoteZ80Translator.Footprint footprint) {
     footprint.bankedCode().forEach((bank, banked) -> {
       java.util.Map<Integer, int[]> instructions = banked.instructions();
@@ -185,7 +185,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
 
   private int freeAreaFor(int size) {
     java.util.BitSet code = routineManager.codeAddresses();
-    int free = RemoteZ80Translator.SCREEN_END, address = free;
+    int free = com.fpetrola.z80.minizx.SpectrumApplication.ROM_END, address = free;
     for (; address < com.fpetrola.z80.memory.MemoryBanks.WINDOW && address - free < size; address++)
       if (code.get(address) || getState().getMemory().isProtected(address))
         free = address + 1;
