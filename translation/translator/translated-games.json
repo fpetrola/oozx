@@ -90,8 +90,7 @@
     "dynamitedan": {
       "title": "Dynamite Dan",
       "type": "DynamiteDan",
-      "recording": "/home/fernando/detodo/spectrum/dynamitedan/dynamitedan.rzx",
-      "entry": "C804"
+      "recording": "/home/fernando/detodo/spectrum/dynamitedan/dynamitedan.rzx"
     },
     "monty": {
       "title": "Monty on the Run",
@@ -102,8 +101,7 @@
     "wally": {
       "title": "Everyone's a Wally",
       "type": "Wally",
-      "recording": "/home/fernando/detodo/spectrum/eawally/eawallyCsabaComplete.rzx",
-      "entry": "8185"
+      "recording": "/home/fernando/detodo/spectrum/eawally/eawallyCsabaComplete.rzx"
     },
     "emlyn": {
       "title": "Emlyn Hughes International Soccer",

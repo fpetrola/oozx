@@ -115,7 +115,7 @@ public class GameBytecodeCreationTests {
 
   @Test
   public void testTranslateWallyToJava() {
-    translateRecordingFrom("Wally", "/home/fernando/detodo/spectrum/eawally/eawallyCsabaComplete.rzx", 0x8185);
+    translateRecording("Wally", "/home/fernando/detodo/spectrum/eawally/eawallyCsabaComplete.rzx");
   }
 
   @Test
@@ -218,11 +218,7 @@ public class GameBytecodeCreationTests {
   }
 
   private void translateRecording(String name, String recording, int... entries) {
-    translateRecordingFrom(name, recording, RemoteZ80Translator.startOf(recording), entries);
-  }
-
-  /** A recording that begins inside its loader starts where the loader hands over to the game: the loader itself does not translate yet. */
-  private void translateRecordingFrom(String name, String recording, int start, int... entries) {
+    int start = RemoteZ80Translator.startOf(recording);
     String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, recording, start);
     realCodeBytecodeCreationBase.exploreRecording(RemoteZ80Translator.footprint(recording, start), start, entries);
     writeTranslation(name, base64Memory);
@@ -253,13 +249,8 @@ public class GameBytecodeCreationTests {
 
 
   @Test
-  public void testTranslateDynamite() throws Exception {
-    String recording = "/home/fernando/detodo/spectrum/dynamitedan/dynamitedan.rzx";
-    int start = 0xC804;
-    String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, recording, start);
-    realCodeBytecodeCreationBase.exploreRecording(RemoteZ80Translator.footprint(recording, start), start);
-    Files.writeString(Path.of("target/dd-routines.txt"), getRoutinesString(getRoutineManager().getRoutines()));
-    Files.writeString(Path.of("target/DynamiteDan.java"), RemoteZ80Translator.improveSource(generateAndDecompile(base64Memory, getRoutineManager().getRoutines(), ".", "DynamiteDan")));
+  public void testTranslateDynamite() {
+    translateRecording("DynamiteDan", "/home/fernando/detodo/spectrum/dynamitedan/dynamitedan.rzx");
   }
 
   @Ignore
