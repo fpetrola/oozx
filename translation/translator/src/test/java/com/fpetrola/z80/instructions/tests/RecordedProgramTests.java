@@ -1544,6 +1544,13 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aRecordingStartsAtTheFirstInstructionItRunsInGameRam() {
+    // Monty on the Run's snapshot sits at AAC5 in the game; Skool Daze's sits in the ROM interrupt at 0038 and the game goes on at 673F
+    Assert.assertEquals(0xAAC5, RemoteZ80Translator.startOf("/home/fernando/detodo/spectrum/montyontherun.rzx"));
+    Assert.assertEquals(0x673F, RemoteZ80Translator.startOf("/home/fernando/detodo/spectrum/rzx-top/4549/skooldaze.rzx"));
+  }
+
+  @Test
   public void aRecordingIsEmulatedWithTheRomInPlace() {
     // Dynamite Dan II: its snapshot sits in the ROM interrupt routine; with the ROM protected before the snapshot loader filled it, the emulator walked zeros up to the screen
     EmulatedMiniZX emulator = EmulatedMiniZX.ofRecording("/home/fernando/detodo/spectrum/jsw/jsw-full.rzx", 1, null);

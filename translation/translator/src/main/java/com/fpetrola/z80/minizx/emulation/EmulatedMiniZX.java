@@ -65,7 +65,7 @@ public class EmulatedMiniZX {
   private StackAnalyzer stackAnalyzer;
   private String rzxFile;
   private RzxPlayback playback;
-  private int stopAt = -1;
+  private java.util.function.IntPredicate stopAt = pc -> false;
   private FetchListener fetchListener;
   private boolean timed, banked;
   private MemoryWriteListener memoryWriteListener;
@@ -102,7 +102,11 @@ public class EmulatedMiniZX {
   }
 
   public EmulatedMiniZX stoppingAt(int address) {
-    stopAt = address;
+    return stoppingAt(pc -> pc == address);
+  }
+
+  public EmulatedMiniZX stoppingAt(java.util.function.IntPredicate where) {
+    stopAt = where;
     return this;
   }
 
@@ -240,7 +244,7 @@ public class EmulatedMiniZX {
       SnapshotLoader.setupStateWithSnapshot(registersBase, snapshotFileOf(recording), state);
       playback = new RzxPlayback(ooz80, (RZXPlayerIO) io, recording, tstates -> {
       }, () -> {
-        if (state.getPc().read() == stopAt)
+        if (stopAt.test(state.getPc().read()))
           throw new Reached();
         ooz80.execute();
       });

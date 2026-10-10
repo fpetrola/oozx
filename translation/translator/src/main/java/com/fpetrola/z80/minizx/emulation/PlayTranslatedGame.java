@@ -23,7 +23,7 @@ public class PlayTranslatedGame {
 
   public record Translated(String title, String type, String recording, String snapshot, String entry) {
     int entryAddress() {
-      return Integer.parseInt(entry, 16);
+      return entry != null ? Integer.parseInt(entry, 16) : com.fpetrola.z80.bytecode.examples.RemoteZ80Translator.startOf(recording);
     }
 
     Class<?> gameClass() throws ClassNotFoundException {
@@ -42,7 +42,7 @@ public class PlayTranslatedGame {
       throw new IllegalArgumentException("no game " + name + " among " + config.games().keySet());
     String recording = args.length > 0 ? args[0] : config.recording() != null ? config.recording() : translated.recording();
     int entry = translated.entryAddress();
-    System.out.println(translated.title() + " (" + translated.type() + ") from $" + translated.entry() + ", " + System.getProperty("mode", config.mode()));
+    System.out.println(translated.title() + " (" + translated.type() + ") from $" + Integer.toHexString(entry).toUpperCase() + ", " + System.getProperty("mode", config.mode()));
     MiniZX game = System.getProperty("mode", config.mode()).equals("replay") ? replaying(recording, entry, translated.gameClass()) : playing(translated, recording, entry);
     try {
       game.run(entry);

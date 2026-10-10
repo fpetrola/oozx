@@ -115,77 +115,77 @@ public class GameBytecodeCreationTests {
 
   @Test
   public void testTranslateWallyToJava() {
-    translateRecording("Wally", "/home/fernando/detodo/spectrum/eawally/eawallyCsabaComplete.rzx", 0x8185);
+    translateRecordingFrom("Wally", "/home/fernando/detodo/spectrum/eawally/eawallyCsabaComplete.rzx", 0x8185);
   }
 
   @Test
   public void testTranslateMontyToJava() {
-    translateRecording("MontyOnTheRun", "/home/fernando/detodo/spectrum/montyontherun.rzx", 0xAAC5);
+    translateRecording("MontyOnTheRun", "/home/fernando/detodo/spectrum/montyontherun.rzx");
   }
 
   @Test
   public void testTranslateGreatEscapeToJava() {
-    translateRecording("GreatEscape", "/home/fernando/detodo/spectrum/rzx-top/2125/greatescape_moneybagending.rzx", 0xF510);
+    translateRecording("GreatEscape", "/home/fernando/detodo/spectrum/rzx-top/2125/greatescape_moneybagending.rzx");
   }
 
   @Test
   public void testTranslateZynapsToJava() {
-    translateRecording("Zynaps", "/home/fernando/detodo/spectrum/rzx-top/5890/zynaps.rzx", 0xA9E4);
+    translateRecording("Zynaps", "/home/fernando/detodo/spectrum/rzx-top/5890/zynaps.rzx");
   }
 
   @Test
   public void testTranslateDynamiteDan2ToJava() {
-    translateRecording("DynamiteDan2", "/home/fernando/detodo/spectrum/rzx-top/1553/dynamitedan2.rzx", 0x6B94);
+    translateRecording("DynamiteDan2", "/home/fernando/detodo/spectrum/rzx-top/1553/dynamitedan2.rzx");
   }
 
   @Test
   public void testTranslateManicMinerToJava() {
-    translateRecording("ManicMiner", "/home/fernando/detodo/spectrum/rzx-top/3012/manicnoliveslost.rzx", 0x92FB);
+    translateRecording("ManicMiner", "/home/fernando/detodo/spectrum/rzx-top/3012/manicnoliveslost.rzx");
   }
 
   @Test
   public void testTranslateExolonToJava() {
-    translateRecording("Exolon", "/home/fernando/detodo/spectrum/rzx-top/1686/exolon.rzx", 0x8057);
+    translateRecording("Exolon", "/home/fernando/detodo/spectrum/rzx-top/1686/exolon.rzx");
   }
 
   @Test
   public void testTranslateRenegadeToJava() {
-    translateRecording("Renegade", "/home/fernando/detodo/spectrum/rzx-top/4082/renegade48-random.rzx", 0xF280);
+    translateRecording("Renegade", "/home/fernando/detodo/spectrum/rzx-top/4082/renegade48-random.rzx");
   }
 
   @Test
   public void testTranslateRenegade128ToJava() {
-    translateRecording("Renegade128", "/home/fernando/detodo/spectrum/rzx-top/renegade.rzx", 0x6004);
+    translateRecording("Renegade128", "/home/fernando/detodo/spectrum/rzx-top/renegade.rzx");
   }
 
   @Test
   public void testTranslateTargetRenegadeToJava() {
-    translateRecording("TargetRenegade", "/home/fernando/detodo/spectrum/rzx-top/4087/target.rzx", 0xBFBF);
+    translateRecording("TargetRenegade", "/home/fernando/detodo/spectrum/rzx-top/4087/target.rzx");
   }
 
   @Test
   public void testTranslateFairlightToJava() {
-    translateRecording("Fairlight", "/home/fernando/detodo/spectrum/rzx-top/1712/fairlight48.rzx", 0xF0DC);
+    translateRecording("Fairlight", "/home/fernando/detodo/spectrum/rzx-top/1712/fairlight48.rzx");
   }
 
   @Test
   public void testTranslateSkoolDazeToJava() {
-    translateRecording("Skooldaze", "/home/fernando/detodo/spectrum/rzx-top/4549/skooldaze.rzx", 0x673F);
+    translateRecording("Skooldaze", "/home/fernando/detodo/spectrum/rzx-top/4549/skooldaze.rzx");
   }
 
   @Test
   public void testTranslateHeadOverHeelsToJava() {
-    translateRecording("HeadOverHeels", "/home/fernando/detodo/spectrum/rzx-top/2259/head.rzx", 0xFFFF);
+    translateRecording("HeadOverHeels", "/home/fernando/detodo/spectrum/rzx-top/2259/head.rzx");
   }
 
   @Test
   public void testTranslateRainbowIslandsToJava() {
-    translateRecording("RainbowIslands", "/home/fernando/detodo/spectrum/rzx-top/724/x/rainbow.rzx", 0x7C12);
+    translateRecording("RainbowIslands", "/home/fernando/detodo/spectrum/rzx-top/724/x/rainbow.rzx");
   }
 
   @Test
   public void testTranslateRTypeToJava() {
-    translateRecording("RType", "/home/fernando/detodo/spectrum/rzx-top/4256/rtype-random.rzx", 0xBF60);
+    translateRecording("RType", "/home/fernando/detodo/spectrum/rzx-top/4256/rtype-random.rzx");
   }
 
   @Ignore
@@ -209,15 +209,20 @@ public class GameBytecodeCreationTests {
 
   @Test
   public void testTranslateDizzyToJava() {
-    translateRecording("Dizzy", "/home/fernando/detodo/spectrum/dizzy/Dizzy RZX - The Long Way.rzx", 0xF85B, 0xF85A);
+    translateRecording("Dizzy", "/home/fernando/detodo/spectrum/dizzy/Dizzy RZX - The Long Way.rzx", 0xF85A);
   }
 
   @Test
   public void testTranslateEquinoxToJava() {
-    translateRecording("Equinox", "/home/fernando/detodo/spectrum/equinox/equinox.rzx", 0x5B8D);
+    translateRecording("Equinox", "/home/fernando/detodo/spectrum/equinox/equinox.rzx");
   }
 
-  private void translateRecording(String name, String recording, int start, int... entries) {
+  private void translateRecording(String name, String recording, int... entries) {
+    translateRecordingFrom(name, recording, RemoteZ80Translator.startOf(recording), entries);
+  }
+
+  /** A recording that begins inside its loader starts where the loader hands over to the game: the loader itself does not translate yet. */
+  private void translateRecordingFrom(String name, String recording, int start, int... entries) {
     String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, recording, start);
     realCodeBytecodeCreationBase.exploreRecording(RemoteZ80Translator.footprint(recording, start), start, entries);
     writeTranslation(name, base64Memory);

@@ -388,7 +388,7 @@ public class RemoteZ80Translator {
   }
 
   private static final int BRANCH_BUDGET = 500;
-  public static final int SCREEN_END = 0x5B00;
+  public static final int SCREEN_END = 0x5B00, GAME_RAM = 0x5D00;
 
   private record Forks(Map<Integer, int[]> codeBytes, Set<Integer> landings, Map<Integer, int[]> explored, Map<Integer, Integer> forked, Set<Integer> unfinished) {
     private void exploreUntakenBranch(OOZ80 main, ConditionalInstruction<?> branch, int site, int taken, StackAnalyzer learned, int budget) {
@@ -473,6 +473,13 @@ public class RemoteZ80Translator {
 
   public static String emulateRecordingUntil(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, String rzxFile, int address) {
     return emulate(realCodeBytecodeCreationBase, EmulatedMiniZX.ofRecording(rzxFile, -1, null).stoppingAt(address));
+  }
+
+  /** Where a recording's translation starts: the first instruction it runs above the ROM, the screen and the system variables, so a snapshot taken inside the ROM's interrupt or a loader in the screen starts at the game. */
+  public static int startOf(String rzxFile) {
+    EmulatedMiniZX emulator = EmulatedMiniZX.ofRecording(rzxFile, -1, null).stoppingAt(pc -> pc >= GAME_RAM);
+    emulator.start();
+    return emulator.ooz80.getState().getPc().read();
   }
 
   private static String emulate(RealCodeBytecodeCreationBase realCodeBytecodeCreationBase, EmulatedMiniZX emulatedMiniZX) {
