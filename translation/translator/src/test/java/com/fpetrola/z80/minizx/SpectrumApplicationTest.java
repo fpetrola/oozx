@@ -117,6 +117,13 @@ public class SpectrumApplicationTest {
   }
 
   @Test
+  public void theHashOfCodeAtTheLastAddressWrapsToTheFirst() {
+    game.mem[0xFFFF] = 0x18;
+    game.mem[0x0000] = 0xF3;
+    assertEquals(java.util.Arrays.hashCode(new int[]{0x18, 0xF3}), game.codeHash(0xFFFF, 2));
+  }
+
+  @Test
   public void theRefreshRegisterIsNotAdvancedTwice() {
     game.R(0x10);
     execute(0x14);

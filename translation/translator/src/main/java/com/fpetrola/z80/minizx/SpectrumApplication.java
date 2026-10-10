@@ -156,7 +156,7 @@ public abstract class SpectrumApplication {
   }
 
   public int codeHash(int start, int length) {
-    return Arrays.hashCode(Arrays.copyOfRange(mem, start, start + length));
+    return Arrays.hashCode(java.util.stream.IntStream.range(start, start + length).map(address -> mem[address & 0xffff]).toArray());
   }
 
   public void unknownCodeVariant(int address, int variableStart, int length) {
