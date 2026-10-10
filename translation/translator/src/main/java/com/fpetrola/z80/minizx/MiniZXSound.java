@@ -1,5 +1,8 @@
 package com.fpetrola.z80.minizx;
 
+import com.fpetrola.oozx.speccy.devices.ay.Ay;
+import com.fpetrola.oozx.speccy.devices.ay.AyPeripheral;
+import com.fpetrola.oozx.speccy.devices.ay.AyRegisters;
 import com.fpetrola.oozx.speccy.devices.ula.Beeper;
 import com.fpetrola.oozx.speccy.modules.sound.AudioOutput;
 import com.fpetrola.oozx.speccy.modules.sound.Colouring;
@@ -10,12 +13,14 @@ import com.fpetrola.oozx.speccy.modules.sound.blip.BlipSynth;
 
 import java.util.Arrays;
 
-/** The emulator's beeper fed by the translated game's OUTs, timed by its T-states, and emptied into a sound card at every frame. */
+/** The emulator's beeper and the 128K's AY fed by the translated game's OUTs, timed by its T-states, and emptied into a sound card at every frame. */
 public class MiniZXSound implements AudioOutput {
   private static final int SAMPLE_RATE = 44100, CLOCK = 3_500_000, FRAME_TSTATES = 69888;
   private static final Colouring SMALL_SPEAKER = new Colouring(200, -37.0);
   private final SoundCard card;
   private final Beeper beeper;
+  private final Ay ay;
+  private final AyRegisters ayRegisters = new AyRegisters();
   private final int frameSize;
   private final int[] mix;
   private long frameStart;
@@ -28,6 +33,7 @@ public class MiniZXSound implements AudioOutput {
     Sound.Output output = new Sound.Output();
     output.enabled = true;
     beeper = new Beeper(this, () -> false, output);
+    ay = new Ay(this);
   }
 
   public BlipSynth newSynth(int volumePercent) {
@@ -49,13 +55,20 @@ public class MiniZXSound implements AudioOutput {
   public void out(long tstates, int port, int value) {
     if ((port & 1) == 0)
       beeper.write(tstates - frameStart, ((value & 0x10) != 0 ? 2 : 0) + ((value & 0x08) == 0 ? 1 : 0), false);
+    else if ((port & AyPeripheral.PORT_MASK) == AyPeripheral.SELECT_PORT)
+      ayRegisters.select(value);
+    else if ((port & AyPeripheral.PORT_MASK) == AyPeripheral.DATA_PORT) {
+      ayRegisters.write(value);
+      ay.write(ayRegisters.current(), value & 0xff, tstates - frameStart);
+    }
   }
 
   public void frame(long tstates) {
     beeper.endFrame((int) (tstates - frameStart));
+    ay.endFrame((int) (tstates - frameStart));
     frameStart = tstates;
     Arrays.fill(mix, 0);
-    card.play(mix, beeper.mixInto(mix, frameSize) * 2);
+    card.play(mix, Math.max(beeper.mixInto(mix, frameSize), ay.mixInto(mix, frameSize)) * 2);
   }
 
   public void close() {

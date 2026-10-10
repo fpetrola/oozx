@@ -58,6 +58,11 @@
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
+            <artifactId>device-ay</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fpetrola</groupId>
             <artifactId>host-sound</artifactId>
             <version>${project.version}</version>
         </dependency>
