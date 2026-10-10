@@ -640,6 +640,18 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void anAddressTheRunLoopTakesInAnotherBanksCodeRunsThatBanksCopy() {
+    // Target: Renegade E3C7: the RET that ends the entry method goes to C300, code of the paged bank, and MiniZX.run invoked $C300 by name
+    banked = true;
+    translate(
+        at(0x8000, 0x01, 0xFD, 0x7F, 0x3E, 0x13, 0xED, 0x79, 0x21, 0x00, 0x81, 0x11, 0x00, 0xC0, 0x01, 0x06, 0x00, 0xED, 0xB0, 0x21, 0x00, 0xC0, 0x22, 0x00, 0xFF, 0xC9),
+        at(0x8100, 0x3E, 0x07, 0x57, 0x76, 0x18, 0xFD),
+        at(0xC000, 0x3E, 0x05, 0x57, 0x76, 0x18, 0xFD));
+    Assert.assertEquals(List.of(3), routineManager.codeVariants.stream().map(RoutineManager.CodeVariant::bank).toList());
+    Assert.assertEquals(0x07, endValue("D"));
+  }
+
+  @Test
   public void aReturnAddressPoppedInAnotherBanksCopyIsTheOriginalAddress() {
     // Target: Renegade C132: POP IX takes the return address of the CALL at C465 to read the bytes that follow it
     banked = true;

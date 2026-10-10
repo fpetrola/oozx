@@ -89,6 +89,13 @@ public class StateBytecodeGenerator {
     }
     if (symbolicExecutionAdapter.getStackAnalyzer().layoutCallSites.contains(StackAnalyzer.INTERRUPT))
       classMaker.addMethod(boolean.class, "pushesInterruptReturns").public_().return_(true);
+    List<RoutineManager.CodeVariant> bankCopies = routineManager.codeVariants.stream().filter(copy -> copy.bank() != -1).toList();
+    if (!bankCopies.isEmpty()) {
+      MethodMaker pagedCopy = classMaker.addMethod(int.class, "pagedCopy", int.class).protected_();
+      Variable address = pagedCopy.param(0), bank = pagedCopy.invoke("bank");
+      bankCopies.forEach(copy -> bank.ifEq(copy.bank(), () -> address.ifGe(copy.start(), () -> address.ifLt(copy.end(), () -> pagedCopy.return_(address.add(copy.relocatedAt() - copy.start()))))));
+      pagedCopy.return_(address);
+    }
 
     BytecodeGenerationContext bytecodeGenerationContext = new BytecodeGenerationContext(routineManager, classMaker, state.getPc(), symbolicExecutionAdapter, gameData, !translation);
 

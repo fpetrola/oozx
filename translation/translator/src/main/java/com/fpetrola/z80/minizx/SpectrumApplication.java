@@ -174,13 +174,19 @@ public abstract class SpectrumApplication {
     invokeMethod(address);
   }
 
+  /** Where the code at this address was translated: a class with code of other banks overrides it to send their window to its copies. */
+  protected int pagedCopy(int address) {
+    return address;
+  }
+
   protected void invokeMethod(int address) {
     try {
       Method method;
+      int translated = pagedCopy(address);
       try {
-        method = getClass().getMethod("$" + Integer.toHexString(address).toUpperCase());
+        method = getClass().getMethod("$" + Integer.toHexString(translated).toUpperCase());
       } catch (NoSuchMethodException decimalNamed) {
-        method = getClass().getMethod("$" + address);
+        method = getClass().getMethod("$" + translated);
       }
       if (method.invoke(this) instanceof Integer next && next != -1)
         getClass().getMethod("runJumps", int.class).invoke(this, next);
