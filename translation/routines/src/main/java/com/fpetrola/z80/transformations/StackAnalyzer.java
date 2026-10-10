@@ -75,6 +75,7 @@ public class StackAnalyzer implements java.io.Serializable {
   private int pcValue;
   private int stackResetTo = -1;
   private boolean returnsDropped;
+  private int leftStackAt = -1;
   public boolean knowsWholeStack = true;
   private final transient List<Integer> simulatedRets = new ArrayList<>();
   private final transient List<Integer> simulatedCallsPcs = new ArrayList<>();
@@ -197,6 +198,7 @@ public class StackAnalyzer implements java.io.Serializable {
     stackAsRepository = new StackAsRepositoryState();
     leftStacks.clear();
     leaving = reentered = null;
+    leftStackAt = -1;
     lastStorePlace = -1;
   }
 
@@ -311,6 +313,12 @@ public class StackAnalyzer implements java.io.Serializable {
               usingStackAsRepository(newSpAddress, oldSpAddress);
             stackResetTo = newSpAddress;
             returnsDropped = false;
+            if (leftStackAt == -1)
+              leftStackAt = oldSpAddress;
+            else if (distance(leftStackAt, newSpAddress) < 200) {
+              droppingReturnAddresses(leftStackAt, newSpAddress);
+              leftStackAt = -1;
+            }
           } else if (distance(oldSpAddress, newSpAddress) < 200 && !repointing)
             droppingReturnAddresses(oldSpAddress, newSpAddress);
         }

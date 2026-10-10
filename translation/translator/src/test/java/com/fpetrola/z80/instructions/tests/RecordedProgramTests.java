@@ -678,6 +678,18 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void comingBackFromTheStackUsedAsStorageAboveAReturnDropsIt() {
+    // Rainbow Islands E6CC: after POPping graphics with SP at 5B02, LD SP,FDDB lands on the return of CALL E5E3 at FEE4, above the return of the inner call, and the RET goes back to FEE7
+    ignoresMemory(0xFE00, 0xFF00);
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0x3E, 0x07, 0x76, 0x18, 0xFD),
+        at(0x8010, 0xCD, 0x20, 0x80, 0x3E, 0x09, 0xC9),
+        at(0x8020, 0x31, 0x00, 0xA0, 0xE1, 0x31, 0xFE, 0xFE, 0xC9));
+    Assert.assertTrue(stackAnalyzer.nonLocalRets.containsKey(0x8027));
+    Assert.assertEquals(0x07, endValue("A"));
+  }
+
+  @Test
   public void anOperandThatCodeInAnotherBankRewritesIsReadFromThatBank() {
     // Batman The Movie C431: the music player in bank 3 rewrites the operand of its own LD A,n
     banked = true;
