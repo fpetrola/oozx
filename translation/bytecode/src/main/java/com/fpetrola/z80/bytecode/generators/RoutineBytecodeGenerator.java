@@ -490,13 +490,16 @@ public class RoutineBytecodeGenerator {
   /** An instruction that only jumps through a register (the ROM's JP (HL) at 006F, CALL-JUMP's at 162C) goes on at the targets recorded for it. */
   public void throughTrampoline(int trampoline, RegisterName register, Collection<Integer> targets) {
     invokePc(trampoline, register == RegisterName.HL ? 1 : 2, register == RegisterName.HL ? 4 : 8);
-    Variable target = mm.invoke(register.name());
+    dispatch(mm.invoke(register.name()), targets.stream());
+  }
+
+  private void dispatch(Variable address, Stream<Integer> knownTargets) {
     Label reached = mm.label();
-    targets.stream().sorted().forEach(c -> target.ifEq(c, () -> {
-      jumpInto(c);
+    knownTargets.distinct().sorted().forEach(target -> address.ifEq(target, () -> {
+      jumpInto(target);
       reached.goto_();
     }));
-    mm.invoke("jump", target);
+    mm.invoke("jump", address);
     reached.here();
   }
 
@@ -671,15 +674,8 @@ public class RoutineBytecodeGenerator {
       else {
         Variable value = mm.invoke("pop");
         List<Integer> consumers = stackAnalyzer().dataConsumedBy.entries().stream().filter(e -> e.getValue() == push && !stackAnalyzer().shiftedReturns.containsKey(e.getKey())).map(Map.Entry::getKey).toList();
-        if (!consumers.isEmpty()) {
-          Label landed = mm.label();
-          consumers.stream().flatMap(ret -> stackAnalyzer().dynamicInvocation.get(ret).stream()).distinct().forEach(target -> value.ifEq(target, () -> {
-            jumpInto(target);
-            landed.goto_();
-          }));
-          mm.invoke("jump", value);
-          landed.here();
-        }
+        if (!consumers.isEmpty())
+          dispatch(value, consumers.stream().flatMap(ret -> stackAnalyzer().dynamicInvocation.get(ret).stream()));
       }
     }
   }
