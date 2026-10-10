@@ -690,6 +690,19 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aReturnToTheCallersCallerFromAnotherStackAbandonsTheInnerCall() {
+    // Rainbow Islands E62D: with SP in a jump table, CALL Z,E74A pushes its return into the table; E6CC reloads SP onto the return of CALL E5E3 and its RET goes back to FEE7
+    ignoresMemory(0xFE00, 0xFF00);
+    ignoresMemory(0x9000, 0x9040);
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0x3E, 0x07, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x31, 0x30, 0x90, 0xCD, 0x40, 0x80, 0x06, 0x09, 0xC9),
+        at(0x8040, 0x31, 0xFE, 0xFE, 0xC9));
+    Assert.assertTrue(stackAnalyzer.nonLocalRets.containsKey(0x8043));
+    Assert.assertEquals(0x00, endValue("B"));
+  }
+
+  @Test
   public void anOperandThatCodeInAnotherBankRewritesIsReadFromThatBank() {
     // Batman The Movie C431: the music player in bank 3 rewrites the operand of its own LD A,n
     banked = true;

@@ -75,7 +75,6 @@ public class StackAnalyzer implements java.io.Serializable {
   private int pcValue;
   private int stackResetTo = -1;
   private boolean returnsDropped;
-  private int leftStackAt = -1;
   public boolean knowsWholeStack = true;
   private final transient List<Integer> simulatedRets = new ArrayList<>();
   private final transient List<Integer> simulatedCallsPcs = new ArrayList<>();
@@ -198,7 +197,6 @@ public class StackAnalyzer implements java.io.Serializable {
     stackAsRepository = new StackAsRepositoryState();
     leftStacks.clear();
     leaving = reentered = null;
-    leftStackAt = -1;
     lastStorePlace = -1;
   }
 
@@ -313,12 +311,6 @@ public class StackAnalyzer implements java.io.Serializable {
               usingStackAsRepository(newSpAddress, oldSpAddress);
             stackResetTo = newSpAddress;
             returnsDropped = false;
-            if (leftStackAt == -1)
-              leftStackAt = oldSpAddress;
-            else if (distance(leftStackAt, newSpAddress) < 200) {
-              droppingReturnAddresses(leftStackAt, newSpAddress);
-              leftStackAt = -1;
-            }
           } else if (distance(oldSpAddress, newSpAddress) < 200 && !repointing)
             droppingReturnAddresses(oldSpAddress, newSpAddress);
         }
@@ -375,7 +367,8 @@ public class StackAnalyzer implements java.io.Serializable {
         stackResetTo = -1;
         Entry popped = consumedReturns.get(state.getRegisterSP().read() - 2 & 0xffff);
         boolean pastPoppedReturn = entry != null && entry.returnAddress() && popped != null && codeVersions.isVersioned(popped.pc());
-        if (collecting && (pastPoppedReturn || afterStackReset && (returnsDropped ? entry != null && entry.returnAddress() : entry == null && knowsWholeStack)))
+        boolean abandonsInnerCall = afterStackReset && entry != null && entry.returnAddress() && abandonsInnerCall(state.getRegisterSP().read());
+        if (collecting && (pastPoppedReturn || abandonsInnerCall || afterStackReset && (returnsDropped ? entry != null && entry.returnAddress() : entry == null && knowsWholeStack)))
           nonLocalRets.put(pcValue, state.getRegisterSP().read());
         if (entry == null && afterStackReset && knowsWholeStack)
           jumpingUsingRet(ret, state.getMemory().read16Bits(state.getRegisterSP().read()), null);
@@ -515,12 +508,22 @@ public class StackAnalyzer implements java.io.Serializable {
 
   private Frame enclosingFrame(int from) {
     for (var frame = frames.ceilingEntry(from); frame != null; frame = frames.ceilingEntry(frame.getKey() + 1)) {
-      Entry entry = entries.get(frame.getKey());
-      if (entry != null && entry.returnAddress() && entry.pc() == frame.getValue().callSite())
+      if (isLive(frame.getKey(), frame.getValue()))
         return frame.getValue();
       frames.remove(frame.getKey());
     }
     return null;
+  }
+
+  private boolean isLive(int slot, Frame frame) {
+    Entry entry = entries.get(slot);
+    return entry != null && entry.returnAddress() && entry.pc() == frame.callSite();
+  }
+
+  /** The return at that slot belongs to a call that still has a call of its own pending, on whatever stack it was made. */
+  private boolean abandonsInnerCall(int slot) {
+    Frame consumed = frames.get(slot);
+    return consumed != null && frames.entrySet().stream().anyMatch(frame -> frame.getValue().enclosing() == consumed && isLive(frame.getKey(), frame.getValue()));
   }
 
   private void dependsOnDepth(int slot, Frame enclosing) {
