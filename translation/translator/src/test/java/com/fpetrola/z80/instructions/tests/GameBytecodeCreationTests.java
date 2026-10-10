@@ -184,6 +184,11 @@ public class GameBytecodeCreationTests {
   }
 
   @Test
+  public void testTranslateBatmanToJava() {
+    translateRecording("Batman", "/home/fernando/detodo/spectrum/rzx-archive/batman.rzx");
+  }
+
+  @Test
   public void testTranslateRTypeToJava() {
     translateRecording("RType", "/home/fernando/detodo/spectrum/rzx-top/4256/rtype-random.rzx");
   }
