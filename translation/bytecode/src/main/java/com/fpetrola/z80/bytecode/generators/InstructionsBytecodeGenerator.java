@@ -381,7 +381,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
         case DROP -> methodMaker.invoke("pop");
         case DISPATCH -> {
           Variable poppedValue = methodMaker.invoke("pop");
-          invokeDynamicCall(stackAnalyzer.getInvocationsSet(pcValue), poppedValue);
+          invokeDynamicCall(false, stackAnalyzer.getInvocationsSet(pcValue), poppedValue);
           methodMaker.invoke("jump", poppedValue);
         }
         case RETURN -> {
@@ -579,19 +579,19 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
       Set<Integer> invocationsSet = stackAnalyzer.getInvocationsSet(pcValue1);
       Variable target = routineByteCodeGenerator.getExistingVariable(register);
       routineByteCodeGenerator.context.routineManager.nonLocalReturns.get(pcValue1).forEach(continuation -> target.ifEq(continuation, () -> routineByteCodeGenerator.throwStackException(continuation, StackException.class)));
-      if (!invokeDynamicCall(invocationsSet, target)) {
-        if (!stackAnalyzer.shiftedReturns.containsKey(pcValue1))
-          methodMaker.invoke("jump", methodMaker.invoke(register.getName()));
+      RoutineManager.Exit exit = routineByteCodeGenerator.context.routineManager.exitOfJump(pcValue1, routineByteCodeGenerator.routine, stackAnalyzer);
+      invokeDynamicCall(exit == RoutineManager.Exit.SIMULATED_CALL, invocationsSet, target);
+      if (exit == RoutineManager.Exit.DISPATCH)
+        methodMaker.invoke("jump", methodMaker.invoke(register.getName()));
+      if (exit != RoutineManager.Exit.SIMULATED_CALL)
         routineByteCodeGenerator.returnFromMethod();
-      }
       return true;
     } else
       return false;
   }
 
-  private boolean invokeDynamicCall(Set<Integer> invocationsSet, Variable existingVariable) {
+  private void invokeDynamicCall(boolean isSimulatedCall, Set<Integer> invocationsSet, Variable existingVariable) {
     int pcValue1 = routineByteCodeGenerator.context.pc.read();
-    boolean isSimulatedCall = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer().getSimulatedCallsPcs().contains(pcValue1) && !routineByteCodeGenerator.leavesAPlantedContinuation(pcValue1);
     invocationsSet.forEach(c -> {
       existingVariable.ifEq(c, () -> {
         Label label = routineByteCodeGenerator.getLabel(c);
@@ -607,7 +607,6 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
           routineByteCodeGenerator.tailJump(c, pcValue1);
       });
     });
-    return isSimulatedCall;
   }
 
   public boolean visitLdAR(LdAR tLdAR) {

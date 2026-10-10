@@ -449,9 +449,24 @@ public class RoutineManager {
   }
 
   /** What a RET does in Java, decided from the stack facts once the routines are planned. */
-  public enum Exit {SWITCH_STACK, NON_LOCAL, CONTINUATION, DISPATCH, DROP, RETURN}
+  public enum Exit {SWITCH_STACK, NON_LOCAL, CONTINUATION, DISPATCH, DROP, RETURN, SIMULATED_CALL}
 
   public record RetExit(Exit kind, int continuation) {
+  }
+
+  /** A JP through a register after pushing where to go on is a call; otherwise it goes on at its recorded targets, and a shifted return has nowhere else to go. */
+  public Exit exitOfJump(int site, Routine routine, StackAnalyzer stackAnalyzer) {
+    if (stackAnalyzer.getSimulatedCallsPcs().contains(site) && ownDataLeftForOthers(site, routine, stackAnalyzer).stream().noneMatch(push -> plantedContinuation(push, stackAnalyzer) != null))
+      return Exit.SIMULATED_CALL;
+    return stackAnalyzer.shiftedReturns.containsKey(site) ? Exit.DROP : Exit.DISPATCH;
+  }
+
+  /** The data a site's routine pushed that a RET of another routine takes, still on the stack when the site leaves. */
+  public List<Integer> ownDataLeftForOthers(int site, Routine routine, StackAnalyzer stackAnalyzer) {
+    Instruction leaving = getInstructionAt(site);
+    Stream<Integer> below = stackAnalyzer.dataOnTopAt.get(site).stream();
+    Stream<Integer> onTop = leaving instanceof Ret ? stackAnalyzer.getInvocationsSet(site).stream().flatMap(target -> stackAnalyzer.dataOnTopAt.get(target).stream()) : leaving instanceof Push ? Stream.concat(Stream.of(site), below) : below;
+    return onTop.distinct().filter(push -> routine.contains(push) && stackAnalyzer.dataConsumedBy.entries().stream().anyMatch(e -> e.getValue().equals(push) && !routine.contains(e.getKey()))).toList();
   }
 
   public RetExit exitOf(int ret, StackAnalyzer stackAnalyzer) {

@@ -938,6 +938,7 @@ public class RecordedProgramTests {
     Assert.assertEquals(Set.of(0x8030), Set.copyOf(stackAnalyzer.dynamicInvocation.get(0x8016)));
     Assert.assertEquals(Set.of(0x8020), Set.copyOf(stackAnalyzer.pushedValues.get(0x8014)));
     Assert.assertFalse(stackAnalyzer.pushesTakenByPops.contains(0x8014));
+    Assert.assertEquals(RoutineManager.Exit.SIMULATED_CALL, routineManager.exitOfJump(0x8016, routineManager.findRoutineAt(0x8016), stackAnalyzer));
   }
 
   @Test
@@ -1558,7 +1559,7 @@ public class RecordedProgramTests {
     translate(
         at(0x8000, 0x21, 0x08, 0x80, 0xE5, 0x21, 0x20, 0x80, 0xE9, 0x06, 0x01, 0x76, 0x18, 0xFD),
         at(0x8020, 0x0E, 0x02, 0xC9));
-    Assert.assertTrue(stackAnalyzer.getSimulatedCallsPcs().contains(0x8007));
+    Assert.assertEquals(RoutineManager.Exit.SIMULATED_CALL, routineManager.exitOfJump(0x8007, routineManager.findRoutineAt(0x8007), stackAnalyzer));
     Assert.assertEquals("8000 8020", routines());
   }
 

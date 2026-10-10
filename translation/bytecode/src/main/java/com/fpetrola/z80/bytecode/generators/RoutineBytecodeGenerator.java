@@ -510,7 +510,7 @@ public class RoutineBytecodeGenerator {
   public void tailJump(int target, int site) {
     int address = inOwnBank(target);
     Routine owner = context.routineManager.findRoutineAt(address);
-    if (isJumpMember(routine) && isJumpMember(owner) && (site == -1 || ownDataLeftForOthers(site).isEmpty())) {
+    if (isJumpMember(routine) && isJumpMember(owner) && (site == -1 || context.routineManager.ownDataLeftForOthers(site, routine, stackAnalyzer()).isEmpty())) {
       if (owner.getEntryPoint() != address)
         mm.invoke("setNextAddress", address);
       mm.return_(owner.getEntryPoint());
@@ -646,19 +646,8 @@ public class RoutineBytecodeGenerator {
     returnFromMethod();
   }
 
-  public boolean leavesAPlantedContinuation(int site) {
-    return ownDataLeftForOthers(site).stream().anyMatch(push -> plantedContinuation(push) != null);
-  }
-
-  private List<Integer> ownDataLeftForOthers(int site) {
-    Instruction leaving = context.routineManager.getInstructionAt(site);
-    Stream<Integer> below = stackAnalyzer().dataOnTopAt.get(site).stream();
-    Stream<Integer> onTop = leaving instanceof Ret ? stackAnalyzer().getInvocationsSet(site).stream().flatMap(target -> stackAnalyzer().dataOnTopAt.get(target).stream()) : leaving instanceof Push ? Stream.concat(Stream.of(site), below) : below;
-    return onTop.distinct().filter(push -> routine.contains(push) && consumedOutside(push)).toList();
-  }
-
   public void leaveWithOwnData(int site) {
-    for (int push : ownDataLeftForOthers(site)) {
+    for (int push : context.routineManager.ownDataLeftForOthers(site, routine, stackAnalyzer())) {
       Integer continuation = plantedContinuation(push);
       if (continuation != null)
         invokeTransformedMethod(continuation);
@@ -669,10 +658,6 @@ public class RoutineBytecodeGenerator {
           dispatch(value, consumers.stream().flatMap(ret -> stackAnalyzer().dynamicInvocation.get(ret).stream()));
       }
     }
-  }
-
-  private boolean consumedOutside(int push) {
-    return stackAnalyzer().dataConsumedBy.entries().stream().anyMatch(e -> e.getValue() == push && !routine.contains(e.getKey()));
   }
 
   public static class RoutineRegisterAccumulator<S> implements RoutineVisitor<List<S>> {
