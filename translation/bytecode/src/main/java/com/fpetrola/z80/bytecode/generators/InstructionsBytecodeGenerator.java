@@ -561,13 +561,8 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
   @Override
   public boolean visitLdir(Ldir ldir) {
-    String methodName = ((RepeatingInstruction) ldir).getClass().getSimpleName().toLowerCase();
-    invokeLdir(methodName);
+    callRepeatingInstruction(ldir);
     return false;
-  }
-
-  protected void invokeLdir(String methodName) {
-    methodMaker.invoke(methodName, address);
   }
 
   @Override
@@ -578,13 +573,8 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
   @Override
   public boolean visitCpir(Cpir cpir) {
-    String methodName = ((RepeatingInstruction) cpir).getClass().getSimpleName().toLowerCase();
-    invokeCpir(methodName);
+    callRepeatingInstruction(cpir);
     return false;
-  }
-
-  protected void invokeCpir(String methodName) {
-    methodMaker.invoke(methodName, address);
   }
 
   @Override
@@ -595,7 +585,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
   private void callRepeatingInstruction(RepeatingInstruction repeatingInstruction) {
     String methodName = repeatingInstruction.getClass().getSimpleName().toLowerCase();
-    methodMaker.invoke(methodName, address);
+    methodMaker.invoke(methodName, routineByteCodeGenerator.context.routineManager.originalAddress(address));
   }
 
   @Override

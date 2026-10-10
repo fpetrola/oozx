@@ -703,6 +703,18 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aRepeatingInstructionInAnotherBanksCodeRepeatsAtItsOriginalAddress() {
+    // Rainbow Islands D547: bank 1's LDIR runs from its relocated copy, and each repetition reported the copy's address
+    banked = true;
+    translate(
+        at(0x8000, 0x01, 0xFD, 0x7F, 0x3E, 0x13, 0xED, 0x79, 0x21, 0x00, 0x81, 0x11, 0x00, 0xC0, 0x01, 0x0C, 0x00, 0xED, 0xB0, 0xCD, 0x00, 0xC0, 0x76, 0x18, 0xFD),
+        at(0x8100, 0x21, 0x00, 0x82, 0x11, 0x00, 0x90, 0x01, 0x03, 0x00, 0xED, 0xB0, 0xC9),
+        at(0x8200, 0x01, 0x02, 0x03));
+    Assert.assertEquals(List.of(3), routineManager.codeVariants.stream().map(RoutineManager.CodeVariant::bank).toList());
+    Assert.assertEquals(0x9003, endValue("DE"));
+  }
+
+  @Test
   public void anOperandThatCodeInAnotherBankRewritesIsReadFromThatBank() {
     // Batman The Movie C431: the music player in bank 3 rewrites the operand of its own LD A,n
     banked = true;
