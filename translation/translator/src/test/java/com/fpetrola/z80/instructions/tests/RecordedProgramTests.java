@@ -667,6 +667,17 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aMutantJumpRunByTheEmulatorContinuesAtItsTargetInsideTheRoutine() {
+    // Head over Heels FFFF: the game can store its interrupt entry JR FFF4, so the JR runs in the emulator and lands at FFF4, a label of the same routine with no method of its own
+    fallsBackToTheEmulator = true;
+    translate(
+        at(0x8000, 0xCD, 0x20, 0x80, 0xAF, 0x28, 0x03, 0x32, 0x20, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8020, 0x18, 0x01, 0x00, 0x06, 0x01, 0xC9));
+    Assert.assertTrue(base.symbolicExecutionAdapter.getMutantAddress().contains(0x8020));
+    Assert.assertEquals(0x01, endValue("B"));
+  }
+
+  @Test
   public void anOperandThatCodeInAnotherBankRewritesIsReadFromThatBank() {
     // Batman The Movie C431: the music player in bank 3 rewrites the operand of its own LD A,n
     banked = true;
