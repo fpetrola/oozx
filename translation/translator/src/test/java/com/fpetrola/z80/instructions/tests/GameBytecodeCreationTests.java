@@ -174,6 +174,11 @@ public class GameBytecodeCreationTests {
   }
 
   @Test
+  public void testTranslateHeadOverHeelsToJava() {
+    translateRecording("HeadOverHeels", "/home/fernando/detodo/spectrum/rzx-top/2259/head.rzx", 0xFFFF);
+  }
+
+  @Test
   public void testTranslateRTypeToJava() {
     translateRecording("RType", "/home/fernando/detodo/spectrum/rzx-top/4256/rtype-random.rzx", 0xBF60);
   }

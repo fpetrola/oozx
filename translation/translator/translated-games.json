@@ -45,6 +45,12 @@
       "recording": "/home/fernando/detodo/spectrum/rzx-top/4549/skooldaze.rzx",
       "entry": "673F"
     },
+    "headoverheels": {
+      "title": "Head over Heels",
+      "type": "HeadOverHeels",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/2259/head.rzx",
+      "entry": "FFFF"
+    },
     "rtype": {
       "title": "R-Type",
       "type": "RType",
