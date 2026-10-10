@@ -739,6 +739,20 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aCallBetweenTheStackReloadAndTheReturnToTheCallersCallerKeepsItNonLocal() {
+    // Rainbow Islands E729: after LD SP,FDDB at E6CC, calls return before the RET at E729 goes back to FEE7
+    ignoresMemory(0xFE00, 0xFF00);
+    ignoresMemory(0x9000, 0x9040);
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0x3E, 0x07, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x31, 0x30, 0x90, 0xCD, 0x40, 0x80, 0x06, 0x09, 0xC9),
+        at(0x8040, 0x31, 0xFE, 0xFE, 0xCD, 0x50, 0x80, 0xC9),
+        at(0x8050, 0x0E, 0x03, 0xC9));
+    Assert.assertTrue(stackAnalyzer.nonLocalRets.containsKey(0x8046));
+    Assert.assertEquals(0x0003, endValue("BC"));
+  }
+
+  @Test
   public void anOperandThatCodeInAnotherBankRewritesIsReadFromThatBank() {
     // Batman The Movie C431: the music player in bank 3 rewrites the operand of its own LD A,n
     banked = true;
