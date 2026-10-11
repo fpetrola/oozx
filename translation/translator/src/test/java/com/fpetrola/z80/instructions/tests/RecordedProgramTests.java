@@ -57,7 +57,7 @@ public class RecordedProgramTests {
   private static final int START = 0x8000, STACK = 0xFF00;
   private RealCodeBytecodeCreationBase base;
   private final Set<Integer> ignoredMemory = new java.util.HashSet<>();
-  private int interruptEvery, start = START, stack = STACK;
+  private int interruptEvery, start = START, stack = STACK, maxSteps = 1000;
   private boolean banked;
   private boolean fallsBackToTheEmulator;
   private RoutineManager routineManager;
@@ -194,7 +194,13 @@ public class RecordedProgramTests {
         throw new IllegalStateException("after $%04X\n z80  %s\n java %s".formatted(previous[0], registers(z80), registers(translated)));
       if ((program.tstates & 0xFFFFF) != z80.clock.getTStates())
         throw new IllegalStateException("after $%04X: T-states java=%d z80=%d".formatted(previous[0], program.tstates & 0xFFFFF, z80.clock.getTStates()));
-      if (z80.getMemory().getData()[z80.getPc().read()] == 0x76 || ++steps[0] == 1000)
+      if (steps[0] % 50 == 0) {
+        long nested = Arrays.stream(Thread.currentThread().getStackTrace()).filter(f -> f.getMethodName().startsWith("$")).count();
+        int stacked = (stack - z80.getRegisterSP().read() & 0xffff) / 2;
+        if (nested > stacked + 8)
+          throw new IllegalStateException("after $%04X: %d translated routines nested in Java for %d words on the Z80 stack: a jump became a call".formatted(previous[0], nested, stacked));
+      }
+      if (z80.getMemory().getData()[z80.getPc().read()] == 0x76 || ++steps[0] == maxSteps)
         throw new Finished();
       previous[0] = program.PC;
       if (interruptEvery > 0 && fetches >= nextInterrupt[0] && z80.isIff1()) {
