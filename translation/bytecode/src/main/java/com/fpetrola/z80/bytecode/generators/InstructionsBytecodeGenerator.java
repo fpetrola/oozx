@@ -401,7 +401,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
     createIfs(call, () -> {
       boolean pushes = routineByteCodeGenerator.pushesReturnAddress(callSite);
       if (pushes)
-        methodMaker.invoke("push", returnAddress);
+        methodMaker.invoke("push", routineByteCodeGenerator.context.routineManager.originalAddress(returnAddress));
       Variable pushedAt = pushes ? methodMaker.invoke("SP") : null;
       routineByteCodeGenerator.inPagedBank(jumpLabel, address -> {
         if (routineByteCodeGenerator.context.routineManager.findRoutineAt(address) != null)

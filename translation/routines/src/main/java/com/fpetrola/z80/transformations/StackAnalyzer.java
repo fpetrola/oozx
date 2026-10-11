@@ -211,6 +211,17 @@ public class StackAnalyzer implements java.io.Serializable {
     return null;
   }
 
+  /** Code copied elsewhere (another bank's code below C000) runs what the recording learnt at its original addresses. */
+  public void copyFacts(java.util.function.IntPredicate copied, java.util.function.IntUnaryOperator to) {
+    java.util.function.IntUnaryOperator at = address -> copied.test(address) ? to.applyAsInt(address) : address;
+    for (MultiValuedMap<Integer, Integer> facts : List.of(dynamicInvocation, shiftedReturns, dataConsumedBy, dataOnTopAt, poppedCallSites, returnsConsumedBy, calledThrough))
+      facts.entries().stream().filter(e -> copied.test(e.getKey())).toList().forEach(e -> facts.put(to.applyAsInt(e.getKey()), at.applyAsInt(e.getValue())));
+    Map.copyOf(callContinuations).forEach((site, continuation) -> {
+      if (copied.test(site))
+        callContinuations.put(to.applyAsInt(site), at.applyAsInt(continuation));
+    });
+  }
+
   public void forgetStack() {
     entries.clear();
     consumedReturns.clear();
