@@ -56,7 +56,7 @@ public class RecordedProgramTests {
   private static final int START = 0x8000, STACK = 0xFF00;
   private RealCodeBytecodeCreationBase base;
   private final Set<Integer> ignoredMemory = new java.util.HashSet<>();
-  private int interruptEvery, start = START;
+  private int interruptEvery, start = START, stack = STACK;
   private boolean banked;
   private boolean fallsBackToTheEmulator;
   private RoutineManager routineManager;
@@ -90,6 +90,12 @@ public class RecordedProgramTests {
     return translate(chunks);
   }
 
+  /** Starts at {@code start} with the stack where the game has it there. */
+  private String translateFrom(int start, int stack, int[]... chunks) {
+    this.stack = stack;
+    return translateFrom(start, chunks);
+  }
+
   private static int[] memoryOf(int[]... chunks) {
     int[] memory = new int[0x10000];
     for (int[] chunk : chunks)
@@ -100,13 +106,13 @@ public class RecordedProgramTests {
 
   private String translateWithBlock(int[] block, int[]... chunks) {
     int[] memory = memoryOf(chunks);
-    String image = RemoteZ80Translator.emulateProgram(base, memory, start, STACK);
-    base.exploreRecording(RemoteZ80Translator.footprint(stackAnalyzer -> machine(EmulatedMiniZX.ofProgram(memory, start, STACK, 1000, stackAnalyzer).interruptingEvery(interruptEvery)), start), start);
+    String image = RemoteZ80Translator.emulateProgram(base, memory, start, stack);
+    base.exploreRecording(RemoteZ80Translator.footprint(stackAnalyzer -> machine(EmulatedMiniZX.ofProgram(memory, start, stack, 1000, stackAnalyzer).interruptingEvery(interruptEvery)), start), start);
     stackAnalyzer = base.getStackAnalyzer();
     routineManager = base.getRoutineManager();
     versions = stackAnalyzer.codeVersions;
     if (block != null) {
-      RemoteZ80Translator.recordBlockContents(EmulatedMiniZX.ofProgram(memory, start, STACK, 1000, null), start, versions);
+      RemoteZ80Translator.recordBlockContents(EmulatedMiniZX.ofProgram(memory, start, stack, 1000, null), start, versions);
       base.translateCodeVariants(block[0], block[1], 0xE000, versions);
     }
     String java = base.generateAndDecompile(image, routineManager.getRoutines(), ".", "Program", base.symbolicExecutionAdapter);
@@ -166,7 +172,7 @@ public class RecordedProgramTests {
   }
 
   private void assertRunsLikeTheEmulator(MiniZX program, int[] memory) {
-    EmulatedMiniZX emulator = machine(EmulatedMiniZX.ofProgram(memory, start, STACK, 0, null).timed());
+    EmulatedMiniZX emulator = machine(EmulatedMiniZX.ofProgram(memory, start, stack, 0, null).timed());
     emulator.start();
     State z80 = emulator.ooz80.getState(), translated = EmulatedMiniZX.createOOZ80(new DefaultMiniZXIO()).getState();
     program.loadState(z80);
@@ -205,7 +211,7 @@ public class RecordedProgramTests {
     emulated = z80;
     Assert.assertEquals("the recorded path falls back to the emulator", fallsBackToTheEmulator, mutantExecutorOf(program) != null);
     int[] expected = z80.getMemory().getData();
-    Assert.assertEquals("", IntStream.range(0, 0x10000).filter(a -> (a < STACK - 0x100 || a >= STACK + 0x10) && !ignoredMemory.contains(a) && program.mem[a] != expected[a]).limit(8).mapToObj(a -> "%04X z80 %02X java %02X ".formatted(a, expected[a], program.mem[a])).collect(Collectors.joining()));
+    Assert.assertEquals("", IntStream.range(0, 0x10000).filter(a -> (a < stack - 0x100 || a >= stack + 0x10) && !ignoredMemory.contains(a) && program.mem[a] != expected[a]).limit(8).mapToObj(a -> "%04X z80 %02X java %02X ".formatted(a, expected[a], program.mem[a])).collect(Collectors.joining()));
   }
 
   private static Object mutantExecutorOf(MiniZX program) {
@@ -348,6 +354,454 @@ public class RecordedProgramTests {
            public void $691D() {
               this.setNextAddress(0x691D);
               this.$691A();
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void renegade840CGoesBackToTheMainLoopDroppingTheCallThatGotThere() {
+    // Renegade 840C: LD SP,BDFF restarts the game loop; the CALL 883E at 8464 is still pending (883E stands for the way back to 8400, the loop at 8412 ends the scene)
+    ignoresMemory(0xBD00, 0xBDFF);
+    String java = translateFrom(0x8457, 0xBDFF, listing("""
+        8457  CD 99 9D  CALL 0x9D99
+        845A  21 F1 88  LD HL, 0x88F1
+        845D  22 6C 89  LD (0x896C), HL
+        8460  FD 21 00 BF  LD IY, 0xBF00
+        8464  CD 3E 88  CALL 0x883E
+        883E  C3 00 84  JP 0x8400
+        8400  22 55 84  LD (0x8455), HL
+        8403  CD BD 9C  CALL 0x9CBD
+        8406  21 66 89  LD HL, 0x8966
+        8409  22 F3 F4  LD (0xF4F3), HL
+        840C  31 FF BD  LD SP, 0xBDFF
+        840F  CD 09 9D  CALL 0x9D09
+        8412  18 FE  JR 0x8412
+        """, 0x9D99, 0x9CBD, 0x9D09));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+        import com.fpetrola.z80.minizx.StackException;
+
+        public class Program extends MiniZX {
+           public void $840C() {
+              while(true) {
+                 try {
+                    if(!this.isNextPC(0x840F)) {
+                       this.SP(0xBDFF);
+                    }
+
+                    this.$9D09();
+
+                    while(true) {
+                    }
+                 } catch (StackException var3) {
+                    int[] var2 = new int[]{0x840F};
+                    if(!this.isOwnAddress(var3, var2)) {
+                       throw var3;
+                    }
+                 }
+              }
+           }
+
+           public void $8457() {
+              this.$9D99();
+              this.HL(0x88F1);
+              int var1 = this.HL();
+              this.wMem16(0x896C, var1, 0x845D);
+              this.IY(0xBF00);
+              this.$883E();
+              this.$883E();
+           }
+
+           public void $883E() {
+              int var1 = this.HL();
+              this.wMem16(0x8455, var1, 0x8400);
+              this.$9CBD();
+              this.HL(0x8966);
+              int var2 = this.HL();
+              this.wMem16(0xF4F3, var2, 0x8409);
+              this.SP(0xBDFF);
+              throw new StackException(0x840F);
+           }
+
+           public void $840F() {
+              this.setNextAddress(0x840F);
+              this.$840C();
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void wallyEE9CGoesBackToTheMainLoopDroppingTheCallThatGotThere() {
+    // Everyone's a Wally EE9C: LD SP,FC00 / JP 8194 back to the main loop; the CALL EABF at 8197 is still pending (EABF stands for the way to EE90, the loop at 819D ends the scene)
+    ignoresMemory(0xFB00, 0xFC00);
+    ignoresMemory(0x0000, 0x0046);
+    String java = translateFrom(0x8194, 0xFC00, listing("""
+        8194  CD 55 EB  CALL 0xEB55
+        8197  CD BF EA  CALL 0xEABF
+        819A  CD 06 AC  CALL 0xAC06
+        EABF  C3 90 EE  JP 0xEE90
+        EE90  FD 36 0A 98  LD (IY+0A), 0x98
+        EE94  FD 36 46 00  LD (IY+46), 0x00
+        EE98  FD 36 00 00  LD (IY+00), 0x00
+        EE9C  31 00 FC  LD SP, 0xFC00
+        EE9F  C3 94 81  JP 0x8194
+        819D  18 FE  JR 0x819D
+        """, 0xEB55, 0xAC06));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+        import com.fpetrola.z80.minizx.StackException;
+
+        public class Program extends MiniZX {
+           public void $8194() {
+              while(true) {
+                 try {
+                    if(this.isNextPC(0xEE9F)) {
+                    }
+
+                    this.$EB55();
+                    this.$EABF();
+                    this.$AC06();
+
+                    while(true) {
+                    }
+                 } catch (StackException var3) {
+                    int[] var2 = new int[]{0xEE9F};
+                    if(!this.isOwnAddress(var3, var2)) {
+                       throw var3;
+                    }
+                 }
+              }
+           }
+
+           public void $EABF() {
+              int var1 = this.IY() + 10;
+              this.wMem(var1, 152, 0xEE90);
+              int var2 = this.IY() + 70;
+              this.wMem(var2, 0, 0xEE94);
+              int var3 = this.IY() + 0;
+              this.wMem(var3, 0, 0xEE98);
+              this.SP(0xFC00);
+              throw new StackException(0xEE9F);
+           }
+
+           public void $EE9F() {
+              this.setNextAddress(0xEE9F);
+              this.$8194();
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void rainbowIslands7C13LeavesTheLoadersStackForItsOwn() {
+    // Rainbow Islands 7C13: at start, SP goes from the loader's stack (5F38) to the game's (FDFD), then the code is copied into place; nothing is pending (the loop at 7419 ends the scene)
+    ignoresMemory(0x5B00, 0x5F50);
+    ignoresMemory(0xFD00, 0xFDFF);
+    String java = translateFrom(0x7C12, 0x5F38, listing("""
+        7C12  F3  DI
+        7C13  31 FD FD  LD SP, 0xFDFD
+        7C16  21 C2 77  LD HL, 0x77C2
+        7C19  11 00 5B  LD DE, 0x5B00
+        7C1C  01 50 04  LD BC, 0x0450
+        7C1F  ED B0  LDIR
+        7C21  C3 19 74  JP 0x7419
+        7419  18 FE  JR 0x7419
+        """));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $7C12() {
+              this.di();
+              this.SP(0xFDFD);
+              this.HL(30658);
+              this.DE(23296);
+              this.BC(1104);
+              this.ldir(31775);
+
+              while(true) {
+              }
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void headOverHeels70E6GoesBackToTheMainLoopDroppingTheCallThatGotThere() {
+    // Head over Heels 70E6: LD SP,FFF4 / JP 7064 restarts the main loop; the CALL 93B0 at 7074 is still pending (93B0 stands for the way to 70E6, the loop at 7077 ends the scene)
+    ignoresMemory(0xFF00, 0xFFFF);
+    String java = translateFrom(0x7064, 0xFFF4, listing("""
+        7064  AF  XOR A, A
+        7065  32 3D 70  LD (0x703D), A
+        7068  CD 91 7B  CALL 0x7B91
+        706B  CD F1 70  CALL 0x70F1
+        706E  CD 3F 71  CALL 0x713F
+        7071  CD 95 70  CALL 0x7095
+        7074  CD B0 93  CALL 0x93B0
+        93B0  C3 E6 70  JP 0x70E6
+        70E6  31 F4 FF  LD SP, 0xFFF4
+        70E9  C3 64 70  JP 0x7064
+        7077  18 FE  JR 0x7077
+        """, 0x7B91, 0x70F1, 0x713F, 0x7095));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+        import com.fpetrola.z80.minizx.StackException;
+
+        public class Program extends MiniZX {
+           public void $7064() {
+              while(true) {
+                 try {
+                    if(this.isNextPC(0x70E9)) {
+                    }
+
+                    int var3 = this.A();
+                    int var4 = this.A();
+                    int var5 = this.alu("xor", var4, var3);
+                    this.A(var5);
+                    int var6 = this.A();
+                    this.wMem(28733, var6, 28773);
+                    this.$7B91();
+                    this.$70F1();
+                    this.$713F();
+                    this.$7095();
+                    this.$93B0();
+
+                    while(true) {
+                    }
+                 } catch (StackException var7) {
+                    int[] var2 = new int[]{0x70E9};
+                    if(!this.isOwnAddress(var7, var2)) {
+                       throw var7;
+                    }
+                 }
+              }
+           }
+
+           public void $93B0() {
+              this.SP(0xFFF4);
+              throw new StackException(0x70E9);
+           }
+
+           public void $70E9() {
+              this.setNextAddress(0x70E9);
+              this.$7064();
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void renegade128At8011GoesBackToTheMainLoopDroppingTheCallThatGotThere() {
+    // Renegade 128 8011: LD SP,BDFF restarts the game; the CALL 844F at 8075 is still pending (844F stands for the way to 8000, the loop at 8014 ends the scene)
+    ignoresMemory(0xBD00, 0xBDFF);
+    String java = translateFrom(0x8068, 0xBDFF, listing("""
+        8068  CD 54 9B  CALL 0x9B54
+        806B  21 FD 84  LD HL, 0x84FD
+        806E  22 78 85  LD (0x8578), HL
+        8071  FD 21 00 BF  LD IY, 0xBF00
+        8075  CD 4F 84  CALL 0x844F
+        844F  C3 00 80  JP 0x8000
+        8000  22 66 80  LD (0x8066), HL
+        8003  3E 03  LD A, 0x03
+        8005  CD 58 9E  CALL 0x9E58
+        8008  CD 78 9A  CALL 0x9A78
+        800B  21 72 85  LD HL, 0x8572
+        800E  22 53 7D  LD (0x7D53), HL
+        8011  31 FF BD  LD SP, 0xBDFF
+        8014  18 FE  JR 0x8014
+        """, 0x9B54, 0x9E58, 0x9A78));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+        import com.fpetrola.z80.minizx.StackException;
+
+        public class Program extends MiniZX {
+           public void $8011() {
+              while(true) {
+                 try {
+                    if(!this.isNextPC(0x8014)) {
+                       this.SP(0xBDFF);
+                    }
+
+                    while(true) {
+                    }
+                 } catch (StackException var3) {
+                    int[] var2 = new int[]{0x8014};
+                    if(!this.isOwnAddress(var3, var2)) {
+                       throw var3;
+                    }
+                 }
+              }
+           }
+
+           public void $8068() {
+              this.$9B54();
+              this.HL(0x84FD);
+              int var1 = this.HL();
+              this.wMem16(0x8578, var1, 0x806E);
+              this.IY(0xBF00);
+              this.$844F();
+              this.$844F();
+           }
+
+           public void $844F() {
+              int var1 = this.HL();
+              this.wMem16(0x8066, var1, 0x8000);
+              this.A(3);
+              this.$9E58();
+              this.$9A78();
+              this.HL(0x8572);
+              int var2 = this.HL();
+              this.wMem16(32083, var2, 0x800E);
+              this.SP(0xBDFF);
+              throw new StackException(0x8014);
+           }
+
+           public void $8014() {
+              this.setNextAddress(0x8014);
+              this.$8011();
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void renegade128At7C46PagesBankZeroAndDropsTheDataAndTheCallBelow() {
+    // Renegade 128 7C46: OUT (7FFD) pages bank 0, then LD SP,BDFF drops what the start left: the word PUSH BC put at 7C7A and the CALL 7C87 at 7C7B (7C87 stands for the way to 7C3E, the loop at 7C49 ends the scene)
+    ignoresMemory(0xBD00, 0xBDFF);
+    String java = translateFrom(0x7C77, 0xBDFF, listing("""
+        7C77  01 EE 02  LD BC, 0x02EE
+        7C7A  C5  PUSH BC
+        7C7B  CD 87 7C  CALL 0x7C87
+        7C87  C3 3E 7C  JP 0x7C3E
+        7C3E  AF  XOR A, A
+        7C3F  D3 FE  OUT 1, A
+        7C41  01 FD 7F  LD BC, 0x7FFD
+        7C44  ED 79  OUT BC, A
+        7C46  31 FF BD  LD SP, 0xBDFF
+        7C49  18 FE  JR 0x7C49
+        """));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+        import com.fpetrola.z80.minizx.StackException;
+
+        public class Program extends MiniZX {
+           public void $7C46() {
+              while(true) {
+                 try {
+                    if(!this.isNextPC(0x7C49)) {
+                       this.SP(0xBDFF);
+                    }
+
+                    while(true) {
+                    }
+                 } catch (StackException var3) {
+                    int[] var2 = new int[]{0x7C49};
+                    if(!this.isOwnAddress(var3, var2)) {
+                       throw var3;
+                    }
+                 }
+              }
+           }
+
+           public void $7C77() {
+              this.BC(750);
+              int var1 = this.BC();
+              this.push(var1);
+              this.$7C87();
+              this.$7C87();
+           }
+
+           public void $7C87() {
+              int var1 = this.A();
+              int var2 = this.A();
+              int var3 = this.alu("xor", var2, var1);
+              this.A(var3);
+              int var4 = this.A() << 8 | 254;
+              int var5 = this.A();
+              this.out(var4, var5);
+              this.BC(32765);
+              int var6 = this.BC();
+              int var7 = this.A();
+              this.out(var6, var7);
+              this.SP(0xBDFF);
+              throw new StackException(0x7C49);
+           }
+
+           public void $7C49() {
+              this.setNextAddress(0x7C49);
+              this.$7C46();
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void renegadeF28CCopiesThenGoesBackToTheMainLoopDroppingTheCallThatGotThere() {
+    // Renegade F28C: after an LDIR, LD SP,BDFF restarts the game; the CALL F460 at F377 is still pending (F460 stands for the way to F280, the loop at F28F ends the scene)
+    ignoresMemory(0xBD00, 0xBDFF);
+    String java = translateFrom(0xF36E, 0xBDFF, listing("""
+        F36E  ED 53 F3 F4  LD (0xF4F3), DE
+        F372  06 03  LD B, 0x03
+        F374  D9  EXX
+        F375  2E 05  LD L, 0x05
+        F377  CD 60 F4  CALL 0xF460
+        F460  C3 80 F2  JP 0xF280
+        F280  F3  DI
+        F281  11 60 5B  LD DE, 0x5B60
+        F284  01 E0 01  LD BC, 0x01E0
+        F287  21 00 FD  LD HL, 0xFD00
+        F28A  ED B0  LDIR
+        F28C  31 FF BD  LD SP, 0xBDFF
+        F28F  18 FE  JR 0xF28F
+        """));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+        import com.fpetrola.z80.minizx.StackException;
+
+        public class Program extends MiniZX {
+           public void $F28C() {
+              while(true) {
+                 try {
+                    if(!this.isNextPC(0xF28F)) {
+                       this.SP(0xBDFF);
+                    }
+
+                    while(true) {
+                    }
+                 } catch (StackException var3) {
+                    int[] var2 = new int[]{0xF28F};
+                    if(!this.isOwnAddress(var3, var2)) {
+                       throw var3;
+                    }
+                 }
+              }
+           }
+
+           public void $F36E() {
+              int var1 = this.DE();
+              this.wMem16(0xF4F3, var1, 0xF36E);
+              this.B(3);
+              this.exx();
+              this.L(5);
+              this.$F460();
+              this.$F460();
+           }
+
+           public void $F460() {
+              this.di();
+              this.DE(23392);
+              this.BC(480);
+              this.HL(0xFD00);
+              this.ldir(0xF28A);
+              this.SP(0xBDFF);
+              throw new StackException(0xF28F);
+           }
+
+           public void $F28F() {
+              this.setNextAddress(0xF28F);
+              this.$F28C();
            }
         }
         """, withoutTiming(java));
