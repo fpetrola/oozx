@@ -769,6 +769,18 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aReturnPoppedDeepInsideACallIsAnAbandonmentOfThatCallsFrameWhateverTheStackDidSince() {
+    // Rainbow Islands D44C: the return of CALL CB2B was popped at CF09, with more pushes and pops before the RET Z that closes CALL D470's frame
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8010, 0x3E, 0x01, 0xA7, 0xC8, 0x3D, 0xCD, 0x30, 0x80, 0x06, 0x05, 0xC9),
+        at(0x8030, 0xCD, 0x40, 0x80, 0x0E, 0x07, 0xC9),
+        at(0x8040, 0xE1, 0xD5, 0xD1, 0xC3, 0x12, 0x80));
+    Assert.assertEquals(Set.of(new StackAnalyzer.AbandoningRet(STACK - 4, StackAnalyzer.Abandon.POPPED_RETURN, 0x8015, 0x8030)), Set.copyOf(stackAnalyzer.abandoningRets.get(0x8013)));
+    Assert.assertEquals(0x0500, endValue("BC"));
+  }
+
+  @Test
   public void aCallBetweenTheStackReloadAndTheReturnToTheCallersCallerKeepsItNonLocal() {
     // Rainbow Islands E729: after LD SP,FDDB at E6CC, calls return before the RET at E729 goes back to FEE7
     ignoresMemory(0xFE00, 0xFF00);

@@ -94,6 +94,8 @@ public class StackAnalyzer implements java.io.Serializable {
   }
 
   private final transient TreeMap<Integer, Frame> frames = new TreeMap<>();
+  /** Frames one of whose inner calls had its return taken by a POP, with that call: the RET that closes the frame abandoned it. */
+  private final transient Map<Frame, Integer> poppedInside = new IdentityHashMap<>();
   private final transient Map<Integer, Frame> depthDependentSlots = new HashMap<>();
   private final transient BitSet stackWritten = new BitSet(0x10000);
   private int lowestObservedStackSlot = 0x10000;
@@ -382,12 +384,13 @@ public class StackAnalyzer implements java.io.Serializable {
         Entry entry = entryAtSp();
         boolean afterStackReset = state.getRegisterSP().read() == stackResetTo;
         stackResetTo = -1;
-        Entry popped = consumedReturns.get(state.getRegisterSP().read() - 2 & 0xffff);
+        Frame closed = frames.get(state.getRegisterSP().read());
+        Integer popped = entry != null && entry.returnAddress() && closed != null && isLive(state.getRegisterSP().read(), closed) ? poppedInside.remove(closed) : null;
         boolean returning = entry != null && entry.returnAddress();
         Abandon how = returning && abandonsInnerCall(state.getRegisterSP().read()) ? Abandon.INNER_CALL_PENDING : returning && popped != null ? Abandon.POPPED_RETURN
             : afterStackReset && !returnsDropped && entry == null && knowsWholeStack ? Abandon.UNKNOWN_STACK : null;
         if (collecting() && how != null)
-          abandoningRets.put(pcValue, new AbandoningRet(state.getRegisterSP().read(), how, entry == null ? -1 : entry.pc(), how == Abandon.POPPED_RETURN ? popped.pc() : -1));
+          abandoningRets.put(pcValue, new AbandoningRet(state.getRegisterSP().read(), how, entry == null ? -1 : entry.pc(), how == Abandon.POPPED_RETURN ? popped : -1));
         if (entry == null && afterStackReset && knowsWholeStack)
           jumpingUsingRet(ret, state.getMemory().read16Bits(state.getRegisterSP().read()), null);
         else if (entry == null)
@@ -497,6 +500,9 @@ public class StackAnalyzer implements java.io.Serializable {
           consumedReturns.put(slot, entry);
           if (entry.pc() != -1)
             poppedCallSites.put(entry.pc(), pcValue);
+          Frame popped = frames.get(slot);
+          if (popped != null && popped.enclosing() != null && popped.callSite() == entry.pc())
+            poppedInside.put(popped.enclosing(), entry.pc());
         }
       }
 
@@ -573,6 +579,7 @@ public class StackAnalyzer implements java.io.Serializable {
     returnSlots.clear();
     layoutCallSites.clear();
     frames.clear();
+    poppedInside.clear();
     depthDependentSlots.clear();
     stackWritten.clear();
     lowestObservedStackSlot = 0x10000;
