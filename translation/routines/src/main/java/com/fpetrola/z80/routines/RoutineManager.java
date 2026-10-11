@@ -149,7 +149,7 @@ public class RoutineManager {
    * pushed, and where the exception of a stack reset that drops returns goes on, which no translated caller may be left to catch.
    */
   public void planEntries(StackAnalyzer stackAnalyzer) {
-    stackAnalyzer.abandoningRets.keySet().forEach(ret -> externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(ret)));
+    stackAnalyzer.abandoningRets.entries().stream().filter(e -> leavesJavaFrames(e.getKey(), e.getValue(), stackAnalyzer, false)).forEach(e -> externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(e.getKey())));
     externalEntries.addAll(stackAnalyzer.calledThrough.values());
     externalEntries.addAll(stackAnalyzer.codeVersions.successors());
     splitAtEntriesFromOutside();
@@ -168,7 +168,8 @@ public class RoutineManager {
         nonLocalReturnPoints.put(e.getValue(), continuation);
       }
     });
-    Stream.concat(stackAnalyzer.abandoningRets.entries().stream().map(e -> Map.entry(e.getKey(), e.getValue().sp())), retsInTheCallersCode(stackAnalyzer)).filter(ret -> !returnPoints.containsValue(ret.getKey()) && !siteReturnPoints.containsValue(ret.getKey())).forEach(ret -> Stream.concat(stackAnalyzer.returnsConsumedBy.get(ret.getKey()).stream(), stackAnalyzer.returnSlots.get(ret.getValue()).stream())
+    stackAnalyzer.abandoningRets.entries().stream().filter(e -> leavesJavaFrames(e.getKey(), e.getValue(), stackAnalyzer, true))
+        .map(e -> Map.entry(e.getKey(), e.getValue().how() == StackAnalyzer.Abandon.POPPED_RETURN && !stackAnalyzer.codeVersions.isVersioned(e.getValue().abandonedCall()) ? -1 : e.getValue().sp())).filter(ret -> !returnPoints.containsValue(ret.getKey()) && !siteReturnPoints.containsValue(ret.getKey())).forEach(ret -> Stream.concat(stackAnalyzer.returnsConsumedBy.get(ret.getKey()).stream(), stackAnalyzer.returnSlots.get(ret.getValue()).stream())
         .filter(callSite -> instructions.get(callSite) instanceof Call).forEach(callSite -> {
           nonLocalReturns.put(ret.getKey(), addressAfter(callSite));
           nonLocalReturnPoints.put(callSite, addressAfter(callSite));
@@ -176,10 +177,16 @@ public class RoutineManager {
         }));
   }
 
-  /** A callee that jumps back into its caller's code returns through a RET there, which in Java runs nested inside the callee; a RET that also takes pushed data keeps returning normally, since no call would catch that value. */
-  private Stream<Map.Entry<Integer, Integer>> retsInTheCallersCode(StackAnalyzer stackAnalyzer) {
-    return stackAnalyzer.returnsConsumedBy.entries().stream().filter(e -> instructions.get(e.getValue()) instanceof Call call && findRoutineAt(e.getKey()) != null && !stackAnalyzer.dataConsumedBy.containsKey(e.getKey())
-        && findRoutineAt(e.getKey()) == findRoutineAt(e.getValue()) && findRoutineAt(call.getJumpAddress()) != findRoutineAt(e.getValue())).map(e -> Map.entry(e.getKey(), -1));
+  /**
+   * Whether a RET that left an inner frame behind leaves Java frames behind too: always when the inner call is still pending or the stack is
+   * unknown; when a POP took the inner call's return, the virtual POP already unwound its Java frame unless the call was rewritten, or the RET
+   * runs in the caller's own code, which in Java runs nested inside the callee (Rainbow Islands D44C) and is known only once routines are planned.
+   */
+  private boolean leavesJavaFrames(int ret, StackAnalyzer.AbandoningRet abandon, StackAnalyzer stackAnalyzer, boolean routinesPlanned) {
+    if (abandon.how() != StackAnalyzer.Abandon.POPPED_RETURN || stackAnalyzer.codeVersions.isVersioned(abandon.abandonedCall()))
+      return true;
+    Routine caller = findRoutineAt(abandon.closedCall());
+    return routinesPlanned && instructions.get(abandon.closedCall()) instanceof Call call && caller != null && findRoutineAt(ret) == caller && findRoutineAt(call.getJumpAddress()) != caller;
   }
 
   public void planPoppedReturnsOfRewrittenCalls(StackAnalyzer stackAnalyzer) {

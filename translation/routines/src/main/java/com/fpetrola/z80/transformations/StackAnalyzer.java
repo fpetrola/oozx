@@ -67,10 +67,11 @@ public class StackAnalyzer implements java.io.Serializable {
   private final transient Map<Integer, int[]> leftStacks = new HashMap<>();
   private transient int switchHomeSp = -1, lastStorePlace = -1;
   private transient boolean callSinceLoad;
-  /** How the frame a RET closes left an inner frame behind without its RET: a POP took the return of a rewritten call, the inner call is still pending after a stack reset, or a reset left a stack the recording never saw being pushed. */
-  public enum Abandon {POPPED_REWRITTEN_CALL, INNER_CALL_PENDING, UNKNOWN_STACK}
+  /** How the frame a RET closes left an inner frame behind without its RET: a POP took the inner call's return, the inner call is still pending after a stack reset, or a reset left a stack the recording never saw being pushed. */
+  public enum Abandon {POPPED_RETURN, INNER_CALL_PENDING, UNKNOWN_STACK}
 
-  public record AbandoningRet(int sp, Abandon how) implements java.io.Serializable {
+  /** closedCall: the call whose frame the RET closes; abandonedCall: the inner call whose return a POP took. */
+  public record AbandoningRet(int sp, Abandon how, int closedCall, int abandonedCall) implements java.io.Serializable {
   }
 
   public final MultiValuedMap<Integer, AbandoningRet> abandoningRets = new HashSetValuedHashMap<>();
@@ -382,12 +383,11 @@ public class StackAnalyzer implements java.io.Serializable {
         boolean afterStackReset = state.getRegisterSP().read() == stackResetTo;
         stackResetTo = -1;
         Entry popped = consumedReturns.get(state.getRegisterSP().read() - 2 & 0xffff);
-        boolean pastPoppedReturn = entry != null && entry.returnAddress() && popped != null && codeVersions.isVersioned(popped.pc());
-        boolean abandonsInnerCall = entry != null && entry.returnAddress() && abandonsInnerCall(state.getRegisterSP().read());
-        Abandon how = pastPoppedReturn ? Abandon.POPPED_REWRITTEN_CALL : abandonsInnerCall ? Abandon.INNER_CALL_PENDING : !afterStackReset ? null
-            : !returnsDropped && entry == null && knowsWholeStack ? Abandon.UNKNOWN_STACK : null;
+        boolean returning = entry != null && entry.returnAddress();
+        Abandon how = returning && abandonsInnerCall(state.getRegisterSP().read()) ? Abandon.INNER_CALL_PENDING : returning && popped != null ? Abandon.POPPED_RETURN
+            : afterStackReset && !returnsDropped && entry == null && knowsWholeStack ? Abandon.UNKNOWN_STACK : null;
         if (collecting() && how != null)
-          abandoningRets.put(pcValue, new AbandoningRet(state.getRegisterSP().read(), how));
+          abandoningRets.put(pcValue, new AbandoningRet(state.getRegisterSP().read(), how, entry == null ? -1 : entry.pc(), how == Abandon.POPPED_RETURN ? popped.pc() : -1));
         if (entry == null && afterStackReset && knowsWholeStack)
           jumpingUsingRet(ret, state.getMemory().read16Bits(state.getRegisterSP().read()), null);
         else if (entry == null)
