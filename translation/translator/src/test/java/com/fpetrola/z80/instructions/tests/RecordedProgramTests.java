@@ -268,6 +268,11 @@ public class RecordedProgramTests {
     return chunks.toArray(int[][]::new);
   }
 
+  /** The code of a listing with data around it. */
+  private static int[][] with(int[][] code, int[]... data) {
+    return Stream.concat(Arrays.stream(code), Arrays.stream(data)).toArray(int[][]::new);
+  }
+
   /** The translation as a reader follows it: without the clock calls every instruction makes, the memory image and the empty routines, with addresses in hex. */
   private static String withoutTiming(String java) {
     String code = java.replaceAll("(?s)   public String getProgramBytes\\(\\) \\{.*?\\n   \\}\\n\\n", "").lines()
@@ -668,7 +673,7 @@ public class RecordedProgramTests {
 
   @Test
   public void renegade128At7C46PagesBankZeroAndDropsTheDataAndTheCallBelow() {
-    // Renegade 128 7C46: OUT (7FFD) pages bank 0, then LD SP,BDFF drops what the start left: the word PUSH BC put at 7C7A and the CALL 7C87 at 7C7B (7C87 stands for the way to 7C3E, the loop at 7C49 ends the scene)
+    // Renegade 128 7C46: OUT (7FFD) pages bank 0, then LD SP,BDFF drops what the start left: the word PUSH BC put at 7C7A and the CALL 7C87 at 7C7B (7C87 and 9FDD stand for the ways back to 7C3E: the game starts over from more than one place; the game also pushes the return of the next CALL, which a POP takes later)
     ignoresMemory(0xBD00, 0xBDFF);
     String java = translateFrom(0x7C77, 0xBDFF, listing("""
         7C77  01 EE 02  LD BC, 0x02EE
@@ -680,40 +685,38 @@ public class RecordedProgramTests {
         7C41  01 FD 7F  LD BC, 0x7FFD
         7C44  ED 79  OUT BC, A
         7C46  31 FF BD  LD SP, 0xBDFF
-        7C49  18 FE  JR 0x7C49
+        7C49  CD DD 9F  CALL 0x9FDD
+        9FDD  C3 3E 7C  JP 0x7C3E
         """));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.MiniZX;
         import com.fpetrola.z80.minizx.StackException;
 
         public class Program extends MiniZX {
-           public void $7C46() {
-              while(true) {
-                 try {
-                    if(!this.isNextPC(0x7C49)) {
-                       this.SP(0xBDFF);
-                    }
+           public void runJumps(int var1) {
+              int var2 = var1;
 
-                    while(true) {
-                    }
-                 } catch (StackException var3) {
-                    int[] var2 = new int[]{0x7C49};
-                    if(!this.isOwnAddress(var3, var2)) {
-                       throw var3;
-                    }
+              while(true) {
+                 switch(var2) {
+                 case 31806:
+                    var2 = this.$7C3E();
+                    break;
+                 case 31814:
+                    var2 = this.$7C46();
+                    break;
+                 case 31863:
+                    var2 = this.$7C77();
+                    break;
+                 case 31879:
+                    var2 = this.$7C87();
+                    break;
+                 default:
+                    return;
                  }
               }
            }
 
-           public void $7C77() {
-              this.BC(750);
-              int var1 = this.BC();
-              this.push(var1);
-              this.$7C87();
-              this.$7C87();
-           }
-
-           public void $7C87() {
+           public int $7C3E() {
               int var1 = this.A();
               int var2 = this.A();
               int var3 = this.alu("xor", var2, var1);
@@ -729,9 +732,43 @@ public class RecordedProgramTests {
               throw new StackException(0x7C49);
            }
 
+           public int $7C46() {
+              while(true) {
+                 try {
+                    if(!this.isNextPC(0x7C49)) {
+                       this.SP(0xBDFF);
+                    }
+
+                    this.$9FDD();
+                    return 31863;
+                 } catch (StackException var3) {
+                    int[] var2 = new int[]{0x7C49};
+                    if(!this.isOwnAddress(var3, var2)) {
+                       throw var3;
+                    }
+                 }
+              }
+           }
+
+           public int $7C77() {
+              this.BC(750);
+              int var1 = this.BC();
+              this.push(var1);
+              this.runJumps(31879);
+              return 31879;
+           }
+
+           public int $7C87() {
+              return 31806;
+           }
+
+           public void $9FDD() {
+              this.runJumps(31806);
+           }
+
            public void $7C49() {
               this.setNextAddress(0x7C49);
-              this.$7C46();
+              this.runJumps(31814);
            }
         }
         """, withoutTiming(java));
@@ -739,7 +776,7 @@ public class RecordedProgramTests {
 
   @Test
   public void renegadeF28CCopiesThenGoesBackToTheMainLoopDroppingTheCallThatGotThere() {
-    // Renegade F28C: after an LDIR, LD SP,BDFF restarts the game; the CALL F460 at F377 is still pending (F460 stands for the way to F280, the loop at F28F ends the scene)
+    // Renegade F28C: after an LDIR, LD SP,BDFF restarts the game; the CALL F460 at F377 is still pending (F460 and 9E49 stand for the ways back to F280: the game starts over from more than one place; the game also pushes the return of the next CALL, which a POP takes later)
     ignoresMemory(0xBD00, 0xBDFF);
     String java = translateFrom(0xF36E, 0xBDFF, listing("""
         F36E  ED 53 F3 F4  LD (0xF4F3), DE
@@ -754,42 +791,43 @@ public class RecordedProgramTests {
         F287  21 00 FD  LD HL, 0xFD00
         F28A  ED B0  LDIR
         F28C  31 FF BD  LD SP, 0xBDFF
-        F28F  18 FE  JR 0xF28F
+        F28F  3E 47  LD A, 0x47
+        F291  CD 49 9E  CALL 0x9E49
+        9E49  C3 80 F2  JP 0xF280
         """));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.MiniZX;
         import com.fpetrola.z80.minizx.StackException;
 
         public class Program extends MiniZX {
-           public void $F28C() {
-              while(true) {
-                 try {
-                    if(!this.isNextPC(0xF28F)) {
-                       this.SP(0xBDFF);
-                    }
+           public void runJumps(int var1) {
+              int var2 = var1;
 
-                    while(true) {
-                    }
-                 } catch (StackException var3) {
-                    int[] var2 = new int[]{0xF28F};
-                    if(!this.isOwnAddress(var3, var2)) {
-                       throw var3;
-                    }
+              while(true) {
+                 switch(var2) {
+                 case 62080:
+                    var2 = this.$F280();
+                    break;
+                 case 62092:
+                    var2 = this.$F28C();
+                    break;
+                 case 62318:
+                    var2 = this.$F36E();
+                    break;
+                 case 62560:
+                    var2 = this.$F460();
+                    break;
+                 default:
+                    return;
                  }
               }
            }
 
-           public void $F36E() {
-              int var1 = this.DE();
-              this.wMem16(0xF4F3, var1, 0xF36E);
-              this.B(3);
-              this.exx();
-              this.L(5);
-              this.$F460();
-              this.$F460();
+           public void $9E49() {
+              this.runJumps(0xF280);
            }
 
-           public void $F460() {
+           public int $F280() {
               this.di();
               this.DE(23392);
               this.BC(480);
@@ -799,9 +837,299 @@ public class RecordedProgramTests {
               throw new StackException(0xF28F);
            }
 
+           public int $F28C() {
+              while(true) {
+                 try {
+                    if(!this.isNextPC(0xF28F)) {
+                       this.SP(0xBDFF);
+                    }
+
+                    this.A(71);
+                    this.$9E49();
+                    return 0xF36E;
+                 } catch (StackException var3) {
+                    int[] var2 = new int[]{0xF28F};
+                    if(!this.isOwnAddress(var3, var2)) {
+                       throw var3;
+                    }
+                 }
+              }
+           }
+
+           public int $F36E() {
+              int var1 = this.DE();
+              this.wMem16(0xF4F3, var1, 0xF36E);
+              this.B(3);
+              this.exx();
+              this.L(5);
+              this.runJumps(0xF460);
+              return 0xF460;
+           }
+
+           public int $F460() {
+              return 0xF280;
+           }
+
            public void $F28F() {
               this.setNextAddress(0xF28F);
-              this.$F28C();
+              this.runJumps(0xF28C);
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void targetRenegade5DB4ProtectsACallBySavingAndRestoringSP() {
+    // Target: Renegade 5DB4: LD (F6F6),SP / CALL C51A / LD SP,(F6F6) guards against a routine that leaves the stack untidy; only forks and the exploration run it (here behind the JP NZ the recording never takes; FA93 ends the scene). In the game C51A is bank 3's code, run untranslated, so the CALL there really pushes its return
+    ignoresMemory(0xBF00, 0xBFC1);
+    ignoresMemory(0xF6F6, 0xF6F7);
+    String java = translateFrom(0x8000, 0xBFB8, listing("""
+        8000  AF  XOR A, A
+        8001  C2 B0 5D  JP NZ, 0x5DB0
+        8004  18 FE  JR 0x8004
+        5DB0  2A C0 BF  LD HL, (0xBFC0)
+        5DB3  E5  PUSH HL
+        5DB4  ED 73 F6 F6  LD (0xF6F6), SP
+        5DB8  CD 1A C5  CALL 0xC51A
+        5DBB  ED 7B F6 F6  LD SP, (0xF6F6)
+        5DBF  E1  POP HL
+        5DC0  22 C0 BF  LD (0xBFC0), HL
+        5DC3  C3 93 FA  JP 0xFA93
+        FA93  18 FE  JR 0xFA93
+        """, 0xC51A));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              int var1 = this.A();
+              int var2 = this.A();
+              int var3 = this.alu("xor", var2, var1);
+              this.A(var3);
+              if(!this.flag(64, true)) {
+                 while(true) {
+                 }
+              }
+
+              int var4 = this.mem16(0xBFC0, 23984);
+              this.HL(var4);
+              int var5 = this.HL();
+              this.push(var5);
+              int var6 = this.SP();
+              this.wMem16(0xF6F6, var6, 23988);
+              this.$C51A();
+              int var7 = this.mem16(0xF6F6, 23995);
+              this.SP(var7);
+              int var8 = this.pop();
+              this.HL(var8);
+              int var9 = this.HL();
+              this.wMem16(0xBFC0, var9, 24000);
+
+              while(true) {
+              }
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void renegade128At9792DrawsASpriteWithTheStackAsItsPointer() {
+    // Renegade 128 978D-97B0: saves SP at 70B3, points SP at the sprite (LD SP,HL), takes mask and pixels with POP HL, skips to the next row with ADD HL,SP / LD SP,HL and restores SP from 70B3 (the code at 8000 only sets up two rows of two bytes over FDxx)
+    savesStackPointerAt(0x70B3);
+    String java = translate(listing("""
+        8000  D9  EXX
+        8001  01 02 02  LD BC, 0x0202
+        8004  11 00 20  LD DE, 0x2000
+        8007  D9  EXX
+        8008  21 00 90  LD HL, 0x9000
+        800B  3E 02  LD A, 0x02
+        800D  CD 8A 97  CALL 0x978A
+        8010  18 FE  JR 0x8010
+        978A  4F  LD C, A
+        978B  16 FD  LD D, 0xFD
+        978D  ED 73 B3 70  LD (0x70B3), SP
+        9791  F3  DI
+        9792  F9  LD SP, HL
+        9793  D9  EXX
+        9794  7B  LD A, E
+        9795  D9  EXX
+        9796  5F  LD E, A
+        9797  41  LD B, C
+        9798  E1  POP HL
+        9799  1A  LD A, (DE)
+        979A  A5  AND A, L
+        979B  B4  OR A, H
+        979C  12  LD (DE), A
+        979D  1C  INC E
+        979E  10 F8  DJNZ 0x9798
+        97A0  D9  EXX
+        97A1  69  LD L, C
+        97A2  26 00  LD H, 0x00
+        97A4  39  ADD HL, SP
+        97A5  F9  LD SP, HL
+        97A6  7B  LD A, E
+        97A7  82  ADD A, D
+        97A8  5F  LD E, A
+        97A9  10 EA  DJNZ 0x9795
+        97AB  ED 7B B3 70  LD SP, (0x70B3)
+        97AF  FB  EI
+        97B0  C9  RET
+        """));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              this.exx();
+              this.BC(514);
+              this.DE(8192);
+              this.exx();
+              this.HL(0x9000);
+              this.A(2);
+              this.$978A();
+
+              while(true) {
+              }
+           }
+
+           public void $978A() {
+              int var1 = this.A();
+              this.C(var1);
+              this.D(253);
+              int var2 = this.SP();
+              this.wMem16(28851, var2, 0x978D);
+              this.di();
+              int var3 = this.HL();
+              this.SP(var3);
+              this.exx();
+              int var4 = this.E();
+              this.A(var4);
+
+              while(true) {
+                 this.exx();
+                 int var5 = this.A();
+                 this.E(var5);
+                 int var6 = this.C();
+                 this.B(var6);
+
+                 while(true) {
+                    int var7 = this.pop();
+                    this.HL(var7);
+                    int var8 = this.DE();
+                    int var9 = this.mem(var8, 0x9799);
+                    this.A(var9);
+                    int var10 = this.L();
+                    int var11 = this.A();
+                    int var12 = this.alu("and", var11, var10);
+                    this.A(var12);
+                    int var13 = this.H();
+                    int var14 = this.A();
+                    int var15 = this.alu("or", var14, var13);
+                    this.A(var15);
+                    int var16 = this.A();
+                    int var17 = this.DE();
+                    this.wMem(var17, var16, 0x979C);
+                    int var18 = this.E();
+                    int var19 = this.alu("inc", var18);
+                    this.E(var19);
+                    int var20 = this.B() - 1 & 255;
+                    this.B(var20);
+                    if(this.B() == 0) {
+                       this.exx();
+                       int var21 = this.C();
+                       this.L(var21);
+                       this.H(0);
+                       int var22 = this.SP();
+                       int var23 = this.HL();
+                       int var24 = this.alu("add16", var23, var22);
+                       this.HL(var24);
+                       int var25 = this.HL();
+                       this.SP(var25);
+                       int var26 = this.E();
+                       this.A(var26);
+                       int var27 = this.D();
+                       int var28 = this.A();
+                       int var29 = this.alu("add", var28, var27);
+                       this.A(var29);
+                       int var30 = this.A();
+                       this.E(var30);
+                       int var31 = this.B() - 1 & 255;
+                       this.B(var31);
+                       if(this.B() == 0) {
+                          int var32 = this.mem16(28851, 0x97AB);
+                          this.SP(var32);
+                          this.ei();
+                          return;
+                       }
+
+                       break;
+                    }
+
+                 }
+              }
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void zynaps8D60SwitchesBetweenTwoStacksThatSaveEachOther() {
+    // Zynaps 8D60/8D69: each stack saves its SP and takes the other's (8018 holds the main one, 801A the coroutine's, which starts at 9000 with its own stack at 6FFE); the code at 8000 and 9000 only takes turns
+    savesStackPointerAt(0x8018);
+    savesStackPointerAt(0x801A);
+    ignoresMemory(0x6F00, 0x6FFF);
+    String java = translate(with(listing("""
+        8000  0C  INC C
+        8001  CD 60 8D  CALL 0x8D60
+        8004  18 FA  JR 0x8000
+        8D60  ED 73 18 80  LD (0x8018), SP
+        8D64  ED 7B 1A 80  LD SP, (0x801A)
+        8D68  C9  RET
+        8D69  ED 73 1A 80  LD (0x801A), SP
+        8D6D  ED 7B 18 80  LD SP, (0x8018)
+        8D71  C9  RET
+        9000  04  INC B
+        9001  CD 69 8D  CALL 0x8D69
+        9004  18 FA  JR 0x9000
+        """), at(0x801A, 0xFE, 0x6F), at(0x6FFE, 0x00, 0x90)));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              while(true) {
+                 int var1 = this.C();
+                 int var2 = this.alu("inc", var1);
+                 this.C(var2);
+                 this.$8D60();
+              }
+           }
+
+           public void $8D60() {
+              int var1 = this.SP();
+              this.wMem16(0x8018, var1, 0x8D60);
+              this.leavingStack();
+              int var2 = this.mem16(0x801A, 0x8D64);
+              this.SP(var2);
+              this.switchStack();
+           }
+
+           public void $8D69() {
+              int var1 = this.SP();
+              this.wMem16(0x801A, var1, 0x8D69);
+              this.leavingStack();
+              int var2 = this.mem16(0x8018, 0x8D6D);
+              this.SP(var2);
+              this.switchStack();
+           }
+
+           public void $9000() {
+              while(true) {
+                 int var1 = this.B();
+                 int var2 = this.alu("inc", var1);
+                 this.B(var2);
+                 this.$8D69();
+              }
            }
         }
         """, withoutTiming(java));
