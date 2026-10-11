@@ -222,13 +222,16 @@ public class RemoteZ80Translator {
     java.security.MessageDigest digest = sha256();
     digest.update(Files.readAllBytes(Path.of(rzxFile)));
     digest.update(Integer.toString(from).getBytes());
-    for (Class<?> type : List.of(com.fpetrola.z80.cpu.OOZ80.class, StackAnalyzer.class, RemoteZ80Translator.class))
-      digestCode(digest, Path.of(type.getProtectionDomain().getCodeSource().getLocation().getPath()), type == RemoteZ80Translator.class);
+    digestCode(digest, com.fpetrola.z80.cpu.OOZ80.class, name -> true);
+    digestCode(digest, StackAnalyzer.class, name -> name.contains("/StackAnalyzer") || name.contains("/StackAsRepositoryState") || name.contains("/CodeVersions") || name.contains("/StackListener"));
+    digestCode(digest, RemoteZ80Translator.class, name -> name.contains("RemoteZ80Translator") || name.contains("/minizx/"));
     return java.util.HexFormat.of().formatHex(digest.digest());
   }
 
-  private static void digestCode(java.security.MessageDigest digest, Path location, boolean onlyTheFootprint) throws IOException {
-    java.util.function.Predicate<String> part = name -> name.endsWith(".class") && (!onlyTheFootprint || name.contains("RemoteZ80Translator") || name.contains("/minizx/"));
+  /** Only the classes of that class's jar the footprint runs, so a change to the planning or the generator keeps the cached footprints. */
+  private static void digestCode(java.security.MessageDigest digest, Class<?> of, java.util.function.Predicate<String> runByTheFootprint) throws IOException {
+    Path location = Path.of(of.getProtectionDomain().getCodeSource().getLocation().getPath());
+    java.util.function.Predicate<String> part = name -> name.endsWith(".class") && runByTheFootprint.test(name);
     if (Files.isDirectory(location))
       try (java.util.stream.Stream<Path> files = Files.walk(location)) {
         for (Path file : files.filter(f -> part.test(f.toString())).sorted().toList())
