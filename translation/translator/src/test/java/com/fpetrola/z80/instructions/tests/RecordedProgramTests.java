@@ -1411,6 +1411,352 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void skoolDaze6921GoesBackToTheMainLoopOnlyWhereTheExplorationGoes() {
+    // Skool Daze 6921: LD SP,5CFE drops the CALL 6226 at 6773; in the game only the exploration takes that path (here behind the JP NZ the recording never takes; 6226 stands for the way to 691A, the loop at 6925 ends the scene)
+    ignoresMemory(0x5C00, 0x5CFF);
+    String java = translateFrom(0x8000, 0x5CFE, listing("""
+        8000  AF  XOR A, A
+        8001  C2 73 67  JP NZ, 0x6773
+        8004  18 FE  JR 0x8004
+        6773  CD 26 62  CALL 0x6226
+        6226  C3 1A 69  JP 0x691A
+        691A  CD E0 ED  CALL 0xEDE0
+        691D  2A C2 7F  LD HL, (0x7FC2)
+        6920  AF  XOR A, A
+        6921  31 FE 5C  LD SP, 0x5CFE
+        6924  E5  PUSH HL
+        6925  18 FE  JR 0x6925
+        """, 0xEDE0));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+        import com.fpetrola.z80.minizx.StackException;
+
+        public class Program extends MiniZX {
+           public void $6226() {
+              this.$691A();
+           }
+
+           public void $691A() {
+              this.$EDE0();
+              int var1 = this.mem16(32706, 26909);
+              this.HL(var1);
+              int var2 = this.A();
+              int var3 = this.A();
+              int var4 = this.alu("xor", var3, var2);
+              this.A(var4);
+              this.SP(23806);
+              throw new StackException(0x6924);
+           }
+
+           public void $6921() {
+              while(true) {
+                 try {
+                    if(!this.isNextPC(0x6924)) {
+                       this.SP(23806);
+                    }
+
+                    int var3 = this.HL();
+                    this.push(var3);
+
+                    while(true) {
+                    }
+                 } catch (StackException var4) {
+                    int[] var2 = new int[]{0x6924};
+                    if(!this.isOwnAddress(var4, var2)) {
+                       throw var4;
+                    }
+                 }
+              }
+           }
+
+           public void $8000() {
+              int var1 = this.A();
+              int var2 = this.A();
+              int var3 = this.alu("xor", var2, var1);
+              this.A(var3);
+              if(!this.flag(64, true)) {
+                 while(true) {
+                 }
+              }
+
+              this.$6226();
+              this.$691A();
+           }
+
+           public void $6924() {
+              this.setNextAddress(0x6924);
+              this.$6921();
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void targetRenegade5B34PagesAndGoesBackToTheMainLoopOnlyWhereTheExplorationGoes() {
+    // Target: Renegade 5B34: after paging bank 0, LD SP,BFB8 drops the CALL F3A6 at D79D with the two words pushed before it; in the game only the exploration takes that path (here behind the JP NZ the recording never takes; F3A6 stands for the way to 5B2C, the loops at 5B37 and D7A3 end the scene)
+    ignoresMemory(0xBF00, 0xBFB8);
+    String java = translateFrom(0x8000, 0xBFB8, listing("""
+        8000  AF  XOR A, A
+        8001  C2 9A D7  JP NZ, 0xD79A
+        8004  18 FE  JR 0x8004
+        D79A  FD E5  PUSH IY
+        D79C  C5  PUSH BC
+        D79D  CD A6 F3  CALL 0xF3A6
+        D7A0  C1  POP BC
+        D7A1  FD E1  POP IY
+        D7A3  18 FE  JR 0xD7A3
+        F3A6  C3 2C 5B  JP 0x5B2C
+        5B2C  AF  XOR A, A
+        5B2D  D3 FE  OUT 1, A
+        5B2F  01 FD 7F  LD BC, 0x7FFD
+        5B32  ED 79  OUT BC, A
+        5B34  31 B8 BF  LD SP, 0xBFB8
+        5B37  18 FE  JR 0x5B37
+        """));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+        import com.fpetrola.z80.minizx.StackException;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              while(true) {
+                 try {
+                    if(!this.isNextPC(0x5B37)) {
+                       int var3 = this.A();
+                       int var4 = this.A();
+                       int var5 = this.alu("xor", var4, var3);
+                       this.A(var5);
+                       if(!this.flag(64, true)) {
+                          while(true) {
+                          }
+                       }
+
+                       int var6 = this.IY();
+                       this.push(var6);
+                       int var7 = this.BC();
+                       this.push(var7);
+                       this.$F3A6();
+                       int var8 = this.pop();
+                       this.BC(var8);
+                       int var9 = this.pop();
+                       this.IY(var9);
+
+                       while(true) {
+                       }
+                    }
+
+                    while(true) {
+                    }
+                 } catch (StackException var10) {
+                    int[] var2 = new int[]{0x5B37};
+                    if(!this.isOwnAddress(var10, var2)) {
+                       throw var10;
+                    }
+                 }
+              }
+           }
+
+           public void $F3A6() {
+              int var1 = this.A();
+              int var2 = this.A();
+              int var3 = this.alu("xor", var2, var1);
+              this.A(var3);
+              int var4 = this.A() << 8 | 254;
+              int var5 = this.A();
+              this.out(var4, var5);
+              this.BC(32765);
+              int var6 = this.BC();
+              int var7 = this.A();
+              this.out(var6, var7);
+              this.SP(0xBFB8);
+              throw new StackException(0x5B37);
+           }
+
+           public void $5B37() {
+              this.setNextAddress(0x5B37);
+              this.$8000();
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void batman61BAResetsTheStackOnlyWhereTheExplorationGoes() {
+    // Batman 61BA: LD SP,EFEE drops the CALL EBA0 at EC5E; in the game only the exploration takes that path (here behind the JP NZ the recording never takes; EBA0 stands for the way to 61B5, 620B only returns, the loops at 61BD and EC65 end the scene)
+    ignoresMemory(0xEF00, 0xEFFF);
+    String java = translateFrom(0x8000, 0xEFEA, listing("""
+        8000  AF  XOR A, A
+        8001  C2 5E EC  JP NZ, 0xEC5E
+        8004  18 FE  JR 0x8004
+        EC5E  CD A0 EB  CALL 0xEBA0
+        EC61  ED 5B 39 EC  LD DE, (0xEC39)
+        EC65  18 FE  JR 0xEC65
+        EBA0  C3 B5 61  JP 0x61B5
+        61B5  23  INC HL
+        61B6  BE  CP A, (HL)
+        61B7  C4 0B 62  CALL NZ, 0x620B
+        61BA  31 EE EF  LD SP, 0xEFEE
+        61BD  18 FE  JR 0x61BD
+        """, 0x620B));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+        import com.fpetrola.z80.minizx.StackException;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              while(true) {
+                 try {
+                    if(!this.isNextPC(0x61BD)) {
+                       int var3 = this.A();
+                       int var4 = this.A();
+                       int var5 = this.alu("xor", var4, var3);
+                       this.A(var5);
+                       if(!this.flag(64, true)) {
+                          while(true) {
+                          }
+                       }
+
+                       this.$EBA0();
+                       int var6 = this.mem16(0xEC39, 0xEC61);
+                       this.DE(var6);
+
+                       while(true) {
+                       }
+                    }
+
+                    while(true) {
+                    }
+                 } catch (StackException var7) {
+                    int[] var2 = new int[]{0x61BD};
+                    if(!this.isOwnAddress(var7, var2)) {
+                       throw var7;
+                    }
+                 }
+              }
+           }
+
+           public void $EBA0() {
+              int var1 = this.HL();
+              int var2 = this.inc16(var1);
+              this.HL(var2);
+              int var3 = this.HL();
+              int var4 = this.mem(var3, 25014);
+              int var5 = this.A();
+              this.alu("cp", var5, var4);
+              if(this.flag(64, true)) {
+                 this.$620B();
+              }
+
+              this.SP(0xEFEE);
+              throw new StackException(0x61BD);
+           }
+
+           public void $61BD() {
+              this.setNextAddress(0x61BD);
+              this.$8000();
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void headOverHeels7049ResetsTheStackOnlyWhereTheExplorationGoes() {
+    // Head over Heels 7049: CALL 7D92 / LD SP,FFF4, code the recording never runs; the exploration drops the CALL 7B0E at 7051 there (here behind the JP NZ the recording never takes; 7B0E stands for the way to 7046, 7D92 only returns, the loops at 704C and 7054 end the scene)
+    ignoresMemory(0xFF00, 0xFFFF);
+    String java = translateFrom(0x8000, 0xFFF4, listing("""
+        8000  AF  XOR A, A
+        8001  C2 51 70  JP NZ, 0x7051
+        8004  18 FE  JR 0x8004
+        7051  CD 0E 7B  CALL 0x7B0E
+        7054  18 FE  JR 0x7054
+        7B0E  C3 46 70  JP 0x7046
+        7046  CD 92 7D  CALL 0x7D92
+        7049  31 F4 FF  LD SP, 0xFFF4
+        704C  18 FE  JR 0x704C
+        """, 0x7D92));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+        import com.fpetrola.z80.minizx.StackException;
+
+        public class Program extends MiniZX {
+           public void $7B0E() {
+              this.$7D92();
+              this.SP(0xFFF4);
+              throw new StackException(0x704C);
+           }
+
+           public void $8000() {
+              while(true) {
+                 try {
+                    if(!this.isNextPC(0x704C)) {
+                       int var3 = this.A();
+                       int var4 = this.A();
+                       int var5 = this.alu("xor", var4, var3);
+                       this.A(var5);
+                       if(!this.flag(64, true)) {
+                          while(true) {
+                          }
+                       }
+
+                       this.$7B0E();
+
+                       while(true) {
+                       }
+                    }
+
+                    while(true) {
+                    }
+                 } catch (StackException var6) {
+                    int[] var2 = new int[]{0x704C};
+                    if(!this.isOwnAddress(var6, var2)) {
+                       throw var6;
+                    }
+                 }
+              }
+           }
+
+           public void $704C() {
+              this.setNextAddress(0x704C);
+              this.$8000();
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void headOverHeelsB803LoadsSpWithAValueThatIsData() {
+    // Head over Heels B803: the exploration reads LD SP,0063 there, bytes that never run as code in the recording (here behind the JP NZ the recording never takes; the loop at B806 ends the scene)
+    String java = translateFrom(0x8000, 0xFF00, listing("""
+        8000  AF  XOR A, A
+        8001  C2 03 B8  JP NZ, 0xB803
+        8004  18 FE  JR 0x8004
+        B803  31 63 00  LD SP, 0x0063
+        B806  18 FE  JR 0xB806
+        """));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              int var1 = this.A();
+              int var2 = this.A();
+              int var3 = this.alu("xor", var2, var1);
+              this.A(var3);
+              if(!this.flag(64, true)) {
+                 while(true) {
+                 }
+              }
+
+              this.SP(99);
+
+              while(true) {
+              }
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
   public void aCallWhoseTargetIsRewrittenSwitchesOverTheRecordedTargets() {
     // Dizzy E299, Equinox D015
     String java = translate(
