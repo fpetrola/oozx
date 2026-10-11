@@ -98,7 +98,6 @@ public class StackAnalyzer implements java.io.Serializable {
   private final transient Map<Frame, Integer> poppedInside = new IdentityHashMap<>();
   private final transient Map<Integer, Frame> depthDependentSlots = new HashMap<>();
   private final transient BitSet stackWritten = new BitSet(0x10000);
-  private final transient BitSet writtenNotByPushes = new BitSet(0x10000);
   private int lowestObservedStackSlot = 0x10000;
   private final transient MemoryWriteListener forgetOverwritten = (address, value) -> {
     entries.remove(address);
@@ -106,7 +105,6 @@ public class StackAnalyzer implements java.io.Serializable {
     depthDependentSlots.remove(address);
     depthDependentSlots.remove(address - 1 & 0xffff);
     stackWritten.clear(address);
-    writtenNotByPushes.set(address);
   };
   public final Set<Integer> layoutCallSites = new HashSet<>();
   private int spLoadedFrom = -1;
@@ -134,12 +132,7 @@ public class StackAnalyzer implements java.io.Serializable {
       if (sp >= lowestObservedStackSlot)
         layoutCallSites.add(INTERRUPT);
     }
-    stacked(sp);
-  }
-
-  private void stacked(int sp) {
     stackWritten.set(sp, sp + 2);
-    writtenNotByPushes.clear(sp, sp + 2);
   }
 
   /** Stack bytes read by address come from whichever calls were stacked above them when written: every call whose return went there keeps it. */
@@ -229,7 +222,6 @@ public class StackAnalyzer implements java.io.Serializable {
   }
 
   public void init() {
-    writtenNotByPushes.clear();
     int start = state.getRegisterSP().read();
     for (int count = 0; count < Math.min(20, start); count += 2) {
       int address = start - count;
@@ -338,15 +330,9 @@ public class StackAnalyzer implements java.io.Serializable {
               usingStackAsRepository(newSpAddress, oldSpAddress);
             stackResetTo = newSpAddress;
             returnsDropped = false;
-          } else if (!repointing && landsOnItsOwnStack(oldSpAddress, newSpAddress))
+          } else if (distance(oldSpAddress, newSpAddress) < 200 && !repointing)
             droppingReturnAddresses(oldSpAddress, newSpAddress);
         }
-      }
-
-      /** Above the old SP there are only words its pushes wrote and, past them, words nothing but pushes wrote since this run began: the stack's base. */
-      private boolean landsOnItsOwnStack(int oldSpAddress, int newSpAddress) {
-        int base = writtenNotByPushes.nextSetBit(stackWritten.nextClearBit(oldSpAddress));
-        return newSpAddress > oldSpAddress && (base == -1 || base >= newSpAddress);
       }
 
       private void droppingReturnAddresses(int oldSpAddress, int newSpAddress) {
@@ -540,7 +526,7 @@ public class StackAnalyzer implements java.io.Serializable {
     if (returnAddress && entry.pc() != -1)
       frames.put(sp, new Frame(entry.pc(), enclosingFrame(sp + 2)));
     if (!stackAsRepository.active)
-      stacked(sp);
+      stackWritten.set(sp, sp + 2);
     if (returnAddress && collecting() && entry.pc() != -1 && sp >= lowestObservedStackSlot)
       layoutCallSites.add(entry.pc());
   }
@@ -597,7 +583,6 @@ public class StackAnalyzer implements java.io.Serializable {
     poppedInside.clear();
     depthDependentSlots.clear();
     stackWritten.clear();
-    writtenNotByPushes.clear();
     lowestObservedStackSlot = 0x10000;
     learnedFromRecording = false;
     codeVersions = new CodeVersions();
