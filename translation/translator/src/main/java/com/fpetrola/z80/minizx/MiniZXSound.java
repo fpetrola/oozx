@@ -71,6 +71,11 @@ public class MiniZXSound implements AudioOutput {
     card.play(mix, Math.max(beeper.mixInto(mix, frameSize), ay.mixInto(mix, frameSize)) * 2);
   }
 
+  /** Run away from real time: a frame the card has no room for is dropped instead of waited on. */
+  public void dropWhenAhead() {
+    card.dropWhenAhead(true);
+  }
+
   public void close() {
     beeper.close();
     card.close();

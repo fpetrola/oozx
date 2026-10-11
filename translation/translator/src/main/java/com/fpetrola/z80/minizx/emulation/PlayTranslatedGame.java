@@ -16,9 +16,9 @@ import java.util.function.Predicate;
  * Runs a translated game as translated-games.json says: "game" names the entry of "games" to run and "mode" is
  * "play" (keyboard, from the point where the game's recording reaches its entry) or "replay" (the recording's
  * inputs drive the translation, with progress on the console); "speed" is how many times the Spectrum's speed it
- * runs at, 0 for as fast as it goes, and the game only sounds at 1, since the sound card plays at the Spectrum's
- * pace. -Dgame=, -Dmode=, -Dspeed= and -Dconfig= override the file, which is looked for in the working directory
- * and in translation/translator.
+ * runs at, 0 for as fast as it goes; away from 1 the sound card drops the frames it has no room for instead of
+ * holding the game to its pace. -Dgame=, -Dmode=, -Dspeed= and -Dconfig= override the file, which is looked for in
+ * the working directory and in translation/translator.
  */
 public class PlayTranslatedGame {
   private static final long TSTATES_PER_FRAME = 69888, NANOS_PER_FRAME = 20_000_000;
@@ -50,8 +50,8 @@ public class PlayTranslatedGame {
     int entry = translated.entryAddress();
     System.out.println(translated.title() + " (" + translated.type() + ") from $" + Integer.toHexString(entry).toUpperCase() + ", " + System.getProperty("mode", config.mode()));
     MiniZX game = System.getProperty("mode", config.mode()).equals("replay") ? replaying(recording, entry, translated.gameClass(), config.pace()) : playing(translated, recording, entry, config.pace());
-    if (config.pace() != 1)
-      game.sound = null;
+    if (config.pace() != 1 && game.sound != null)
+      game.sound.dropWhenAhead();
     try {
       game.run(entry);
     } catch (RuntimeException e) {
