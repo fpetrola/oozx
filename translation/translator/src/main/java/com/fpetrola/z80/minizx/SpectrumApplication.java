@@ -114,6 +114,12 @@ public abstract class SpectrumApplication {
         invokeMethod(call.calculateJumpAddress());
       return address + call.getLength();
     }
+    if (instruction instanceof Halt) {
+      tstates += costAt(address, 1)[0];
+      fetched(1);
+      halt(address);
+      return address + 1;
+    }
     if (instruction instanceof Ret ret) {
       boolean taken = ret.getCondition().conditionMet(ret);
       tstates += costAt(address, ret.getLength())[taken ? 1 : 0];

@@ -6,7 +6,11 @@ import static org.junit.Assert.*;
 
 public class SpectrumApplicationTest {
   public static class Game extends SpectrumApplication {
-    public int called;
+    public int called, halted;
+
+    public void halt(int address) {
+      halted++;
+    }
 
     public void $9000() {
       called++;
@@ -26,6 +30,13 @@ public class SpectrumApplicationTest {
     // Head over Heels B3A1: the virtual POP caught at B3A2 left B3A2 pending, so the CALL B225 at B3A3 re-entered its own routine at B3A2
     assertEquals(0xB3A2, game.ownAddress(new StackException(0xB3A2, ""), 0xB40A, 0xB3A2));
     assertFalse(game.isNextPC(0xB3A2));
+  }
+
+  @Test
+  public void aHaltRunByTheEmulatorWaitsLikeATranslatedOneAndGoesOn() {
+    // Batman EB39: EI / HALT inside code the game rewrites; the emulator leaves PC on the HALT, and the translation took it for a jump to EB39
+    assertEquals(0x8001, execute(0x76));
+    assertEquals(1, game.halted);
   }
 
   @Test
