@@ -7,6 +7,10 @@ import com.fpetrola.z80.routines.CodeVersions;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.bytecode.examples.RemoteZ80Translator;
 import com.fpetrola.z80.helpers.Helper;
+import com.fpetrola.z80.base.ToStringInstructionVisitor;
+import com.fpetrola.z80.cpu.DefaultInstructionFetcher;
+import com.fpetrola.z80.cpu.ReadOnlyIOImplementation;
+import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.minizx.DefaultMiniZXIO;
 import com.fpetrola.z80.minizx.MiniZX;
@@ -40,6 +44,7 @@ import java.util.Random;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -223,11 +228,129 @@ public class RecordedProgramTests {
         .collect(Collectors.joining());
   }
 
+  /** Z80 code as its listing, one instruction a line: address, bytes, and what they say, which must be what the decoder reads in them; the routines at {@code returning} only return. */
+  private static int[][] listing(String text, int... returning) {
+    List<int[]> chunks = new ArrayList<>();
+    for (int address : returning)
+      chunks.add(at(address, 0xC9));
+    int[] image = new int[0x10000];
+    for (String line : text.strip().split("\n")) {
+      String[] columns = line.strip().split("\t+| {2,}");
+      int address = Integer.parseInt(columns[0], 16);
+      int[] bytes = Arrays.stream(columns[1].split(" ")).mapToInt(b -> Integer.parseInt(b, 16)).toArray();
+      for (int i = 0; i < bytes.length; i++)
+        image[address + i & 0xffff] = bytes[i];
+      chunks.add(at(address, bytes));
+    }
+    State reading = new State(new ReadOnlyIOImplementation(null), new Memory() {
+      public int read(int address, int fetching) {
+        return image[address & 0xffff];
+      }
+
+      public void write(int address, int value) {
+      }
+
+      public void reset() {
+      }
+    });
+    DefaultInstructionFetcher decoder = new DefaultInstructionFetcher(reading, false, false);
+    for (String line : text.strip().split("\n")) {
+      String[] columns = line.strip().split("\t+| {2,}");
+      reading.getPc().write(Integer.parseInt(columns[0], 16));
+      Assert.assertEquals(line, columns[2], new ToStringInstructionVisitor().createToString(decoder.fetchNextInstruction()).strip());
+    }
+    return chunks.toArray(int[][]::new);
+  }
+
+  /** The translation as a reader follows it: without the clock calls every instruction makes, the memory image and the empty routines, with addresses in hex. */
+  private static String withoutTiming(String java) {
+    String code = java.replaceAll("(?s)   public String getProgramBytes\\(\\) \\{.*?\\n   \\}\\n\\n", "").lines()
+        .filter(line -> !line.contains("this.pc(") && !line.contains("this.tstates(")).collect(Collectors.joining("\n", "", "\n"))
+        .replaceAll("\n   public void \\$\\w+\\(\\) \\{\n   \\}\n", "");
+    code = Pattern.compile("'\\\\u([0-9a-f]{4})'").matcher(code).replaceAll(m -> "0x" + m.group(1).toUpperCase());
+    code = Pattern.compile("new int\\[\\]\\{([\\d, ]+)\\}").matcher(code)
+        .replaceAll(m -> "new int[]{" + Arrays.stream(m.group(1).split(", ")).map(n -> "0x%04X".formatted(Integer.parseInt(n))).collect(Collectors.joining(", ")) + "}");
+    return Pattern.compile("((?:StackException|isNextPC|setNextAddress)\\()(\\d+)(?=[,)])").matcher(code)
+        .replaceAll(m -> m.group(1) + "0x%04X".formatted(Integer.parseInt(m.group(2))));
+  }
+
   private static int[] at(int address, int... bytes) {
     int[] chunk = new int[bytes.length + 1];
     chunk[0] = address;
     System.arraycopy(bytes, 0, chunk, 1, bytes.length);
     return chunk;
+  }
+
+  @Test
+  public void greatEscape691AGoesBackToTheMainLoopDroppingTheCallThatGotThere() {
+    // Great Escape 691A: LD SP,FFFF / JP 9D7B from deep inside the main loop's calls; 9D9F's call is still pending
+    ignoresMemory(0xFF00, 0xFFFF);
+    String java = translateFrom(0x691A, listing("""
+        691A  31 FF FF  LD SP, 0xFFFF
+        691D  C3 7B 9D  JP 0x9D7B
+        68F2  18 26  JR 0x691A
+        9D7B  CD CF 9D  CALL 0x9DCF
+        9D7E  CD E5 9D  CALL 0x9DE5
+        9D81  CD 48 7D  CALL 0x7D48
+        9D84  CD 07 9E  CALL 0x9E07
+        9D87  CD 21 9F  CALL 0x9F21
+        9D8A  CD 98 BB  CALL 0xBB98
+        9D8D  CD A0 C6  CALL 0xC6A0
+        9D90  CD 92 C8  CALL 0xC892
+        9D93  CD 7E C4  CALL 0xC47E
+        9D96  CD 1C C4  CALL 0xC41C
+        9D99  CD 9E DB  CALL 0xDB9E
+        9D9C  CD 9E A0  CALL 0xA09E
+        9D9F  CD CE B5  CALL 0xB5CE
+        B5CE  C3 F2 68  JP 0x68F2
+        """, 0x9DCF, 0x9DE5, 0x7D48, 0x9E07, 0x9F21, 0xBB98, 0xC6A0, 0xC892, 0xC47E, 0xC41C, 0xDB9E, 0xA09E));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+        import com.fpetrola.z80.minizx.StackException;
+
+        public class Program extends MiniZX {
+           public void $691A() {
+              while(true) {
+                 try {
+                    if(!this.isNextPC(0x691D)) {
+                       this.SP(0xFFFF);
+                    }
+
+                    this.$9DCF();
+                    this.$9DE5();
+                    this.$7D48();
+                    this.$9E07();
+                    this.$9F21();
+                    this.$BB98();
+                    this.$C6A0();
+                    this.$C892();
+                    this.$C47E();
+                    this.$C41C();
+                    this.$DB9E();
+                    this.$A09E();
+                    this.$B5CE();
+                    this.$9DCF();
+                    return;
+                 } catch (StackException var3) {
+                    int[] var2 = new int[]{0x691D};
+                    if(!this.isOwnAddress(var3, var2)) {
+                       throw var3;
+                    }
+                 }
+              }
+           }
+
+           public void $B5CE() {
+              this.SP(0xFFFF);
+              throw new StackException(0x691D);
+           }
+
+           public void $691D() {
+              this.setNextAddress(0x691D);
+              this.$691A();
+           }
+        }
+        """, withoutTiming(java));
   }
 
   @Test
