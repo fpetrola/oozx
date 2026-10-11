@@ -149,7 +149,7 @@ public class RoutineManager {
    * pushed, and where the exception of a stack reset that drops returns goes on, which no translated caller may be left to catch.
    */
   public void planEntries(StackAnalyzer stackAnalyzer) {
-    stackAnalyzer.nonLocalRets.keySet().forEach(ret -> externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(ret)));
+    stackAnalyzer.abandoningRets.keySet().forEach(ret -> externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(ret)));
     externalEntries.addAll(stackAnalyzer.calledThrough.values());
     externalEntries.addAll(stackAnalyzer.codeVersions.successors());
     splitAtEntriesFromOutside();
@@ -168,7 +168,7 @@ public class RoutineManager {
         nonLocalReturnPoints.put(e.getValue(), continuation);
       }
     });
-    Stream.concat(stackAnalyzer.nonLocalRets.entries().stream(), retsInTheCallersCode(stackAnalyzer)).filter(ret -> !returnPoints.containsValue(ret.getKey()) && !siteReturnPoints.containsValue(ret.getKey())).forEach(ret -> Stream.concat(stackAnalyzer.returnsConsumedBy.get(ret.getKey()).stream(), stackAnalyzer.returnSlots.get(ret.getValue()).stream())
+    Stream.concat(stackAnalyzer.abandoningRets.entries().stream().map(e -> Map.entry(e.getKey(), e.getValue().sp())), retsInTheCallersCode(stackAnalyzer)).filter(ret -> !returnPoints.containsValue(ret.getKey()) && !siteReturnPoints.containsValue(ret.getKey())).forEach(ret -> Stream.concat(stackAnalyzer.returnsConsumedBy.get(ret.getKey()).stream(), stackAnalyzer.returnSlots.get(ret.getValue()).stream())
         .filter(callSite -> instructions.get(callSite) instanceof Call).forEach(callSite -> {
           nonLocalReturns.put(ret.getKey(), addressAfter(callSite));
           nonLocalReturnPoints.put(callSite, addressAfter(callSite));

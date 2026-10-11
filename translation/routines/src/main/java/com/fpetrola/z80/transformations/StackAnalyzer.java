@@ -67,7 +67,13 @@ public class StackAnalyzer implements java.io.Serializable {
   private final transient Map<Integer, int[]> leftStacks = new HashMap<>();
   private transient int switchHomeSp = -1, lastStorePlace = -1;
   private transient boolean callSinceLoad;
-  public final MultiValuedMap<Integer, Integer> nonLocalRets = new HashSetValuedHashMap<>();
+  /** How the frame a RET closes left an inner frame behind without its RET: a POP took the return of a rewritten call, the inner call is still pending after a stack reset, a reset dropped returns, or a reset left a stack the recording never saw being pushed. */
+  public enum Abandon {POPPED_REWRITTEN_CALL, INNER_CALL_PENDING, RETURNS_DROPPED, UNKNOWN_STACK}
+
+  public record AbandoningRet(int sp, Abandon how) implements java.io.Serializable {
+  }
+
+  public final MultiValuedMap<Integer, AbandoningRet> abandoningRets = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> returnSlots = new HashSetValuedHashMap<>();
   /** Who learns these facts: the recording, a fork running a branch the recording never took, or the symbolic execution on its own; only the first two collect. */
   public enum Source {RECORDING, FORK, EXPLORATION}
@@ -182,7 +188,7 @@ public class StackAnalyzer implements java.io.Serializable {
 
   private void confirmSwitch(int[] left) {
     stackSwitches.put(left[3], left[0]);
-    nonLocalRets.remove(left[3]);
+    abandoningRets.remove(left[3]);
     shiftedReturns.remove(left[3]);
     returnsConsumedBy.remove(left[3]);
     dataConsumedBy.remove(left[3]);
@@ -381,8 +387,10 @@ public class StackAnalyzer implements java.io.Serializable {
         Entry popped = consumedReturns.get(state.getRegisterSP().read() - 2 & 0xffff);
         boolean pastPoppedReturn = entry != null && entry.returnAddress() && popped != null && codeVersions.isVersioned(popped.pc());
         boolean abandonsInnerCall = entry != null && entry.returnAddress() && abandonsInnerCall(state.getRegisterSP().read());
-        if (collecting() && (pastPoppedReturn || abandonsInnerCall || afterStackReset && (returnsDropped ? entry != null && entry.returnAddress() : entry == null && knowsWholeStack)))
-          nonLocalRets.put(pcValue, state.getRegisterSP().read());
+        Abandon how = pastPoppedReturn ? Abandon.POPPED_REWRITTEN_CALL : abandonsInnerCall ? Abandon.INNER_CALL_PENDING : !afterStackReset ? null
+            : returnsDropped ? (entry != null && entry.returnAddress() ? Abandon.RETURNS_DROPPED : null) : entry == null && knowsWholeStack ? Abandon.UNKNOWN_STACK : null;
+        if (collecting() && how != null)
+          abandoningRets.put(pcValue, new AbandoningRet(state.getRegisterSP().read(), how));
         if (entry == null && afterStackReset && knowsWholeStack)
           jumpingUsingRet(ret, state.getMemory().read16Bits(state.getRegisterSP().read()), null);
         else if (entry == null)
@@ -564,7 +572,7 @@ public class StackAnalyzer implements java.io.Serializable {
     calledThrough.clear();
     jumpTableSites.clear();
     pushesTakenByPops.clear();
-    nonLocalRets.clear();
+    abandoningRets.clear();
     returnSlots.clear();
     layoutCallSites.clear();
     frames.clear();
@@ -590,7 +598,7 @@ public class StackAnalyzer implements java.io.Serializable {
     returnsConsumedBy.putAll(recorded.returnsConsumedBy);
     pushedValues.putAll(recorded.pushedValues);
     calledThrough.putAll(recorded.calledThrough);
-    nonLocalRets.putAll(recorded.nonLocalRets);
+    abandoningRets.putAll(recorded.abandoningRets);
     returnSlots.putAll(recorded.returnSlots);
     layoutCallSites.addAll(recorded.layoutCallSites);
     lowestObservedStackSlot = Math.min(lowestObservedStackSlot, recorded.lowestObservedStackSlot);

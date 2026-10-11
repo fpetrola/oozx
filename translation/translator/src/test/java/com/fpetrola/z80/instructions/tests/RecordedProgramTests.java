@@ -715,7 +715,7 @@ public class RecordedProgramTests {
         at(0x8000, 0xCD, 0x10, 0x80, 0x3E, 0x07, 0x76, 0x18, 0xFD),
         at(0x8010, 0xCD, 0x20, 0x80, 0x3E, 0x09, 0xC9),
         at(0x8020, 0x31, 0x00, 0xA0, 0xE1, 0x31, 0xFE, 0xFE, 0xC9));
-    Assert.assertTrue(stackAnalyzer.nonLocalRets.containsKey(0x8027));
+    Assert.assertEquals(Set.of(StackAnalyzer.Abandon.INNER_CALL_PENDING), stackAnalyzer.abandoningRets.get(0x8027).stream().map(StackAnalyzer.AbandoningRet::how).collect(Collectors.toSet()));
     Assert.assertEquals(0x07, endValue("A"));
   }
 
@@ -728,7 +728,7 @@ public class RecordedProgramTests {
         at(0x8000, 0xCD, 0x10, 0x80, 0x3E, 0x07, 0x76, 0x18, 0xFD),
         at(0x8010, 0x31, 0x30, 0x90, 0xCD, 0x40, 0x80, 0x06, 0x09, 0xC9),
         at(0x8040, 0x31, 0xFE, 0xFE, 0xC9));
-    Assert.assertTrue(stackAnalyzer.nonLocalRets.containsKey(0x8043));
+    Assert.assertEquals(Set.of(StackAnalyzer.Abandon.INNER_CALL_PENDING), stackAnalyzer.abandoningRets.get(0x8043).stream().map(StackAnalyzer.AbandoningRet::how).collect(Collectors.toSet()));
     Assert.assertEquals(0x00, endValue("B"));
   }
 
@@ -778,7 +778,7 @@ public class RecordedProgramTests {
         at(0x8010, 0x31, 0x30, 0x90, 0xCD, 0x40, 0x80, 0x06, 0x09, 0xC9),
         at(0x8040, 0x31, 0xFE, 0xFE, 0xCD, 0x50, 0x80, 0xC9),
         at(0x8050, 0x0E, 0x03, 0xC9));
-    Assert.assertTrue(stackAnalyzer.nonLocalRets.containsKey(0x8046));
+    Assert.assertEquals(Set.of(StackAnalyzer.Abandon.INNER_CALL_PENDING), stackAnalyzer.abandoningRets.get(0x8046).stream().map(StackAnalyzer.AbandoningRet::how).collect(Collectors.toSet()));
     Assert.assertEquals(0x0003, endValue("BC"));
   }
 
