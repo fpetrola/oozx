@@ -2009,6 +2009,1676 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void targetRenegadeD8AEDrawsWithTheStackThroughAnUnrolledLoop() {
+    // Target: Renegade D8A8-D9A9: saves SP at F6F6, points SP at the sprite (LD SP,HL at D8AE), enters an unrolled loop in its middle, skips rows with ADD HL,DE / LD SP,HL, pushes the drawn area on the list at F6FC and restores SP from F6F6 (the code at 8000 sets up a sprite at 9000, the screen at 4000 and the list at 7000, and pushes the return, HL and DE that the routine pops at the end)
+    savesStackPointerAt(0xF6F6);
+    ignoresMemory(0x6FF0, 0x7001);
+    ignoresMemory(0xF6F2, 0xF6FD);
+    String java = translate(with(listing("""
+        8000  21 00 70  LD HL, 0x7000
+        8003  22 FC F6  LD (0xF6FC), HL
+        8006  D9  EXX
+        8007  21 00 90  LD HL, 0x9000
+        800A  0E 08  LD C, 0x08
+        800C  D9  EXX
+        800D  01 00 A0  LD BC, 0xA000
+        8010  11 00 40  LD DE, 0x4000
+        8013  3E 02  LD A, 0x02
+        8015  21 1E 80  LD HL, 0x801E
+        8018  E5  PUSH HL
+        8019  E5  PUSH HL
+        801A  D5  PUSH DE
+        801B  C3 A8 D8  JP 0xD8A8
+        801E  18 FE  JR 0x801E
+        D8A8  D9  EXX
+        D8A9  F3  DI
+        D8AA  ED 73 F6 F6  LD (0xF6F6), SP
+        D8AE  F9  LD SP, HL
+        D8AF  47  LD B, A
+        D8B0  79  LD A, C
+        D8B1  90  SUB A, B
+        D8B2  4F  LD C, A
+        D8B3  80  ADD A, B
+        D8B4  ED 43 F2 F6  LD (0xF6F2), BC
+        D8B8  D9  EXX
+        D8B9  02  LD (BC), A
+        D8BA  0B  DEC BC
+        D8BB  D2 92 D9  JP NC, 0xD992
+        D8BE  D9  EXX
+        D8BF  47  LD B, A
+        D8C0  0E 00  LD C, 0x00
+        D8C2  ED 43 F2 F6  LD (0xF6F2), BC
+        D8C6  D9  EXX
+        D8C7  C3 92 D9  JP 0xD992
+        D8CA  1A  LD A, (DE)
+        D8CB  02  LD (BC), A
+        D8CC  0B  DEC BC
+        D8CD  E1  POP HL
+        D8CE  A5  AND A, L
+        D8CF  B4  OR A, H
+        D8D0  12  LD (DE), A
+        D8D1  1C  INC E
+        D8D2  1A  LD A, (DE)
+        D8D3  02  LD (BC), A
+        D8D4  0B  DEC BC
+        D8D5  E1  POP HL
+        D8D6  A5  AND A, L
+        D8D7  B4  OR A, H
+        D8D8  12  LD (DE), A
+        D8D9  1C  INC E
+        D8DA  1A  LD A, (DE)
+        D8DB  02  LD (BC), A
+        D8DC  0B  DEC BC
+        D8DD  E1  POP HL
+        D8DE  A5  AND A, L
+        D8DF  B4  OR A, H
+        D8E0  12  LD (DE), A
+        D8E1  1C  INC E
+        D8E2  1A  LD A, (DE)
+        D8E3  02  LD (BC), A
+        D8E4  0B  DEC BC
+        D8E5  E1  POP HL
+        D8E6  A5  AND A, L
+        D8E7  B4  OR A, H
+        D8E8  12  LD (DE), A
+        D8E9  1C  INC E
+        D8EA  1A  LD A, (DE)
+        D8EB  02  LD (BC), A
+        D8EC  0B  DEC BC
+        D8ED  E1  POP HL
+        D8EE  A5  AND A, L
+        D8EF  B4  OR A, H
+        D8F0  12  LD (DE), A
+        D8F1  1C  INC E
+        D8F2  1A  LD A, (DE)
+        D8F3  02  LD (BC), A
+        D8F4  0B  DEC BC
+        D8F5  E1  POP HL
+        D8F6  A5  AND A, L
+        D8F7  B4  OR A, H
+        D8F8  12  LD (DE), A
+        D8F9  14  INC D
+        D8FA  D9  EXX
+        D8FB  ED 43 F2 F6  LD (0xF6F2), BC
+        D8FF  10 20  DJNZ 0xD921
+        D901  79  LD A, C
+        D902  06 08  LD B, 0x08
+        D904  90  SUB A, B
+        D905  30 06  JR NC, 0xD90D
+        D907  80  ADD A, B
+        D908  CA 95 D9  JP Z, 0xD995
+        D90B  47  LD B, A
+        D90C  AF  XOR A, A
+        D90D  4F  LD C, A
+        D90E  D9  EXX
+        D90F  7B  LD A, E
+        D910  C6 20  ADD A, 0x20
+        D912  5F  LD E, A
+        D913  30 07  JR NC, 0xD91C
+        D915  CB 62  BIT 4, D
+        D917  28 09  JR Z, 0xD922
+        D919  C3 96 D9  JP 0xD996
+        D91C  7A  LD A, D
+        D91D  D6 08  SUB A, 0x08
+        D91F  57  LD D, A
+        D920  D9  EXX
+        D921  D9  EXX
+        D922  C3 50 D9  JP 0xD950
+        D925  D9  EXX
+        D926  21 00 00  LD HL, 0x0000
+        D929  39  ADD HL, SP
+        D92A  19  ADD HL, DE
+        D92B  F9  LD SP, HL
+        D92C  D9  EXX
+        D92D  C3 58 D9  JP 0xD958
+        D930  1A  LD A, (DE)
+        D931  02  LD (BC), A
+        D932  0B  DEC BC
+        D933  E1  POP HL
+        D934  A5  AND A, L
+        D935  B4  OR A, H
+        D936  12  LD (DE), A
+        D937  1D  DEC E
+        D938  1A  LD A, (DE)
+        D939  02  LD (BC), A
+        D93A  0B  DEC BC
+        D93B  E1  POP HL
+        D93C  A5  AND A, L
+        D93D  B4  OR A, H
+        D93E  12  LD (DE), A
+        D93F  1D  DEC E
+        D940  1A  LD A, (DE)
+        D941  02  LD (BC), A
+        D942  0B  DEC BC
+        D943  E1  POP HL
+        D944  A5  AND A, L
+        D945  B4  OR A, H
+        D946  12  LD (DE), A
+        D947  1D  DEC E
+        D948  1A  LD A, (DE)
+        D949  02  LD (BC), A
+        D94A  0B  DEC BC
+        D94B  E1  POP HL
+        D94C  A5  AND A, L
+        D94D  B4  OR A, H
+        D94E  12  LD (DE), A
+        D94F  1D  DEC E
+        D950  1A  LD A, (DE)
+        D951  02  LD (BC), A
+        D952  0B  DEC BC
+        D953  E1  POP HL
+        D954  A5  AND A, L
+        D955  B4  OR A, H
+        D956  12  LD (DE), A
+        D957  1D  DEC E
+        D958  1A  LD A, (DE)
+        D959  02  LD (BC), A
+        D95A  0B  DEC BC
+        D95B  E1  POP HL
+        D95C  A5  AND A, L
+        D95D  B4  OR A, H
+        D95E  12  LD (DE), A
+        D95F  14  INC D
+        D960  D9  EXX
+        D961  ED 43 F2 F6  LD (0xF6F2), BC
+        D965  10 23  DJNZ 0xD98A
+        D967  79  LD A, C
+        D968  06 08  LD B, 0x08
+        D96A  90  SUB A, B
+        D96B  30 05  JR NC, 0xD972
+        D96D  80  ADD A, B
+        D96E  28 25  JR Z, 0xD995
+        D970  47  LD B, A
+        D971  AF  XOR A, A
+        D972  4F  LD C, A
+        D973  ED 43 F2 F6  LD (0xF6F2), BC
+        D977  D9  EXX
+        D978  7B  LD A, E
+        D979  C6 20  ADD A, 0x20
+        D97B  5F  LD E, A
+        D97C  30 07  JR NC, 0xD985
+        D97E  CB 62  BIT 4, D
+        D980  28 09  JR Z, 0xD98B
+        D982  C3 96 D9  JP 0xD996
+        D985  7A  LD A, D
+        D986  D6 08  SUB A, 0x08
+        D988  57  LD D, A
+        D989  D9  EXX
+        D98A  D9  EXX
+        D98B  C3 EA D8  JP 0xD8EA
+        D98E  D9  EXX
+        D98F  19  ADD HL, DE
+        D990  F9  LD SP, HL
+        D991  D9  EXX
+        D992  C3 EA D8  JP 0xD8EA
+        D995  D9  EXX
+        D996  ED 7B FC F6  LD SP, (0xF6FC)
+        D99A  C5  PUSH BC
+        D99B  ED 73 FC F6  LD (0xF6FC), SP
+        D99F  ED 43 FA F6  LD (0xF6FA), BC
+        D9A3  ED 7B F6 F6  LD SP, (0xF6F6)
+        D9A7  D1  POP DE
+        D9A8  E1  POP HL
+        D9A9  C9  RET
+        """), at(0xF6FC, 0x00, 0x70)));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              this.HL(28672);
+              int var1 = this.HL();
+              this.wMem16(0xF6FC, var1, 0x8003);
+              this.exx();
+              this.HL(0x9000);
+              this.C(8);
+              this.exx();
+              this.BC(0xA000);
+              this.DE(16384);
+              this.A(2);
+              this.HL(0x801E);
+              int var2 = this.HL();
+              this.push(var2);
+              int var3 = this.HL();
+              this.push(var3);
+              int var4 = this.DE();
+              this.push(var4);
+              this.exx();
+              this.di();
+              int var5 = this.SP();
+              this.wMem16(0xF6F6, var5, 0xD8AA);
+              int var6 = this.HL();
+              this.SP(var6);
+              int var7 = this.A();
+              this.B(var7);
+              int var8 = this.C();
+              this.A(var8);
+              int var9 = this.B();
+              int var10 = this.A();
+              int var11 = this.alu("sub", var10, var9);
+              this.A(var11);
+              int var12 = this.A();
+              this.C(var12);
+              int var13 = this.B();
+              int var14 = this.A();
+              int var15 = this.alu("add", var14, var13);
+              this.A(var15);
+              int var16 = this.BC();
+              this.wMem16(0xF6F2, var16, 0xD8B4);
+              this.exx();
+              int var17 = this.A();
+              int var18 = this.BC();
+              this.wMem(var18, var17, 0xD8B9);
+              int var19 = this.BC();
+              int var20 = this.dec16(var19);
+              this.BC(var20);
+              if(!this.flag(1, true)) {
+                 this.exx();
+                 int var144 = this.A();
+                 this.B(var144);
+                 this.C(0);
+                 int var145 = this.BC();
+                 this.wMem16(0xF6F2, var145, 0xD8C2);
+                 this.exx();
+              }
+
+
+              while(true) {
+                 label72: {
+                    label78: {
+                       label70: {
+                          int var21 = this.DE();
+                          int var22 = this.mem(var21, 0xD8EA);
+                          this.A(var22);
+                          int var23 = this.A();
+                          int var24 = this.BC();
+                          this.wMem(var24, var23, 0xD8EB);
+                          int var25 = this.BC();
+                          int var26 = this.dec16(var25);
+                          this.BC(var26);
+                          int var27 = this.pop();
+                          this.HL(var27);
+                          int var28 = this.L();
+                          int var29 = this.A();
+                          int var30 = this.alu("and", var29, var28);
+                          this.A(var30);
+                          int var31 = this.H();
+                          int var32 = this.A();
+                          int var33 = this.alu("or", var32, var31);
+                          this.A(var33);
+                          int var34 = this.A();
+                          int var35 = this.DE();
+                          this.wMem(var35, var34, 0xD8F0);
+                          int var36 = this.E();
+                          int var37 = this.alu("inc", var36);
+                          this.E(var37);
+                          int var38 = this.DE();
+                          int var39 = this.mem(var38, 0xD8F2);
+                          this.A(var39);
+                          int var40 = this.A();
+                          int var41 = this.BC();
+                          this.wMem(var41, var40, 0xD8F3);
+                          int var42 = this.BC();
+                          int var43 = this.dec16(var42);
+                          this.BC(var43);
+                          int var44 = this.pop();
+                          this.HL(var44);
+                          int var45 = this.L();
+                          int var46 = this.A();
+                          int var47 = this.alu("and", var46, var45);
+                          this.A(var47);
+                          int var48 = this.H();
+                          int var49 = this.A();
+                          int var50 = this.alu("or", var49, var48);
+                          this.A(var50);
+                          int var51 = this.A();
+                          int var52 = this.DE();
+                          this.wMem(var52, var51, 0xD8F8);
+                          int var53 = this.D();
+                          int var54 = this.alu("inc", var53);
+                          this.D(var54);
+                          this.exx();
+                          int var55 = this.BC();
+                          this.wMem16(0xF6F2, var55, 0xD8FB);
+                          int var56 = this.B() - 1 & 255;
+                          this.B(var56);
+                          if(this.B() != 0) {
+                          } else {
+                             int var57 = this.C();
+                             this.A(var57);
+                             this.B(8);
+                             int var58 = this.B();
+                             int var59 = this.A();
+                             int var60 = this.alu("sub", var59, var58);
+                             this.A(var60);
+                             if(this.flag(1, true)) {
+                             } else {
+                                int var61 = this.B();
+                                int var62 = this.A();
+                                int var63 = this.alu("add", var62, var61);
+                                this.A(var63);
+                                if(this.flag(64, false)) {
+                                   break label78;
+                                }
+
+                                int var72 = this.A();
+                                this.B(var72);
+                                int var73 = this.A();
+                                int var74 = this.A();
+                                int var75 = this.alu("xor", var74, var73);
+                                this.A(var75);
+                             }
+
+                             int var76 = this.A();
+                             this.C(var76);
+                             this.exx();
+                             int var77 = this.E();
+                             this.A(var77);
+                             int var78 = this.A();
+                             int var79 = this.alu("add", var78, 32);
+                             this.A(var79);
+                             int var80 = this.A();
+                             this.E(var80);
+                             if(!this.flag(1, true)) {
+                                int var81 = this.D();
+                                this.bit(4, var81);
+                                if(!this.flag(64, false)) {
+                                   break;
+                                }
+
+                                break label70;
+                             }
+
+                             int var140 = this.D();
+                             this.A(var140);
+                             int var141 = this.A();
+                             int var142 = this.alu("sub", var141, 8);
+                             this.A(var142);
+                             int var143 = this.A();
+                             this.D(var143);
+                             this.exx();
+                          }
+
+                          this.exx();
+                       }
+
+                       int var82 = this.DE();
+                       int var83 = this.mem(var82, 0xD950);
+                       this.A(var83);
+                       int var84 = this.A();
+                       int var85 = this.BC();
+                       this.wMem(var85, var84, 0xD951);
+                       int var86 = this.BC();
+                       int var87 = this.dec16(var86);
+                       this.BC(var87);
+                       int var88 = this.pop();
+                       this.HL(var88);
+                       int var89 = this.L();
+                       int var90 = this.A();
+                       int var91 = this.alu("and", var90, var89);
+                       this.A(var91);
+                       int var92 = this.H();
+                       int var93 = this.A();
+                       int var94 = this.alu("or", var93, var92);
+                       this.A(var94);
+                       int var95 = this.A();
+                       int var96 = this.DE();
+                       this.wMem(var96, var95, 0xD956);
+                       int var97 = this.E();
+                       int var98 = this.alu("dec", var97);
+                       this.E(var98);
+                       int var99 = this.DE();
+                       int var100 = this.mem(var99, 0xD958);
+                       this.A(var100);
+                       int var101 = this.A();
+                       int var102 = this.BC();
+                       this.wMem(var102, var101, 0xD959);
+                       int var103 = this.BC();
+                       int var104 = this.dec16(var103);
+                       this.BC(var104);
+                       int var105 = this.pop();
+                       this.HL(var105);
+                       int var106 = this.L();
+                       int var107 = this.A();
+                       int var108 = this.alu("and", var107, var106);
+                       this.A(var108);
+                       int var109 = this.H();
+                       int var110 = this.A();
+                       int var111 = this.alu("or", var110, var109);
+                       this.A(var111);
+                       int var112 = this.A();
+                       int var113 = this.DE();
+                       this.wMem(var113, var112, 0xD95E);
+                       int var114 = this.D();
+                       int var115 = this.alu("inc", var114);
+                       this.D(var115);
+                       this.exx();
+                       int var116 = this.BC();
+                       this.wMem16(0xF6F2, var116, 0xD961);
+                       int var117 = this.B() - 1 & 255;
+                       this.B(var117);
+                       if(this.B() != 0) {
+                       } else {
+                          int var118 = this.C();
+                          this.A(var118);
+                          this.B(8);
+                          int var119 = this.B();
+                          int var120 = this.A();
+                          int var121 = this.alu("sub", var120, var119);
+                          this.A(var121);
+                          if(this.flag(1, true)) {
+                          } else {
+                             int var122 = this.B();
+                             int var123 = this.A();
+                             int var124 = this.alu("add", var123, var122);
+                             this.A(var124);
+                             if(this.flag(64, false)) {
+                                break label78;
+                             }
+
+                             int var125 = this.A();
+                             this.B(var125);
+                             int var126 = this.A();
+                             int var127 = this.A();
+                             int var128 = this.alu("xor", var127, var126);
+                             this.A(var128);
+                          }
+
+                          int var129 = this.A();
+                          this.C(var129);
+                          int var130 = this.BC();
+                          this.wMem16(0xF6F2, var130, 0xD973);
+                          this.exx();
+                          int var131 = this.E();
+                          this.A(var131);
+                          int var132 = this.A();
+                          int var133 = this.alu("add", var132, 32);
+                          this.A(var133);
+                          int var134 = this.A();
+                          this.E(var134);
+                          if(!this.flag(1, true)) {
+                             int var135 = this.D();
+                             this.bit(4, var135);
+                             if(!this.flag(64, false)) {
+                                break;
+                             }
+
+                             break label72;
+                          }
+
+                          int var136 = this.D();
+                          this.A(var136);
+                          int var137 = this.A();
+                          int var138 = this.alu("sub", var137, 8);
+                          this.A(var138);
+                          int var139 = this.A();
+                          this.D(var139);
+                          this.exx();
+                       }
+
+                       this.exx();
+                       break label72;
+                    }
+
+                    this.exx();
+                    break;
+                 }
+
+              }
+
+              int var64 = this.mem16(0xF6FC, 0xD996);
+              this.SP(var64);
+              int var65 = this.BC();
+              this.push(var65);
+              int var66 = this.SP();
+              this.wMem16(0xF6FC, var66, 0xD99B);
+              int var67 = this.BC();
+              this.wMem16(0xF6FA, var67, 0xD99F);
+              int var68 = this.mem16(0xF6F6, 0xD9A3);
+              this.SP(var68);
+              int var69 = this.pop();
+              this.DE(var69);
+              int var70 = this.pop();
+              this.HL(var70);
+              int var71 = this.pop();
+              if(var71 == 0x801E) {
+                 while(true) {
+                 }
+              }
+
+              this.jump(var71);
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void targetRenegadeDA70DrawsWithTheStackAndIX() {
+    // Target: Renegade DA60-DB9C: saves SP at F6F6, points SP at the sprite (LD SP,HL at DA70), moves it on with ADD IX,DE / LD SP,IX, pushes the drawn area on the list at F6FC and restores SP from F6F6 (the code at 8000 sets up a sprite at 9000, the screen at 4000 and the list at 7000)
+    savesStackPointerAt(0xF6F6);
+    ignoresMemory(0x6FF0, 0x7001);
+    ignoresMemory(0x70F0, 0x7101);
+    ignoresMemory(0xF6F2, 0xF6FD);
+    String java = translate(with(listing("""
+        8000  21 00 70  LD HL, 0x7000
+        8003  22 FC F6  LD (0xF6FC), HL
+        8006  21 00 90  LD HL, 0x9000
+        8009  11 00 40  LD DE, 0x4000
+        800C  01 08 02  LD BC, 0x0208
+        800F  CD 60 DA  CALL 0xDA60
+        8012  18 FE  JR 0x8012
+        DA60  0F  RRCA A
+        DA61  47  LD B, A
+        DA62  6A  LD L, D
+        DA63  26 D0  LD H, 0xD0
+        DA65  7E  LD A, (HL)
+        DA66  B3  OR A, E
+        DA67  2C  INC L
+        DA68  66  LD H, (HL)
+        DA69  6F  LD L, A
+        DA6A  D9  EXX
+        DA6B  F3  DI
+        DA6C  ED 73 F6 F6  LD (0xF6F6), SP
+        DA70  F9  LD SP, HL
+        DA71  26 D1  LD H, 0xD1
+        DA73  79  LD A, C
+        DA74  D9  EXX
+        DA75  4F  LD C, A
+        DA76  EB  EX DE, HL
+        DA77  2A FA F6  LD HL, (0xF6FA)
+        DA7A  CB F8  SET 7, B
+        DA7C  70  LD (HL), B
+        DA7D  2B  DEC HL
+        DA7E  73  LD (HL), E
+        DA7F  2B  DEC HL
+        DA80  72  LD (HL), D
+        DA81  2B  DEC HL
+        DA82  71  LD (HL), C
+        DA83  2B  DEC HL
+        DA84  EB  EX DE, HL
+        DA85  7C  LD A, H
+        DA86  E6 07  AND A, 0x07
+        DA88  D6 09  SUB A, 0x09
+        DA8A  2F  CPL A
+        DA8B  47  LD B, A
+        DA8C  79  LD A, C
+        DA8D  90  SUB A, B
+        DA8E  4F  LD C, A
+        DA8F  ED 43 F2 F6  LD (0xF6F2), BC
+        DA93  D2 86 DB  JP NC, 0xDB86
+        DA96  80  ADD A, B
+        DA97  47  LD B, A
+        DA98  0E 00  LD C, 0x00
+        DA9A  ED 43 F2 F6  LD (0xF6F2), BC
+        DA9E  C3 86 DB  JP 0xDB86
+        DAA1  7E  LD A, (HL)
+        DAA2  12  LD (DE), A
+        DAA3  1B  DEC DE
+        DAA4  D9  EXX
+        DAA5  C1  POP BC
+        DAA6  69  LD L, C
+        DAA7  A6  AND A, (HL)
+        DAA8  68  LD L, B
+        DAA9  B6  OR A, (HL)
+        DAAA  D9  EXX
+        DAAB  77  LD (HL), A
+        DAAC  2D  DEC L
+        DAAD  7E  LD A, (HL)
+        DAAE  12  LD (DE), A
+        DAAF  1B  DEC DE
+        DAB0  D9  EXX
+        DAB1  C1  POP BC
+        DAB2  69  LD L, C
+        DAB3  A6  AND A, (HL)
+        DAB4  68  LD L, B
+        DAB5  B6  OR A, (HL)
+        DAB6  D9  EXX
+        DAB7  77  LD (HL), A
+        DAB8  2D  DEC L
+        DAB9  7E  LD A, (HL)
+        DABA  12  LD (DE), A
+        DABB  1B  DEC DE
+        DABC  D9  EXX
+        DABD  C1  POP BC
+        DABE  69  LD L, C
+        DABF  A6  AND A, (HL)
+        DAC0  68  LD L, B
+        DAC1  B6  OR A, (HL)
+        DAC2  D9  EXX
+        DAC3  77  LD (HL), A
+        DAC4  2D  DEC L
+        DAC5  7E  LD A, (HL)
+        DAC6  12  LD (DE), A
+        DAC7  1B  DEC DE
+        DAC8  D9  EXX
+        DAC9  C1  POP BC
+        DACA  69  LD L, C
+        DACB  A6  AND A, (HL)
+        DACC  68  LD L, B
+        DACD  B6  OR A, (HL)
+        DACE  D9  EXX
+        DACF  77  LD (HL), A
+        DAD0  2D  DEC L
+        DAD1  7E  LD A, (HL)
+        DAD2  12  LD (DE), A
+        DAD3  1B  DEC DE
+        DAD4  D9  EXX
+        DAD5  C1  POP BC
+        DAD6  69  LD L, C
+        DAD7  A6  AND A, (HL)
+        DAD8  68  LD L, B
+        DAD9  B6  OR A, (HL)
+        DADA  D9  EXX
+        DADB  77  LD (HL), A
+        DADC  2D  DEC L
+        DADD  7E  LD A, (HL)
+        DADE  12  LD (DE), A
+        DADF  1B  DEC DE
+        DAE0  D9  EXX
+        DAE1  C1  POP BC
+        DAE2  69  LD L, C
+        DAE3  A6  AND A, (HL)
+        DAE4  68  LD L, B
+        DAE5  B6  OR A, (HL)
+        DAE6  D9  EXX
+        DAE7  77  LD (HL), A
+        DAE8  24  INC H
+        DAE9  10 1E  DJNZ 0xDB09
+        DAEB  79  LD A, C
+        DAEC  06 08  LD B, 0x08
+        DAEE  90  SUB A, B
+        DAEF  30 06  JR NC, 0xDAF7
+        DAF1  80  ADD A, B
+        DAF2  CA 89 DB  JP Z, 0xDB89
+        DAF5  47  LD B, A
+        DAF6  AF  XOR A, A
+        DAF7  4F  LD C, A
+        DAF8  7D  LD A, L
+        DAF9  C6 20  ADD A, 0x20
+        DAFB  6F  LD L, A
+        DAFC  30 07  JR NC, 0xDB05
+        DAFE  CB 64  BIT 4, H
+        DB00  28 07  JR Z, 0xDB09
+        DB02  C3 89 DB  JP 0xDB89
+        DB05  7C  LD A, H
+        DB06  D6 08  SUB A, 0x08
+        DB08  67  LD H, A
+        DB09  C3 39 DB  JP 0xDB39
+        DB0C  D9  EXX
+        DB0D  DD 19  ADD IX, DE
+        DB0F  DD F9  LD SP, IX
+        DB11  D9  EXX
+        DB12  C3 21 DB  JP 0xDB21
+        DB15  7E  LD A, (HL)
+        DB16  12  LD (DE), A
+        DB17  1B  DEC DE
+        DB18  D9  EXX
+        DB19  C1  POP BC
+        DB1A  69  LD L, C
+        DB1B  A6  AND A, (HL)
+        DB1C  68  LD L, B
+        DB1D  B6  OR A, (HL)
+        DB1E  D9  EXX
+        DB1F  77  LD (HL), A
+        DB20  2C  INC L
+        DB21  7E  LD A, (HL)
+        DB22  12  LD (DE), A
+        DB23  1B  DEC DE
+        DB24  D9  EXX
+        DB25  C1  POP BC
+        DB26  69  LD L, C
+        DB27  A6  AND A, (HL)
+        DB28  68  LD L, B
+        DB29  B6  OR A, (HL)
+        DB2A  D9  EXX
+        DB2B  77  LD (HL), A
+        DB2C  2C  INC L
+        DB2D  7E  LD A, (HL)
+        DB2E  12  LD (DE), A
+        DB2F  1B  DEC DE
+        DB30  D9  EXX
+        DB31  C1  POP BC
+        DB32  69  LD L, C
+        DB33  A6  AND A, (HL)
+        DB34  68  LD L, B
+        DB35  B6  OR A, (HL)
+        DB36  D9  EXX
+        DB37  77  LD (HL), A
+        DB38  2C  INC L
+        DB39  7E  LD A, (HL)
+        DB3A  12  LD (DE), A
+        DB3B  1B  DEC DE
+        DB3C  D9  EXX
+        DB3D  C1  POP BC
+        DB3E  69  LD L, C
+        DB3F  A6  AND A, (HL)
+        DB40  68  LD L, B
+        DB41  B6  OR A, (HL)
+        DB42  D9  EXX
+        DB43  77  LD (HL), A
+        DB44  2C  INC L
+        DB45  7E  LD A, (HL)
+        DB46  12  LD (DE), A
+        DB47  1B  DEC DE
+        DB48  D9  EXX
+        DB49  C1  POP BC
+        DB4A  69  LD L, C
+        DB4B  A6  AND A, (HL)
+        DB4C  68  LD L, B
+        DB4D  B6  OR A, (HL)
+        DB4E  D9  EXX
+        DB4F  77  LD (HL), A
+        DB50  2C  INC L
+        DB51  7E  LD A, (HL)
+        DB52  12  LD (DE), A
+        DB53  1B  DEC DE
+        DB54  D9  EXX
+        DB55  C1  POP BC
+        DB56  69  LD L, C
+        DB57  A6  AND A, (HL)
+        DB58  68  LD L, B
+        DB59  B6  OR A, (HL)
+        DB5A  D9  EXX
+        DB5B  77  LD (HL), A
+        DB5C  24  INC H
+        DB5D  10 1E  DJNZ 0xDB7D
+        DB5F  79  LD A, C
+        DB60  06 08  LD B, 0x08
+        DB62  90  SUB A, B
+        DB63  30 06  JR NC, 0xDB6B
+        DB65  80  ADD A, B
+        DB66  CA 89 DB  JP Z, 0xDB89
+        DB69  47  LD B, A
+        DB6A  AF  XOR A, A
+        DB6B  4F  LD C, A
+        DB6C  7D  LD A, L
+        DB6D  C6 20  ADD A, 0x20
+        DB6F  6F  LD L, A
+        DB70  30 07  JR NC, 0xDB79
+        DB72  CB 64  BIT 4, H
+        DB74  28 07  JR Z, 0xDB7D
+        DB76  C3 89 DB  JP 0xDB89
+        DB79  7C  LD A, H
+        DB7A  D6 08  SUB A, 0x08
+        DB7C  67  LD H, A
+        DB7D  C3 C5 DA  JP 0xDAC5
+        DB80  D9  EXX
+        DB81  DD 19  ADD IX, DE
+        DB83  DD F9  LD SP, IX
+        DB85  D9  EXX
+        DB86  C3 C5 DA  JP 0xDAC5
+        DB89  ED 7B FC F6  LD SP, (0xF6FC)
+        DB8D  D5  PUSH DE
+        DB8E  ED 73 FC F6  LD (0xF6FC), SP
+        DB92  ED 7B F6 F6  LD SP, (0xF6F6)
+        DB96  ED 53 FA F6  LD (0xF6FA), DE
+        DB9A  D1  POP DE
+        DB9B  E1  POP HL
+        DB9C  C9  RET
+        """), at(0xF6FA, 0x00, 0x71)));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+        import com.fpetrola.z80.minizx.StackException;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              this.HL(28672);
+              int var1 = this.HL();
+              this.wMem16(0xF6FC, var1, 0x8003);
+              this.HL(0x9000);
+              this.DE(16384);
+              this.BC(520);
+
+              try {
+                 this.$DA60();
+              } catch (StackException var5) {
+                 int[] var3 = new int[]{0xDB9B};
+                 if(this.ownAddress(var5, var3) == 0xDB9B) {
+                    this.DE(0x8012);
+                    int var4 = this.pop();
+                    this.HL(var4);
+                    return;
+                 }
+
+                 return;
+              }
+
+              while(true) {
+              }
+           }
+
+           public void $DA60() {
+              int var1 = this.A();
+              int var2 = this.alu("rrca", var1);
+              this.A(var2);
+              int var3 = this.A();
+              this.B(var3);
+              int var4 = this.D();
+              this.L(var4);
+              this.H(208);
+              int var5 = this.HL();
+              int var6 = this.mem(var5, 0xDA65);
+              this.A(var6);
+              int var7 = this.E();
+              int var8 = this.A();
+              int var9 = this.alu("or", var8, var7);
+              this.A(var9);
+              int var10 = this.L();
+              int var11 = this.alu("inc", var10);
+              this.L(var11);
+              int var12 = this.HL();
+              int var13 = this.mem(var12, 0xDA68);
+              this.H(var13);
+              int var14 = this.A();
+              this.L(var14);
+              this.exx();
+              this.di();
+              int var15 = this.SP();
+              this.wMem16(0xF6F6, var15, 0xDA6C);
+              int var16 = this.HL();
+              this.SP(var16);
+              this.H(209);
+              int var17 = this.C();
+              this.A(var17);
+              this.exx();
+              int var18 = this.A();
+              this.C(var18);
+              this.exHLDE();
+              int var19 = this.mem16(0xF6FA, 0xDA77);
+              this.HL(var19);
+              int var20 = this.B() | 128;
+              this.B(var20);
+              int var21 = this.B();
+              int var22 = this.HL();
+              this.wMem(var22, var21, 0xDA7C);
+              int var23 = this.HL();
+              int var24 = this.dec16(var23);
+              this.HL(var24);
+              int var25 = this.E();
+              int var26 = this.HL();
+              this.wMem(var26, var25, 0xDA7E);
+              int var27 = this.HL();
+              int var28 = this.dec16(var27);
+              this.HL(var28);
+              int var29 = this.D();
+              int var30 = this.HL();
+              this.wMem(var30, var29, 0xDA80);
+              int var31 = this.HL();
+              int var32 = this.dec16(var31);
+              this.HL(var32);
+              int var33 = this.C();
+              int var34 = this.HL();
+              this.wMem(var34, var33, 0xDA82);
+              int var35 = this.HL();
+              int var36 = this.dec16(var35);
+              this.HL(var36);
+              this.exHLDE();
+              int var37 = this.H();
+              this.A(var37);
+              int var38 = this.A();
+              int var39 = this.alu("and", var38, 7);
+              this.A(var39);
+              int var40 = this.A();
+              int var41 = this.alu("sub", var40, 9);
+              this.A(var41);
+              int var42 = this.A();
+              int var43 = this.alu("cpl", var42);
+              this.A(var43);
+              int var44 = this.A();
+              this.B(var44);
+              int var45 = this.C();
+              this.A(var45);
+              int var46 = this.B();
+              int var47 = this.A();
+              int var48 = this.alu("sub", var47, var46);
+              this.A(var48);
+              int var49 = this.A();
+              this.C(var49);
+              int var50 = this.BC();
+              this.wMem16(0xF6F2, var50, 0xDA8F);
+              if(!this.flag(1, true)) {
+                 int var226 = this.B();
+                 int var227 = this.A();
+                 int var228 = this.alu("add", var227, var226);
+                 this.A(var228);
+                 int var229 = this.A();
+                 this.B(var229);
+                 this.C(0);
+                 int var230 = this.BC();
+                 this.wMem16(0xF6F2, var230, 0xDA9A);
+              }
+
+
+              while(true) {
+                 int var51 = this.HL();
+                 int var52 = this.mem(var51, 0xDAC5);
+                 this.A(var52);
+                 int var53 = this.A();
+                 int var54 = this.DE();
+                 this.wMem(var54, var53, 0xDAC6);
+                 int var55 = this.DE();
+                 int var56 = this.dec16(var55);
+                 this.DE(var56);
+                 this.exx();
+                 int var57 = this.pop();
+                 this.BC(var57);
+                 int var58 = this.C();
+                 this.L(var58);
+                 int var59 = this.HL();
+                 int var60 = this.mem(var59, 0xDACB);
+                 int var61 = this.A();
+                 int var62 = this.alu("and", var61, var60);
+                 this.A(var62);
+                 int var63 = this.B();
+                 this.L(var63);
+                 int var64 = this.HL();
+                 int var65 = this.mem(var64, 0xDACD);
+                 int var66 = this.A();
+                 int var67 = this.alu("or", var66, var65);
+                 this.A(var67);
+                 this.exx();
+                 int var68 = this.A();
+                 int var69 = this.HL();
+                 this.wMem(var69, var68, 0xDACF);
+                 int var70 = this.L();
+                 int var71 = this.alu("dec", var70);
+                 this.L(var71);
+                 int var72 = this.HL();
+                 int var73 = this.mem(var72, 0xDAD1);
+                 this.A(var73);
+                 int var74 = this.A();
+                 int var75 = this.DE();
+                 this.wMem(var75, var74, 0xDAD2);
+                 int var76 = this.DE();
+                 int var77 = this.dec16(var76);
+                 this.DE(var77);
+                 this.exx();
+                 int var78 = this.pop();
+                 this.BC(var78);
+                 int var79 = this.C();
+                 this.L(var79);
+                 int var80 = this.HL();
+                 int var81 = this.mem(var80, 0xDAD7);
+                 int var82 = this.A();
+                 int var83 = this.alu("and", var82, var81);
+                 this.A(var83);
+                 int var84 = this.B();
+                 this.L(var84);
+                 int var85 = this.HL();
+                 int var86 = this.mem(var85, 0xDAD9);
+                 int var87 = this.A();
+                 int var88 = this.alu("or", var87, var86);
+                 this.A(var88);
+                 this.exx();
+                 int var89 = this.A();
+                 int var90 = this.HL();
+                 this.wMem(var90, var89, 0xDADB);
+                 int var91 = this.L();
+                 int var92 = this.alu("dec", var91);
+                 this.L(var92);
+                 int var93 = this.HL();
+                 int var94 = this.mem(var93, 0xDADD);
+                 this.A(var94);
+                 int var95 = this.A();
+                 int var96 = this.DE();
+                 this.wMem(var96, var95, 0xDADE);
+                 int var97 = this.DE();
+                 int var98 = this.dec16(var97);
+                 this.DE(var98);
+                 this.exx();
+                 int var99 = this.pop();
+                 this.BC(var99);
+                 int var100 = this.C();
+                 this.L(var100);
+                 int var101 = this.HL();
+                 int var102 = this.mem(var101, 0xDAE3);
+                 int var103 = this.A();
+                 int var104 = this.alu("and", var103, var102);
+                 this.A(var104);
+                 int var105 = this.B();
+                 this.L(var105);
+                 int var106 = this.HL();
+                 int var107 = this.mem(var106, 0xDAE5);
+                 int var108 = this.A();
+                 int var109 = this.alu("or", var108, var107);
+                 this.A(var109);
+                 this.exx();
+                 int var110 = this.A();
+                 int var111 = this.HL();
+                 this.wMem(var111, var110, 0xDAE7);
+                 int var112 = this.H();
+                 int var113 = this.alu("inc", var112);
+                 this.H(var113);
+                 int var114 = this.B() - 1 & 255;
+                 this.B(var114);
+                 if(this.B() != 0) {
+                 } else {
+                    int var115 = this.C();
+                    this.A(var115);
+                    this.B(8);
+                    int var116 = this.B();
+                    int var117 = this.A();
+                    int var118 = this.alu("sub", var117, var116);
+                    this.A(var118);
+                    if(this.flag(1, true)) {
+                    } else {
+                       int var119 = this.B();
+                       int var120 = this.A();
+                       int var121 = this.alu("add", var120, var119);
+                       this.A(var121);
+                       if(this.flag(64, false)) {
+                          break;
+                       }
+
+                       int var127 = this.A();
+                       this.B(var127);
+                       int var128 = this.A();
+                       int var129 = this.A();
+                       int var130 = this.alu("xor", var129, var128);
+                       this.A(var130);
+                    }
+
+                    int var131 = this.A();
+                    this.C(var131);
+                    int var132 = this.L();
+                    this.A(var132);
+                    int var133 = this.A();
+                    int var134 = this.alu("add", var133, 32);
+                    this.A(var134);
+                    int var135 = this.A();
+                    this.L(var135);
+                    if(this.flag(1, true)) {
+                       int var222 = this.H();
+                       this.A(var222);
+                       int var223 = this.A();
+                       int var224 = this.alu("sub", var223, 8);
+                       this.A(var224);
+                       int var225 = this.A();
+                       this.H(var225);
+                    } else {
+                       int var136 = this.H();
+                       this.bit(4, var136);
+                       if(!this.flag(64, false)) {
+                          break;
+                       }
+
+                    }
+                 }
+
+                 int var137 = this.HL();
+                 int var138 = this.mem(var137, 0xDB39);
+                 this.A(var138);
+                 int var139 = this.A();
+                 int var140 = this.DE();
+                 this.wMem(var140, var139, 0xDB3A);
+                 int var141 = this.DE();
+                 int var142 = this.dec16(var141);
+                 this.DE(var142);
+                 this.exx();
+                 int var143 = this.pop();
+                 this.BC(var143);
+                 int var144 = this.C();
+                 this.L(var144);
+                 int var145 = this.HL();
+                 int var146 = this.mem(var145, 0xDB3F);
+                 int var147 = this.A();
+                 int var148 = this.alu("and", var147, var146);
+                 this.A(var148);
+                 int var149 = this.B();
+                 this.L(var149);
+                 int var150 = this.HL();
+                 int var151 = this.mem(var150, 0xDB41);
+                 int var152 = this.A();
+                 int var153 = this.alu("or", var152, var151);
+                 this.A(var153);
+                 this.exx();
+                 int var154 = this.A();
+                 int var155 = this.HL();
+                 this.wMem(var155, var154, 0xDB43);
+                 int var156 = this.L();
+                 int var157 = this.alu("inc", var156);
+                 this.L(var157);
+                 int var158 = this.HL();
+                 int var159 = this.mem(var158, 0xDB45);
+                 this.A(var159);
+                 int var160 = this.A();
+                 int var161 = this.DE();
+                 this.wMem(var161, var160, 0xDB46);
+                 int var162 = this.DE();
+                 int var163 = this.dec16(var162);
+                 this.DE(var163);
+                 this.exx();
+                 int var164 = this.pop();
+                 this.BC(var164);
+                 int var165 = this.C();
+                 this.L(var165);
+                 int var166 = this.HL();
+                 int var167 = this.mem(var166, 0xDB4B);
+                 int var168 = this.A();
+                 int var169 = this.alu("and", var168, var167);
+                 this.A(var169);
+                 int var170 = this.B();
+                 this.L(var170);
+                 int var171 = this.HL();
+                 int var172 = this.mem(var171, 0xDB4D);
+                 int var173 = this.A();
+                 int var174 = this.alu("or", var173, var172);
+                 this.A(var174);
+                 this.exx();
+                 int var175 = this.A();
+                 int var176 = this.HL();
+                 this.wMem(var176, var175, 0xDB4F);
+                 int var177 = this.L();
+                 int var178 = this.alu("inc", var177);
+                 this.L(var178);
+                 int var179 = this.HL();
+                 int var180 = this.mem(var179, 0xDB51);
+                 this.A(var180);
+                 int var181 = this.A();
+                 int var182 = this.DE();
+                 this.wMem(var182, var181, 0xDB52);
+                 int var183 = this.DE();
+                 int var184 = this.dec16(var183);
+                 this.DE(var184);
+                 this.exx();
+                 int var185 = this.pop();
+                 this.BC(var185);
+                 int var186 = this.C();
+                 this.L(var186);
+                 int var187 = this.HL();
+                 int var188 = this.mem(var187, 0xDB57);
+                 int var189 = this.A();
+                 int var190 = this.alu("and", var189, var188);
+                 this.A(var190);
+                 int var191 = this.B();
+                 this.L(var191);
+                 int var192 = this.HL();
+                 int var193 = this.mem(var192, 0xDB59);
+                 int var194 = this.A();
+                 int var195 = this.alu("or", var194, var193);
+                 this.A(var195);
+                 this.exx();
+                 int var196 = this.A();
+                 int var197 = this.HL();
+                 this.wMem(var197, var196, 0xDB5B);
+                 int var198 = this.H();
+                 int var199 = this.alu("inc", var198);
+                 this.H(var199);
+                 int var200 = this.B() - 1 & 255;
+                 this.B(var200);
+                 if(this.B() != 0) {
+                 } else {
+                    int var201 = this.C();
+                    this.A(var201);
+                    this.B(8);
+                    int var202 = this.B();
+                    int var203 = this.A();
+                    int var204 = this.alu("sub", var203, var202);
+                    this.A(var204);
+                    if(this.flag(1, true)) {
+                    } else {
+                       int var205 = this.B();
+                       int var206 = this.A();
+                       int var207 = this.alu("add", var206, var205);
+                       this.A(var207);
+                       if(this.flag(64, false)) {
+                          break;
+                       }
+
+                       int var208 = this.A();
+                       this.B(var208);
+                       int var209 = this.A();
+                       int var210 = this.A();
+                       int var211 = this.alu("xor", var210, var209);
+                       this.A(var211);
+                    }
+
+                    int var212 = this.A();
+                    this.C(var212);
+                    int var213 = this.L();
+                    this.A(var213);
+                    int var214 = this.A();
+                    int var215 = this.alu("add", var214, 32);
+                    this.A(var215);
+                    int var216 = this.A();
+                    this.L(var216);
+                    if(this.flag(1, true)) {
+                       int var218 = this.H();
+                       this.A(var218);
+                       int var219 = this.A();
+                       int var220 = this.alu("sub", var219, 8);
+                       this.A(var220);
+                       int var221 = this.A();
+                       this.H(var221);
+                    } else {
+                       int var217 = this.H();
+                       this.bit(4, var217);
+                       if(!this.flag(64, false)) {
+                          break;
+                       }
+
+                    }
+                 }
+
+              }
+
+              int var122 = this.mem16(0xF6FC, 0xDB89);
+              this.SP(var122);
+              int var123 = this.DE();
+              this.push(var123);
+              int var124 = this.SP();
+              this.wMem16(0xF6FC, var124, 0xDB8E);
+              int var125 = this.mem16(0xF6F6, 0xDB92);
+              this.SP(var125);
+              int var126 = this.DE();
+              this.wMem16(0xF6FA, var126, 0xDB96);
+              throw new StackException(0xDB9B, "DE");
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void targetRenegadeDC0CRestoresTheDrawnAreasFromTheList() {
+    // Target: Renegade DC0C-DC24: saves SP at F6F6, takes the list of drawn areas as its stack (LD SP,(F6FC)) and pops it until a zero word, then restores SP from F6F6 (the code at 8000 leaves one area on the list at 7000)
+    savesStackPointerAt(0xF6F6);
+    ignoresMemory(0x6FF0, 0x7001);
+    ignoresMemory(0xFF82, 0xFF83);
+    String java = translate(with(listing("""
+        8000  CD 0C DC  CALL 0xDC0C
+        8003  18 FE  JR 0x8003
+        DC0C  21 00 00  LD HL, 0x0000
+        DC0F  22 82 FF  LD (0xFF82), HL
+        DC12  ED 73 F6 F6  LD (0xF6F6), SP
+        DC16  ED 7B FC F6  LD SP, (0xF6FC)
+        DC1A  F1  POP AF
+        DC1B  E1  POP HL
+        DC1C  7D  LD A, L
+        DC1D  B4  OR A, H
+        DC1E  20 05  JR NZ, 0xDC25
+        DC20  ED 7B F6 F6  LD SP, (0xF6F6)
+        DC24  C9  RET
+        DC25  7C  LD A, H
+        DC26  18 FE  JR 0xDC26
+        """), at(0xF6FC, 0xFC, 0x6F), at(0x6FFC, 0x00, 0x00, 0x00, 0x00)));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              this.$DC0C();
+
+              while(true) {
+              }
+           }
+
+           public void $DC0C() {
+              this.HL(0);
+              int var1 = this.HL();
+              this.wMem16(0xFF82, var1, 0xDC0F);
+              int var2 = this.SP();
+              this.wMem16(0xF6F6, var2, 0xDC12);
+              int var3 = this.mem16(0xF6FC, 0xDC16);
+              this.SP(var3);
+              int var4 = this.pop();
+              this.AF(var4);
+              int var5 = this.pop();
+              this.HL(var5);
+              int var6 = this.L();
+              this.A(var6);
+              int var7 = this.H();
+              int var8 = this.A();
+              int var9 = this.alu("or", var8, var7);
+              this.A(var9);
+              if(this.flag(64, true)) {
+                 int var11 = this.H();
+                 this.A(var11);
+
+                 while(true) {
+                 }
+              }
+
+              int var10 = this.mem16(0xF6F6, 0xDC20);
+              this.SP(var10);
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void targetRenegadeC7A8ReadsTheSecondChannelTableWithTheStackAndRestoresSP() {
+    // Target: Renegade C7A8-C7F4 (bank 3 in the game, main memory here): the second channel does as C3A4 without saving SP again, its handler at C7F2 restores the SP the first channel saved at C487 (the code at 8000 saves SP there as C3A4 does; the loop at C7FA ends the scene)
+    savesStackPointerAt(0xC487);
+    String java = translate(with(listing("""
+        8000  ED 73 87 C4  LD (0xC487), SP
+        8004  C3 A8 C7  JP 0xC7A8
+        C7A8  26 C7  LD H, 0xC7
+        C7AA  2E 1A  LD L, 0x1A
+        C7AC  35  DEC (HL)
+        C7AD  20 49  JR NZ, 0xC7F8
+        C7AF  3A 19 C7  LD A, (0xC719)
+        C7B2  77  LD (HL), A
+        C7B3  31 15 C7  LD SP, 0xC715
+        C7B6  D1  POP DE
+        C7B7  C1  POP BC
+        C7B8  2E 1B  LD L, 0x1B
+        C7BA  6E  LD L, (HL)
+        C7BB  E9  JP 0x0000
+        C7F2  C5  PUSH BC
+        C7F3  D5  PUSH DE
+        C7F4  ED 7B 87 C4  LD SP, (0xC487)
+        C7F8  0E 0A  LD C, 0x0A
+        C7FA  18 FE  JR 0xC7FA
+        """), at(0xC715, 0x34, 0x12, 0x78, 0x56, 0x05, 0x01, 0xF2)));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              int var1 = this.SP();
+              this.wMem16(0xC487, var1, 0x8000);
+              this.H(199);
+              this.L(26);
+              int var2 = this.HL();
+              int var3 = this.mem(var2, 0xC7AC);
+              int var4 = this.alu("dec", var3);
+              int var5 = this.HL();
+              this.wMem(var5, var4, 0xC7AC);
+              if(this.flag(64, true)) {
+              } else {
+                 int var6 = this.mem(0xC719, 0xC7AF);
+                 this.A(var6);
+                 int var7 = this.A();
+                 int var8 = this.HL();
+                 this.wMem(var8, var7, 0xC7B2);
+                 this.SP(0xC715);
+                 int var9 = this.pop();
+                 this.DE(var9);
+                 int var10 = this.pop();
+                 this.BC(var10);
+                 this.L(27);
+                 int var11 = this.HL();
+                 int var12 = this.mem(var11, 0xC7BA);
+                 this.L(var12);
+                 if(this.HL() != 0xC7F2) {
+                    int var16 = this.HL();
+                    this.jump(var16);
+                    return;
+                 }
+
+                 int var13 = this.BC();
+                 this.push(var13);
+                 int var14 = this.DE();
+                 this.push(var14);
+                 int var15 = this.mem16(0xC487, 0xC7F4);
+                 this.SP(var15);
+              }
+
+              this.C(10);
+
+              while(true) {
+              }
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void renegade128At9701DrawsASpriteThroughAMaskTableWithTheStackAsItsPointer() {
+    // Renegade 128 96F0-9720: saves SP at 70B3, points SP at the sprite, takes each word with POP HL and masks the screen through the table at BExx, skips rows with ADD HL,SP / LD SP,HL and jumps to the restore at 97AB (the code at 8000 sets up both register sets for two rows of two bytes over FDxx)
+    savesStackPointerAt(0x70B3);
+    String java = translate(listing("""
+        8000  21 00 90  LD HL, 0x9000
+        8003  01 02 02  LD BC, 0x0202
+        8006  11 00 20  LD DE, 0x2000
+        8009  D9  EXX
+        800A  21 00 90  LD HL, 0x9000
+        800D  3E 02  LD A, 0x02
+        800F  D9  EXX
+        8010  CD F0 96  CALL 0x96F0
+        8013  18 FE  JR 0x8013
+        96F0  D9  EXX
+        96F1  7E  LD A, (HL)
+        96F2  23  INC HL
+        96F3  93  SUB A, E
+        96F4  08  EX AF, AFx
+        96F5  06 00  LD B, 0x00
+        96F7  CB 21  SLA C
+        96F9  09  ADD HL, BC
+        96FA  16 FD  LD D, 0xFD
+        96FC  ED 73 B3 70  LD (0x70B3), SP
+        9700  F3  DI
+        9701  F9  LD SP, HL
+        9702  D9  EXX
+        9703  7B  LD A, E
+        9704  D9  EXX
+        9705  5F  LD E, A
+        9706  08  EX AF, AFx
+        9707  47  LD B, A
+        9708  08  EX AF, AFx
+        9709  E1  POP HL
+        970A  4C  LD C, H
+        970B  26 BE  LD H, 0xBE
+        970D  1A  LD A, (DE)
+        970E  A6  AND A, (HL)
+        970F  69  LD L, C
+        9710  B6  OR A, (HL)
+        9711  12  LD (DE), A
+        9712  1C  INC E
+        9713  10 F4  DJNZ 0x9709
+        9715  D9  EXX
+        9716  69  LD L, C
+        9717  26 00  LD H, 0x00
+        9719  39  ADD HL, SP
+        971A  F9  LD SP, HL
+        971B  7B  LD A, E
+        971C  92  SUB A, D
+        971D  5F  LD E, A
+        971E  10 E4  DJNZ 0x9704
+        9720  C3 AB 97  JP 0x97AB
+        97AB  ED 7B B3 70  LD SP, (0x70B3)
+        97AF  FB  EI
+        97B0  C9  RET
+        """));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              this.HL(0x9000);
+              this.BC(514);
+              this.DE(8192);
+              this.exx();
+              this.HL(0x9000);
+              this.A(2);
+              this.exx();
+              this.$96F0();
+
+              while(true) {
+              }
+           }
+
+           public void $96F0() {
+              this.exx();
+              int var1 = this.HL();
+              int var2 = this.mem(var1, 0x96F1);
+              this.A(var2);
+              int var3 = this.HL();
+              int var4 = this.inc16(var3);
+              this.HL(var4);
+              int var5 = this.E();
+              int var6 = this.A();
+              int var7 = this.alu("sub", var6, var5);
+              this.A(var7);
+              int var8 = this.AF();
+              this.exAF(var8);
+              this.B(0);
+              int var9 = this.C();
+              int var10 = this.alu("sla", var9);
+              this.C(var10);
+              int var11 = this.BC();
+              int var12 = this.HL();
+              int var13 = this.alu("add16", var12, var11);
+              this.HL(var13);
+              this.D(253);
+              int var14 = this.SP();
+              this.wMem16(28851, var14, 0x96FC);
+              this.di();
+              int var15 = this.HL();
+              this.SP(var15);
+              this.exx();
+              int var16 = this.E();
+              this.A(var16);
+
+              while(true) {
+                 this.exx();
+                 int var17 = this.A();
+                 this.E(var17);
+                 int var18 = this.AF();
+                 this.exAF(var18);
+                 int var19 = this.A();
+                 this.B(var19);
+                 int var20 = this.AF();
+                 this.exAF(var20);
+
+                 while(true) {
+                    int var21 = this.pop();
+                    this.HL(var21);
+                    int var22 = this.H();
+                    this.C(var22);
+                    this.H(190);
+                    int var23 = this.DE();
+                    int var24 = this.mem(var23, 0x970D);
+                    this.A(var24);
+                    int var25 = this.HL();
+                    int var26 = this.mem(var25, 0x970E);
+                    int var27 = this.A();
+                    int var28 = this.alu("and", var27, var26);
+                    this.A(var28);
+                    int var29 = this.C();
+                    this.L(var29);
+                    int var30 = this.HL();
+                    int var31 = this.mem(var30, 0x9710);
+                    int var32 = this.A();
+                    int var33 = this.alu("or", var32, var31);
+                    this.A(var33);
+                    int var34 = this.A();
+                    int var35 = this.DE();
+                    this.wMem(var35, var34, 0x9711);
+                    int var36 = this.E();
+                    int var37 = this.alu("inc", var36);
+                    this.E(var37);
+                    int var38 = this.B() - 1 & 255;
+                    this.B(var38);
+                    if(this.B() == 0) {
+                       this.exx();
+                       int var39 = this.C();
+                       this.L(var39);
+                       this.H(0);
+                       int var40 = this.SP();
+                       int var41 = this.HL();
+                       int var42 = this.alu("add16", var41, var40);
+                       this.HL(var42);
+                       int var43 = this.HL();
+                       this.SP(var43);
+                       int var44 = this.E();
+                       this.A(var44);
+                       int var45 = this.D();
+                       int var46 = this.A();
+                       int var47 = this.alu("sub", var46, var45);
+                       this.A(var47);
+                       int var48 = this.A();
+                       this.E(var48);
+                       int var49 = this.B() - 1 & 255;
+                       this.B(var49);
+                       if(this.B() == 0) {
+                          int var50 = this.mem16(28851, 0x97AB);
+                          this.SP(var50);
+                          this.ei();
+                          return;
+                       }
+
+                       break;
+                    }
+
+                 }
+              }
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void renegade128At7C18RestartsWhereARewrittenCallGoesOnlyInTheExploration() {
+    // Renegade 128 7C18: LD (8483),DE rewrites the target of the CALL at 8482, and where the exploration follows it to 7C18, LD SP,BDFF drops that call (here behind the JP NZ the recording never takes, with DE = 7C18; the loops at 7C1B and 8485 end the scene)
+    ignoresMemory(0xBD00, 0xBDFF);
+    String java = translateFrom(0x8000, 0xBDFF, listing("""
+        8000  11 18 7C  LD DE, 0x7C18
+        8003  AF  XOR A, A
+        8004  C2 7D 84  JP NZ, 0x847D
+        8007  18 FE  JR 0x8007
+        847D  ED 53 83 84  LD (0x8483), DE
+        8481  E5  PUSH HL
+        8482  CD 5E 8F  CALL 0x8F5E
+        8485  18 FE  JR 0x8485
+        7C18  31 FF BD  LD SP, 0xBDFF
+        7C1B  18 FE  JR 0x7C1B
+        """));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+        import com.fpetrola.z80.minizx.StackException;
+
+        public class Program extends MiniZX {
+           public void $7C18() {
+              this.SP(0xBDFF);
+              this.$7C1B();
+           }
+
+           public void $7C1B() {
+              while(true) {
+                 try {
+                    while(true) {
+                    }
+                 } catch (StackException var3) {
+                    int[] var2 = new int[]{0x7C1B};
+                    if(!this.isOwnAddress(var3, var2)) {
+                       throw var3;
+                    }
+                 }
+              }
+           }
+
+           public void $8000() {
+              this.DE(31768);
+              int var1 = this.A();
+              int var2 = this.A();
+              int var3 = this.alu("xor", var2, var1);
+              this.A(var3);
+              if(!this.flag(64, true)) {
+                 while(true) {
+                 }
+              }
+
+              int var4 = this.DE();
+              this.wMem16(0x8483, var4, 0x847D);
+              int var5 = this.HL();
+              this.push(var5);
+              int var6 = this.executeMutantCode(0x8482);
+              if(var6 == 0x8485) {
+                 while(true) {
+                 }
+              }
+
+              if(var6 != -1) {
+                 this.jump(var6);
+              }
+
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
   public void aCallWhoseTargetIsRewrittenSwitchesOverTheRecordedTargets() {
     // Dizzy E299, Equinox D015
     String java = translate(
