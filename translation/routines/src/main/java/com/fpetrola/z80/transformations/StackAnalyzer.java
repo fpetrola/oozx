@@ -517,11 +517,12 @@ public class StackAnalyzer implements java.io.Serializable {
     int sp = state.getRegisterSP().read();
     Entry entry = new Entry(state.getMemory().read16Bits(sp), state.getPc().read(), returnAddress);
     entries.put(sp, entry);
-    consumedReturns.remove(sp - 2 & 0xffff);
     if (returnAddress && collecting())
       returnSlots.put(sp, entry.pc());
     if (!returnAddress)
       pushedValues.put(entry.pc(), entry.value());
+    if (returnAddress)
+      consumedReturns.remove(sp - 2 & 0xffff);
     if (returnAddress && entry.pc() != -1)
       frames.put(sp, new Frame(entry.pc(), enclosingFrame(sp + 2)));
     if (!stackAsRepository.active)

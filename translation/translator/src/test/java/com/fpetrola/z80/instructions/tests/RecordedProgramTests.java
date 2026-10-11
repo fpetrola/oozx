@@ -287,6 +287,30 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aRoutineThatSkipsTheDataAfterItsCallReturnsPastItEvenWithDataPushedAndPoppedInBetween() {
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0x2A, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0xE1, 0xD5, 0xD1, 0x23, 0xE9));
+    Assert.assertEquals(Integer.valueOf(0x8004), stackAnalyzer.callContinuations.get(0x8000));
+  }
+
+  @Test
+  public void aRoutineThatSkipsTheDataAfterItsCallByPushingTheShiftedReturnReturnsPastIt() {
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0x2A, 0x06, 0x01, 0x76, 0x18, 0xFD),
+        at(0x8010, 0xE1, 0xD5, 0xD1, 0x23, 0xE5, 0xC9));
+    Assert.assertEquals(Integer.valueOf(0x8004), stackAnalyzer.callContinuations.get(0x8000));
+  }
+
+  @Test
+  public void aRoutineThatSkipsTheDataAfterItsCallReturnsPastItAfterPeekingAtAParameterBelowTheReturn() {
+    translate(
+        at(0x8000, 0xD5, 0xCD, 0x10, 0x80, 0x00, 0xD1, 0x76, 0x18, 0xF7),
+        at(0x8010, 0xE1, 0xD1, 0xD5, 0x23, 0xE9));
+    Assert.assertEquals(Integer.valueOf(0x8005), stackAnalyzer.callContinuations.get(0x8001));
+  }
+
+  @Test
   public void aRoutineThatSkipsTheDataAfterItsCallReturnsPastIt() {
     // Emlyn 721D/7218: text after the CALL, ending the routine with JP (HL)
     String java = translate(
