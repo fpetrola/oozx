@@ -174,38 +174,7 @@ public class RoutineManager {
           nonLocalReturns.put(ret.getKey(), addressAfter(callSite));
           nonLocalReturnPoints.put(callSite, addressAfter(callSite));
           pushedReturnSites.add(callSite);
-        }));    planReturnsToCatchers();
-  }
-
-  /**
-   * A routine that only runs as the continuation its owner's catch takes after a POP took the return of a call there (Target: Renegade
-   * E0D6, run by D6E4 after E058's POP HL): when it jumps back into that owner (D794), the owner is still below on the Java stack, so the
-   * jump goes back to it as a dropped return point instead of calling it again, which nested one more owner on every turn.
-   */
-  private void planReturnsToCatchers() {
-    MultiValuedMap<Integer, Routine> catchers = new HashSetValuedHashMap<>();
-    routines.forEach(routine -> catchPointsOfCallsIn(routine).values().forEach(point -> catchers.put(point, routine)));
-    java.util.Set<Integer> reachedFromOutside = new java.util.HashSet<>();
-    instructions.forEach((address, instruction) -> {
-      Routine from = findRoutineAt(address);
-      int target = fixedJumpTarget(instruction), next = addressAfter(address);
-      if (from != null && target != -1 && findRoutineAt(target) != from)
-        reachedFromOutside.add(target);
-      if (from != null && fallsThrough(instruction) && findRoutineAt(next) != from)
-        reachedFromOutside.add(next);
-    });
-    instructions.forEach((address, instruction) -> {
-      Routine from = findRoutineAt(address), owner = findRoutineAt(fixedJumpTarget(instruction));
-      if (from != null && owner != null && owner != from && catchers.get(from.getEntryPoint()).size() == 1 && catchers.containsMapping(from.getEntryPoint(), owner) && !reachedFromOutside.contains(from.getEntryPoint())
-          && !externalEntries.contains(from.getEntryPoint())) {
-        returnsToCatchers.put(from.getEntryPoint(), fixedJumpTarget(instruction));
-        owner.addReturnPointDropped(fixedJumpTarget(instruction), fixedJumpTarget(instruction));
-      }
-    });
-  }
-
-  public boolean returnsToCatcher(Routine from, int target) {
-    return returnsToCatchers.containsMapping(from.getEntryPoint(), target);
+        }));
   }
 
   /**
@@ -264,7 +233,6 @@ public class RoutineManager {
 
   public final List<CodeVariant> codeVariants = new ArrayList<>();
   public final java.util.Set<Integer> externalEntries = new java.util.TreeSet<>();
-  private final MultiValuedMap<Integer, Integer> returnsToCatchers = new HashSetValuedHashMap<>();
   private int codeStart, codeEnd = 0x10000;
   private Map<Integer, Integer> spans = Map.of();
   private final java.util.Set<Integer> interiors = new java.util.HashSet<>();
