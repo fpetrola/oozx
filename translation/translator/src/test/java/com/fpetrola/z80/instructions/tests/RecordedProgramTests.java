@@ -28,6 +28,7 @@ import jakarta.inject.Inject;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -266,6 +267,29 @@ public class RecordedProgramTests {
       Assert.assertEquals(line, columns[2], new ToStringInstructionVisitor().createToString(decoder.fetchNextInstruction()).strip());
     }
     return chunks.toArray(int[][]::new);
+  }
+
+  /** The code and data from C000 up run in {@code bank}: the program at 8000 pages it, copies each piece there from A000 up, calls {@code entry} and pages bank 0 back. */
+  private int[][] inBank(int bank, int entry, int[][] chunks) {
+    banked = true;
+    List<int[]> program = new ArrayList<>(List.of(0x01, 0xFD, 0x7F, 0x3E, 0x10 | bank, 0xED, 0x79).stream().map(b -> new int[]{b}).toList());
+    List<int[]> pieces = new ArrayList<>();
+    int source = 0xA000;
+    for (int[] chunk : chunks) {
+      if (chunk[0] < 0xC000) {
+        pieces.add(chunk);
+        continue;
+      }
+      int length = chunk.length - 1;
+      program.add(new int[]{0x21, source & 0xff, source >> 8, 0x11, chunk[0] & 0xff, chunk[0] >> 8, 0x01, length & 0xff, length >> 8, 0xED, 0xB0});
+      int[] copy = chunk.clone();
+      copy[0] = source;
+      pieces.add(copy);
+      source += length;
+    }
+    program.add(new int[]{0xCD, entry & 0xff, entry >> 8, 0x01, 0xFD, 0x7F, 0x3E, 0x10, 0xED, 0x79, 0x18, 0xFE});
+    pieces.add(at(START, program.stream().flatMapToInt(Arrays::stream).toArray()));
+    return pieces.toArray(int[][]::new);
   }
 
   /** The code of a listing with data around it. */
@@ -1754,6 +1778,234 @@ public class RecordedProgramTests {
            }
         }
         """, withoutTiming(java));
+  }
+
+  @Test
+  public void targetRenegadeC3A4ReadsAChannelTableWithTheStackAndRestoresItsSP() {
+    // Target: Renegade C3A4-C3F4 (bank 3 in the game, main memory here): saves SP at C487, points SP at the channel table (LD SP,C315), takes two words with POP, jumps to the handler the table names (C31B = F2) which pushes them back and restores SP from C487 (the code at 8000 calls it; the loop at C3FA ends the scene)
+    savesStackPointerAt(0xC487);
+    String java = translate(with(listing("""
+        8000  CD A4 C3  CALL 0xC3A4
+        8003  18 FE  JR 0x8003
+        C3A4  ED 73 87 C4  LD (0xC487), SP
+        C3A8  26 C3  LD H, 0xC3
+        C3AA  2E 1A  LD L, 0x1A
+        C3AC  35  DEC (HL)
+        C3AD  20 49  JR NZ, 0xC3F8
+        C3AF  3A 19 C3  LD A, (0xC319)
+        C3B2  77  LD (HL), A
+        C3B3  31 15 C3  LD SP, 0xC315
+        C3B6  D1  POP DE
+        C3B7  C1  POP BC
+        C3B8  2E 1B  LD L, 0x1B
+        C3BA  6E  LD L, (HL)
+        C3BB  E9  JP 0x0000
+        C3F2  C5  PUSH BC
+        C3F3  D5  PUSH DE
+        C3F4  ED 7B 87 C4  LD SP, (0xC487)
+        C3F8  0E 08  LD C, 0x08
+        C3FA  18 FE  JR 0xC3FA
+        """), at(0xC315, 0x34, 0x12, 0x78, 0x56, 0x05, 0x01, 0xF2)));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              this.$C3A4();
+           }
+
+           public void $C3A4() {
+              int var1 = this.SP();
+              this.wMem16(0xC487, var1, 0xC3A4);
+              this.H(195);
+              this.L(26);
+              int var2 = this.HL();
+              int var3 = this.mem(var2, 0xC3AC);
+              int var4 = this.alu("dec", var3);
+              int var5 = this.HL();
+              this.wMem(var5, var4, 0xC3AC);
+              if(this.flag(64, true)) {
+              } else {
+                 int var6 = this.mem(0xC319, 0xC3AF);
+                 this.A(var6);
+                 int var7 = this.A();
+                 int var8 = this.HL();
+                 this.wMem(var8, var7, 0xC3B2);
+                 this.SP(0xC315);
+                 int var9 = this.pop();
+                 this.DE(var9);
+                 int var10 = this.pop();
+                 this.BC(var10);
+                 this.L(27);
+                 int var11 = this.HL();
+                 int var12 = this.mem(var11, 0xC3BA);
+                 this.L(var12);
+                 if(this.HL() != 0xC3F2) {
+                    int var16 = this.HL();
+                    this.jump(var16);
+                    return;
+                 }
+
+                 int var13 = this.BC();
+                 this.push(var13);
+                 int var14 = this.DE();
+                 this.push(var14);
+                 int var15 = this.mem16(0xC487, 0xC3F4);
+                 this.SP(var15);
+              }
+
+              this.C(8);
+
+              while(true) {
+              }
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void targetRenegadeC461CallsOnASecondStackAndTheCalleeGoesBackThroughIX() {
+    // Target: Renegade C44C-C46C (bank 3 in the game, main memory here): restores SP from C487 after another LD SP, takes the channel's own stack from C3A0, and CALL C132 pops its return into IX, takes the channel's word and goes back with JP (IX); then the channel stack is saved and the game's restored (the code at 8000 saves SP at C487 as C3A4 does; the channel stack at 9000 holds B = 2; the loop at C470 ends the scene)
+    savesStackPointerAt(0xC487);
+    savesStackPointerAt(0xC3A0);
+    ignoresMemory(0x8FF0, 0x9001);
+    String java = translate(with(listing("""
+        8000  ED 73 87 C4  LD (0xC487), SP
+        8004  C3 4C C4  JP 0xC44C
+        C44C  0E 00  LD C, 0x00
+        C44E  ED 7B 87 C4  LD SP, (0xC487)
+        C452  2A 20 C3  LD HL, (0xC320)
+        C455  CD DB C6  CALL 0xC6DB
+        C458  3A A3 C3  LD A, (0xC3A3)
+        C45B  B7  OR A, A
+        C45C  C2 A8 C5  JP NZ, 0xC5A8
+        C45F  16 C3  LD D, 0xC3
+        C461  ED 7B A0 C3  LD SP, (0xC3A0)
+        C465  CD 32 C1  CALL 0xC132
+        C468  ED 73 A0 C3  LD (0xC3A0), SP
+        C46C  ED 7B 87 C4  LD SP, (0xC487)
+        C470  18 FE  JR 0xC470
+        C132  DD E1  POP IX
+        C134  C1  POP BC
+        C135  10 0F  DJNZ 0xC146
+        C146  B7  OR A, A
+        C147  C5  PUSH BC
+        C148  DD E9  JP 0x0000
+        C5A8  18 FE  JR 0xC5A8
+        """, 0xC6DB), at(0xC3A0, 0x00, 0x90), at(0x9000, 0x00, 0x02)));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              int var1 = this.SP();
+              this.wMem16(0xC487, var1, 0x8000);
+              this.C(0);
+              int var2 = this.mem16(0xC487, 0xC44E);
+              this.SP(var2);
+              int var3 = this.mem16(0xC320, 0xC452);
+              this.HL(var3);
+              this.$C6DB();
+              int var4 = this.mem(0xC3A3, 0xC458);
+              this.A(var4);
+              int var5 = this.A();
+              int var6 = this.A();
+              int var7 = this.alu("or", var6, var5);
+              this.A(var7);
+              if(!this.flag(64, true)) {
+                 this.D(195);
+                 int var8 = this.mem16(0xC3A0, 0xC461);
+                 this.SP(var8);
+                 this.push(0xC468);
+                 int var9 = this.SP();
+                 this.$C132();
+                 if(this.SP() == var9) {
+                    this.pop();
+                 }
+
+                 int var10 = this.SP();
+                 this.wMem16(0xC3A0, var10, 0xC468);
+                 int var11 = this.mem16(0xC487, 0xC46C);
+                 this.SP(var11);
+
+                 while(true) {
+                 }
+              }
+
+              while(true) {
+              }
+           }
+
+           public void $C132() {
+              int var1 = this.pop();
+              this.IX(var1);
+              int var2 = this.pop();
+              this.BC(var2);
+              int var3 = this.B() - 1 & 255;
+              this.B(var3);
+              if(this.B() != 0) {
+              } else {
+              }
+
+              int var4 = this.A();
+              int var5 = this.A();
+              int var6 = this.alu("or", var5, var4);
+              this.A(var6);
+              int var7 = this.BC();
+              this.push(var7);
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Ignore("open (P5): the copy runs neither the game's virtual POP nor a real push, so POP IX at C132 takes the channel's word 0200 instead of C468; the game gets the virtual POP ($4132 throws, the catch sets IX = C468)")
+  @Test
+  public void targetRenegadeC461InBankThreeCallsOnASecondStackAndTheCalleeGoesBackThroughIX() {
+    // Target: Renegade C44C-C46C as it runs, in bank 3: the translation runs it from a copy below C000, and the return C132 pops into IX must be the original C468 (C400 saves SP at C487 as C3A4 does; the channel stack at 7000 holds B = 2; the RET at C470 ends the scene)
+    savesStackPointerAt(0xC487);
+    savesStackPointerAt(0xC3A0);
+    ignoresMemory(0x6FF0, 0x7001);
+    translate(inBank(3, 0xC400, with(listing("""
+        C400  ED 73 87 C4  LD (0xC487), SP
+        C404  C3 4C C4  JP 0xC44C
+        C44C  0E 00  LD C, 0x00
+        C44E  ED 7B 87 C4  LD SP, (0xC487)
+        C452  2A 20 C3  LD HL, (0xC320)
+        C455  CD DB C6  CALL 0xC6DB
+        C458  3A A3 C3  LD A, (0xC3A3)
+        C45B  B7  OR A, A
+        C45C  C2 A8 C5  JP NZ, 0xC5A8
+        C45F  16 C3  LD D, 0xC3
+        C461  ED 7B A0 C3  LD SP, (0xC3A0)
+        C465  CD 32 C1  CALL 0xC132
+        C468  ED 73 A0 C3  LD (0xC3A0), SP
+        C46C  ED 7B 87 C4  LD SP, (0xC487)
+        C470  C9  RET
+        C132  DD E1  POP IX
+        C134  C1  POP BC
+        C135  10 0F  DJNZ 0xC146
+        C146  B7  OR A, A
+        C147  C5  PUSH BC
+        C148  DD E9  JP 0x0000
+        C5A8  18 FE  JR 0xC5A8
+        """, 0xC6DB), at(0xC3A0, 0x00, 0x70), at(0xC3A3, 0x00), at(0x7000, 0x00, 0x02))));
+  }
+
+  @Ignore("open (P5): the continuation a CALL with inline data learns at its original address does not reach the copy, which stops at 'no translated routine at C004'")
+  @Test
+  public void aCallWithInlineDataInAnotherBanksCodeReturnsPastTheDataInItsCopy() {
+    // the shape of Target: Renegade C465/C132 in bank 3 when the callee goes back past the data with JP (HL) instead of a POP into IX
+    translate(inBank(3, 0xC000, listing("""
+        C000  CD 08 C0  CALL 0xC008
+        C003  07  RLCA A
+        C004  57  LD D, A
+        C005  C9  RET
+        C008  E1  POP HL
+        C009  7E  LD A, (HL)
+        C00A  23  INC HL
+        C00B  E9  JP 0x0000
+        """)));
+    Assert.assertEquals(0x07, endValue("D"));
   }
 
   @Test
