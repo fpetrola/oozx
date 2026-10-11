@@ -3679,6 +3679,89 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aCalleeThatPopsItsReturnAndJumpsBackToTheLoopKeepsTheLoopInOneJavaFrame() {
+    // Target: Renegade D75D/D780 CALL E058: E058 sometimes returns, sometimes takes its return with POP HL (E0D5) and goes back into the main loop (JP NZ,D794); the loop must not grow a Java frame for every such turn
+    String java = translate(listing("""
+        8000  CD 00 81  CALL 0x8100
+        8003  76  HALT
+        8100  04  INC B
+        8101  78  LD A, B
+        8102  FE 06  CP A, 0x06
+        8104  C8  RET Z
+        8105  CD 00 82  CALL 0x8200
+        8108  0C  INC C
+        8109  18 F5  JR 0x8100
+        8200  78  LD A, B
+        8201  FE 03  CP A, 0x03
+        8203  28 08  JR Z, 0x820D
+        8205  E1  POP HL
+        8206  14  INC D
+        8207  C2 08 81  JP NZ, 0x8108
+        820A  C3 00 81  JP 0x8100
+        820D  C9  RET
+        """));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+        import com.fpetrola.z80.minizx.StackException;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              this.$8100();
+              this.halt(0x8003);
+              this.$8100();
+           }
+
+           public void $8100() {
+              while(true) {
+                 int var1 = this.B();
+                 int var2 = this.alu("inc", var1);
+                 this.B(var2);
+                 int var3 = this.B();
+                 this.A(var3);
+                 int var4 = this.A();
+                 this.alu("cp", var4, 6);
+                 if(this.flag(64, false)) {
+                    return;
+                 }
+
+                 try {
+                    this.$8200();
+                 } catch (StackException var11) {
+                    int[] var6 = new int[]{0x8206};
+                    if(this.ownAddress(var11, var6) != 0x8206) {
+                       return;
+                    }
+
+                    this.HL(0x8108);
+                    int var7 = this.D();
+                    int var8 = this.alu("inc", var7);
+                    this.D(var8);
+                    if(!this.flag(64, true)) {
+                       continue;
+                    }
+                 }
+
+                 int var9 = this.C();
+                 int var10 = this.alu("inc", var9);
+                 this.C(var10);
+              }
+           }
+
+           public void $8200() {
+              int var1 = this.B();
+              this.A(var1);
+              int var2 = this.A();
+              this.alu("cp", var2, 3);
+              if(this.flag(64, false)) {
+              } else {
+                 throw new StackException(0x8206, "HL");
+              }
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
   public void aCallWhoseTargetIsRewrittenSwitchesOverTheRecordedTargets() {
     // Dizzy E299, Equinox D015
     String java = translate(
