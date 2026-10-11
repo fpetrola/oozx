@@ -67,8 +67,8 @@ public class StackAnalyzer implements java.io.Serializable {
   private final transient Map<Integer, int[]> leftStacks = new HashMap<>();
   private transient int switchHomeSp = -1, lastStorePlace = -1;
   private transient boolean callSinceLoad;
-  /** How the frame a RET closes left an inner frame behind without its RET: a POP took the return of a rewritten call, the inner call is still pending after a stack reset, a reset dropped returns, or a reset left a stack the recording never saw being pushed. */
-  public enum Abandon {POPPED_REWRITTEN_CALL, INNER_CALL_PENDING, RETURNS_DROPPED, UNKNOWN_STACK}
+  /** How the frame a RET closes left an inner frame behind without its RET: a POP took the return of a rewritten call, the inner call is still pending after a stack reset, or a reset left a stack the recording never saw being pushed. */
+  public enum Abandon {POPPED_REWRITTEN_CALL, INNER_CALL_PENDING, UNKNOWN_STACK}
 
   public record AbandoningRet(int sp, Abandon how) implements java.io.Serializable {
   }
@@ -388,7 +388,7 @@ public class StackAnalyzer implements java.io.Serializable {
         boolean pastPoppedReturn = entry != null && entry.returnAddress() && popped != null && codeVersions.isVersioned(popped.pc());
         boolean abandonsInnerCall = entry != null && entry.returnAddress() && abandonsInnerCall(state.getRegisterSP().read());
         Abandon how = pastPoppedReturn ? Abandon.POPPED_REWRITTEN_CALL : abandonsInnerCall ? Abandon.INNER_CALL_PENDING : !afterStackReset ? null
-            : returnsDropped ? (entry != null && entry.returnAddress() ? Abandon.RETURNS_DROPPED : null) : entry == null && knowsWholeStack ? Abandon.UNKNOWN_STACK : null;
+            : !returnsDropped && entry == null && knowsWholeStack ? Abandon.UNKNOWN_STACK : null;
         if (collecting() && how != null)
           abandoningRets.put(pcValue, new AbandoningRet(state.getRegisterSP().read(), how));
         if (entry == null && afterStackReset && knowsWholeStack)
