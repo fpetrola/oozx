@@ -769,6 +769,15 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aReturnPoppedOnlyInAForkedBranchIsNoAbandonmentOfTheRecordedRun() {
+    translate(
+        at(0x8000, 0xCD, 0x10, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8010, 0xCD, 0x20, 0x80, 0xC9),
+        at(0x8020, 0xAF, 0x20, 0x01, 0xC9, 0xE1, 0x18, 0xFE));
+    Assert.assertTrue(stackAnalyzer.abandoningRets.get(0x8013).isEmpty());
+  }
+
+  @Test
   public void aReturnPoppedDeepInsideACallIsAnAbandonmentOfThatCallsFrameWhateverTheStackDidSince() {
     // Rainbow Islands D44C: the return of CALL CB2B was popped at CF09, with more pushes and pops before the RET Z that closes CALL D470's frame
     translate(
