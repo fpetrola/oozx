@@ -1675,6 +1675,18 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aStackResetDropsAReturnEvenWhenTheWordsAboveItWereWrittenByPlainStores() {
+    // Batman 61BA: LD SP from EFE6 to EFEE leaves the return of CALL EC5E behind; EFEA-EFED had been written by a plain store, not by a push
+    ignoresMemory(0xFB00, 0xFC08);
+    translate(
+        at(0x8000, 0x31, 0x00, 0xFC, 0xCD, 0x50, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8050, 0xF3, 0x21, 0x00, 0x00, 0x22, 0x00, 0xFC, 0x31, 0x04, 0xFC, 0xCD, 0x70, 0x80, 0x04, 0x18, 0xFA),
+        at(0x8070, 0x3C, 0xC9));
+    Assert.assertTrue(routineManager.externalEntries.contains(0x805A));
+    Assert.assertTrue(endValue("A") > 0);
+  }
+
+  @Test
   public void aRecordingStartsAtTheFirstInstructionItRunsInGameRam() {
     // Monty on the Run's snapshot sits at AAC5 in the game; Skool Daze's sits in the ROM interrupt at 0038 and the game goes on at 673F
     Assert.assertEquals(0xAAC5, RemoteZ80Translator.startOf("/home/fernando/detodo/spectrum/montyontherun.rzx"));
