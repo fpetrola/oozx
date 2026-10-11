@@ -1136,6 +1136,281 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void batmanDCEBWalksATableOfSpritePointersWithTheStack() {
+    // Batman DCEB-DCF4: the table entry (DE') and page (C') make an address, SP goes there, POP HL takes the sprite's address and SP goes to the sprite (the code at 8000 sets up one entry; DD3D, a rewritten JP target in the game, ends the scene)
+    String java = translate(with(listing("""
+        8000  D9  EXX
+        8001  11 00 90  LD DE, 0x9000
+        8004  0E 91  LD C, 0x91
+        8006  D9  EXX
+        8007  C3 EB DC  JP 0xDCEB
+        DCEB  D9  EXX
+        DCEC  1A  LD A, (DE)
+        DCED  6F  LD L, A
+        DCEE  61  LD H, C
+        DCEF  F9  LD SP, HL
+        DCF0  E1  POP HL
+        DCF1  F9  LD SP, HL
+        DCF2  13  INC DE
+        DCF3  D9  EXX
+        DCF4  C3 3D DD  JP 0xDD3D
+        DD3D  18 FE  JR 0xDD3D
+        """), at(0x9000, 0x10), at(0x9110, 0x00, 0x92)));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              this.exx();
+              this.DE(0x9000);
+              this.C(145);
+              this.exx();
+              this.exx();
+              int var1 = this.DE();
+              int var2 = this.mem(var1, 0xDCEC);
+              this.A(var2);
+              int var3 = this.A();
+              this.L(var3);
+              int var4 = this.C();
+              this.H(var4);
+              int var5 = this.HL();
+              this.SP(var5);
+              int var6 = this.pop();
+              this.HL(var6);
+              int var7 = this.HL();
+              this.SP(var7);
+              int var8 = this.DE();
+              int var9 = this.inc16(var8);
+              this.DE(var9);
+              this.exx();
+
+              while(true) {
+              }
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void emlyn98C2ReadsAWordWithPopAndStepsBackAByte() {
+    // Emlyn Hughes 98C2: POP DE / DEC SP takes a byte from the sprite and leaves SP on the next one (the code at 8000 points SP at the sprite and HL at the screen; the loop at 98C5 ends the scene, where the game goes on with JR Z)
+    String java = translate(with(listing("""
+        8000  F3  DI
+        8001  31 00 90  LD SP, 0x9000
+        8004  21 00 FD  LD HL, 0xFD00
+        8007  C3 C2 98  JP 0x98C2
+        98C2  D1  POP DE
+        98C3  3B  DEC SP
+        98C4  73  LD (HL), E
+        98C5  18 FE  JR 0x98C5
+        """), at(0x9000, 0x5A, 0xA5)));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              this.di();
+              this.SP(0x9000);
+              this.HL(0xFD00);
+              int var1 = this.pop();
+              this.DE(var1);
+              int var2 = this.SP();
+              int var3 = this.dec16(var2);
+              this.SP(var3);
+              int var4 = this.E();
+              int var5 = this.HL();
+              this.wMem(var5, var4, 0x98C4);
+
+              while(true) {
+              }
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void zynaps88DETakesTheCallersWordsAndSkipsOne() {
+    // Zynaps 88D8-88E4: pops two words over its own push and one more, then INC SP / INC SP skips the next word before pushing (the code at 8000 pushes three words as the caller does; the loop at 88E5 ends the scene)
+    String java = translate(listing("""
+        8000  21 11 11  LD HL, 0x1111
+        8003  E5  PUSH HL
+        8004  21 22 22  LD HL, 0x2222
+        8007  E5  PUSH HL
+        8008  21 33 33  LD HL, 0x3333
+        800B  E5  PUSH HL
+        800C  C3 D8 88  JP 0x88D8
+        88D8  E5  PUSH HL
+        88D9  79  LD A, C
+        88DA  E6 03  AND A, 0x03
+        88DC  EE 47  XOR A, 0x47
+        88DE  E1  POP HL
+        88DF  E1  POP HL
+        88E0  C1  POP BC
+        88E1  33  INC SP
+        88E2  33  INC SP
+        88E3  F5  PUSH AF
+        88E4  C5  PUSH BC
+        88E5  18 FE  JR 0x88E5
+        """));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              this.HL(4369);
+              int var1 = this.HL();
+              this.push(var1);
+              this.HL(8738);
+              int var2 = this.HL();
+              this.push(var2);
+              this.HL(13107);
+              int var3 = this.HL();
+              this.push(var3);
+              int var4 = this.HL();
+              this.push(var4);
+              int var5 = this.C();
+              this.A(var5);
+              int var6 = this.A();
+              int var7 = this.alu("and", var6, 3);
+              this.A(var7);
+              int var8 = this.A();
+              int var9 = this.alu("xor", var8, 71);
+              this.A(var9);
+              int var10 = this.pop();
+              this.HL(var10);
+              int var11 = this.pop();
+              this.HL(var11);
+              int var12 = this.pop();
+              this.BC(var12);
+              int var13 = this.SP();
+              int var14 = this.inc16(var13);
+              this.SP(var14);
+              int var15 = this.SP();
+              int var16 = this.inc16(var15);
+              this.SP(var16);
+              int var17 = this.AF();
+              this.push(var17);
+              int var18 = this.BC();
+              this.push(var18);
+
+              while(true) {
+              }
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void theRomErrorRestartRestoresTheStackFromErrSp() {
+    // ROM 0053-005C: a BASIC error takes its code, stores it in ERR_NR and goes back to the SP saved at ERR_SP (5C3D); only forks get there (here behind the JP NZ the recording never takes; 16C5 ends the scene)
+    ignoresMemory(0x0000, 0x0000);
+    String java = translate(with(listing("""
+        8000  AF  XOR A, A
+        8001  C2 53 00  JP NZ, 0x0053
+        8004  18 FE  JR 0x8004
+        0053  E1  POP HL
+        0054  6E  LD L, (HL)
+        0055  FD 75 00  LD (IY+00), L
+        0058  ED 7B 3D 5C  LD SP, (0x5C3D)
+        005C  C3 C5 16  JP 0x16C5
+        16C5  18 FE  JR 0x16C5
+        """), at(0x5C3D, 0xF0, 0xFE)));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              int var1 = this.A();
+              int var2 = this.A();
+              int var3 = this.alu("xor", var2, var1);
+              this.A(var3);
+              if(!this.flag(64, true)) {
+                 while(true) {
+                 }
+              }
+
+              this.untranslated(83);
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void headOverHeelsC219IsDataAForkRunsAsCode() {
+    // Head over Heels C219-C224: data a fork runs as code, with an LD SP,HL whose value means nothing (here behind the JP NZ the recording never takes; 0020 only returns, the loop at C225 ends the scene)
+    String java = translate(listing("""
+        8000  AF  XOR A, A
+        8001  C2 19 C2  JP NZ, 0xC219
+        8004  18 FE  JR 0x8004
+        C219  67  LD H, A
+        C21A  A9  XOR A, C
+        C21B  B0  OR A, B
+        C21C  6E  LD L, (HL)
+        C21D  6C  LD L, H
+        C21E  8F  ADC A, A
+        C21F  9B  SBC A, E
+        C220  E7  RST
+        C221  E7  RST
+        C222  F9  LD SP, HL
+        C223  9F  SBC A, A
+        C224  76  HALT
+        C225  18 FE  JR 0xC225
+        """, 0x0020));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              int var1 = this.A();
+              int var2 = this.A();
+              int var3 = this.alu("xor", var2, var1);
+              this.A(var3);
+              if(!this.flag(64, true)) {
+                 while(true) {
+                 }
+              }
+
+              int var4 = this.A();
+              this.H(var4);
+              int var5 = this.C();
+              int var6 = this.A();
+              int var7 = this.alu("xor", var6, var5);
+              this.A(var7);
+              int var8 = this.B();
+              int var9 = this.A();
+              int var10 = this.alu("or", var9, var8);
+              this.A(var10);
+              int var11 = this.HL();
+              int var12 = this.mem(var11, 0xC21C);
+              this.L(var12);
+              int var13 = this.H();
+              this.L(var13);
+              int var14 = this.A();
+              int var15 = this.A();
+              int var16 = this.alu("adc", var15, var14);
+              this.A(var16);
+              int var17 = this.E();
+              int var18 = this.A();
+              int var19 = this.alu("sbc", var18, var17);
+              this.A(var19);
+              this.untranslated(32);
+              this.untranslated(32);
+              int var20 = this.HL();
+              this.SP(var20);
+              int var21 = this.A();
+              int var22 = this.A();
+              int var23 = this.alu("sbc", var22, var21);
+              this.A(var23);
+              this.halt(0xC224);
+
+              while(true) {
+              }
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
   public void aCallWhoseTargetIsRewrittenSwitchesOverTheRecordedTargets() {
     // Dizzy E299, Equinox D015
     String java = translate(
