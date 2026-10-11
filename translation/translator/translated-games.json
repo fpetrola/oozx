@@ -2,6 +2,7 @@
   "game": "headoverheels",
   "mode": "replay",
   "recording": null,
+  "speed": 1,
   "games": {
     "exolon": {
       "title": "Exolon",

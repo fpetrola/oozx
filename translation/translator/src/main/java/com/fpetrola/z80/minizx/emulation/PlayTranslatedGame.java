@@ -14,9 +14,10 @@ import java.util.function.Predicate;
 
 /**
  * Runs a translated game as translated-games.json says: "game" names the entry of "games" to run and "mode" is
- * "play" (keyboard, at Spectrum speed, from the point where the game's recording reaches its entry) or "replay"
- * (the recording's inputs drive the translation, with progress on the console). -Dgame=, -Dmode= and -Dconfig=
- * override the file, which is looked for in the working directory and in translation/translator.
+ * "play" (keyboard, from the point where the game's recording reaches its entry) or "replay" (the recording's
+ * inputs drive the translation, with progress on the console); "speed" is how many times the Spectrum's speed it
+ * runs at, 0 for as fast as it goes. -Dgame=, -Dmode=, -Dspeed= and -Dconfig= override the file, which is looked
+ * for in the working directory and in translation/translator.
  */
 public class PlayTranslatedGame {
   private static final long TSTATES_PER_FRAME = 69888, NANOS_PER_FRAME = 20_000_000;
@@ -31,7 +32,11 @@ public class PlayTranslatedGame {
     }
   }
 
-  public record Config(String game, String mode, String recording, Map<String, Translated> games) {
+  /** speed: how many times the Spectrum's speed the game runs at, 0 for as fast as it goes; 1 when absent. */
+  public record Config(String game, String mode, String recording, Double speed, Map<String, Translated> games) {
+    double pace() {
+      return Double.parseDouble(System.getProperty("speed", String.valueOf(speed == null ? 1 : speed)));
+    }
   }
 
   public static void main(String[] args) throws Exception {
@@ -43,7 +48,7 @@ public class PlayTranslatedGame {
     String recording = args.length > 0 ? args[0] : config.recording() != null ? config.recording() : translated.recording();
     int entry = translated.entryAddress();
     System.out.println(translated.title() + " (" + translated.type() + ") from $" + Integer.toHexString(entry).toUpperCase() + ", " + System.getProperty("mode", config.mode()));
-    MiniZX game = System.getProperty("mode", config.mode()).equals("replay") ? replaying(recording, entry, translated.gameClass()) : playing(translated, recording, entry);
+    MiniZX game = System.getProperty("mode", config.mode()).equals("replay") ? replaying(recording, entry, translated.gameClass(), config.pace()) : playing(translated, recording, entry, config.pace());
     try {
       game.run(entry);
     } catch (RuntimeException e) {
@@ -59,15 +64,15 @@ public class PlayTranslatedGame {
     return Files.exists(here) ? here : Path.of("translation/translator").resolve(name);
   }
 
-  private static Predicate<Integer> atSpectrumSpeed(MiniZX game) {
+  private static Predicate<Integer> atSpeed(MiniZX game, double speed) {
     long start = System.nanoTime();
     long[] firstTstates = {-1}, nextFrame = {0};
     return fetches -> {
       long tstates = game.tstates;
       if (firstTstates[0] < 0)
         nextFrame[0] = (firstTstates[0] = tstates) + TSTATES_PER_FRAME;
-      long ahead = start + (tstates - firstTstates[0]) * NANOS_PER_FRAME / TSTATES_PER_FRAME - System.nanoTime();
-      if (ahead > 1_000_000)
+      long ahead = start + (long) ((tstates - firstTstates[0]) * NANOS_PER_FRAME / TSTATES_PER_FRAME / speed) - System.nanoTime();
+      if (speed > 0 && ahead > 1_000_000)
         LockSupport.parkNanos(ahead);
       boolean frameEnded = tstates >= nextFrame[0];
       if (frameEnded)
@@ -76,16 +81,16 @@ public class PlayTranslatedGame {
     };
   }
 
-  private static MiniZX playing(Translated translated, String recording, int entry) throws Exception {
+  private static MiniZX playing(Translated translated, String recording, int entry, double speed) throws Exception {
     EmulatedMiniZX emulator = recording != null ? EmulatedMiniZX.ofRecording(recording, -1, null).stoppingAt(entry) : new EmulatedMiniZX(translated.snapshot(), 1, false, 0, false);
     emulator.start();
     MiniZX game = (MiniZX) translated.gameClass().getConstructor().newInstance();
     game.loadState(emulator.ooz80.getState());
-    game.setInterruptionCondition(atSpectrumSpeed(game));
+    game.setInterruptionCondition(atSpeed(game, speed));
     return game;
   }
 
-  private static MiniZX replaying(String recording, int entry, Class<?> type) throws Exception {
+  private static MiniZX replaying(String recording, int entry, Class<?> type, double speed) throws Exception {
     System.setProperty("rzx.advance", "ins");
     EmulatedMiniZX emulator = EmulatedMiniZX.ofRecording(recording, -1, null).stoppingAt(entry);
     emulator.start();
@@ -97,7 +102,7 @@ public class PlayTranslatedGame {
     SpectrumApplication.io = player;
     player.setAcceptsInterrupt(game::acceptsInterrupt);
     IntPredicate endOfFrame = player.getInterruptionCondition();
-    Predicate<Integer> pace = atSpectrumSpeed(game);
+    Predicate<Integer> pace = atSpeed(game, speed);
     game.setInterruptionCondition(fetches -> {
       pace.test(fetches);
       return endOfFrame.test(fetches);
