@@ -29,7 +29,7 @@ import com.fpetrola.emulation.helpers.snapshots.SnapshotLoader;
 import com.fpetrola.z80.minizx.MiniZX;
 import com.fpetrola.z80.minizx.DefaultMiniZXIO;
 import com.fpetrola.z80.minizx.MiniZXIO;
-import com.fpetrola.z80.minizx.MiniZXScreen;
+import com.fpetrola.z80.minizx.ZXScreenComponent;
 import com.fpetrola.z80.minizx.SpectrumApplication;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.minizx.MiniZXKeyboard;
@@ -52,7 +52,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import java.util.function.Function;
 
 public class EmulatedMiniZX {
   public OOZ80 ooz80;
@@ -203,12 +202,6 @@ public class EmulatedMiniZX {
     return this;
   }
 
-  public static <S extends Integer> Function<java.lang.Integer, java.lang.Integer> getMemFunction(OOZ80 ooz81) {
-    return index -> {
-      return ooz81.getState().getMemory().read(index, 10);
-    };
-  }
-
   public void start() {
     MiniZXIO io = rzxFile == null ? new DefaultMiniZXIO() : new RZXPlayerIO();
     ooz80 = timed ? createTimedOOZ80(io) : createOOZ80(io);
@@ -220,8 +213,6 @@ public class EmulatedMiniZX {
       stackAnalyzer.reset(ooz80.getState());
       stackAnalyzer.addExecutionListener(ooz80.getInstructionExecutor());
     }
-    if (showScreen)
-      MiniZX.createScreen(io.getMiniZXKeyboard(), new MiniZXScreen(getMemFunction(ooz80)));
 
     RegistersBase registersBase = new RegistersBase(ooz80.getState());
 
@@ -250,6 +241,11 @@ public class EmulatedMiniZX {
       });
     }
     state.getMemory().protect(0, SpectrumApplication.ROM_END);
+    if (showScreen) {
+      ZXScreenComponent screen = new ZXScreenComponent(state.getMemory().getData());
+      state.getMemory().addMemoryWriteListener(screen);
+      MiniZX.createScreen(io.getMiniZXKeyboard(), screen);
+    }
 
 //    PhaseProcessor phaseProcessor = new PhaseProcessor(ooz80);
 //    Memory memory = state.getMemory();

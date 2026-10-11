@@ -26,7 +26,6 @@ import java.awt.event.KeyListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.LockSupport;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 @SuppressWarnings("ALL")
@@ -180,14 +179,16 @@ public abstract class MiniZX extends SpectrumApplication {
     this.mem = new int[65536];
     // -Dminizx.headless=true: analysis runs must not open the live screen — its frame
     // uses EXIT_ON_CLOSE, so closing it would System.exit(0) mid-analysis
-    if (!Boolean.getBoolean("minizx.headless")) {
-      MiniZX.createScreen(((MiniZXIO) io).getMiniZXKeyboard(), new MiniZXScreen(this.getMemFunction()));
-      sound = new MiniZXSound(new com.fpetrola.oozx.speccy.modules.sound.JavaSoundDevice());
-    }
     final byte[] rom = MiniZXWithEmulationBase.createROM();
     final byte[] bytes = MiniZXWithEmulationBase.gzipDecompressFromBase64(this.getProgramBytes());
     for (int i = 0; i < 65536; ++i) {
       mem[i] = ((i < 16384) ? rom[i] : bytes[i]) & 0xff;
+    }
+    if (!Boolean.getBoolean("minizx.headless")) {
+      ZXScreenComponent screen = new ZXScreenComponent(mem);
+      screenWrites = screen;
+      MiniZX.createScreen(((MiniZXIO) io).getMiniZXKeyboard(), screen);
+      sound = new MiniZXSound(new com.fpetrola.oozx.speccy.modules.sound.JavaSoundDevice());
     }
 
     IY(0x5c3a);
@@ -197,12 +198,6 @@ public abstract class MiniZX extends SpectrumApplication {
   }
 
   protected void customizeMemory() {
-  }
-
-  protected Function<Integer, Integer> getMemFunction() {
-    return index -> syncChecker.getByteFromEmu(index);
-//    return index -> mem[index];
-
   }
 
   protected abstract String getProgramBytes();

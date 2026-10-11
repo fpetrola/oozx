@@ -34,9 +34,17 @@ public class ZxAttribute {
   public void setZxColor(ZxColor zxColor) {
     if (this.zxColor.getAttribute() != zxColor.getAttribute()) {
       this.zxColor = zxColor;
-      for (int line = 0; line < 8; line++)
-        updatePixels(line,  pixelValues.get(line));
+      redraw();
     }
+  }
+
+  public ZxColor getZxColor() {
+    return zxColor;
+  }
+
+  public void redraw() {
+    for (int line = 0; line < 8; line++)
+      updatePixels(line, pixelValues.get(line));
   }
 
   private void updatePixels(int line, Integer pixelsValue) {

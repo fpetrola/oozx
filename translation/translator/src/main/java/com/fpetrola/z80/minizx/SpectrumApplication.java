@@ -22,6 +22,7 @@ import com.fpetrola.z80.cpu.OOZ80;
 import com.fpetrola.z80.minizx.emulation.EmulatedMiniZX;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
 import com.fpetrola.z80.memory.MemoryBanks;
+import com.fpetrola.z80.memory.MemoryWriteListener;
 import com.fpetrola.z80.tstates.UncontendedTiming;
 import java.util.Map;
 import com.fpetrola.z80.registers.Register;
@@ -378,6 +379,8 @@ public abstract class SpectrumApplication {
   public int fetchCounter;
   public MiniZXSound sound;
   public MemoryBanks banks;
+  protected MemoryWriteListener screenWrites = (address, value) -> {
+  };
 
   public int inC(int port, int pc) {
     int value = in(port, pc);
@@ -409,8 +412,10 @@ public abstract class SpectrumApplication {
   }
 
   public void wMem(int address, int value) {
-    if (address >= ROM_END)
+    if (address >= ROM_END) {
       mem[address] = value;
+      screenWrites.writtingMemoryAt(address, value);
+    }
   }
 
   public static void waitNanos(int i) {
