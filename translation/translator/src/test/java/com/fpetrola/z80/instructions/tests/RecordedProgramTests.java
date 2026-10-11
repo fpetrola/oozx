@@ -3762,6 +3762,559 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aContinuationAfterAPoppedReturnThatJumpsBackIntoTheLoopDoesNotNestTheLoop() {
+    // Target: Renegade E058/E0D6: after POP HL takes the return of the loop's CALL, the code at E0D6 (here 8300) goes back into the loop at D794 (here 8108) or leaves through E1C5 to a RET that returns to the loop's caller (E3C7 to D783, here 8400 to 8003); the loop calls E058 from more than one place, as at D75D and D780
+    String java = translate(listing("""
+        8000  CD 00 81  CALL 0x8100
+        8003  76  HALT
+        8100  04  INC B
+        8101  CD 00 82  CALL 0x8200
+        8104  0C  INC C
+        8105  CD 00 82  CALL 0x8200
+        8108  1C  INC E
+        8109  18 F5  JR 0x8100
+        8200  78  LD A, B
+        8201  E6 03  AND A, 0x03
+        8203  C8  RET Z
+        8204  FE 02  CP A, 0x02
+        8206  CA 20 82  JP Z, 0x8220
+        8209  E1  POP HL
+        820A  14  INC D
+        820B  CD 00 85  CALL 0x8500
+        820E  7A  LD A, D
+        820F  FE 06  CP A, 0x06
+        8211  CA 00 84  JP Z, 0x8400
+        8214  FE 03  CP A, 0x03
+        8216  DA 00 81  JP C, 0x8100
+        8219  C2 08 81  JP NZ, 0x8108
+        821C  C3 00 86  JP 0x8600
+        8220  04  INC B
+        8221  C3 00 82  JP 0x8200
+        8400  3E 07  LD A, 0x07
+        8402  C9  RET
+        8500  2C  INC L
+        8501  C9  RET
+        8600  3E 09  LD A, 0x09
+        8602  C9  RET
+        """));
+    System.err.println("JAVA<<" + withoutTiming(java) + ">>JAVA");
+  }
+
+  @Test
+  public void targetRenegadeE0D6GoesBackIntoTheMainLoopThatCaughtItInsteadOfCallingItAgain() {
+    // Target: Renegade D6E4-D7A0 and E058-E3D0 as they are (the routines they call only return): E058 takes its return with POP HL at E0D5, the main loop's catch runs E0D6, and E0D6 goes back to D794; calling $D6E4 again nested one more loop on every such turn until, at frame 52976, a RET unwound the game out of its loop
+    ignoresMemory(0xBF00, 0xBFC0);
+    String java = translateFrom(0xD6E4, 0xBFB6, listing("""
+        D6E4  31 B8 BF  LD SP, 0xBFB8
+        D6E7  21 13 F9  LD HL, 0xF913
+        D6EA  34  INC (HL)
+        D6EB  3A 14 F9  LD A, (0xF914)
+        D6EE  BE  CP A, (HL)
+        D6EF  C4 FF 5E  CALL NZ, 0x5EFF
+        D6F2  21 40 6A  LD HL, 0x6A40
+        D6F5  22 F0 F6  LD (0xF6F0), HL
+        D6F8  21 86 68  LD HL, 0x6886
+        D6FB  22 17 F9  LD (0xF917), HL
+        D6FE  21 00 D2  LD HL, 0xD200
+        D701  11 01 D2  LD DE, 0xD201
+        D704  01 A3 00  LD BC, 0x00A3
+        D707  70  LD (HL), B
+        D708  ED B0  LDIR
+        D70A  21 0E 2A  LD HL, 0x2A0E
+        D70D  22 8E D2  LD (0xD28E), HL
+        D710  21 40 60  LD HL, 0x6040
+        D713  22 90 D2  LD (0xD290), HL
+        D716  3A 03 ED  LD A, (0xED03)
+        D719  FE 05  CP A, 0x05
+        D71B  20 0B  JR NZ, 0xD728
+        D71D  FD 21 8E D2  LD IY, 0xD28E
+        D721  FD 36 0A 40  LD (IY+0A), 0x40
+        D725  CD 26 E7  CALL 0xE726
+        D728  3A 35 F9  LD A, (0xF935)
+        D72B  B7  OR A, A
+        D72C  28 0D  JR Z, 0xD73B
+        D72E  21 04 50  LD HL, 0x5004
+        D731  22 0C D2  LD (0xD20C), HL
+        D734  FD 21 0A D2  LD IY, 0xD20A
+        D738  CD AA DC  CALL 0xDCAA
+        D73B  3A 36 F9  LD A, (0xF936)
+        D73E  B7  OR A, A
+        D73F  28 0D  JR Z, 0xD74E
+        D741  21 0A 6C  LD HL, 0x6C0A
+        D744  22 22 D2  LD (0xD222), HL
+        D747  FD 21 20 D2  LD IY, 0xD220
+        D74B  CD AA DC  CALL 0xDCAA
+        D74E  CD 65 F5  CALL 0xF565
+        D751  CD 1B 5F  CALL 0x5F1B
+        D754  21 40 6A  LD HL, 0x6A40
+        D757  22 F0 F6  LD (0xF6F0), HL
+        D75A  CD 55 E3  CALL 0xE355
+        D75D  CD 58 E0  CALL 0xE058
+        D760  CD 8B E8  CALL 0xE88B
+        D763  21 00 FB  LD HL, 0xFB00
+        D766  11 01 FB  LD DE, 0xFB01
+        D769  75  LD (HL), L
+        D76A  01 00 05  LD BC, 0x0500
+        D76D  ED B0  LDIR
+        D76F  CD 65 F4  CALL 0xF465
+        D772  3E 01  LD A, 0x01
+        D774  06 FF  LD B, 0xFF
+        D776  CD 68 5D  CALL 0x5D68
+        D779  CD 55 E3  CALL 0xE355
+        D77C  F3  DI
+        D77D  CD D3 5D  CALL 0x5DD3
+        D780  CD 58 E0  CALL 0xE058
+        D783  CD 06 DD  CALL 0xDD06
+        D786  CD AA E7  CALL 0xE7AA
+        D789  ED 43 19 D2  LD (0xD219), BC
+        D78D  CD A0 E7  CALL 0xE7A0
+        D790  ED 43 2F D2  LD (0xD22F), BC
+        D794  FD 21 0A D2  LD IY, 0xD20A
+        D798  06 06  LD B, 0x06
+        D79A  FD E5  PUSH IY
+        D79C  C5  PUSH BC
+        D79D  CD A6 F3  CALL 0xF3A6
+        D7A0  C1  POP BC
+        E058  3A AF F7  LD A, (0xF7AF)
+        E05B  11 39 D2  LD DE, 0xD239
+        E05E  C6 03  ADD A, 0x03
+        E060  47  LD B, A
+        E061  0E 16  LD C, 0x16
+        E063  1A  LD A, (DE)
+        E064  B7  OR A, A
+        E065  28 06  JR Z, 0xE06D
+        E067  7B  LD A, E
+        E068  81  ADD A, C
+        E069  5F  LD E, A
+        E06A  10 F7  DJNZ 0xE063
+        E06C  C9  RET
+        E06D  1D  DEC E
+        E06E  1D  DEC E
+        E06F  1D  DEC E
+        E070  D5  PUSH DE
+        E071  FD E1  POP IY
+        E073  2A 17 F9  LD HL, (0xF917)
+        E076  7E  LD A, (HL)
+        E077  3C  INC A
+        E078  CA E9 E2  JP Z, 0xE2E9
+        E07B  3C  INC A
+        E07C  C2 00 E2  JP NZ, 0xE200
+        E07F  21 00 D2  LD HL, 0xD200
+        E082  7E  LD A, (HL)
+        E083  23  INC HL
+        E084  B7  OR A, A
+        E085  28 07  JR Z, 0xE08E
+        E087  D6 36  SUB A, 0x36
+        E089  FE 58  CP A, 0x58
+        E08B  30 F5  JR NC, 0xE082
+        E08D  C9  RET
+        E08E  3E 01  LD A, 0x01
+        E090  32 80 68  LD (0x6880), A
+        E093  3A 03 ED  LD A, (0xED03)
+        E096  D6 03  SUB A, 0x03
+        E098  FE 03  CP A, 0x03
+        E09A  30 0C  JR NC, 0xE0A8
+        E09C  3A 50 F6  LD A, (0xF650)
+        E09F  21 E1 D5  LD HL, 0xD5E1
+        E0A2  E6 20  AND A, 0x20
+        E0A4  C4 55 F4  CALL NZ, 0xF455
+        E0A7  AF  XOR A, A
+        E0A8  C6 03  ADD A, 0x03
+        E0AA  30 0D  JR NC, 0xE0B9
+        E0AC  FD 21 0A D2  LD IY, 0xD20A
+        E0B0  CD DB F3  CALL 0xF3DB
+        E0B3  FD 2E 20  LD IYL, 0x20
+        E0B6  CD DB F3  CALL 0xF3DB
+        E0B9  2A 0C D2  LD HL, (0xD20C)
+        E0BC  ED 5B 83 68  LD DE, (0x6883)
+        E0C0  CD D3 DF  CALL 0xDFD3
+        E0C3  32 19 D2  LD (0xD219), A
+        E0C6  4F  LD C, A
+        E0C7  2A 22 D2  LD HL, (0xD222)
+        E0CA  7A  LD A, D
+        E0CB  C6 08  ADD A, 0x08
+        E0CD  57  LD D, A
+        E0CE  1D  DEC E
+        E0CF  CD D3 DF  CALL 0xDFD3
+        E0D2  32 2F D2  LD (0xD22F), A
+        E0D5  E1  POP HL
+        E0D6  B1  OR A, C
+        E0D7  C2 94 D7  JP NZ, 0xD794
+        E0DA  CD 9A F6  CALL 0xF69A
+        E0DD  21 03 ED  LD HL, 0xED03
+        E0E0  7E  LD A, (HL)
+        E0E1  34  INC (HL)
+        E0E2  FE 03  CP A, 0x03
+        E0E4  DA 85 E1  JP C, 0xE185
+        E0E7  FE 07  CP A, 0x07
+        E0E9  CA C5 E1  JP Z, 0xE1C5
+        E0EC  FE 08  CP A, 0x08
+        E0EE  20 1A  JR NZ, 0xE10A
+        E0F0  06 03  LD B, 0x03
+        E0F2  21 42 E1  LD HL, 0xE142
+        E0F5  CD 8D F9  CALL 0xF98D
+        E0F8  26 58  LD H, 0x58
+        E0FA  3E 26  LD A, 0x26
+        E0FC  06 13  LD B, 0x13
+        E0FE  6F  LD L, A
+        E0FF  36 38  LD (HL), 0x38
+        E101  2C  INC L
+        E102  10 FB  DJNZ 0xE0FF
+        E104  C6 20  ADD A, 0x20
+        E106  FE 80  CP A, 0x80
+        E108  38 F2  JR C, 0xE0FC
+        E10A  3A 35 F9  LD A, (0xF935)
+        E10D  FD 2E 0A  LD IYL, 0x0A
+        E110  11 0A 09  LD DE, 0x090A
+        E113  B7  OR A, A
+        E114  C4 51 F6  CALL NZ, 0xF651
+        E117  FD 2E 20  LD IYL, 0x20
+        E11A  3A 36 F9  LD A, (0xF936)
+        E11D  11 0A 09  LD DE, 0x090A
+        E120  B7  OR A, A
+        E121  C4 51 F6  CALL NZ, 0xF651
+        E124  3E 03  LD A, 0x03
+        E126  06 FF  LD B, 0xFF
+        E128  CD 68 5D  CALL 0x5D68
+        E12B  CD C6 5D  CALL 0x5DC6
+        E12E  3A 03 ED  LD A, (0xED03)
+        E131  FE 08  CP A, 0x08
+        E133  DA E4 D6  JP C, 0xD6E4
+        E136  FE 0B  CP A, 0x0B
+        E138  38 A0  JR C, 0xE0DA
+        E13A  3E FF  LD A, 0xFF
+        E13C  32 84 E1  LD (0xE184), A
+        E13F  C3 D6 D6  JP 0xD6D6
+        E185  21 01 E0  LD HL, 0xE001
+        E188  CD 12 E0  CALL 0xE012
+        E18B  FD 21 8E D2  LD IY, 0xD28E
+        E18F  CD 09 E7  CALL 0xE709
+        E192  FD 36 0A 00  LD (IY+0A), 0x00
+        E196  06 11  LD B, 0x11
+        E198  C5  PUSH BC
+        E199  2A F0 F6  LD HL, (0xF6F0)
+        E19C  11 38 00  LD DE, 0x0038
+        E19F  19  ADD HL, DE
+        E1A0  22 F0 F6  LD (0xF6F0), HL
+        E1A3  CD 55 E3  CALL 0xE355
+        E1A6  CD 65 F4  CALL 0xF465
+        E1A9  C1  POP BC
+        E1AA  10 EC  DJNZ 0xE198
+        E1AC  21 17 F9  LD HL, 0xF917
+        E1AF  34  INC (HL)
+        E1B0  3E 4A  LD A, 0x4A
+        E1B2  32 80 68  LD (0x6880), A
+        E1B5  21 F0 DF  LD HL, 0xDFF0
+        E1B8  CD 12 E0  CALL 0xE012
+        E1BB  21 83 68  LD HL, 0x6883
+        E1BE  7E  LD A, (HL)
+        E1BF  EE 1F  XOR A, 0x1F
+        E1C1  77  LD (HL), A
+        E1C2  C3 83 D7  JP 0xD783
+        E1C5  11 00 64  LD DE, 0x6400
+        E1C8  21 E4 70  LD HL, 0x70E4
+        E1CB  01 00 02  LD BC, 0x0200
+        E1CE  ED B0  LDIR
+        E1D0  16 68  LD D, 0x68
+        E1D2  0E 40  LD C, 0x40
+        E1D4  ED B0  LDIR
+        E1D6  21 78 6A  LD HL, 0x6A78
+        E1D9  22 F0 F6  LD (0xF6F0), HL
+        E1DC  3E 08  LD A, 0x08
+        E1DE  32 83 68  LD (0x6883), A
+        E1E1  3E 48  LD A, 0x48
+        E1E3  32 80 68  LD (0x6880), A
+        E1E6  21 0D D2  LD HL, 0xD20D
+        E1E9  7E  LD A, (HL)
+        E1EA  B7  OR A, A
+        E1EB  28 02  JR Z, 0xE1EF
+        E1ED  36 48  LD (HL), 0x48
+        E1EF  2E 23  LD L, 0x23
+        E1F1  7E  LD A, (HL)
+        E1F2  B7  OR A, A
+        E1F3  28 04  JR Z, 0xE1F9
+        E1F5  36 4C  LD (HL), 0x4C
+        E1F7  2D  DEC L
+        E1F8  35  DEC (HL)
+        E1F9  21 83 D7  LD HL, 0xD783
+        E1FC  E5  PUSH HL
+        E1FD  C3 2B E3  JP 0xE32B
+        E200  23  INC HL
+        E201  CB 76  BIT 6, (HL)
+        E203  2B  DEC HL
+        E204  28 0F  JR Z, 0xE215
+        E206  3A AF F7  LD A, (0xF7AF)
+        E209  B7  OR A, A
+        E20A  20 09  JR NZ, 0xE215
+        E20C  23  INC HL
+        E20D  23  INC HL
+        E20E  23  INC HL
+        E20F  22 17 F9  LD (0xF917), HL
+        E212  C3 58 E0  JP 0xE058
+        E215  1C  INC E
+        E216  1C  INC E
+        E217  7E  LD A, (HL)
+        E218  12  LD (DE), A
+        E219  23  INC HL
+        E21A  1C  INC E
+        E21B  3E 38  LD A, 0x38
+        E21D  CB 7E  BIT 7, (HL)
+        E21F  20 1B  JR NZ, 0xE23C
+        E221  3A 0D D2  LD A, (0xD20D)
+        E224  47  LD B, A
+        E225  3A 23 D2  LD A, (0xD223)
+        E228  4F  LD C, A
+        E229  ED 5F  LDAR A, R
+        E22B  1F  RRA A
+        E22C  38 03  JR C, 0xE231
+        E22E  78  LD A, B
+        E22F  41  LD B, C
+        E230  4F  LD C, A
+        E231  79  LD A, C
+        E232  B7  OR A, A
+        E233  20 01  JR NZ, 0xE236
+        E235  78  LD A, B
+        E236  FE 40  CP A, 0x40
+        E238  30 02  JR NC, 0xE23C
+        E23A  3E 60  LD A, 0x60
+        E23C  12  LD (DE), A
+        E23D  1C  INC E
+        E23E  AF  XOR A, A
+        E23F  12  LD (DE), A
+        E240  57  LD D, A
+        E241  5E  LD E, (HL)
+        E242  CB BB  RES 7, E
+        E244  CB B3  RES 6, E
+        E246  23  INC HL
+        E247  7E  LD A, (HL)
+        E248  23  INC HL
+        E249  22 17 F9  LD (0xF917), HL
+        E24C  FD 77 06  LD (IY+06), A
+        E24F  FD 73 14  LD (IY+14), E
+        E252  21 C7 D6  LD HL, 0xD6C7
+        E255  19  ADD HL, DE
+        E256  7E  LD A, (HL)
+        E257  FD 77 01  LD (IY+01), A
+        E25A  21 B9 D6  LD HL, 0xD6B9
+        E25D  19  ADD HL, DE
+        E25E  3A 84 E1  LD A, (0xE184)
+        E261  E6 08  AND A, 0x08
+        E263  86  ADD A, (HL)
+        E264  FD 77 0E  LD (IY+0E), A
+        E267  21 AA F9  LD HL, 0xF9AA
+        E26A  19  ADD HL, DE
+        E26B  3A 84 E1  LD A, (0xE184)
+        E26E  3E 00  LD A, 0x00
+        E270  E6 10  AND A, 0x10
+        E272  86  ADD A, (HL)
+        E273  FD 77 0D  LD (IY+0D), A
+        E276  FD 77 0C  LD (IY+0C), A
+        E279  21 C4 BF  LD HL, 0xBFC4
+        E27C  19  ADD HL, DE
+        E27D  3A 84 E1  LD A, (0xE184)
+        E280  4F  LD C, A
+        E281  ED 5F  LDAR A, R
+        E283  A1  AND A, C
+        E284  E6 10  AND A, 0x10
+        E286  B6  OR A, (HL)
+        E287  FD 77 15  LD (IY+15), A
+        E28A  FD 36 0A 08  LD (IY+0A), 0x08
+        E28E  D5  PUSH DE
+        E28F  CD 26 E7  CALL 0xE726
+        E292  D1  POP DE
+        E293  21 B6 EA  LD HL, 0xEAB6
+        E296  7B  LD A, E
+        E297  D6 0B  SUB A, 0x0B
+        E299  38 3F  JR C, 0xE2DA
+        E29B  FD CB 15 A6  RES 4, (IY+15)
+        E29F  20 21  JR NZ, 0xE2C2
+        E2A1  21 C8 E3  LD HL, 0xE3C8
+        E2A4  AF  XOR A, A
+        E2A5  CD 00 EC  CALL 0xEC00
+        E2A8  FD CB 0A FE  SET 7, (IY+0A)
+        E2AC  0E 00  LD C, 0x00
+        E2AE  CD 09 E6  CALL 0xE609
+        E2B1  FD 77 12  LD (IY+12), A
+        E2B4  FD 7D  LD A, IYL
+        E2B6  C6 19  ADD A, 0x19
+        E2B8  FD 77 13  LD (IY+13), A
+        E2BB  FD 36 04 01  LD (IY+04), 0x01
+        E2BF  C3 58 E0  JP 0xE058
+        E2C2  3D  DEC A
+        E2C3  20 0A  JR NZ, 0xE2CF
+        E2C5  21 31 E6  LD HL, 0xE631
+        E2C8  FD 36 11 06  LD (IY+11), 0x06
+        E2CC  AF  XOR A, A
+        E2CD  18 0D  JR 0xE2DC
+        E2CF  0E 00  LD C, 0x00
+        E2D1  CD 09 E6  CALL 0xE609
+        E2D4  FD 77 12  LD (IY+12), A
+        E2D7  21 4E E5  LD HL, 0xE54E
+        E2DA  3E 80  LD A, 0x80
+        E2DC  CD 00 EC  CALL 0xEC00
+        E2DF  AF  XOR A, A
+        E2E0  32 3D F9  LD (0xF93D), A
+        E2E3  FD 77 13  LD (IY+13), A
+        E2E6  C3 58 E0  JP 0xE058
+        E2E9  EB  EX DE, HL
+        E2EA  21 3D F9  LD HL, 0xF93D
+        E2ED  35  DEC (HL)
+        E2EE  20 0A  JR NZ, 0xE2FA
+        E2F0  1B  DEC DE
+        E2F1  1B  DEC DE
+        E2F2  1B  DEC DE
+        E2F3  ED 53 17 F9  LD (0xF917), DE
+        E2F7  C3 58 E0  JP 0xE058
+        E2FA  2A 0C D2  LD HL, (0xD20C)
+        E2FD  ED 5B 22 D2  LD DE, (0xD222)
+        E301  3A 03 ED  LD A, (0xED03)
+        E304  FE 02  CP A, 0x02
+        E306  20 0A  JR NZ, 0xE312
+        E308  7B  LD A, E
+        E309  2F  CPL A
+        E30A  C6 20  ADD A, 0x20
+        E30C  5F  LD E, A
+        E30D  7D  LD A, L
+        E30E  2F  CPL A
+        E30F  C6 20  ADD A, 0x20
+        E311  6F  LD L, A
+        E312  0E 1C  LD C, 0x1C
+        E314  7A  LD A, D
+        E315  B7  OR A, A
+        E316  28 0D  JR Z, 0xE325
+        E318  7B  LD A, E
+        E319  FE 0F  CP A, 0x0F
+        E31B  D8  RET C
+        E31C  B9  CP A, C
+        E31D  38 06  JR C, 0xE325
+        E31F  7C  LD A, H
+        E320  B7  OR A, A
+        E321  28 08  JR Z, 0xE32B
+        E323  0E 0F  LD C, 0x0F
+        E325  7C  LD A, H
+        E326  B7  OR A, A
+        E327  C8  RET Z
+        E328  7D  LD A, L
+        E329  B9  CP A, C
+        E32A  D8  RET C
+        E32B  2A 17 F9  LD HL, (0xF917)
+        E32E  23  INC HL
+        E32F  22 17 F9  LD (0xF917), HL
+        E332  11 0C 00  LD DE, 0x000C
+        E335  2A F0 F6  LD HL, (0xF6F0)
+        E338  3A 03 ED  LD A, (0xED03)
+        E33B  FE 02  CP A, 0x02
+        E33D  20 03  JR NZ, 0xE342
+        E33F  11 F4 FF  LD DE, 0xFFF4
+        E342  19  ADD HL, DE
+        E343  22 F0 F6  LD (0xF6F0), HL
+        E346  21 0C D2  LD HL, 0xD20C
+        E349  06 07  LD B, 0x07
+        E34B  0E 16  LD C, 0x16
+        E34D  7E  LD A, (HL)
+        E34E  93  SUB A, E
+        E34F  77  LD (HL), A
+        E350  7D  LD A, L
+        E351  81  ADD A, C
+        E352  6F  LD L, A
+        E353  10 F8  DJNZ 0xE34D
+        E355  CD E8 5D  CALL 0x5DE8
+        E358  3E 38  LD A, 0x38
+        E35A  08  EX AF, AFx
+        E35B  11 00 40  LD DE, 0x4000
+        E35E  D9  EXX
+        E35F  2A F0 F6  LD HL, (0xF6F0)
+        E362  ED 5B 81 68  LD DE, (0x6881)
+        E366  06 11  LD B, 0x11
+        E368  D9  EXX
+        E369  06 20  LD B, 0x20
+        E36B  D9  EXX
+        E36C  7E  LD A, (HL)
+        E36D  23  INC HL
+        E36E  D9  EXX
+        E36F  D5  PUSH DE
+        E370  4F  LD C, A
+        E371  87  ADD A, A
+        E372  6F  LD L, A
+        E373  26 19  LD H, 0x19
+        E375  29  ADD HL, HL
+        E376  29  ADD HL, HL
+        E377  7E  LD A, (HL)
+        E378  12  LD (DE), A
+        E379  14  INC D
+        E37A  2C  INC L
+        E37B  7E  LD A, (HL)
+        E37C  12  LD (DE), A
+        E37D  14  INC D
+        E37E  2C  INC L
+        E37F  7E  LD A, (HL)
+        E380  12  LD (DE), A
+        E381  14  INC D
+        E382  2C  INC L
+        E383  7E  LD A, (HL)
+        E384  12  LD (DE), A
+        E385  14  INC D
+        E386  2C  INC L
+        E387  7E  LD A, (HL)
+        E388  12  LD (DE), A
+        E389  14  INC D
+        E38A  2C  INC L
+        E38B  7E  LD A, (HL)
+        E38C  12  LD (DE), A
+        E38D  14  INC D
+        E38E  2C  INC L
+        E38F  7E  LD A, (HL)
+        E390  12  LD (DE), A
+        E391  14  INC D
+        E392  2C  INC L
+        E393  7E  LD A, (HL)
+        E394  12  LD (DE), A
+        E395  21 00 58  LD HL, 0x5800
+        E398  CB 7A  BIT 7, D
+        E39A  28 02  JR Z, 0xE39E
+        E39C  2E 20  LD L, 0x20
+        E39E  7A  LD A, D
+        E39F  E6 18  AND A, 0x18
+        E3A1  0F  RRCA A
+        E3A2  0F  RRCA A
+        E3A3  0F  RRCA A
+        E3A4  57  LD D, A
+        E3A5  19  ADD HL, DE
+        E3A6  16 68  LD D, 0x68
+        E3A8  59  LD E, C
+        E3A9  1A  LD A, (DE)
+        E3AA  77  LD (HL), A
+        E3AB  EE 40  XOR A, 0x40
+        E3AD  08  EX AF, AFx
+        E3AE  D1  POP DE
+        E3AF  1C  INC E
+        E3B0  10 B9  DJNZ 0xE36B
+        E3B2  08  EX AF, AFx
+        E3B3  EE 40  XOR A, 0x40
+        E3B5  08  EX AF, AFx
+        E3B6  20 04  JR NZ, 0xE3BC
+        E3B8  7A  LD A, D
+        E3B9  C6 08  ADD A, 0x08
+        E3BB  57  LD D, A
+        E3BC  CB 7A  BIT 7, D
+        E3BE  20 03  JR NZ, 0xE3C3
+        E3C0  11 00 C0  LD DE, 0xC000
+        E3C3  D9  EXX
+        E3C4  19  ADD HL, DE
+        E3C5  10 A1  DJNZ 0xE368
+        E3C7  C9  RET
+        E3C8  FD 7E 02  LD A, (IY+02)
+        E3CB  3C  INC A
+        E3CC  FD CB 00 7E  BIT 7, (IY+00)
+        E3D0  28 02  JR Z, 0xE3D4
+        """, 0x5D68, 0x5DC6, 0x5DD3, 0x5DE8, 0x5EFF, 0x5F1B, 0xD6D6, 0xDCAA, 0xDD06, 0xDFD3, 0xE012, 0xE609, 0xE709, 0xE726, 0xE7A0, 0xE7AA, 0xE88B, 0xEC00, 0xF3A6, 0xF3DB, 0xF455, 0xF465, 0xF565, 0xF651, 0xF69A, 0xF98D));
+    String continuation = java.substring(java.indexOf("public void $E0D6()"));
+    continuation = continuation.substring(0, continuation.indexOf("\n   }\n"));
+    Assert.assertFalse(continuation, continuation.contains("this.$D6E4()"));
+    Assert.assertTrue(continuation, withoutTiming(continuation).contains("throw new StackException(0xD794)"));
+  }
+
+  @Test
   public void aCallWhoseTargetIsRewrittenSwitchesOverTheRecordedTargets() {
     // Dizzy E299, Equinox D015
     String java = translate(

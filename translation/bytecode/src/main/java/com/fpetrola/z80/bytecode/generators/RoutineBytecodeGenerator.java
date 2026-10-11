@@ -476,7 +476,9 @@ public class RoutineBytecodeGenerator {
 
   private void enter(int address) {
     Routine owner = context.routineManager.findRoutineAt(address);
-    if (owner != null && context.routineManager.isEnteredFromOutside(owner, address)) {
+    if (context.routineManager.returnsToCatcher(routine, address))
+      throwStackException(address, StackException.class);
+    else if (owner != null && context.routineManager.isEnteredFromOutside(owner, address)) {
       mm.invoke("setNextAddress", address);
       invokeTransformedMethod(owner.getEntryPoint());
     } else if (owner != null)
