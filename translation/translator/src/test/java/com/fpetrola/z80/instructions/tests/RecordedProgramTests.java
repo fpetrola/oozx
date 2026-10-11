@@ -3670,7 +3670,7 @@ public class RecordedProgramTests {
               }
 
               if(var6 != -1) {
-                 this.jump(var6);
+                 this.goOnFrom(var6);
               }
 
            }

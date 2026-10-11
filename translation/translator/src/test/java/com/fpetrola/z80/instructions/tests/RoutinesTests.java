@@ -1868,7 +1868,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                  int var2 = this.executeMutantCode(1);
                  if(var2 != 2) {
                     if(var2 != -1) {
-                       this.jump(var2);
+                       this.goOnFrom(var2);
                     }
 
                     return;
@@ -1903,7 +1903,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               int var1 = this.executeMutantCode(1);
               if(var1 != 2) {
                  if(var1 != -1) {
-                    this.jump(var1);
+                    this.goOnFrom(var1);
                  }
 
               }
