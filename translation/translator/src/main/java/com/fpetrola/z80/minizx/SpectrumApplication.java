@@ -181,6 +181,17 @@ public abstract class SpectrumApplication {
     invokeMethod(address);
   }
 
+  private final Map<Integer, Boolean> translatedAt = new HashMap<>();
+
+  /** Rewritten code the emulator left somewhere without a method of its own (an instruction of another length than the recorded one): it goes on in the emulator up to translated code or a RET. */
+  public void goOnFrom(int address) {
+    for (int pc = address; pc != -1; pc(pc, 0, 0), pc = executeMutantCode(pc))
+      if (translatedAt.computeIfAbsent(pagedCopy(pc), at -> Arrays.stream(getClass().getMethods()).anyMatch(m -> m.getName().equals("$" + Integer.toHexString(at).toUpperCase())))) {
+        invokeMethod(pc);
+        return;
+      }
+  }
+
   /** Where the code at this address was translated: a class with code of other banks overrides it to send their window to its copies. */
   protected int pagedCopy(int address) {
     return address;

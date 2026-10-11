@@ -33,6 +33,28 @@ public class SpectrumApplicationTest {
   }
 
   @Test
+  public void goingOnFromCodeWithoutAMethodRunsItUntilTranslatedCode() {
+    // Batman EB3F: AND 1F, two bytes where the chain expected one, leaves the emulator at EB41, inside the chain
+    game.mem[0x8000] = 0x04;
+    game.mem[0x8001] = 0x04;
+    game.mem[0x8002] = 0xC3;
+    game.mem[0x8003] = 0x00;
+    game.mem[0x8004] = 0x90;
+    game.goOnFrom(0x8000);
+    assertEquals(2, game.B());
+    assertEquals(1, game.called);
+  }
+
+  @Test
+  public void goingOnFromCodeWithoutAMethodStopsAtItsReturn() {
+    game.mem[0x8000] = 0x04;
+    game.mem[0x8001] = 0xC9;
+    game.goOnFrom(0x8000);
+    assertEquals(1, game.B());
+    assertEquals(0, game.called);
+  }
+
+  @Test
   public void aHaltRunByTheEmulatorWaitsLikeATranslatedOneAndGoesOn() {
     // Batman EB39: EI / HALT inside code the game rewrites; the emulator leaves PC on the HALT, and the translation took it for a jump to EB39
     assertEquals(0x8001, execute(0x76));

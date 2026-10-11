@@ -319,7 +319,7 @@ public class RoutineBytecodeGenerator {
       int target = instruction instanceof Call ? -1 : RoutineManager.fixedJumpTarget(instruction);
       if (target != -1 && getLabel(target) != null)
         executedUpTo.ifEq(target, getLabel(target)::goto_);
-      executedUpTo.ifNe(-1, () -> mm.invoke("jump", executedUpTo));
+      executedUpTo.ifNe(-1, () -> mm.invoke("goOnFrom", executedUpTo));
       returnFromMethod();
     };
     if (fallsThrough(address, instruction))
