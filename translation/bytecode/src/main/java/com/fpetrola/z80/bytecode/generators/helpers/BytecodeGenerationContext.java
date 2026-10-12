@@ -47,6 +47,14 @@ public class BytecodeGenerationContext {
     return routinesInJumpCycles;
   }
 
+  private org.apache.commons.collections4.MultiValuedMap<Integer, Integer> callSitesByTarget;
+
+  public java.util.Collection<Integer> callSitesOf(int target) {
+    if (callSitesByTarget == null)
+      callSitesByTarget = routineManager.callSitesByTarget();
+    return callSitesByTarget.get(target);
+  }
+
   private java.util.Set<com.fpetrola.z80.routines.Routine> routinesThatMayUnwind;
 
   public boolean mayUnwind(com.fpetrola.z80.routines.Routine routine) {

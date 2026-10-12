@@ -297,14 +297,47 @@ public class RoutineManager {
     return new AncestorJumps(targets, landings);
   }
 
-  /** A POP in this routine, or one that falls through into it, took the return of the call that runs it. */
-  public boolean takesItsCallersReturn(Routine routine, StackAnalyzer stackAnalyzer) {
-    return !callersWhoseReturnIsTaken(routine, stackAnalyzer).isEmpty();
+  /** Where each CALL or RST goes, by target: a target inside another routine is entered there, through its owner's dispatch. */
+  public MultiValuedMap<Integer, Integer> callSitesByTarget() {
+    MultiValuedMap<Integer, Integer> sites = new HashSetValuedHashMap<>();
+    instructions.forEach((address, instruction) -> {
+      if (instruction instanceof Call call)
+        sites.put(call.getJumpAddress(), address);
+      else if (instruction instanceof com.fpetrola.z80.instructions.impl.RST rst)
+        sites.put(rst.getP(), address);
+    });
+    return sites;
   }
 
-  /** The routines holding the calls whose return a POP in this routine (or falling into it) takes: their frames are the ones it goes back to. */
-  public java.util.Set<Routine> callersWhoseReturnIsTaken(Routine routine, StackAnalyzer stackAnalyzer) {
-    return stackAnalyzer.poppedCallSites.entries().stream().filter(e -> routineGoneOnAt(e.getValue()) == routine).map(e -> findRoutineAt(e.getKey())).filter(java.util.Objects::nonNull).collect(java.util.stream.Collectors.toSet());
+  /** A POP in this routine, or one that falls through into it, took the return of the call that runs it. */
+  public boolean takesItsCallersReturn(Routine routine, StackAnalyzer stackAnalyzer) {
+    return !callersWhoseReturnIsTaken(routine, -1, stackAnalyzer).isEmpty();
+  }
+
+  /** The routines holding the calls whose return a POP in this routine (or falling into it) takes and that this routine has not pushed back on its way to {@code site}: their frames are the ones a jump there goes back to. */
+  public java.util.Set<Routine> callersWhoseReturnIsTaken(Routine routine, int site, StackAnalyzer stackAnalyzer) {
+    return stackAnalyzer.poppedCallSites.entries().stream().filter(e -> routineGoneOnAt(e.getValue()) == routine && getInstructionAt(e.getKey()) != null)
+        .filter(e -> stackAnalyzer.pushedValues.entries().stream().noneMatch(push -> push.getValue() == addressAfter(e.getKey()) && reachesWithin(routine, push.getKey(), site)))
+        .map(e -> findRoutineAt(e.getKey())).filter(java.util.Objects::nonNull).collect(java.util.stream.Collectors.toSet());
+  }
+
+  /** Whether code at {@code from} goes on, inside the routine, to {@code to}. */
+  private boolean reachesWithin(Routine routine, int from, int to) {
+    java.util.Deque<Integer> pending = new java.util.ArrayDeque<>(List.of(from));
+    java.util.Set<Integer> seen = new java.util.HashSet<>();
+    while (!pending.isEmpty()) {
+      int at = pending.pop();
+      if (at == to)
+        return true;
+      Instruction instruction = instructions.get(at);
+      if (!routine.contains(at) || instruction == null || !seen.add(at))
+        continue;
+      if (fallsThrough(instruction))
+        pending.push(addressAfter(at));
+      if (!(instruction instanceof Call) && fixedJumpTarget(instruction) != -1)
+        pending.push(fixedJumpTarget(instruction));
+    }
+    return false;
   }
 
   /** Routines whose translation can leave the frames of their callers (an unwinding): they do it themselves, go on through code resolved only at run time, or call or jump to one that can. */

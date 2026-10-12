@@ -228,7 +228,7 @@ public class RoutineBytecodeGenerator {
     generators.forEach(g -> g.scopeAdjuster().run());
     generators.forEach(g -> g.labelGenerator().run());
 
-    List<Integer> entries = new ArrayList<>(labels.keySet()).stream().filter(address -> routine.contains(address) && address != routine.getEntryPoint() && (context.routineManager.isEnteredFromOutside(routine, address) || context.routineManager.callers.get(address).stream().anyMatch(caller -> !routine.contains(caller)) || landings().contains(address))).toList();
+    List<Integer> entries = new ArrayList<>(labels.keySet()).stream().filter(address -> routine.contains(address) && address != routine.getEntryPoint() && (context.routineManager.isEnteredFromOutside(routine, address) || Stream.concat(context.routineManager.callers.get(address).stream(), context.callSitesOf(address).stream()).anyMatch(caller -> !routine.contains(caller)) || landings().contains(address))).toList();
     context.dispatchedEntries.addAll(entries);
     structuring = new ControlFlowStructuring(routine, context.routineManager, entries, this::continuation);
     entries.forEach(address -> mm.invoke("isNextPC", address).ifTrue(() -> goTo(-1, address)));
@@ -459,7 +459,7 @@ public class RoutineBytecodeGenerator {
   public void tailJump(int target, int site) {
     int address = inOwnBank(target);
     Routine owner = context.routineManager.findRoutineAt(address);
-    if (owner != null && context.routineManager.callersWhoseReturnIsTaken(routine, stackAnalyzer()).contains(owner) && context.ancestorJumps().goesBack(routine, owner)) {
+    if (owner != null && context.routineManager.callersWhoseReturnIsTaken(routine, site != -1 ? site : context.pc.read(), stackAnalyzer()).contains(owner) && context.ancestorJumps().goesBack(routine, owner)) {
       mm.invoke("unwind", address);
       returnFromMethod();
     } else if (isJumpMember(routine) && isJumpMember(owner) && (site == -1 || context.routineManager.ownDataLeftForOthers(site, routine, stackAnalyzer()).isEmpty())) {
@@ -494,8 +494,8 @@ public class RoutineBytecodeGenerator {
       invoke = chain ? mm.invoke("runJumps", entry) : mm.invoke(labelName);
       if (chain || context.mayUnwind(target))
         afterInvoke();
-    } catch (Exception e) {
-      System.out.println("not found: " + labelName + " (" + e + ")" + " from " + routine + " at " + Helper.formatAddress(context.pc.read()) + " callers " + context.routineManager.callers.get(jumpLabel) + " owner " + context.routineManager.findRoutineAt(jumpLabel));
+    } catch (IllegalStateException e) {
+      throw new IllegalStateException("cannot invoke " + labelName + " from " + routine + " at " + Helper.formatAddress(context.pc.read()) + ", owner " + context.routineManager.findRoutineAt(jumpLabel), e);
     }
     return invoke;
   }
