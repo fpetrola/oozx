@@ -80,8 +80,8 @@ public abstract class MiniZX extends SpectrumApplication {
   public void run(int entry) {
     for (int address = entry; ; )
       try {
-        invokeMethod(address);
-        address = pop();
+        goOnFrom(address);
+        address = unwinding() ? unwound() : pop();
       } catch (StackException unwound) {
         if (!unwound.getPoppedInto().isEmpty())
           popInto(unwound.getPoppedInto());
@@ -151,6 +151,7 @@ public abstract class MiniZX extends SpectrumApplication {
     return ended;
   }
 
+  /** A handler that leaves the interrupted code's frames (Dizzy F877) cannot hand that back through the pc() it interrupted: it goes up to run(). */
   private void interrupt() {
     iff = iff2 = false;
     int vector = I << 8 | 0xff;
@@ -163,11 +164,13 @@ public abstract class MiniZX extends SpectrumApplication {
       push(PC);
       int sp = SP;
       invokeMethod(handler);
-      if (SP == sp)
+      if (SP == sp && !unwinding())
         pop();
     } else
       invokeMethod(handler);
     interrupts++;
+    if (unwinding())
+      throw new StackException(unwound());
   }
 
   /** Whether the translated program reads the stack where the interrupted PC goes, so the Java pushes it like the Z80. */

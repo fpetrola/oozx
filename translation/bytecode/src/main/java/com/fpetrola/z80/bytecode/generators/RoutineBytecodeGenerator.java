@@ -35,7 +35,6 @@ import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.DefaultTargetFlagInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.minizx.StackException;
 import com.fpetrola.z80.tstates.UncontendedTiming;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.registers.Plain16BitRegister;
@@ -59,6 +58,16 @@ public class RoutineBytecodeGenerator {
   public Map<String, Variable> registers = new HashMap<>();
   public Field memory;
   public MethodMaker mm;
+  private Label start, unwound;
+  private Set<Integer> landings;
+  private ControlFlowStructuring structuring;
+  /** The call being generated: an unwinding to its return address goes on after it. */
+  public Integer resumeAddress;
+  public Label resumeLabel;
+  /** Call sites whose unwinding is being handled: code there is outside what it handles, as a catch is outside its try. */
+  private final Set<Integer> handling = new HashSet<>();
+  /** Where the handling of an unwinding at a call site starts: code run by that handling that unwinds again to the same call site goes back there. */
+  private final Map<Integer, Label> handlerStarts = new HashMap<>();
   private final Map<java.lang.Integer, Label> labels = new HashMap<>();
   protected final Set<java.lang.Integer> positionedLabels = new HashSet<>();
   public final Routine routine;
@@ -68,7 +77,6 @@ public class RoutineBytecodeGenerator {
   public Map<String, Register> registerByVariable = new HashMap<>();
   public Map<Register, Variable> variablesByRegister = new HashMap<>();
   protected final Map<java.lang.Integer, Label> insertLabels = new HashMap<>();
-  private final Map<java.lang.Integer, Label> labelsAfterLeavingCalls = new HashMap<>();
   public Instruction currentInstruction;
   public Register currentRegister;
 
@@ -136,15 +144,13 @@ public class RoutineBytecodeGenerator {
               currentInstruction = instruction;
               generateInstruction(address, instruction, firstAddress);
 
-              int nextAddress = instruction instanceof Call ? stackAnalyzer().callContinuations.getOrDefault(address, address + instruction.getLength() & 0xffff) : address + instruction.getLength() & 0xffff;
-              if (!routine.contains(nextAddress) && catchPoints().containsKey(address))
-                labelsAfterLeavingCalls.put(address, mm.label().here());
+              int nextAddress = continuation(address);
               if (fallsThrough(address, instruction) && routine.contains(nextAddress) && getLabel(nextAddress) == null) {
                 mm.invoke("untranslated", nextAddress);
                 returnFromMethod();
               }
-              if (fallsThrough(address, instruction) && routine.contains(nextAddress) && getLabel(nextAddress) != null && (nextAddress <= address || java.util.stream.IntStream.range(address + 1, nextAddress).anyMatch(a -> routine.contains(a) && context.routineManager.getInstructionAt(a) != null && context.routineManager.getInstructionAt(a) != instruction)))
-                mm.goto_(getLabel(nextAddress));
+              if (fallsThrough(address, instruction) && routine.contains(nextAddress) && getLabel(nextAddress) != null && (structuring.headerFor(address, nextAddress) != -1 || nextAddress <= address || java.util.stream.IntStream.range(address + 1, nextAddress).anyMatch(a -> routine.contains(a) && context.routineManager.getInstructionAt(a) != null && context.routineManager.getInstructionAt(a) != instruction)))
+                goTo(address, nextAddress);
               Routine continuationOwner = context.routineManager.findRoutineAt(nextAddress);
               if (fallsThrough(address, instruction) && !routine.contains(nextAddress) && continuationOwner != null && (continuationOwner.getEntryPoint() == nextAddress ? !continuationOwner.isVirtual() : context.routineManager.isEnteredFromOutside(continuationOwner, nextAddress)))
                 tailJump(nextAddress, address);
@@ -170,6 +176,9 @@ public class RoutineBytecodeGenerator {
           label = firstAddress;
           hereLabel(label);
         }
+        ControlFlowStructuring.Region region = structuring.regions().get(address);
+        if (region != null)
+          region.entries().forEach(entry -> mm.invoke("isNextPC", entry).ifTrue(getLabel(entry)::goto_));
 
         List<RoutineManager.CodeVariant> variants = context.routineManager.codeVariantsAt(address);
         if (!variants.isEmpty()) {
@@ -212,13 +221,17 @@ public class RoutineBytecodeGenerator {
 
     });
 
-    Label label1 = mm.label();
-    label1.here();
+    mm.nop();
+    start = mm.label();
+    start.here();
     generators.forEach(g -> g.scopeAdjuster().run());
     generators.forEach(g -> g.scopeAdjuster().run());
     generators.forEach(g -> g.labelGenerator().run());
 
-    new ArrayList<>(labels.keySet()).stream().filter(address -> routine.contains(address) && context.routineManager.isEnteredFromOutside(routine, address)).forEach(address -> mm.invoke("isNextPC", address).ifTrue(getLabel(address)::goto_));
+    List<Integer> entries = new ArrayList<>(labels.keySet()).stream().filter(address -> routine.contains(address) && address != routine.getEntryPoint() && (context.routineManager.isEnteredFromOutside(routine, address) || context.routineManager.callers.get(address).stream().anyMatch(caller -> !routine.contains(caller)) || landings().contains(address))).toList();
+    context.dispatchedEntries.addAll(entries);
+    structuring = new ControlFlowStructuring(routine, context.routineManager, entries, this::continuation);
+    entries.forEach(address -> mm.invoke("isNextPC", address).ifTrue(() -> goTo(-1, address)));
 
     Label label = getLabel(routine.getEntryPoint());
     if (label != null)
@@ -227,77 +240,8 @@ public class RoutineBytecodeGenerator {
 
     positionedLabels.forEach(l -> labels.get(l).here());
     returnFromMethod();
+    emitUnwound();
 
-    MultiValuedMap<Integer, Integer> catchPoints = catchPoints();
-    List<Integer> returnPoints = catchPoints.values().stream().toList();
-    List<Integer> returnPointsDropped = routine.getReturnPointsDropped().values().stream().toList();
-
-    if (!returnPoints.isEmpty() || !returnPointsDropped.isEmpty()) {
-//      returnPoints = returnPoints.stream().filter(i -> routine.contains(i)).toList();
-
-      Set<Integer> keys = new HashSet<>(catchPoints.keys());
-      keys.forEach(entry -> {
-        Integer key = entry;
-        Label tryStart = getLabel(key);
-        int continuation = stackAnalyzer().callContinuations.getOrDefault(key, context.routineManager.addressAfter(key));
-        Label tryEnd = routine.contains(continuation) ? getLabel(continuation) : labelsAfterLeavingCalls.get(key);
-        var e = mm.catch_(tryStart, tryEnd, StackException.class);
-        Collection<Integer> integers = catchPoints.get(key);
-        Variable points = mm.new_(int[].class, integers.size());
-        int slot = 0;
-        for (int point : integers)
-          points.aset(slot++, point);
-        Variable nextAddress = mm.invoke("ownAddress", e, points);
-
-        integers.forEach(i -> {
-          nextAddress.ifEq(i, () -> {
-            loadPoppedReturnAddress(i, key);
-            Label label3 = getLabel(i);
-            if (label3 != null)
-              label3.goto_();
-            else if (context.routineManager.getInstructionAt(i) instanceof Ret ret && ret.getCondition() instanceof ConditionAlwaysTrue) {
-              invokePc(i);
-              returnFromMethod();
-            } else if (context.routineManager.getInstructionAt(i) instanceof JP jp && jp.getCondition() instanceof ConditionAlwaysTrue && getLabel(RoutineManager.fixedJumpTarget(jp)) != null) {
-              invokePc(i);
-              getLabel(RoutineManager.fixedJumpTarget(jp)).goto_();
-            } else if (context.routineManager.getInstructionAt(i) instanceof Pop && context.routineManager.findRoutineAt(i) == null) {
-              invokePc(i);
-              throwStackException(context.routineManager.addressAfter(i), StackException.class);
-            } else
-              tailJump(i, -1);
-          });
-        });
-        returnFromMethod();
-      });
-
-      List<Integer> droppedPoints = new ArrayList<>(new HashSet<>(returnPointsDropped));
-      if (!droppedPoints.isEmpty()) {
-        mm.catch_(label1, StackException.class, (Variable exception) -> {
-          Variable points = mm.new_(int[].class, droppedPoints.size());
-          for (int i = 0; i < droppedPoints.size(); i++)
-            points.aset(i, droppedPoints.get(i));
-          mm.invoke("isOwnAddress", exception, points).ifTrue(label1::goto_);
-          exception.throw_();
-        });
-      }
-
-//      mm.catch_(label10, StackException.class, (Variable exception) -> {
-//        ArrayList<Integer> points = new ArrayList<>(returnPoints);
-//        points.addAll(returnPointsDropped);
-//        int size = points.size();
-//        Variable value = mm.new_(int[].class, size);
-//
-//        for (int i = 0; i < size; i++) {
-//          value.aset(i, points.get(i));
-//        }
-//        mm.invoke("isOwnAddress", exception, value).ifTrue(() -> {
-////          label1.goto_();
-//          mm.invoke("DE");
-//        });
-//        exception.throw_();
-//      });
-    }
 
   }
 
@@ -309,6 +253,7 @@ public class RoutineBytecodeGenerator {
 
   private void executeMutantCode(int address, Instruction instruction) {
     Variable executedUpTo = mm.invoke("executeMutantCode", address);
+    afterInvoke();
     int next = address + instruction.getLength() & 0xffff;
     Runnable leave = () -> {
       for (int inside = address + 1; inside < address + instruction.getLength(); inside++)
@@ -319,7 +264,10 @@ public class RoutineBytecodeGenerator {
       int target = instruction instanceof Call ? -1 : RoutineManager.fixedJumpTarget(instruction);
       if (target != -1 && getLabel(target) != null)
         executedUpTo.ifEq(target, getLabel(target)::goto_);
-      executedUpTo.ifNe(-1, () -> mm.invoke("goOnFrom", executedUpTo));
+      executedUpTo.ifNe(-1, () -> {
+        mm.invoke("goOnFrom", executedUpTo);
+        afterInvoke();
+      });
       returnFromMethod();
     };
     if (fallsThrough(address, instruction))
@@ -500,6 +448,7 @@ public class RoutineBytecodeGenerator {
       reached.goto_();
     }));
     mm.invoke("jump", address);
+    afterInvoke();
     reached.here();
   }
 
@@ -510,7 +459,10 @@ public class RoutineBytecodeGenerator {
   public void tailJump(int target, int site) {
     int address = inOwnBank(target);
     Routine owner = context.routineManager.findRoutineAt(address);
-    if (isJumpMember(routine) && isJumpMember(owner) && (site == -1 || context.routineManager.ownDataLeftForOthers(site, routine, stackAnalyzer()).isEmpty())) {
+    if (owner != null && context.routineManager.callersWhoseReturnIsTaken(routine, stackAnalyzer()).contains(owner) && context.ancestorJumps().goesBack(routine, owner)) {
+      mm.invoke("unwind", address);
+      returnFromMethod();
+    } else if (isJumpMember(routine) && isJumpMember(owner) && (site == -1 || context.routineManager.ownDataLeftForOthers(site, routine, stackAnalyzer()).isEmpty())) {
       if (owner.getEntryPoint() != address)
         mm.invoke("setNextAddress", address);
       mm.return_(owner.getEntryPoint());
@@ -531,7 +483,17 @@ public class RoutineBytecodeGenerator {
     Variable invoke = null;
     try {
       Routine target = context.routineManager.findRoutineAt(jumpLabel);
-      invoke = isJumpMember(target) && target.getEntryPoint() == jumpLabel ? mm.invoke("runJumps", jumpLabel) : mm.invoke(labelName);
+      int entry = jumpLabel;
+      if (target != null && target.getEntryPoint() != jumpLabel && !context.methods.containsKey(labelName)) {
+        mm.invoke("setNextAddress", jumpLabel);
+        entry = target.getEntryPoint();
+        labelName = createLabelName(entry);
+        context.dispatchedEntries.add(jumpLabel);
+      }
+      boolean chain = isJumpMember(target) && target.getEntryPoint() == entry;
+      invoke = chain ? mm.invoke("runJumps", entry) : mm.invoke(labelName);
+      if (chain || context.mayUnwind(target))
+        afterInvoke();
     } catch (Exception e) {
       System.out.println("not found: " + labelName + " (" + e + ")" + " from " + routine + " at " + Helper.formatAddress(context.pc.read()) + " callers " + context.routineManager.callers.get(jumpLabel) + " owner " + context.routineManager.findRoutineAt(jumpLabel));
     }
@@ -588,6 +550,112 @@ public class RoutineBytecodeGenerator {
         getExistingVariable((Register) pop.getTarget()).set(pushesReturnAddress(callSite) ? mm.invoke("pop") : context.routineManager.originalAddress(context.routineManager.addressAfter(callSite)));
   }
 
+  /** After code that may have left this frame: an unwinding that stops here goes on where it says, any other leaves this routine too. */
+  public void afterInvoke() {
+    mm.invoke("unwinding").ifTrue(this::stopUnwindingHere);
+  }
+
+  private void stopUnwindingHere() {
+    int key = context.pc.read();
+    Collection<Integer> points = catchPoints().get(key);
+    if (!points.isEmpty() && handling.contains(key))
+      handlerStarts.get(key).goto_();
+    else if (!points.isEmpty()) {
+      handling.add(key);
+      Label handlerStart = mm.label().here();
+      handlerStarts.put(key, handlerStart);
+      Variable own = mm.invoke("ownAddress", addresses(points));
+      points.forEach(i -> own.ifEq(i, () -> {
+        loadPoppedReturnAddress(i, key);
+        Label target = getLabel(i);
+        if (target != null)
+          target.goto_();
+        else if (context.routineManager.getInstructionAt(i) instanceof Ret ret && ret.getCondition() instanceof ConditionAlwaysTrue) {
+          invokePc(i);
+          returnFromMethod();
+        } else if (context.routineManager.getInstructionAt(i) instanceof JP jp && jp.getCondition() instanceof ConditionAlwaysTrue && getLabel(RoutineManager.fixedJumpTarget(jp)) != null) {
+          invokePc(i);
+          getLabel(RoutineManager.fixedJumpTarget(jp)).goto_();
+        } else if (context.routineManager.getInstructionAt(i) instanceof Pop && context.routineManager.findRoutineAt(i) == null) {
+          invokePc(i);
+          mm.invoke("unwind", context.routineManager.addressAfter(i));
+          returnFromMethod();
+        } else
+          tailJump(i, -1);
+      }));
+      handling.remove(key);
+      handlerStarts.remove(key);
+    }
+    if (resumeAddress != null && landings().contains(resumeAddress))
+      mm.invoke("ownAddress", addresses(List.of(resumeAddress))).ifNe(-1, resumeLabel::goto_);
+    if (entriesBackFromUnwinding().isEmpty() && elsewhere().isEmpty())
+      returnFromMethod();
+    else {
+      if (unwound == null)
+        unwound = mm.label();
+      unwound.goto_();
+    }
+  }
+
+  /** The one place where an unwinding that reached this routine's frame finds out whether it comes back into it, as the catch around the whole method did. */
+  private void emitUnwound() {
+    if (unwound == null)
+      return;
+    unwound.here();
+    if (!elsewhere().isEmpty()) {
+      Variable own = mm.invoke("ownAddress", addresses(elsewhere()));
+      elsewhere().forEach(at -> own.ifEq(at, () -> tailJump(at, -1)));
+    }
+    if (!entriesBackFromUnwinding().isEmpty())
+      mm.invoke("isOwnAddress", addresses(entriesBackFromUnwinding())).ifTrue(start::goto_);
+    returnFromMethod();
+  }
+
+  private List<Integer> elsewhere() {
+    return landings().stream().filter(at -> getLabel(at) == null && context.routineManager.findRoutineAt(at) != null).sorted().toList();
+  }
+
+  private Set<Integer> entriesBackFromUnwinding() {
+    Set<Integer> entries = new TreeSet<>(routine.getReturnPointsDropped().values());
+    landings().stream().filter(at -> getLabel(at) != null).forEach(entries::add);
+    return entries;
+  }
+
+  /** Where code that left this routine's frame comes back to it: the targets of jumps back from routines it calls, and the returns of its own calls that a RET leaving other frames goes back to. */
+  private Set<Integer> landings() {
+    if (landings == null) {
+      landings = new HashSet<>(context.ancestorJumps().landings().getOrDefault(routine, Set.of()));
+      landings.addAll(context.routineManager.returnsOfCallsInTakenByNonLocalReturns(routine, stackAnalyzer()));
+    }
+    return landings;
+  }
+
+  /** Where the code goes on after the instruction at this address when it falls through. */
+  private int continuation(int address) {
+    Instruction instruction = context.routineManager.getInstructionAt(address);
+    int next = address + instruction.getLength() & 0xffff;
+    return instruction instanceof Call ? stackAnalyzer().callContinuations.getOrDefault(address, next) : next;
+  }
+
+  /** A jump inside this routine: into a region entered in more than one place, through its header with nextAddress set. */
+  public void goTo(int from, int target) {
+    int header = structuring.headerFor(from, target);
+    if (header == -1)
+      getLabel(target).goto_();
+    else {
+      mm.invoke("setNextAddress", target);
+      getLabel(header).goto_();
+    }
+  }
+
+  private Variable addresses(Collection<Integer> values) {
+    Variable array = mm.new_(int[].class, values.size());
+    int slot = 0;
+    for (int value : values)
+      array.aset(slot++, value);
+    return array;
+  }
+
   public void throwAfterVirtualPop(int address) {
     throwAtVirtualPop(routine.getVirtualPop().get(address));
   }
@@ -600,14 +668,15 @@ public class RoutineBytecodeGenerator {
       stackReset.accept(new InstructionsBytecodeGenerator(mm, this, pop));
     }
     if (instruction instanceof Pop popped)
-      mm.new_(StackException.class, context.routineManager.addressAfter(pop), ((Register) popped.getTarget()).getName()).throw_();
+      mm.invoke("unwind", context.routineManager.addressAfter(pop), ((Register) popped.getTarget()).getName());
     else
-      throwStackException(context.routineManager.addressAfter(pop), StackException.class);
+      mm.invoke("unwind", context.routineManager.addressAfter(pop));
+    stopUnwindingHere();
   }
 
-  public void throwStackException(Object nextAddress, Class<? extends Exception> type) {
-    Variable variable = mm.new_(type, nextAddress);
-    variable.throw_();
+  public void unwind(Object nextAddress) {
+    mm.invoke("unwind", nextAddress);
+    stopUnwindingHere();
   }
 
   protected void returnFromMethod() {
@@ -643,6 +712,7 @@ public class RoutineBytecodeGenerator {
       }
     }));
     mm.invoke("jump", value);
+    afterInvoke();
     returnFromMethod();
   }
 

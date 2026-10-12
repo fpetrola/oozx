@@ -33,6 +33,8 @@ public class BytecodeGenerationContext {
   public boolean optimize16Convertion = false;
   public ClassMaker cm;
   public Map<String, MethodMaker> methods;
+  /** Addresses a method's start dispatches to: each gets an entry method, for whoever reaches it by address at run time. */
+  public final java.util.Set<Integer> dispatchedEntries = new java.util.TreeSet<>();
   public Register pc;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
   public GameData gameData;
@@ -43,6 +45,22 @@ public class BytecodeGenerationContext {
     if (routinesInJumpCycles == null)
       routinesInJumpCycles = routineManager.routinesInJumpCycles(pc -> symbolicExecutionAdapter.getStackAnalyzer().getInvocationsSet(pc));
     return routinesInJumpCycles;
+  }
+
+  private java.util.Set<com.fpetrola.z80.routines.Routine> routinesThatMayUnwind;
+
+  public boolean mayUnwind(com.fpetrola.z80.routines.Routine routine) {
+    if (routinesThatMayUnwind == null)
+      routinesThatMayUnwind = routineManager.routinesThatMayUnwind(symbolicExecutionAdapter.getStackAnalyzer(), ancestorJumps(), pc -> symbolicExecutionAdapter.getStackAnalyzer().getInvocationsSet(pc));
+    return routine == null || routinesThatMayUnwind.contains(routine);
+  }
+
+  private RoutineManager.AncestorJumps ancestorJumps;
+
+  public RoutineManager.AncestorJumps ancestorJumps() {
+    if (ancestorJumps == null)
+      ancestorJumps = routineManager.ancestorJumps(pc -> symbolicExecutionAdapter.getStackAnalyzer().getInvocationsSet(pc));
+    return ancestorJumps;
   }
 
   public BytecodeGenerationContext(RoutineManager routineManager, ClassMaker classMaker, Register pc1, SymbolicExecutionAdapter symbolicExecutionAdapter, GameData gameData, boolean direct) {

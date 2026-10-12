@@ -118,7 +118,7 @@ public class StateBytecodeGenerator {
     routines.sort(Comparator.comparingInt(Routine::getEntryPoint));
 
     int[] jumpMembers = bytecodeGenerationContext.routinesInJumpCycles().stream().mapToInt(Routine::getEntryPoint).sorted().toArray();
-    MethodMaker runJumps = jumpMembers.length > 0 ? classMaker.addMethod(void.class, "runJumps", int.class).public_() : null;
+    MethodMaker runJumps = jumpMembers.length > 0 ? classMaker.addMethod(int.class, "runJumps", int.class).public_() : null;
 
     routines.forEach(routine -> {
       routine.optimize();
@@ -134,9 +134,9 @@ public class StateBytecodeGenerator {
       }
     });
 
-    routineManager.externalEntries.forEach(entry -> {
+    java.util.stream.Stream.concat(routineManager.externalEntries.stream(), bytecodeGenerationContext.dispatchedEntries.stream()).distinct().forEach(entry -> {
       Routine owner = routineManager.findRoutineAt(entry);
-      if (owner != null && owner.getEntryPoint() != entry) {
+      if (owner != null && owner.getEntryPoint() != entry && !bytecodeGenerationContext.methods.containsKey(RoutineBytecodeGenerator.createLabelName(entry))) {
         MethodMaker entryMethod = new RoutineBytecodeGenerator(bytecodeGenerationContext, owner).getMethod(entry);
         entryMethod.invoke("setNextAddress", entry);
         if (bytecodeGenerationContext.routinesInJumpCycles().contains(owner))
@@ -151,13 +151,16 @@ public class StateBytecodeGenerator {
       Variable next = runJumps.var(int.class).set(runJumps.param(0));
       Label loop = runJumps.label().here(), exit = runJumps.label();
       Label[] members = java.util.stream.IntStream.range(0, jumpMembers.length).mapToObj(i -> runJumps.label()).toArray(Label[]::new);
+      next.set(runJumps.invoke("pagedCopy", next));
       next.switch_(exit, jumpMembers, members);
       for (int i = 0; i < jumpMembers.length; i++) {
         members[i].here();
         next.set(runJumps.invoke(RoutineBytecodeGenerator.createLabelName(jumpMembers[i])));
+        runJumps.invoke("unwinding").ifTrue(exit::goto_);
         loop.goto_();
       }
       exit.here();
+      runJumps.return_(next);
     }
 
     return classMaker;

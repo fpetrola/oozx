@@ -205,6 +205,12 @@ public class RoutineManager {
     return points;
   }
 
+  /** The returns of this routine's calls that a RET leaving other frames on the way (a non-local return) goes back to. */
+  public java.util.Set<Integer> returnsOfCallsInTakenByNonLocalReturns(Routine routine, StackAnalyzer stackAnalyzer) {
+    return stackAnalyzer.returnsConsumedBy.entries().stream().filter(e -> routine.contains(e.getValue()) && instructions.get(e.getValue()) instanceof Call && findRoutineAt(e.getKey()) != null && exitOf(e.getKey(), stackAnalyzer).kind() == Exit.NON_LOCAL)
+        .map(e -> addressAfter(e.getValue())).collect(java.util.stream.Collectors.toSet());
+  }
+
   public MultiValuedMap<Integer, Integer> returnPointsOfCallsIn(Routine routine) {
     MultiValuedMap<Integer, Integer> points = new HashSetValuedHashMap<>();
     instructions.forEach((address, instruction) -> {
@@ -263,7 +269,102 @@ public class RoutineManager {
   }
 
   public java.util.Set<Routine> routinesInJumpCycles(java.util.function.IntFunction<java.util.Set<Integer>> dynamicTargets) {
+    Map<Routine, java.util.Set<Routine>> next = flow(dynamicTargets, false);
+    return next.keySet().stream().filter(routine -> reaches(next, routine, routine, new java.util.HashSet<>())).collect(java.util.stream.Collectors.toSet());
+  }
+
+  /** Jumps that go back to a routine above them in the chain of calls: the jumping routine unwinds to it instead of calling it again. */
+  public record AncestorJumps(Map<Routine, java.util.Set<Routine>> targets, Map<Routine, java.util.Set<Integer>> landings) {
+    public boolean goesBack(Routine from, Routine to) {
+      return targets.getOrDefault(from, java.util.Set.of()).contains(to);
+    }
+  }
+
+  public AncestorJumps ancestorJumps(java.util.function.IntFunction<java.util.Set<Integer>> dynamicTargets) {
+    Map<Routine, java.util.Set<Routine>> jumps = flow(dynamicTargets, false), all = flow(dynamicTargets, true), back = new HashMap<>();
+    all.forEach((from, tos) -> tos.forEach(to -> back.computeIfAbsent(to, k -> new java.util.HashSet<>()).add(from)));
+    Map<Routine, java.util.Set<Routine>> targets = new HashMap<>();
+    jumps.forEach((from, tos) -> {
+      java.util.Set<Routine> reachingFrom = reachable(back, from);
+      tos.stream().filter(to -> reachingFrom.contains(to) && !reaches(jumps, to, from, new java.util.HashSet<>())).forEach(to -> targets.computeIfAbsent(from, k -> new java.util.HashSet<>()).add(to));
+    });
+    Map<Routine, java.util.Set<Integer>> landings = new HashMap<>();
+    edges(dynamicTargets, false, (from, target) -> {
+      Routine to = routineGoneOnAt(target);
+      if (to != null && targets.getOrDefault(from, java.util.Set.of()).contains(to))
+        landings.computeIfAbsent(to, k -> new java.util.HashSet<>()).add(target & 0xffff);
+    });
+    return new AncestorJumps(targets, landings);
+  }
+
+  /** A POP in this routine, or one that falls through into it, took the return of the call that runs it. */
+  public boolean takesItsCallersReturn(Routine routine, StackAnalyzer stackAnalyzer) {
+    return !callersWhoseReturnIsTaken(routine, stackAnalyzer).isEmpty();
+  }
+
+  /** The routines holding the calls whose return a POP in this routine (or falling into it) takes: their frames are the ones it goes back to. */
+  public java.util.Set<Routine> callersWhoseReturnIsTaken(Routine routine, StackAnalyzer stackAnalyzer) {
+    return stackAnalyzer.poppedCallSites.entries().stream().filter(e -> routineGoneOnAt(e.getValue()) == routine).map(e -> findRoutineAt(e.getKey())).filter(java.util.Objects::nonNull).collect(java.util.stream.Collectors.toSet());
+  }
+
+  /** Routines whose translation can leave the frames of their callers (an unwinding): they do it themselves, go on through code resolved only at run time, or call or jump to one that can. */
+  public java.util.Set<Routine> routinesThatMayUnwind(StackAnalyzer stackAnalyzer, AncestorJumps ancestorJumps, java.util.function.IntFunction<java.util.Set<Integer>> dynamicTargets) {
+    java.util.Set<Routine> unwinding = new java.util.HashSet<>();
+    instructions.forEach((address, instruction) -> {
+      Routine owner = findRoutineAt(address);
+      if (owner != null && unwindsAt(owner, address, instruction, stackAnalyzer))
+        unwinding.add(owner);
+    });
+    routines.stream().filter(routine -> !routine.getVirtualPop().isEmpty() || ancestorJumps.targets().containsKey(routine) && takesItsCallersReturn(routine, stackAnalyzer)).forEach(unwinding::add);
+    Map<Routine, java.util.Set<Routine>> back = new HashMap<>();
+    flow(dynamicTargets, true).forEach((from, tos) -> tos.forEach(to -> back.computeIfAbsent(to, k -> new java.util.HashSet<>()).add(from)));
+    new ArrayList<>(unwinding).forEach(routine -> unwinding.addAll(reachable(back, routine)));
+    return unwinding;
+  }
+
+  private boolean unwindsAt(Routine owner, int address, Instruction instruction, StackAnalyzer stackAnalyzer) {
+    if (nonLocalReturns.containsKey(address) || !stackAnalyzer.codeVersions.instructionVersions(address).isEmpty() || !codeVariantsAt(address).isEmpty()
+        || java.util.stream.IntStream.range(0, instruction.getLength()).anyMatch(i -> stackAnalyzer.codeVersions.mutant().contains(address + i & 0xffff)))
+      return true;
+    if (instruction instanceof Ret)
+      return java.util.Set.of(Exit.NON_LOCAL, Exit.DISPATCH).contains(exitOf(address, stackAnalyzer).kind());
+    return instruction instanceof ConditionalInstruction<?> jump && jump.getPositionOpcodeReference() instanceof com.fpetrola.z80.registers.Register;
+  }
+
+  /** The routine the code at this address goes on in: instructions of no routine (a virtual POP) fall through to the next one. */
+  public Routine routineGoneOnAt(int address) {
+    for (int at = address & 0xffff, steps = 0; steps < 16; steps++) {
+      Routine owner = findRoutineAt(at);
+      Instruction instruction = instructions.get(at);
+      if (owner != null || instruction == null || !fallsThrough(instruction))
+        return owner;
+      at = at + instruction.getLength() & 0xffff;
+    }
+    return null;
+  }
+
+  private static java.util.Set<Routine> reachable(Map<Routine, java.util.Set<Routine>> next, Routine from) {
+    java.util.Set<Routine> seen = new java.util.HashSet<>();
+    java.util.Deque<Routine> pending = new java.util.ArrayDeque<>(List.of(from));
+    while (!pending.isEmpty())
+      next.getOrDefault(pending.pop(), java.util.Set.of()).forEach(to -> {
+        if (seen.add(to))
+          pending.push(to);
+      });
+    return seen;
+  }
+
+  private Map<Routine, java.util.Set<Routine>> flow(java.util.function.IntFunction<java.util.Set<Integer>> dynamicTargets, boolean withCalls) {
     Map<Routine, java.util.Set<Routine>> next = new HashMap<>();
+    edges(dynamicTargets, withCalls, (from, target) -> {
+      Routine to = routineGoneOnAt(target);
+      if (to != null && to != from)
+        next.computeIfAbsent(from, k -> new java.util.HashSet<>()).add(to);
+    });
+    return next;
+  }
+
+  private void edges(java.util.function.IntFunction<java.util.Set<Integer>> dynamicTargets, boolean withCalls, java.util.function.BiConsumer<Routine, Integer> edge) {
     instructions.forEach((address, instruction) -> {
       Routine from = findRoutineAt(address);
       if (from == null)
@@ -271,16 +372,15 @@ public class RoutineManager {
       java.util.Set<Integer> targets = new java.util.HashSet<>();
       if (instruction instanceof Ret)
         targets.addAll(dynamicTargets.apply(address));
-      else if (instruction instanceof ConditionalInstruction<?> jump && !(jump instanceof Call))
+      else if (instruction instanceof ConditionalInstruction<?> jump && (withCalls || !(jump instanceof Call)))
         if (jump.getPositionOpcodeReference() instanceof com.fpetrola.z80.registers.Register)
           targets.addAll(dynamicTargets.apply(address));
         else
           targets.add(jump.getJumpAddress());
       if (fallsThrough(instruction))
         targets.add(address + instruction.getLength());
-      targets.stream().map(this::findRoutineAt).filter(to -> to != null && to != from).forEach(to -> next.computeIfAbsent(from, k -> new java.util.HashSet<>()).add(to));
+      targets.forEach(target -> edge.accept(from, target));
     });
-    return next.keySet().stream().filter(routine -> reaches(next, routine, routine, new java.util.HashSet<>())).collect(java.util.stream.Collectors.toSet());
   }
 
   private static boolean reaches(Map<Routine, java.util.Set<Routine>> next, Routine from, Routine target, java.util.Set<Routine> visited) {
@@ -463,7 +563,8 @@ public class RoutineManager {
 
   /** A CALL pushes its return address for real when a POP takes it outside the routine's own return points, or when a plan needs it on the stack (layout, non-local returns). */
   public boolean pushesReturnAddress(int callSite, Routine routine, StackAnalyzer stackAnalyzer) {
-    return stackAnalyzer.poppedCallSites.containsKey(callSite) && !routine.getReturnPoints().containsKey(callSite) || pushedReturnSites.contains(callSite);
+    return stackAnalyzer.poppedCallSites.containsKey(callSite) && !routine.getReturnPoints().containsKey(callSite) || pushedReturnSites.contains(callSite)
+        || stackAnalyzer.returnsConsumedBy.entries().stream().anyMatch(e -> e.getValue() == callSite && takesAReturnPushedBack(e.getKey(), stackAnalyzer));
   }
 
   /** A JP through a register after pushing where to go on is a call; otherwise it goes on at its recorded targets, and a shifted return has nowhere else to go. */
@@ -481,6 +582,11 @@ public class RoutineManager {
     return onTop.distinct().filter(push -> routine.contains(push) && stackAnalyzer.dataConsumedBy.entries().stream().anyMatch(e -> e.getValue().equals(push) && !routine.contains(e.getKey()))).toList();
   }
 
+  /** This RET sometimes takes a return that a virtual POP (one of no routine) had taken off the stack and that was pushed back: it goes where the word says, every caller it returns to having pushed its return. */
+  private boolean takesAReturnPushedBack(int ret, StackAnalyzer stackAnalyzer) {
+    return stackAnalyzer.returnsConsumedBy.get(ret).stream().anyMatch(callSite -> callSite != -1 && stackAnalyzer.poppedCallSites.get(callSite).stream().anyMatch(pop -> findRoutineAt(pop) == null) && !stackAnalyzer.callContinuations.containsKey(callSite) && getInstructionAt(callSite) != null && findRoutineAt(ret) != null && !findRoutineAt(ret).contains(callSite));
+  }
+
   public RetExit exitOf(int ret, StackAnalyzer stackAnalyzer) {
     List<Integer> ownPushes = stackAnalyzer.dataConsumedBy.get(ret).stream().filter(findRoutineAt(ret)::contains).toList();
     Integer continuation = ownPushes.size() == 1 ? plantedContinuation(ownPushes.get(0), stackAnalyzer) : null;
@@ -488,7 +594,7 @@ public class RoutineManager {
     boolean consumesData = stackAnalyzer.dataConsumedBy.containsKey(ret) ? !ownPushes.isEmpty() && !returnsToACaller : !stackAnalyzer.dynamicInvocation.get(ret).isEmpty();
     if (stackAnalyzer.stackSwitches.containsKey(ret))
       return new RetExit(Exit.SWITCH_STACK, -1);
-    if (nonLocalReturns.containsKey(ret))
+    if (nonLocalReturns.containsKey(ret) || takesAReturnPushedBack(ret, stackAnalyzer))
       return new RetExit(Exit.NON_LOCAL, -1);
     if (continuation != null)
       return new RetExit(Exit.CONTINUATION, continuation);

@@ -174,8 +174,12 @@ public class RoutineFinder {
               routineManager.callers.put(target, pcValue);
               routineManager.callees.put(pcValue, target);
             });
-            if (ret.getNextPC() != -1)
+            if (ret.getNextPC() != -1) {
               currentRoutine.addInstructionAt(ret, pcValue);
+              int before = routineManager.addressBefore(ret.getNextPC());
+              if (before != -1 && routineManager.getInstructionAt(before) instanceof Call && routineManager.findRoutineAt(before) != null)
+                returnedTo(ret.getNextPC());
+            }
             return true;
           }
 
@@ -273,7 +277,9 @@ public class RoutineFinder {
   }
 
   private void followOwnerOf(int pcValue) {
-    if (resumedElsewhere(pcValue) && !currentRoutine.contains(pcValue)) {
+    if (lastInstruction instanceof Call && pcValue == routineManager.addressAfter(lastPc) && routineManager.findRoutineAt(lastPc) != null)
+      currentRoutine = routineManager.findRoutineAt(lastPc);
+    else if (resumedElsewhere(pcValue) && !currentRoutine.contains(pcValue)) {
       Routine owner = routineManager.findRoutineAt(pcValue);
       if (owner == null)
         owner = ownerFlowingInto(pcValue);

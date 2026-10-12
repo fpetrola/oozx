@@ -77,6 +77,49 @@ public abstract class SpectrumApplication {
     return Arrays.stream(integers).anyMatch(a -> a == nextAddress);
   }
 
+  private int unwindingTo = -1;
+  private String unwoundInto = "";
+
+  /** A translated routine left its caller's frame (a POP or RET took its return): every caller returns until one owns {@code nextPC}. */
+  public void unwind(int nextPC) {
+    unwind(nextPC, "");
+  }
+
+  public void unwind(int nextPC, String poppedInto) {
+    unwindingTo = nextPC;
+    unwoundInto = poppedInto;
+  }
+
+  public boolean unwinding() {
+    return unwindingTo != -1;
+  }
+
+  /** The unwinding stops here when it goes to one of these addresses: it is returned, -1 if it goes on unwinding. */
+  public int ownAddress(int... integers) {
+    int own = unwindingTo;
+    if (Arrays.stream(integers).noneMatch(a -> a == own))
+      return -1;
+    unwindingTo = -1;
+    return own;
+  }
+
+  /** The unwinding stops here, re-entering this routine at its target. */
+  public boolean isOwnAddress(int... integers) {
+    int own = ownAddress(integers);
+    if (own != -1)
+      nextAddress = own;
+    return own != -1;
+  }
+
+  /** Where an unwinding that no translated caller owned goes on, with the pop it still owes. */
+  public int unwound() {
+    if (!unwoundInto.isEmpty())
+      popInto(unwoundInto);
+    int at = unwindingTo;
+    unwindingTo = -1;
+    return at;
+  }
+
   public int ownAddress(StackException stackException, int... integers) {
     if (!isOwnAddress(stackException, integers))
       throw stackException;
@@ -110,9 +153,17 @@ public abstract class SpectrumApplication {
       boolean taken = call.getCondition().conditionMet(call);
       tstates += costAt(address, call.getLength())[taken ? 1 : 0];
       fetched(1);
-      if (taken)
+      int returnAddress = address + call.getLength();
+      if (taken) {
+        push(returnAddress);
+        int pushedAt = SP;
         invokeMethod(call.calculateJumpAddress());
-      return address + call.getLength();
+        if (unwinding())
+          ownAddress(returnAddress);
+        else if (SP == pushedAt)
+          pop();
+      }
+      return returnAddress;
     }
     if (instruction instanceof Halt) {
       tstates += costAt(address, 1)[0];
@@ -185,7 +236,7 @@ public abstract class SpectrumApplication {
 
   /** Rewritten code the emulator left somewhere without a method of its own (an instruction of another length than the recorded one): it goes on in the emulator up to translated code or a RET. */
   public void goOnFrom(int address) {
-    for (int pc = address; pc != -1; pc(pc, 0, 0), pc = executeMutantCode(pc))
+    for (int pc = address; pc != -1 && !unwinding(); pc(pc, 0, 0), pc = executeMutantCode(pc))
       if (translatedAt.computeIfAbsent(pagedCopy(pc), at -> Arrays.stream(getClass().getMethods()).anyMatch(m -> m.getName().equals("$" + Integer.toHexString(at).toUpperCase())))) {
         invokeMethod(pc);
         return;
@@ -206,7 +257,7 @@ public abstract class SpectrumApplication {
       } catch (NoSuchMethodException decimalNamed) {
         method = getClass().getMethod("$" + translated);
       }
-      if (method.invoke(this) instanceof Integer next && next != -1)
+      if (method.invoke(this) instanceof Integer next && next != -1 && !unwinding())
         getClass().getMethod("runJumps", int.class).invoke(this, next);
     } catch (java.lang.reflect.InvocationTargetException e) {
       if (e.getCause() instanceof RuntimeException runtime)

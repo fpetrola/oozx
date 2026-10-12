@@ -540,26 +540,20 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     List<Routine> routines = getRoutineManager().getRoutines();
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
-        import com.fpetrola.z80.minizx.StackException;
 
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.A = 2;
-
-              label20: {
-                 try {
-                    this.$6();
-                 } catch (StackException var3) {
-                    int[] var2 = new int[]{11};
-                    if(this.ownAddress(var3, var2) == 11) {
-                       this.HL(2);
-                       super.A = 6;
-                       break label20;
-                    }
-
+              this.$6();
+              if(this.unwinding()) {
+                 int[] var1 = new int[]{11};
+                 if(this.ownAddress(var1) != 11) {
                     return;
                  }
 
+                 this.HL(2);
+                 super.A = 6;
+              } else {
                  super.C = 3;
                  super.C = 4;
               }
@@ -569,7 +563,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
            public void $6() {
               super.D = 4;
-              throw new StackException(11, "HL");
+              this.unwind(11, "HL");
            }
         }
         """, resultingJava);
@@ -625,29 +619,49 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
-        import com.fpetrola.z80.minizx.StackException;
 
         public class JSW extends SpectrumApplication {
            public void $0() {
-              super.A = 2;
-
-              label20: {
-                 try {
+              while(true) {
+                 if(!this.isNextPC(2)) {
+                    super.A = 2;
+                    this.push(2);
+                    int var1 = this.SP();
                     this.$6();
-                 } catch (StackException var3) {
-                    int[] var2 = new int[]{17};
-                    if(this.ownAddress(var3, var2) == 17) {
-                       this.HL(2);
-                       super.A = 61;
-                       super.B = 62;
-                       break label20;
-                    }
+                    if(this.unwinding()) {
+                       int[] var4 = new int[]{17};
+                       if(this.ownAddress(var4) == 17) {
+                          int var7 = this.pop();
+                          this.HL(var7);
+                          super.A = 61;
+                          super.B = 62;
+                          break;
+                       }
 
-                    return;
+                       int[] var5 = new int[]{2};
+                       if(this.ownAddress(var5) == -1) {
+                          int[] var6 = new int[]{2};
+                          if(!this.isOwnAddress(var6)) {
+                             return;
+                          }
+                          continue;
+                       }
+                    } else {
+                       int var2 = this.SP();
+                       if(var2 == var1) {
+                          this.pop();
+                       } else {
+                          int var3 = var1 + 2 & '\\uffff';
+                          if(var2 == var3) {
+                             return;
+                          }
+                       }
+                    }
                  }
 
                  super.C = 3;
                  super.C = 4;
+                 break;
               }
 
               super.C = 5;
@@ -655,15 +669,16 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
            public void $6() {
               super.D = 4;
-
-              try {
-                 this.$11();
-              } catch (StackException var3) {
+              this.$11();
+              if(this.unwinding()) {
                  int[] var2 = new int[]{16};
-                 if(this.ownAddress(var3, var2) == 16) {
+                 if(this.ownAddress(var2) == 16) {
                     this.HL(8);
-                    throw new StackException(17);
+                    this.unwind(17);
                  }
+              } else {
+                 int var1 = this.pop();
+                 this.unwind(var1);
               }
            }
 
@@ -671,10 +686,15 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               int var1 = this.alu("dec", super.A);
               super.A = var1;
               if(this.flag(64, true)) {
-                 throw new StackException(16, "HL");
+                 this.unwind(16, "HL");
               } else {
                  super.E = 8;
               }
+           }
+
+           public void $2() {
+              this.setNextAddress(2);
+              this.$0();
            }
         }
         """, resultingJava);
@@ -740,38 +760,58 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
-        import com.fpetrola.z80.minizx.StackException;
 
         public class JSW extends SpectrumApplication {
            public void $0() {
-              super.A = 2;
+              label41: {
+                 while(true) {
+                    label45: {
+                       if(!this.isNextPC(2)) {
+                          super.A = 2;
+                          this.push(2);
+                          int var3 = this.SP();
+                          this.$7();
+                          if(this.unwinding()) {
+                             int[] var6 = new int[]{19};
+                             if(this.ownAddress(var6) == 19) {
+                                int var8 = this.pop();
+                                this.HL(var8);
+                                break;
+                             }
 
-              label33: {
-                 label37: {
-                    try {
-                       this.$7();
-                    } catch (StackException var6) {
-                       int[] var2 = new int[]{19};
-                       if(this.ownAddress(var6, var2) == 19) {
-                          this.HL(2);
-                          break label37;
+                             int[] var7 = new int[]{2};
+                             if(this.ownAddress(var7) == -1) {
+                                break label45;
+                             }
+                          } else {
+                             int var4 = this.SP();
+                             if(var4 == var3) {
+                                this.pop();
+                             } else {
+                                int var5 = var3 + 2 & '\\uffff';
+                                if(var4 == var5) {
+                                   return;
+                                }
+                             }
+                          }
                        }
 
-                       return;
+                       super.C = 2;
+                       this.$22();
+                       if(!this.unwinding()) {
+                          break label41;
+                       }
+
+                       int[] var1 = new int[]{19};
+                       if(this.ownAddress(var1) == 19) {
+                          this.HL(4);
+                          break;
+                       }
                     }
 
-                    super.C = 2;
-
-                    try {
-                       this.$22();
-                       break label33;
-                    } catch (StackException var5) {
-                       int[] var4 = new int[]{19};
-                       if(this.ownAddress(var5, var4) != 19) {
-                          return;
-                       }
-
-                       this.HL(4);
+                    int[] var2 = new int[]{2};
+                    if(!this.isOwnAddress(var2)) {
+                       return;
                     }
                  }
 
@@ -786,31 +826,39 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
            public void $7() {
               super.D = 4;
               this.alu("cp", super.A, 3);
+              if(this.flag(64, false)) {
+                 this.$13();
+                 if(this.unwinding()) {
+                    int[] var2 = new int[]{17};
+                    if(this.ownAddress(var2) == 17) {
+                       this.HL(10);
+                       super.E = 71;
+                       this.unwind(19, "HL");
+                       return;
+                    }
 
-              try {
-                 if(this.flag(64, false)) {
-                    this.$13();
-                 }
-
-              } catch (StackException var3) {
-                 int[] var2 = new int[]{17};
-                 if(this.ownAddress(var3, var2) == 17) {
-                    this.HL(10);
-                    super.E = 71;
-                    throw new StackException(19, "HL");
+                    return;
                  }
               }
+
+              int var1 = this.pop();
+              this.unwind(var1);
            }
 
            public void $13() {
               super.C = 40;
-              throw new StackException(17, "HL");
+              this.unwind(17, "HL");
            }
 
            public void $22() {
               super.D = 41;
               super.E = 51;
-              throw new StackException(19, "HL");
+              this.unwind(19, "HL");
+           }
+
+           public void $2() {
+              this.setNextAddress(2);
+              this.$0();
            }
         }
         """, resultingJava);
@@ -874,27 +922,21 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     List<Routine> routines = getRoutineManager().getRoutines();
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
-        import com.fpetrola.z80.minizx.StackException;
 
         public class JSW extends SpectrumApplication {
            public void $0() {
               super.H = 1;
               super.A = 2;
-
-              label20: {
-                 try {
-                    this.$7();
-                 } catch (StackException var3) {
-                    int[] var2 = new int[]{17};
-                    if(this.ownAddress(var3, var2) == 17) {
-                       this.HL(3);
-                       super.A = 6;
-                       break label20;
-                    }
-
+              this.$7();
+              if(this.unwinding()) {
+                 int[] var1 = new int[]{17};
+                 if(this.ownAddress(var1) != 17) {
                     return;
                  }
 
+                 this.HL(3);
+                 super.A = 6;
+              } else {
                  super.C = 3;
                  super.C = 4;
               }
@@ -912,7 +954,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               }
 
               super.D = super.H;
-              throw new StackException(17, "HL");
+              this.unwind(17, "HL");
            }
         }
         """, resultingJava);
@@ -1631,49 +1673,70 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
-        import com.fpetrola.z80.minizx.StackException;
 
         public class JSW extends SpectrumApplication {
            public void $0() {
-              while(true) {
-                 try {
-                    if(!this.isNextPC(18)) {
-                       this.$2();
+              int[] var1;
+              do {
+                 if(!this.isNextPC(18)) {
+                    this.$2();
+                    if(!this.unwinding()) {
                        return;
                     }
-
+                 } else {
                     super.C = 20;
                     super.D = 30;
                     this.setNextAddress(7);
                     this.$2();
-                    return;
-                 } catch (StackException var3) {
-                    int[] var2 = new int[]{18};
-                    if(!this.isOwnAddress(var3, var2)) {
-                       throw var3;
+                    if(!this.unwinding()) {
+                       return;
                     }
                  }
-              }
+
+                 var1 = new int[]{18};
+              } while(this.isOwnAddress(var1));
+
            }
 
            public void $2() {
-              if(!this.isNextPC(7)) {
-                 ;
-              }
+              int[] var1;
+              do {
+                 if(this.isNextPC(7)) {
+                    this.setNextAddress(7);
+                 }
 
-              while(true) {
-                 super.A = 1;
-                 this.$8();
-                 super.B = 8;
-                 this.$12();
-                 super.C = 8;
-              }
+                 while(true) {
+                    while(this.isNextPC(7)) {
+                       ;
+                    }
+
+                    super.A = 1;
+                    this.$8();
+                    if(this.unwinding()) {
+                       break;
+                    }
+
+                    super.B = 8;
+                    this.$12();
+                    if(this.unwinding()) {
+                       break;
+                    }
+
+                    super.C = 8;
+                 }
+
+                 var1 = new int[]{7};
+              } while(this.isOwnAddress(var1));
+
            }
 
            public void $8() {
               super.B = 1;
               if(this.flag(64, true)) {
                  this.$16();
+                 if(!this.unwinding()) {
+                    ;
+                 }
               } else {
                  super.B = 2;
               }
@@ -1683,20 +1746,33 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               super.C = 1;
               if(this.flag(64, true)) {
                  this.$16();
+                 if(!this.unwinding()) {
+                    ;
+                 }
               } else {
                  super.C = 2;
               }
            }
 
            public void $16() {
-              super.H = 1;
-              this.SP('\\uffff');
-              throw new StackException(18);
+              int[] var1;
+              do {
+                 super.H = 1;
+                 this.SP('\\uffff');
+                 this.unwind(18);
+                 var1 = new int[]{16};
+              } while(this.isOwnAddress(var1));
+
            }
 
            public void $18() {
               this.setNextAddress(18);
               this.$0();
+           }
+
+           public void $7() {
+              this.setNextAddress(7);
+              this.$2();
            }
         }
         """, resultingJava);
@@ -1738,40 +1814,47 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     String resultingJava = generateAndDecompile();
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.SpectrumApplication;
-        import com.fpetrola.z80.minizx.StackException;
 
         public class JSW extends SpectrumApplication {
            public void $0() {
-              while(true) {
-                 try {
-                    this.di();
-                    this.$1();
+              int[] var1;
+              do {
+                 this.di();
+                 this.$1();
+                 if(!this.unwinding()) {
                     return;
-                 } catch (StackException var3) {
-                    int[] var2 = new int[]{2};
-                    if(!this.isOwnAddress(var3, var2)) {
-                       throw var3;
-                    }
                  }
-              }
+
+                 var1 = new int[]{2};
+              } while(this.isOwnAddress(var1));
+
            }
 
            public void $1() {
-              if(!this.isNextPC(2)) {
-                 this.SP('\\ufc00');
-              }
+              int[] var1;
+              do {
+                 if(!this.isNextPC(2)) {
+                    this.SP('\\ufc00');
+                 }
 
-              super.B = 5;
-              this.$7();
-              this.$9();
-              super.B = 3;
+                 super.B = 5;
+                 this.$7();
+                 if(!this.unwinding()) {
+                    this.$9();
+                    super.B = 3;
+                    return;
+                 }
+
+                 var1 = new int[]{1};
+              } while(this.isOwnAddress(var1));
+
            }
 
            public void $7() {
               super.D = super.B;
               if(this.flag(64, true)) {
                  this.SP('\\ufc00');
-                 throw new StackException(2);
+                 this.unwind(2);
               } else {
                  this.$9();
               }
@@ -1866,9 +1949,16 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                  super.D = var3;
               } else {
                  int var2 = this.executeMutantCode(1);
+                 if(this.unwinding()) {
+                    return;
+                 }
+
                  if(var2 != 2) {
                     if(var2 != -1) {
                        this.goOnFrom(var2);
+                       if(this.unwinding()) {
+                          return;
+                       }
                     }
 
                     return;
@@ -1901,11 +1991,16 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
            public void $0() {
               super.A = 2;
               int var1 = this.executeMutantCode(1);
-              if(var1 != 2) {
-                 if(var1 != -1) {
-                    this.goOnFrom(var1);
-                 }
+              if(!this.unwinding()) {
+                 if(var1 != 2) {
+                    if(var1 != -1) {
+                       this.goOnFrom(var1);
+                       if(this.unwinding()) {
+                          return;
+                       }
+                    }
 
+                 }
               }
            }
         }
@@ -1938,6 +2033,9 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
         public class JSW extends SpectrumApplication {
            public void $0() {
               this.$2();
+              if(!this.unwinding()) {
+                 ;
+              }
            }
 
            public void $2() {
@@ -1947,6 +2045,9 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               super.C = 2;
               int var2 = this.pop();
               this.jump(var2);
+              if(!this.unwinding()) {
+                 ;
+              }
            }
 
            public void $6() {

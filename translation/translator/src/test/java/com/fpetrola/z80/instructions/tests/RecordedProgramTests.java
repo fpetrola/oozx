@@ -311,7 +311,7 @@ public class RecordedProgramTests {
     code = Pattern.compile("'\\\\u([0-9a-f]{4})'").matcher(code).replaceAll(m -> "0x" + m.group(1).toUpperCase());
     code = Pattern.compile("new int\\[\\]\\{([\\d, ]+)\\}").matcher(code)
         .replaceAll(m -> "new int[]{" + Arrays.stream(m.group(1).split(", ")).map(n -> "0x%04X".formatted(Integer.parseInt(n))).collect(Collectors.joining(", ")) + "}");
-    return Pattern.compile("((?:StackException|isNextPC|setNextAddress)\\()(\\d+)(?=[,)])").matcher(code)
+    return Pattern.compile("((?:unwind|isNextPC|setNextAddress)\\()(\\d+)(?=[,)])").matcher(code)
         .replaceAll(m -> m.group(1) + "0x%04X".formatted(Integer.parseInt(m.group(2))));
   }
 
@@ -347,43 +347,41 @@ public class RecordedProgramTests {
         """, 0x9DCF, 0x9DE5, 0x7D48, 0x9E07, 0x9F21, 0xBB98, 0xC6A0, 0xC892, 0xC47E, 0xC41C, 0xDB9E, 0xA09E));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.MiniZX;
-        import com.fpetrola.z80.minizx.StackException;
 
         public class Program extends MiniZX {
            public void $691A() {
-              while(true) {
-                 try {
-                    if(!this.isNextPC(0x691D)) {
-                       this.SP(0xFFFF);
-                    }
+              int[] var1;
+              do {
+                 if(!this.isNextPC(0x691D)) {
+                    this.SP(0xFFFF);
+                 }
 
-                    this.$9DCF();
-                    this.$9DE5();
-                    this.$7D48();
-                    this.$9E07();
-                    this.$9F21();
-                    this.$BB98();
-                    this.$C6A0();
-                    this.$C892();
-                    this.$C47E();
-                    this.$C41C();
-                    this.$DB9E();
-                    this.$A09E();
-                    this.$B5CE();
+                 this.$9DCF();
+                 this.$9DE5();
+                 this.$7D48();
+                 this.$9E07();
+                 this.$9F21();
+                 this.$BB98();
+                 this.$C6A0();
+                 this.$C892();
+                 this.$C47E();
+                 this.$C41C();
+                 this.$DB9E();
+                 this.$A09E();
+                 this.$B5CE();
+                 if(!this.unwinding()) {
                     this.$9DCF();
                     return;
-                 } catch (StackException var3) {
-                    int[] var2 = new int[]{0x691D};
-                    if(!this.isOwnAddress(var3, var2)) {
-                       throw var3;
-                    }
                  }
-              }
+
+                 var1 = new int[]{0x691A, 0x691D};
+              } while(this.isOwnAddress(var1));
+
            }
 
            public void $B5CE() {
               this.SP(0xFFFF);
-              throw new StackException(0x691D);
+              this.unwind(0x691D);
            }
 
            public void $691D() {
@@ -415,26 +413,12 @@ public class RecordedProgramTests {
         """, 0x9D99, 0x9CBD, 0x9D09));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.MiniZX;
-        import com.fpetrola.z80.minizx.StackException;
 
         public class Program extends MiniZX {
-           public void $840C() {
+           public void $840F() {
+              this.$9D09();
+
               while(true) {
-                 try {
-                    if(!this.isNextPC(0x840F)) {
-                       this.SP(0xBDFF);
-                    }
-
-                    this.$9D09();
-
-                    while(true) {
-                    }
-                 } catch (StackException var3) {
-                    int[] var2 = new int[]{0x840F};
-                    if(!this.isOwnAddress(var3, var2)) {
-                       throw var3;
-                    }
-                 }
               }
            }
 
@@ -445,7 +429,12 @@ public class RecordedProgramTests {
               this.wMem16(0x896C, var1, 0x845D);
               this.IY(0xBF00);
               this.$883E();
-              this.$883E();
+              if(!this.unwinding()) {
+                 this.$883E();
+                 if(!this.unwinding()) {
+                    ;
+                 }
+              }
            }
 
            public void $883E() {
@@ -456,12 +445,7 @@ public class RecordedProgramTests {
               int var2 = this.HL();
               this.wMem16(0xF4F3, var2, 0x8409);
               this.SP(0xBDFF);
-              throw new StackException(0x840F);
-           }
-
-           public void $840F() {
-              this.setNextAddress(0x840F);
-              this.$840C();
+              this.unwind(0x840F);
            }
         }
         """, withoutTiming(java));
@@ -486,28 +470,26 @@ public class RecordedProgramTests {
         """, 0xEB55, 0xAC06));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.MiniZX;
-        import com.fpetrola.z80.minizx.StackException;
 
         public class Program extends MiniZX {
            public void $8194() {
-              while(true) {
-                 try {
-                    if(this.isNextPC(0xEE9F)) {
-                    }
+              int[] var1;
+              do {
+                 if(this.isNextPC(0xEE9F)) {
+                 }
 
-                    this.$EB55();
-                    this.$EABF();
+                 this.$EB55();
+                 this.$EABF();
+                 if(!this.unwinding()) {
                     this.$AC06();
 
                     while(true) {
                     }
-                 } catch (StackException var3) {
-                    int[] var2 = new int[]{0xEE9F};
-                    if(!this.isOwnAddress(var3, var2)) {
-                       throw var3;
-                    }
                  }
-              }
+
+                 var1 = new int[]{0xEE9F};
+              } while(this.isOwnAddress(var1));
+
            }
 
            public void $EABF() {
@@ -518,7 +500,7 @@ public class RecordedProgramTests {
               int var3 = this.IY() + 0;
               this.wMem(var3, 0, 0xEE98);
               this.SP(0xFC00);
-              throw new StackException(0xEE9F);
+              this.unwind(0xEE9F);
            }
 
            public void $EE9F() {
@@ -582,41 +564,38 @@ public class RecordedProgramTests {
         """, 0x7B91, 0x70F1, 0x713F, 0x7095));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.MiniZX;
-        import com.fpetrola.z80.minizx.StackException;
 
         public class Program extends MiniZX {
            public void $7064() {
-              while(true) {
-                 try {
-                    if(this.isNextPC(0x70E9)) {
-                    }
+              int[] var5;
+              do {
+                 if(this.isNextPC(0x70E9)) {
+                 }
 
-                    int var3 = this.A();
-                    int var4 = this.A();
-                    int var5 = this.alu("xor", var4, var3);
-                    this.A(var5);
-                    int var6 = this.A();
-                    this.wMem(28733, var6, 28773);
-                    this.$7B91();
-                    this.$70F1();
-                    this.$713F();
-                    this.$7095();
-                    this.$93B0();
-
+                 int var1 = this.A();
+                 int var2 = this.A();
+                 int var3 = this.alu("xor", var2, var1);
+                 this.A(var3);
+                 int var4 = this.A();
+                 this.wMem(28733, var4, 28773);
+                 this.$7B91();
+                 this.$70F1();
+                 this.$713F();
+                 this.$7095();
+                 this.$93B0();
+                 if(!this.unwinding()) {
                     while(true) {
                     }
-                 } catch (StackException var7) {
-                    int[] var2 = new int[]{0x70E9};
-                    if(!this.isOwnAddress(var7, var2)) {
-                       throw var7;
-                    }
                  }
-              }
+
+                 var5 = new int[]{0x70E9};
+              } while(this.isOwnAddress(var5));
+
            }
 
            public void $93B0() {
               this.SP(0xFFF4);
-              throw new StackException(0x70E9);
+              this.unwind(0x70E9);
            }
 
            public void $70E9() {
@@ -649,24 +628,10 @@ public class RecordedProgramTests {
         """, 0x9B54, 0x9E58, 0x9A78));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.MiniZX;
-        import com.fpetrola.z80.minizx.StackException;
 
         public class Program extends MiniZX {
-           public void $8011() {
+           public void $8014() {
               while(true) {
-                 try {
-                    if(!this.isNextPC(0x8014)) {
-                       this.SP(0xBDFF);
-                    }
-
-                    while(true) {
-                    }
-                 } catch (StackException var3) {
-                    int[] var2 = new int[]{0x8014};
-                    if(!this.isOwnAddress(var3, var2)) {
-                       throw var3;
-                    }
-                 }
               }
            }
 
@@ -677,7 +642,12 @@ public class RecordedProgramTests {
               this.wMem16(0x8578, var1, 0x806E);
               this.IY(0xBF00);
               this.$844F();
-              this.$844F();
+              if(!this.unwinding()) {
+                 this.$844F();
+                 if(!this.unwinding()) {
+                    ;
+                 }
+              }
            }
 
            public void $844F() {
@@ -690,12 +660,7 @@ public class RecordedProgramTests {
               int var2 = this.HL();
               this.wMem16(32083, var2, 0x800E);
               this.SP(0xBDFF);
-              throw new StackException(0x8014);
-           }
-
-           public void $8014() {
-              this.setNextAddress(0x8014);
-              this.$8011();
+              this.unwind(0x8014);
            }
         }
         """, withoutTiming(java));
@@ -720,64 +685,85 @@ public class RecordedProgramTests {
         """));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.MiniZX;
-        import com.fpetrola.z80.minizx.StackException;
 
         public class Program extends MiniZX {
-           public void runJumps(int var1) {
+           public int runJumps(int var1) {
               int var2 = var1;
 
               while(true) {
+                 var2 = this.pagedCopy(var2);
                  switch(var2) {
                  case 31806:
                     var2 = this.$7C3E();
-                    break;
+                    if(!this.unwinding()) {
+                       break;
+                    }
+
+                    return var2;
                  case 31814:
                     var2 = this.$7C46();
-                    break;
+                    if(!this.unwinding()) {
+                       break;
+                    }
+
+                    return var2;
                  case 31863:
                     var2 = this.$7C77();
-                    break;
+                    if(!this.unwinding()) {
+                       break;
+                    }
+
+                    return var2;
                  case 31879:
                     var2 = this.$7C87();
+                    if(this.unwinding()) {
+                       return var2;
+                    }
                     break;
                  default:
-                    return;
+                    return var2;
                  }
               }
            }
 
            public int $7C3E() {
-              int var1 = this.A();
-              int var2 = this.A();
-              int var3 = this.alu("xor", var2, var1);
-              this.A(var3);
-              int var4 = this.A() << 8 | 254;
-              int var5 = this.A();
-              this.out(var4, var5);
-              this.BC(32765);
-              int var6 = this.BC();
-              int var7 = this.A();
-              this.out(var6, var7);
-              this.SP(0xBDFF);
-              throw new StackException(0x7C49);
+              int[] var8;
+              do {
+                 int var1 = this.A();
+                 int var2 = this.A();
+                 int var3 = this.alu("xor", var2, var1);
+                 this.A(var3);
+                 int var4 = this.A() << 8 | 254;
+                 int var5 = this.A();
+                 this.out(var4, var5);
+                 this.BC(32765);
+                 int var6 = this.BC();
+                 int var7 = this.A();
+                 this.out(var6, var7);
+                 this.SP(0xBDFF);
+                 this.unwind(0x7C49);
+                 var8 = new int[]{0x7C3E};
+              } while(this.isOwnAddress(var8));
+
+              return -1;
            }
 
            public int $7C46() {
-              while(true) {
-                 try {
-                    if(!this.isNextPC(0x7C49)) {
-                       this.SP(0xBDFF);
-                    }
-
-                    this.$9FDD();
-                    return 31863;
-                 } catch (StackException var3) {
-                    int[] var2 = new int[]{0x7C49};
-                    if(!this.isOwnAddress(var3, var2)) {
-                       throw var3;
-                    }
+              int[] var1;
+              do {
+                 if(!this.isNextPC(0x7C49)) {
+                    this.SP(0xBDFF);
                  }
-              }
+
+                 this.$9FDD();
+                 if(!this.unwinding()) {
+                    return 31863;
+                 }
+
+                 var1 = new int[]{0x7C49};
+              } while(this.isOwnAddress(var1));
+
+              return -1;
            }
 
            public int $7C77() {
@@ -785,7 +771,11 @@ public class RecordedProgramTests {
               int var1 = this.BC();
               this.push(var1);
               this.runJumps(31879);
-              return 31879;
+              if(this.unwinding()) {
+                 return -1;
+              } else {
+                 return 31879;
+              }
            }
 
            public int $7C87() {
@@ -794,6 +784,9 @@ public class RecordedProgramTests {
 
            public void $9FDD() {
               this.runJumps(31806);
+              if(!this.unwinding()) {
+                 ;
+              }
            }
 
            public void $7C49() {
@@ -827,63 +820,87 @@ public class RecordedProgramTests {
         """));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.MiniZX;
-        import com.fpetrola.z80.minizx.StackException;
 
         public class Program extends MiniZX {
-           public void runJumps(int var1) {
+           public int runJumps(int var1) {
               int var2 = var1;
 
               while(true) {
+                 var2 = this.pagedCopy(var2);
                  switch(var2) {
                  case 62080:
                     var2 = this.$F280();
-                    break;
+                    if(!this.unwinding()) {
+                       break;
+                    }
+
+                    return var2;
                  case 62092:
                     var2 = this.$F28C();
-                    break;
+                    if(!this.unwinding()) {
+                       break;
+                    }
+
+                    return var2;
                  case 62318:
                     var2 = this.$F36E();
-                    break;
+                    if(!this.unwinding()) {
+                       break;
+                    }
+
+                    return var2;
                  case 62560:
                     var2 = this.$F460();
+                    if(this.unwinding()) {
+                       return var2;
+                    }
                     break;
                  default:
-                    return;
+                    return var2;
                  }
               }
            }
 
            public void $9E49() {
               this.runJumps(0xF280);
+              if(!this.unwinding()) {
+                 ;
+              }
            }
 
            public int $F280() {
-              this.di();
-              this.DE(23392);
-              this.BC(480);
-              this.HL(0xFD00);
-              this.ldir(0xF28A);
-              this.SP(0xBDFF);
-              throw new StackException(0xF28F);
+              int[] var1;
+              do {
+                 this.di();
+                 this.DE(23392);
+                 this.BC(480);
+                 this.HL(0xFD00);
+                 this.ldir(0xF28A);
+                 this.SP(0xBDFF);
+                 this.unwind(0xF28F);
+                 var1 = new int[]{0xF280};
+              } while(this.isOwnAddress(var1));
+
+              return -1;
            }
 
            public int $F28C() {
-              while(true) {
-                 try {
-                    if(!this.isNextPC(0xF28F)) {
-                       this.SP(0xBDFF);
-                    }
-
-                    this.A(71);
-                    this.$9E49();
-                    return 0xF36E;
-                 } catch (StackException var3) {
-                    int[] var2 = new int[]{0xF28F};
-                    if(!this.isOwnAddress(var3, var2)) {
-                       throw var3;
-                    }
+              int[] var1;
+              do {
+                 if(!this.isNextPC(0xF28F)) {
+                    this.SP(0xBDFF);
                  }
-              }
+
+                 this.A(71);
+                 this.$9E49();
+                 if(!this.unwinding()) {
+                    return 0xF36E;
+                 }
+
+                 var1 = new int[]{0xF28F};
+              } while(this.isOwnAddress(var1));
+
+              return -1;
            }
 
            public int $F36E() {
@@ -893,7 +910,11 @@ public class RecordedProgramTests {
               this.exx();
               this.L(5);
               this.runJumps(0xF460);
-              return 0xF460;
+              if(this.unwinding()) {
+                 return -1;
+              } else {
+                 return 0xF460;
+              }
            }
 
            public int $F460() {
@@ -1127,11 +1148,18 @@ public class RecordedProgramTests {
 
         public class Program extends MiniZX {
            public void $8000() {
+              if(this.isNextPC(0x8004)) {
+                 this.setNextAddress(0x8004);
+              }
+
               while(true) {
-                 int var1 = this.C();
-                 int var2 = this.alu("inc", var1);
-                 this.C(var2);
-                 this.$8D60();
+                 if(!this.isNextPC(0x8004)) {
+                    int var1 = this.C();
+                    int var2 = this.alu("inc", var1);
+                    this.C(var2);
+                    this.$8D60();
+                 }
+
               }
            }
 
@@ -1154,12 +1182,29 @@ public class RecordedProgramTests {
            }
 
            public void $9000() {
-              while(true) {
-                 int var1 = this.B();
-                 int var2 = this.alu("inc", var1);
-                 this.B(var2);
-                 this.$8D69();
+              if(this.isNextPC(0x9004)) {
+                 this.setNextAddress(0x9004);
               }
+
+              while(true) {
+                 if(!this.isNextPC(0x9004)) {
+                    int var1 = this.B();
+                    int var2 = this.alu("inc", var1);
+                    this.B(var2);
+                    this.$8D69();
+                 }
+
+              }
+           }
+
+           public void $8004() {
+              this.setNextAddress(0x8004);
+              this.$8000();
+           }
+
+           public void $9004() {
+              this.setNextAddress(0x9004);
+              this.$9000();
            }
         }
         """, withoutTiming(java));
@@ -1459,11 +1504,13 @@ public class RecordedProgramTests {
         """, 0xEDE0));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.MiniZX;
-        import com.fpetrola.z80.minizx.StackException;
 
         public class Program extends MiniZX {
            public void $6226() {
               this.$691A();
+              if(!this.unwinding()) {
+                 ;
+              }
            }
 
            public void $691A() {
@@ -1475,27 +1522,14 @@ public class RecordedProgramTests {
               int var4 = this.alu("xor", var3, var2);
               this.A(var4);
               this.SP(23806);
-              throw new StackException(0x6924);
+              this.unwind(0x6924);
            }
 
-           public void $6921() {
+           public void $6924() {
+              int var1 = this.HL();
+              this.push(var1);
+
               while(true) {
-                 try {
-                    if(!this.isNextPC(0x6924)) {
-                       this.SP(23806);
-                    }
-
-                    int var3 = this.HL();
-                    this.push(var3);
-
-                    while(true) {
-                    }
-                 } catch (StackException var4) {
-                    int[] var2 = new int[]{0x6924};
-                    if(!this.isOwnAddress(var4, var2)) {
-                       throw var4;
-                    }
-                 }
               }
            }
 
@@ -1510,12 +1544,12 @@ public class RecordedProgramTests {
               }
 
               this.$6226();
-              this.$691A();
-           }
-
-           public void $6924() {
-              this.setNextAddress(0x6924);
-              this.$6921();
+              if(!this.unwinding()) {
+                 this.$691A();
+                 if(!this.unwinding()) {
+                    ;
+                 }
+              }
            }
         }
         """, withoutTiming(java));
@@ -1545,45 +1579,43 @@ public class RecordedProgramTests {
         """));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.MiniZX;
-        import com.fpetrola.z80.minizx.StackException;
 
         public class Program extends MiniZX {
            public void $8000() {
-              while(true) {
-                 try {
-                    if(!this.isNextPC(0x5B37)) {
-                       int var3 = this.A();
-                       int var4 = this.A();
-                       int var5 = this.alu("xor", var4, var3);
-                       this.A(var5);
-                       if(!this.flag(64, true)) {
-                          while(true) {
-                          }
-                       }
-
-                       int var6 = this.IY();
-                       this.push(var6);
-                       int var7 = this.BC();
-                       this.push(var7);
-                       this.$F3A6();
-                       int var8 = this.pop();
-                       this.BC(var8);
-                       int var9 = this.pop();
-                       this.IY(var9);
-
-                       while(true) {
-                       }
+              int[] var6;
+              do {
+                 if(this.isNextPC(0x5B37)) {
+                    while(true) {
                     }
+                 }
+
+                 int var1 = this.A();
+                 int var2 = this.A();
+                 int var3 = this.alu("xor", var2, var1);
+                 this.A(var3);
+                 if(!this.flag(64, true)) {
+                    while(true) {
+                    }
+                 }
+
+                 int var4 = this.IY();
+                 this.push(var4);
+                 int var5 = this.BC();
+                 this.push(var5);
+                 this.$F3A6();
+                 if(!this.unwinding()) {
+                    int var7 = this.pop();
+                    this.BC(var7);
+                    int var8 = this.pop();
+                    this.IY(var8);
 
                     while(true) {
                     }
-                 } catch (StackException var10) {
-                    int[] var2 = new int[]{0x5B37};
-                    if(!this.isOwnAddress(var10, var2)) {
-                       throw var10;
-                    }
                  }
-              }
+
+                 var6 = new int[]{0x5B37};
+              } while(this.isOwnAddress(var6));
+
            }
 
            public void $F3A6() {
@@ -1599,7 +1631,7 @@ public class RecordedProgramTests {
               int var7 = this.A();
               this.out(var6, var7);
               this.SP(0xBFB8);
-              throw new StackException(0x5B37);
+              this.unwind(0x5B37);
            }
 
            public void $5B37() {
@@ -1630,39 +1662,37 @@ public class RecordedProgramTests {
         """, 0x620B));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.MiniZX;
-        import com.fpetrola.z80.minizx.StackException;
 
         public class Program extends MiniZX {
            public void $8000() {
-              while(true) {
-                 try {
-                    if(!this.isNextPC(0x61BD)) {
-                       int var3 = this.A();
-                       int var4 = this.A();
-                       int var5 = this.alu("xor", var4, var3);
-                       this.A(var5);
-                       if(!this.flag(64, true)) {
-                          while(true) {
-                          }
-                       }
-
-                       this.$EBA0();
-                       int var6 = this.mem16(0xEC39, 0xEC61);
-                       this.DE(var6);
-
-                       while(true) {
-                       }
+              int[] var4;
+              do {
+                 if(this.isNextPC(0x61BD)) {
+                    while(true) {
                     }
+                 }
+
+                 int var1 = this.A();
+                 int var2 = this.A();
+                 int var3 = this.alu("xor", var2, var1);
+                 this.A(var3);
+                 if(!this.flag(64, true)) {
+                    while(true) {
+                    }
+                 }
+
+                 this.$EBA0();
+                 if(!this.unwinding()) {
+                    int var5 = this.mem16(0xEC39, 0xEC61);
+                    this.DE(var5);
 
                     while(true) {
                     }
-                 } catch (StackException var7) {
-                    int[] var2 = new int[]{0x61BD};
-                    if(!this.isOwnAddress(var7, var2)) {
-                       throw var7;
-                    }
                  }
-              }
+
+                 var4 = new int[]{0x61BD};
+              } while(this.isOwnAddress(var4));
+
            }
 
            public void $EBA0() {
@@ -1678,7 +1708,7 @@ public class RecordedProgramTests {
               }
 
               this.SP(0xEFEE);
-              throw new StackException(0x61BD);
+              this.unwind(0x61BD);
            }
 
            public void $61BD() {
@@ -1706,43 +1736,40 @@ public class RecordedProgramTests {
         """, 0x7D92));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.MiniZX;
-        import com.fpetrola.z80.minizx.StackException;
 
         public class Program extends MiniZX {
            public void $7B0E() {
               this.$7D92();
               this.SP(0xFFF4);
-              throw new StackException(0x704C);
+              this.unwind(0x704C);
            }
 
            public void $8000() {
-              while(true) {
-                 try {
-                    if(!this.isNextPC(0x704C)) {
-                       int var3 = this.A();
-                       int var4 = this.A();
-                       int var5 = this.alu("xor", var4, var3);
-                       this.A(var5);
-                       if(!this.flag(64, true)) {
-                          while(true) {
-                          }
-                       }
-
-                       this.$7B0E();
-
-                       while(true) {
-                       }
-                    }
-
+              int[] var4;
+              do {
+                 if(this.isNextPC(0x704C)) {
                     while(true) {
                     }
-                 } catch (StackException var6) {
-                    int[] var2 = new int[]{0x704C};
-                    if(!this.isOwnAddress(var6, var2)) {
-                       throw var6;
+                 }
+
+                 int var1 = this.A();
+                 int var2 = this.A();
+                 int var3 = this.alu("xor", var2, var1);
+                 this.A(var3);
+                 if(!this.flag(64, true)) {
+                    while(true) {
                     }
                  }
-              }
+
+                 this.$7B0E();
+                 if(!this.unwinding()) {
+                    while(true) {
+                    }
+                 }
+
+                 var4 = new int[]{0x704C};
+              } while(this.isOwnAddress(var4));
+
            }
 
            public void $704C() {
@@ -1818,6 +1845,9 @@ public class RecordedProgramTests {
         public class Program extends MiniZX {
            public void $8000() {
               this.$C3A4();
+              if(!this.unwinding()) {
+                 ;
+              }
            }
 
            public void $C3A4() {
@@ -1849,6 +1879,10 @@ public class RecordedProgramTests {
                  if(this.HL() != 0xC3F2) {
                     int var16 = this.HL();
                     this.jump(var16);
+                    if(this.unwinding()) {
+                       return;
+                    }
+
                     return;
                  }
 
@@ -1925,6 +1959,10 @@ public class RecordedProgramTests {
                  this.push(0xC468);
                  int var9 = this.SP();
                  this.$C132();
+                 if(this.unwinding()) {
+                    return;
+                 }
+
                  if(this.SP() == var9) {
                     this.pop();
                  }
@@ -2290,9 +2328,9 @@ public class RecordedProgramTests {
 
 
               while(true) {
-                 label72: {
-                    label78: {
-                       label70: {
+                 label76: {
+                    label82: {
+                       label74: {
                           int var21 = this.DE();
                           int var22 = this.mem(var21, 0xD8EA);
                           this.A(var22);
@@ -2364,7 +2402,7 @@ public class RecordedProgramTests {
                                 int var63 = this.alu("add", var62, var61);
                                 this.A(var63);
                                 if(this.flag(64, false)) {
-                                   break label78;
+                                   break label82;
                                 }
 
                                 int var72 = this.A();
@@ -2392,7 +2430,7 @@ public class RecordedProgramTests {
                                    break;
                                 }
 
-                                break label70;
+                                break label74;
                              }
 
                              int var140 = this.D();
@@ -2479,7 +2517,7 @@ public class RecordedProgramTests {
                              int var124 = this.alu("add", var123, var122);
                              this.A(var124);
                              if(this.flag(64, false)) {
-                                break label78;
+                                break label82;
                              }
 
                              int var125 = this.A();
@@ -2509,7 +2547,7 @@ public class RecordedProgramTests {
                                 break;
                              }
 
-                             break label72;
+                             break label76;
                           }
 
                           int var136 = this.D();
@@ -2523,7 +2561,7 @@ public class RecordedProgramTests {
                        }
 
                        this.exx();
-                       break label72;
+                       break label76;
                     }
 
                     this.exx();
@@ -2553,6 +2591,9 @@ public class RecordedProgramTests {
               }
 
               this.jump(var71);
+              if(!this.unwinding()) {
+                 ;
+              }
            }
         }
         """, withoutTiming(java));
@@ -2824,7 +2865,6 @@ public class RecordedProgramTests {
         """), at(0xF6FA, 0x00, 0x71)));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.MiniZX;
-        import com.fpetrola.z80.minizx.StackException;
 
         public class Program extends MiniZX {
            public void $8000() {
@@ -2834,22 +2874,17 @@ public class RecordedProgramTests {
               this.HL(0x9000);
               this.DE(16384);
               this.BC(520);
-
-              try {
-                 this.$DA60();
-              } catch (StackException var5) {
-                 int[] var3 = new int[]{0xDB9B};
-                 if(this.ownAddress(var5, var3) == 0xDB9B) {
-                    this.DE(0x8012);
-                    int var4 = this.pop();
-                    this.HL(var4);
-                    return;
+              this.$DA60();
+              if(!this.unwinding()) {
+                 while(true) {
                  }
-
-                 return;
               }
 
-              while(true) {
+              int[] var2 = new int[]{0xDB9B};
+              if(this.ownAddress(var2) == 0xDB9B) {
+                 this.DE(0x8012);
+                 int var3 = this.pop();
+                 this.HL(var3);
               }
            }
 
@@ -3278,7 +3313,7 @@ public class RecordedProgramTests {
               this.SP(var125);
               int var126 = this.DE();
               this.wMem16(0xF6FA, var126, 0xDB96);
-              throw new StackException(0xDB9B, "DE");
+              this.unwind(0xDB9B, "DE");
            }
         }
         """, withoutTiming(java));
@@ -3409,6 +3444,10 @@ public class RecordedProgramTests {
                  if(this.HL() != 0xC7F2) {
                     int var16 = this.HL();
                     this.jump(var16);
+                    if(this.unwinding()) {
+                       return;
+                    }
+
                     return;
                  }
 
@@ -3632,7 +3671,6 @@ public class RecordedProgramTests {
         """));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.MiniZX;
-        import com.fpetrola.z80.minizx.StackException;
 
         public class Program extends MiniZX {
            public void $7C18() {
@@ -3642,15 +3680,6 @@ public class RecordedProgramTests {
 
            public void $7C1B() {
               while(true) {
-                 try {
-                    while(true) {
-                    }
-                 } catch (StackException var3) {
-                    int[] var2 = new int[]{0x7C1B};
-                    if(!this.isOwnAddress(var3, var2)) {
-                       throw var3;
-                    }
-                 }
               }
            }
 
@@ -3670,18 +3699,75 @@ public class RecordedProgramTests {
               int var5 = this.HL();
               this.push(var5);
               int var6 = this.executeMutantCode(0x8482);
-              if(var6 == 0x8485) {
-                 while(true) {
+              if(!this.unwinding()) {
+                 if(var6 == 0x8485) {
+                    while(true) {
+                    }
                  }
-              }
 
-              if(var6 != -1) {
-                 this.goOnFrom(var6);
-              }
+                 if(var6 != -1) {
+                    this.goOnFrom(var6);
+                    if(this.unwinding()) {
+                       return;
+                    }
+                 }
 
+              }
            }
         }
         """, withoutTiming(java));
+  }
+
+  @Test
+  public void aReturnPoppedIntoARegisterAndPushedBackReturnsToTheCaller() {
+    // Target Renegade D780 CALL E058: E0D5 POP HL takes the return; one path goes back to the loop (JP NZ,D794), the other pushes HL again and its RET at E3C7 lands on D783
+    translate(listing("""
+        8000  CD 00 81  CALL 0x8100
+        8003  76  HALT
+        8100  04  INC B
+        8101  78  LD A, B
+        8102  FE 06  CP A, 0x06
+        8104  C8  RET Z
+        8105  CD 00 82  CALL 0x8200
+        8108  0C  INC C
+        8109  18 F5  JR 0x8100
+        8200  E1  POP HL
+        8201  78  LD A, B
+        8202  FE 03  CP A, 0x03
+        8204  C2 00 81  JP NZ, 0x8100
+        8207  C3 00 83  JP 0x8300
+        8300  E5  PUSH HL
+        8301  C9  RET
+        """));
+    Assert.assertEquals(1, endValue("BC") & 0xff);
+    Assert.assertNotEquals("the code after the CALL is not the callee's", 0x8200, routineManager.findRoutineAt(0x8108).getEntryPoint());
+  }
+
+  @Test
+  public void aReturnPoppedAndPushedBackInAnotherRoutineReturnsToTheCaller() {
+    // Target Renegade E0D5 POP HL takes D783; E0D6 goes on through E1C5 and E32B, and the RET at E3C7 in E355 takes D783 again after a PUSH HL elsewhere
+    translate(listing("""
+        8000  CD 00 84  CALL 0x8400
+        8003  CD 00 81  CALL 0x8100
+        8006  76  HALT
+        8100  04  INC B
+        8101  78  LD A, B
+        8102  FE 06  CP A, 0x06
+        8104  C8  RET Z
+        8105  CD 00 82  CALL 0x8200
+        8108  0C  INC C
+        8109  18 F5  JR 0x8100
+        8200  E1  POP HL
+        8201  78  LD A, B
+        8202  FE 03  CP A, 0x03
+        8204  C2 00 81  JP NZ, 0x8100
+        8207  C3 00 83  JP 0x8300
+        8300  E5  PUSH HL
+        8301  C3 00 84  JP 0x8400
+        8400  14  INC D
+        8401  C9  RET
+        """));
+    Assert.assertEquals(1, endValue("BC") & 0xff);
   }
 
   @Test
@@ -3708,49 +3794,84 @@ public class RecordedProgramTests {
         """));
     Assert.assertEquals("""
         import com.fpetrola.z80.minizx.MiniZX;
-        import com.fpetrola.z80.minizx.StackException;
 
         public class Program extends MiniZX {
            public void $8000() {
               this.$8100();
-              this.halt(0x8003);
-              this.$8100();
+              if(!this.unwinding()) {
+                 this.halt(0x8003);
+                 this.$8100();
+                 if(!this.unwinding()) {
+                    ;
+                 }
+              }
            }
 
            public void $8100() {
-              while(true) {
-                 int var1 = this.B();
-                 int var2 = this.alu("inc", var1);
-                 this.B(var2);
-                 int var3 = this.B();
-                 this.A(var3);
-                 int var4 = this.A();
-                 this.alu("cp", var4, 6);
-                 if(this.flag(64, false)) {
-                    return;
+              int[] var12;
+              label46:
+              do {
+                 if(this.isNextPC(0x8108)) {
+                    this.setNextAddress(0x8108);
                  }
 
-                 try {
-                    this.$8200();
-                 } catch (StackException var11) {
-                    int[] var6 = new int[]{0x8206};
-                    if(this.ownAddress(var11, var6) != 0x8206) {
-                       return;
-                    }
+                 while(true) {
+                    while(true) {
+                       if(!this.isNextPC(0x8108)) {
+                          int var3 = this.B();
+                          int var4 = this.alu("inc", var3);
+                          this.B(var4);
+                          int var5 = this.B();
+                          this.A(var5);
+                          int var6 = this.A();
+                          this.alu("cp", var6, 6);
+                          if(this.flag(64, false)) {
+                             return;
+                          }
 
-                    this.HL(0x8108);
-                    int var7 = this.D();
-                    int var8 = this.alu("inc", var7);
-                    this.D(var8);
-                    if(!this.flag(64, true)) {
-                       continue;
+                          this.push(0x8108);
+                          int var7 = this.SP();
+                          this.$8200();
+                          if(this.unwinding()) {
+                             int[] var10 = new int[]{0x8206};
+                             if(this.ownAddress(var10) == 0x8206) {
+                                int var13 = this.pop();
+                                this.HL(var13);
+                                int var14 = this.D();
+                                int var15 = this.alu("inc", var14);
+                                this.D(var15);
+                                if(this.flag(64, true)) {
+                                   this.setNextAddress(0x8108);
+                                } else {
+                                }
+                                continue;
+                             }
+
+                             int[] var11 = new int[]{0x8108};
+                             if(this.ownAddress(var11) == -1) {
+                                var12 = new int[]{0x8108};
+                                continue label46;
+                             }
+                          } else {
+                             int var8 = this.SP();
+                             if(var8 == var7) {
+                                this.pop();
+                             } else {
+                                int var9 = var7 + 2 & 0xFFFF;
+                                if(var8 == var9) {
+                                   return;
+                                }
+                             }
+                          }
+                       }
+
+                       int var1 = this.C();
+                       int var2 = this.alu("inc", var1);
+                       this.C(var2);
                     }
                  }
+              } while(this.isOwnAddress(var12));
 
-                 int var9 = this.C();
-                 int var10 = this.alu("inc", var9);
-                 this.C(var10);
-              }
            }
 
            public void $8200() {
@@ -3759,9 +3880,16 @@ public class RecordedProgramTests {
               int var2 = this.A();
               this.alu("cp", var2, 3);
               if(this.flag(64, false)) {
+                 int var3 = this.pop();
+                 this.unwind(var3);
               } else {
-                 throw new StackException(0x8206, "HL");
+                 this.unwind(0x8206, "HL");
               }
+           }
+
+           public void $8108() {
+              this.setNextAddress(0x8108);
+              this.$8100();
            }
         }
         """, withoutTiming(java));
@@ -3806,7 +3934,6 @@ public class RecordedProgramTests {
     System.err.println("JAVA<<" + withoutTiming(java) + ">>JAVA");
   }
 
-  @Ignore("open (P2, resume at the pushed address): E0D6 re-enters the main loop by calling $D6E4 again, one more nested loop per turn; in the game the catch that runs E0D6 sits in a jump-cycle method (D780's, run by runJumps), so going back must reach the cycle's dispatcher, not only a dropped return point")
   @Test
   public void targetRenegadeE0D6GoesBackIntoTheMainLoopThatCaughtItInsteadOfCallingItAgain() {
     // Target: Renegade D6E4-D7A0 and E058-E3D0 as they are (the routines they call only return): E058 takes its return with POP HL at E0D5, the main loop's catch runs E0D6, and E0D6 goes back to D794; calling $D6E4 again nested one more loop on every such turn until, at frame 52976, a RET unwound the game out of its loop
@@ -4315,10 +4442,11 @@ public class RecordedProgramTests {
         E3CC  FD CB 00 7E  BIT 7, (IY+00)
         E3D0  28 02  JR Z, 0xE3D4
         """, 0x5D68, 0x5DC6, 0x5DD3, 0x5DE8, 0x5EFF, 0x5F1B, 0xD6D6, 0xDCAA, 0xDD06, 0xDFD3, 0xE012, 0xE609, 0xE709, 0xE726, 0xE7A0, 0xE7AA, 0xE88B, 0xEC00, 0xF3A6, 0xF3DB, 0xF455, 0xF465, 0xF565, 0xF651, 0xF69A, 0xF98D));
-    String continuation = java.substring(java.indexOf("public void $E0D6()"));
+    String continuation = withoutTiming(java.substring(java.indexOf("public void $E0D6()")));
     continuation = continuation.substring(0, continuation.indexOf("\n   }\n"));
-    Assert.assertFalse(continuation, continuation.contains("this.$D6E4()"));
-    Assert.assertTrue(continuation, withoutTiming(continuation).contains("throw new StackException(0xD794)"));
+    Assert.assertFalse(continuation, continuation.contains("this.$D6E4()") || continuation.contains("this.$D794()"));
+    Assert.assertTrue(continuation, continuation.contains("this.unwind(0xD794);"));
+    Assert.assertTrue("D794, dispatched at the start of its owner, can be reached by address", withoutTiming(java).contains("public void $D794() {\n      this.setNextAddress(0xD794);"));
   }
 
   @Test

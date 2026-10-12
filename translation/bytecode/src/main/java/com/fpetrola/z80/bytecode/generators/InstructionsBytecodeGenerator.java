@@ -25,7 +25,6 @@ import com.fpetrola.z80.base.InstructionVisitor;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.instructions.impl.*;
 import com.fpetrola.z80.instructions.types.*;
-import com.fpetrola.z80.minizx.StackException;
 import com.fpetrola.z80.opcodes.references.ConditionFlag;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.registers.Register;
@@ -376,13 +375,14 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
     createIfs(ret, () -> {
       switch (exit.kind()) {
         case SWITCH_STACK -> methodMaker.invoke("switchStack");
-        case NON_LOCAL -> routineByteCodeGenerator.throwStackException(methodMaker.invoke("pop"), StackException.class);
+        case NON_LOCAL -> routineByteCodeGenerator.unwind(methodMaker.invoke("pop"));
         case CONTINUATION -> routineByteCodeGenerator.invokeTransformedMethod(exit.continuation());
         case DROP -> methodMaker.invoke("pop");
         case DISPATCH -> {
           Variable poppedValue = methodMaker.invoke("pop");
           invokeDynamicCall(false, stackAnalyzer.getInvocationsSet(pcValue), poppedValue);
           methodMaker.invoke("jump", poppedValue);
+          routineByteCodeGenerator.afterInvoke();
         }
         case RETURN -> {
         }
@@ -404,14 +404,19 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
         methodMaker.invoke("push", returnAddress);
       Variable pushedAt = pushes ? methodMaker.invoke("SP") : null;
       routineByteCodeGenerator.inPagedBank(jumpLabel, address -> {
+        Label resumed = methodMaker.label();
+        routineByteCodeGenerator.resumeAddress = returnAddress;
+        routineByteCodeGenerator.resumeLabel = resumed;
         if (routineByteCodeGenerator.context.routineManager.findRoutineAt(address) != null)
           routineByteCodeGenerator.invokeTransformedMethod(address);
         else if (trampoline != null)
           routineByteCodeGenerator.throughTrampoline(jumpLabel, trampoline, stackAnalyzer.calledThrough.get(callSite));
         else
           methodMaker.invoke("untranslated", jumpLabel);
+        routineByteCodeGenerator.resumeAddress = null;
         if (pushes)
           returnedFrom(pushedAt, callSite);
+        resumed.here();
       });
     });
     return true;
@@ -469,8 +474,9 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
     int i = conditionalInstruction.getJumpAddress();
     Label label1 = routineByteCodeGenerator.getLabel(i);
+    int from = routineByteCodeGenerator.context.pc.read();
     if (label1 != null)
-      createIfs(conditionalInstruction, () -> label1.goto_());
+      createIfs(conditionalInstruction, () -> routineByteCodeGenerator.goTo(from, i));
     else {
 //      byteCodeGenerator.getMethod(i);
 //      createIfs(conditionalInstruction, () -> methodMaker.invoke(ByteCodeGenerator.createLabelName(i)));
@@ -578,11 +584,16 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
       int pcValue1 = routineByteCodeGenerator.context.pc.read();
       Set<Integer> invocationsSet = stackAnalyzer.getInvocationsSet(pcValue1);
       Variable target = routineByteCodeGenerator.getExistingVariable(register);
-      routineByteCodeGenerator.context.routineManager.nonLocalReturns.get(pcValue1).forEach(continuation -> target.ifEq(continuation, () -> routineByteCodeGenerator.throwStackException(continuation, StackException.class)));
+      routineByteCodeGenerator.context.routineManager.nonLocalReturns.get(pcValue1).forEach(continuation -> target.ifEq(continuation, () -> {
+        routineByteCodeGenerator.unwind(continuation);
+        routineByteCodeGenerator.returnFromMethod();
+      }));
       RoutineManager.Exit exit = routineByteCodeGenerator.context.routineManager.exitOfJump(pcValue1, routineByteCodeGenerator.routine, stackAnalyzer);
       invokeDynamicCall(exit == RoutineManager.Exit.SIMULATED_CALL, invocationsSet, target);
-      if (exit == RoutineManager.Exit.DISPATCH)
+      if (exit == RoutineManager.Exit.DISPATCH) {
         methodMaker.invoke("jump", methodMaker.invoke(register.getName()));
+        routineByteCodeGenerator.afterInvoke();
+      }
       if (exit != RoutineManager.Exit.SIMULATED_CALL)
         routineByteCodeGenerator.returnFromMethod();
       return true;
