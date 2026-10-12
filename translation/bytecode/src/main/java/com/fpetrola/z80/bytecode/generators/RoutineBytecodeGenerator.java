@@ -59,6 +59,8 @@ public class RoutineBytecodeGenerator {
   public Field memory;
   public MethodMaker mm;
   private Label start, unwound;
+  /** The instruction whose code the method emits right after each one: a fall through to any other needs a jump. */
+  private final Map<Integer, Integer> emittedAfter = new HashMap<>();
   private Set<Integer> landings;
   private ControlFlowStructuring structuring;
   /** The call being generated: an unwinding to its return address goes on after it. */
@@ -115,12 +117,16 @@ public class RoutineBytecodeGenerator {
     registers.put("mem", memory);
 
     List<Routine> routines = routine.getRoutineManager().getRoutines();
+    int[] lastVisited = {-1};
 
     routine.accept(new RoutineVisitor<java.lang.Integer>() {
       public void visitInstruction(int address, Instruction instruction) {
         {
           boolean contains = routine.contains(address);
           if (contains) {
+            if (lastVisited[0] != -1)
+              emittedAfter.put(lastVisited[0], address);
+            lastVisited[0] = address;
             context.pc.write(address);
             int firstAddress = address;
 
@@ -149,7 +155,7 @@ public class RoutineBytecodeGenerator {
                 mm.invoke("untranslated", nextAddress);
                 returnFromMethod();
               }
-              if (fallsThrough(address, instruction) && routine.contains(nextAddress) && getLabel(nextAddress) != null && (structuring.headerFor(address, nextAddress) != -1 || nextAddress <= address || java.util.stream.IntStream.range(address + 1, nextAddress).anyMatch(a -> routine.contains(a) && context.routineManager.getInstructionAt(a) != null && context.routineManager.getInstructionAt(a) != instruction)))
+              if (fallsThrough(address, instruction) && routine.contains(nextAddress) && getLabel(nextAddress) != null && (structuring.headerFor(address, nextAddress) != -1 || emittedAfter.get(address) == null || emittedAfter.get(address) != nextAddress))
                 goTo(address, nextAddress);
               Routine continuationOwner = context.routineManager.findRoutineAt(nextAddress);
               if (fallsThrough(address, instruction) && !routine.contains(nextAddress) && continuationOwner != null && (continuationOwner.getEntryPoint() == nextAddress ? !continuationOwner.isVirtual() : context.routineManager.isEnteredFromOutside(continuationOwner, nextAddress)))

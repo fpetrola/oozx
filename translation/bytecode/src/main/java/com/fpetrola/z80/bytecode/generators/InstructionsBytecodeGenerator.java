@@ -475,11 +475,9 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
     int i = conditionalInstruction.getJumpAddress();
     Label label1 = routineByteCodeGenerator.getLabel(i);
     int from = routineByteCodeGenerator.context.pc.read();
-    if (label1 != null)
+    if (label1 != null && !routineByteCodeGenerator.virtualPopOnBranch(address))
       createIfs(conditionalInstruction, () -> routineByteCodeGenerator.goTo(from, i));
     else {
-//      byteCodeGenerator.getMethod(i);
-//      createIfs(conditionalInstruction, () -> methodMaker.invoke(ByteCodeGenerator.createLabelName(i)));
       createIfs(conditionalInstruction, () -> {
         if (routineByteCodeGenerator.virtualPopOnBranch(address)) {
           routineByteCodeGenerator.throwAfterVirtualPop(address);

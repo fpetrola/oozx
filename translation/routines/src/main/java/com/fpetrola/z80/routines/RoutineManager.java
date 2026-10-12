@@ -475,10 +475,15 @@ public class RoutineManager {
       changed = false;
       for (int address : candidates) {
         Routine owner = findRoutineAt(address);
-        if (owner != null && isEnteredFromOutside(owner, address) && reachesOnlyItsOwnTail(owner, address))
+        if (owner != null && isEnteredFromOutside(owner, address) && !isOnlyAnExternalEntry(owner, address) && reachesOnlyItsOwnTail(owner, address))
           changed |= owner.splitAt(address);
       }
     }
+  }
+
+  /** Entered only as a target of a dynamic dispatch or a stack reset: the dispatch at the start of its owner's method reaches it. */
+  private boolean isOnlyAnExternalEntry(Routine owner, int address) {
+    return externalEntries.contains(address) && !isJumpedIntoFromOtherRoutine(owner, address) && !isFallenIntoFromOutside(owner, address) && !isReturnPointOfCallFromOutside(owner, address) && jumpsAfterStackReset.get(address).stream().allMatch(owner::contains);
   }
 
   private boolean reachesOnlyItsOwnTail(Routine owner, int entry) {
