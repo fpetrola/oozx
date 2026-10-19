@@ -38,7 +38,9 @@ public abstract class AbstractMemory implements Memory {
 
   public int read(int address, int fetching) {
     int value = doRead(address);
-    memoryReadListener.forAll(l -> l.readingMemoryAt(address, value, fetching));
+    // a plain loop, not forAll with a lambda: the lambda captures the arguments, one object per access
+    for (Object l : memoryReadListener.items())
+      ((MemoryReadListener) l).readingMemoryAt(address, value, fetching);
     return value;
   }
 
@@ -53,7 +55,8 @@ public abstract class AbstractMemory implements Memory {
   public void write(final int address, final int value) {
     if (isProtected(address))
       return;
-    memoryWriteListener.forAll(l -> l.writtingMemoryAt(address, value));
+    for (Object l : memoryWriteListener.items())
+      ((MemoryWriteListener) l).writtingMemoryAt(address, value);
     doWrite(address, value);
   }
 

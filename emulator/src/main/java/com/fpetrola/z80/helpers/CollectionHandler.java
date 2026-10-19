@@ -23,12 +23,28 @@ public class CollectionHandler<T> {
   protected ItemHandler<T> currentInvoker = new EmptyItemHandler<>();
   private boolean enabled = true;
   private ItemHandler<T> lastInvoker;
+  /** the items now, kept in step with every change: see {@link #items()} */
+  private Object[] items = new Object[0];
 
   public CollectionHandler() {
   }
 
   public void add(T item) {
     currentInvoker = currentInvoker.add(item);
+    changed();
+  }
+
+  /**
+   * The items, as an array that is replaced when they change and never changed itself: for a caller called millions of
+   * times a second, which walks it with a plain loop instead of handing {@link #forAll} a lambda that captures its
+   * arguments -- one object per call (a memory write's was a gigabyte of garbage a second in oozx's 3D viewer).
+   */
+  public Object[] items() {
+    return items;
+  }
+
+  private void changed() {
+    items = currentInvoker.getList().toArray();
   }
 
   public void forAll(ItemInvoker<T> invoker) {
@@ -41,16 +57,19 @@ public class CollectionHandler<T> {
 
   public void remove(T item) {
     currentInvoker = currentInvoker.remove(item);
+    changed();
   }
 
   public void removeAll() {
     currentInvoker = new EmptyItemHandler<>();
+    changed();
   }
 
   public void disable() {
     enabled = false;
     lastInvoker = currentInvoker;
     currentInvoker = new EmptyItemHandler<>();
+    changed();
   }
 
   public void enable() {
@@ -59,6 +78,7 @@ public class CollectionHandler<T> {
       currentInvoker = lastInvoker;
       lastInvoker = null;
     }
+    changed();
   }
 
   public boolean isEnabled() {
