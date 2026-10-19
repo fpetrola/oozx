@@ -45,6 +45,8 @@ public interface BytecodeGeneration {
         return "";
       String source = decompiler.decompile();
       List<Integer> undecompiled = UNDECOMPILED_METHOD.matcher(source).results().map(m -> Integer.parseInt(m.group(1), 16)).toList();
+      if (!undecompiled.isEmpty())
+        System.out.println("NOT DECOMPILED (attempt " + attempt + ") " + undecompiled.stream().map(Integer::toHexString).toList() + ":\n" + decompiler.warnings());
       if (undecompiled.isEmpty() || attempt == 5 || !undecompiled.stream().allMatch(bytecodeGenerator::splitRoutineAt))
         return source.replace("// $FF: Couldn't be decompiled", "throw new IllegalStateException(\"not decompiled\");");
     }

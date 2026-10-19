@@ -475,15 +475,16 @@ public class RoutineManager {
       changed = false;
       for (int address : candidates) {
         Routine owner = findRoutineAt(address);
-        if (owner != null && isEnteredFromOutside(owner, address) && !isOnlyAnExternalEntry(owner, address) && reachesOnlyItsOwnTail(owner, address))
+        if (owner != null && owner.getEntryPoint() != address && isEnteredFromOutside(owner, address) && (isReturnPointOfCallFromOutside(owner, address) || followsAVirtualPop(address)) && reachesOnlyItsOwnTail(owner, address))
           changed |= owner.splitAt(address);
       }
     }
   }
 
-  /** Entered only as a target of a dynamic dispatch or a stack reset: the dispatch at the start of its owner's method reaches it. */
-  private boolean isOnlyAnExternalEntry(Routine owner, int address) {
-    return externalEntries.contains(address) && !isJumpedIntoFromOtherRoutine(owner, address) && !isFallenIntoFromOutside(owner, address) && !isReturnPointOfCallFromOutside(owner, address) && jumpsAfterStackReset.get(address).stream().allMatch(owner::contains);
+  /** The code right after a POP that took a return: what runs there belongs to the routine the POP went back to. */
+  private boolean followsAVirtualPop(int address) {
+    int before = addressBefore(address);
+    return before != -1 && routines.stream().anyMatch(routine -> routine.getVirtualPop().containsValue(before));
   }
 
   private boolean reachesOnlyItsOwnTail(Routine owner, int entry) {

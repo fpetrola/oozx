@@ -700,13 +700,6 @@ public class RecordedProgramTests {
                     }
 
                     return var2;
-                 case 31814:
-                    var2 = this.$7C46();
-                    if(!this.unwinding()) {
-                       break;
-                    }
-
-                    return var2;
                  case 31863:
                     var2 = this.$7C77();
                     if(!this.unwinding()) {
@@ -748,34 +741,39 @@ public class RecordedProgramTests {
               return -1;
            }
 
-           public int $7C46() {
+           public int $7C77() {
               int[] var1;
               do {
-                 if(!this.isNextPC(0x7C49)) {
-                    this.SP(0xBDFF);
-                 }
+                 label24: {
+                    label28: {
+                       if(!this.isNextPC(0x7C46)) {
+                          if(!this.isNextPC(0x7C49)) {
+                             break label28;
+                          }
+                       } else {
+                          this.SP(0xBDFF);
+                       }
 
-                 this.$9FDD();
-                 if(!this.unwinding()) {
-                    return 31863;
+                       this.$9FDD();
+                       if(this.unwinding()) {
+                          break label24;
+                       }
+
+                    }
+
+                    this.BC(750);
+                    int var2 = this.BC();
+                    this.push(var2);
+                    this.runJumps(31879);
+                    if(!this.unwinding()) {
+                       return 31879;
+                    }
                  }
 
                  var1 = new int[]{0x7C49};
               } while(this.isOwnAddress(var1));
 
               return -1;
-           }
-
-           public int $7C77() {
-              this.BC(750);
-              int var1 = this.BC();
-              this.push(var1);
-              this.runJumps(31879);
-              if(this.unwinding()) {
-                 return -1;
-              } else {
-                 return 31879;
-              }
            }
 
            public int $7C87() {
@@ -791,7 +789,12 @@ public class RecordedProgramTests {
 
            public void $7C49() {
               this.setNextAddress(0x7C49);
-              this.runJumps(31814);
+              this.runJumps(31863);
+           }
+
+           public void $7C46() {
+              this.setNextAddress(0x7C46);
+              this.runJumps(31863);
            }
         }
         """, withoutTiming(java));
@@ -830,13 +833,6 @@ public class RecordedProgramTests {
                  switch(var2) {
                  case 62080:
                     var2 = this.$F280();
-                    if(!this.unwinding()) {
-                       break;
-                    }
-
-                    return var2;
-                 case 62092:
-                    var2 = this.$F28C();
                     if(!this.unwinding()) {
                        break;
                     }
@@ -884,17 +880,36 @@ public class RecordedProgramTests {
               return -1;
            }
 
-           public int $F28C() {
+           public int $F36E() {
               int[] var1;
               do {
-                 if(!this.isNextPC(0xF28F)) {
-                    this.SP(0xBDFF);
-                 }
+                 label24: {
+                    label28: {
+                       if(!this.isNextPC(0xF28C)) {
+                          if(!this.isNextPC(0xF28F)) {
+                             break label28;
+                          }
+                       } else {
+                          this.SP(0xBDFF);
+                       }
 
-                 this.A(71);
-                 this.$9E49();
-                 if(!this.unwinding()) {
-                    return 0xF36E;
+                       this.A(71);
+                       this.$9E49();
+                       if(this.unwinding()) {
+                          break label24;
+                       }
+
+                    }
+
+                    int var2 = this.DE();
+                    this.wMem16(0xF4F3, var2, 0xF36E);
+                    this.B(3);
+                    this.exx();
+                    this.L(5);
+                    this.runJumps(0xF460);
+                    if(!this.unwinding()) {
+                       return 0xF460;
+                    }
                  }
 
                  var1 = new int[]{0xF28F};
@@ -903,27 +918,18 @@ public class RecordedProgramTests {
               return -1;
            }
 
-           public int $F36E() {
-              int var1 = this.DE();
-              this.wMem16(0xF4F3, var1, 0xF36E);
-              this.B(3);
-              this.exx();
-              this.L(5);
-              this.runJumps(0xF460);
-              if(this.unwinding()) {
-                 return -1;
-              } else {
-                 return 0xF460;
-              }
-           }
-
            public int $F460() {
               return 0xF280;
            }
 
            public void $F28F() {
               this.setNextAddress(0xF28F);
-              this.runJumps(0xF28C);
+              this.runJumps(0xF36E);
+           }
+
+           public void $F28C() {
+              this.setNextAddress(0xF28C);
+              this.runJumps(0xF36E);
            }
         }
         """, withoutTiming(java));
@@ -1507,13 +1513,9 @@ public class RecordedProgramTests {
 
         public class Program extends MiniZX {
            public void $6226() {
-              this.$691A();
-              if(!this.unwinding()) {
-                 ;
+              if(!this.isNextPC(0x691A)) {
               }
-           }
 
-           public void $691A() {
               this.$EDE0();
               int var1 = this.mem16(32706, 26909);
               this.HL(var1);
@@ -1545,11 +1547,17 @@ public class RecordedProgramTests {
 
               this.$6226();
               if(!this.unwinding()) {
-                 this.$691A();
+                 this.setNextAddress(0x691A);
+                 this.$6226();
                  if(!this.unwinding()) {
                     ;
                  }
               }
+           }
+
+           public void $691A() {
+              this.setNextAddress(0x691A);
+              this.$6226();
            }
         }
         """, withoutTiming(java));
@@ -4613,7 +4621,7 @@ public class RecordedProgramTests {
         at(0x8000, 0x21, 0x08, 0x80, 0xCD, 0x30, 0x80, 0x76),
         at(0x8008, 0x06, 0x01, 0xC9),
         at(0x8030, 0xE9));
-    Assert.assertEquals("8000 8008 8030", routines());
+    Assert.assertEquals("8000 8030", routines());
     Assert.assertEquals(Set.of(0x8008), Set.copyOf(stackAnalyzer.calledThrough.get(0x8003)));
   }
 
@@ -6099,12 +6107,12 @@ public class RecordedProgramTests {
   }
 
   @Test
-  public void aRoutineEnteredInItsMiddleWhoseHeadJumpsPastTheEntryIsSplitAtBothPlaces() {
+  public void aRoutineEnteredInItsMiddleWhoseHeadJumpsPastTheEntryRunsFromBothEntries() {
     translate(
         at(0x8000, 0xCD, 0x10, 0x80, 0xCD, 0x20, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
         at(0x8010, 0x0E, 0x01, 0x18, 0x02, 0x16, 0x02, 0x1E, 0x03, 0xC9),
         at(0x8020, 0xC3, 0x14, 0x80));
-    Assert.assertEquals("8000 8010 8016 8020", routines());
+    Assert.assertEquals("8000 8010 8020", routines());
   }
 
   @Test

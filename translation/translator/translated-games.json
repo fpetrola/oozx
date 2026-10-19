@@ -1,12 +1,13 @@
 {
-  "game": "headoverheels",
+  "game": "targetrenegade",
   "mode": "replay",
   "recording": null,
-  "speed": 1,
+  "speed": 4.5,
   "games": {
     "exolon": {
       "title": "Exolon",
       "type": "Exolon",
+
       "recording": "/home/fernando/detodo/spectrum/rzx-top/1686/exolon.rzx",
       "entry": "8057"
     },
