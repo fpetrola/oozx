@@ -618,18 +618,27 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
 
     restoreMainWindowState();
 
-    restoreOpenWindows();
-
-    config.getSnapshots().clear();
-
     addWindowListener(new WindowAdapter() {
       @Override
       public void windowClosing(WindowEvent e) {
-        saveMainWindowState();
-        saveOpenWindows();
-        config.save();
+        keepTheSession();
       }
     });
+  }
+
+  /**
+   * What was open when the desktop was last closed comes back. Not from the constructor: a machine
+   * being rebuilt asks the desktop to take it, and the desktop is not there until it is built.
+   */
+  public void comeBack() {
+    restoreOpenWindows();
+  }
+
+  /** Everything open, written down for the next start to find it as it was, whichever way it closes. */
+  private void keepTheSession() {
+    saveMainWindowState();
+    saveOpenWindows();
+    config.save();
   }
 
   private JMenuBar createMenuBar() {
@@ -676,7 +685,10 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     JMenuItem quitItem = new JMenuItem("Quit");
     quitItem.setMnemonic(KeyEvent.VK_Q);
     quitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
-    quitItem.addActionListener(e -> System.exit(0));
+    quitItem.addActionListener(e -> {
+      keepTheSession();
+      System.exit(0);
+    });
     fileMenu.add(quitItem);
 
     menuBar.add(fileMenu);
@@ -2122,15 +2134,19 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     config.setMainWindowState(mainState);
   }
 
+  /** Where it was last time; the middle of the first screen the first time. */
   private void restoreMainWindowState() {
     OOZxConfiguration.WindowState mainState = config.getMainWindowState();
-    if (mainState != null) {
-      if (mainState.getWidth() > 0 && mainState.getHeight() > 0) {
-        setSize(mainState.getWidth(), mainState.getHeight());
-      }
-      if (mainState.getX() >= 0 && mainState.getY() >= 0) {
-        setLocation(mainState.getX(), mainState.getY());
-      }
+    if (mainState != null && mainState.getWidth() > 0 && mainState.getHeight() > 0) {
+      setSize(mainState.getWidth(), mainState.getHeight());
+    }
+    if (mainState != null && mainState.getX() >= 0 && mainState.getY() >= 0) {
+      setLocation(mainState.getX(), mainState.getY());
+    } else {
+      Rectangle screen = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
+          .getDefaultConfiguration().getBounds();
+      setLocation(screen.x + (screen.width - getPreferredSize().width) / 2,
+          screen.y + (screen.height - getPreferredSize().height) / 2);
     }
   }
 

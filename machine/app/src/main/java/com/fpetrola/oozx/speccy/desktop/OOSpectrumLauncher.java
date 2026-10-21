@@ -26,7 +26,6 @@ import com.fpetrola.oozx.speccy.modules.timer.Speed;
 import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
 import com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp;
 
-import java.awt.*;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.concurrent.ScheduledExecutorService;
@@ -89,27 +88,8 @@ public class OOSpectrumLauncher {
     }, mockCoreState);
 
     appHolder[0] = zxSpectrumDesktopApp;
-    showOnScreen(0, zxSpectrumDesktopApp);
-//    zxSpectrumDesktopApp.setVisible(true);
-  }
-
-  private static void showOnScreen(int screen, Window frame) {
-    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-    GraphicsDevice[] gd = ge.getScreenDevices();
-    GraphicsDevice graphicsDevice;
-    if (screen > -1 && screen < gd.length) {
-      graphicsDevice = gd[screen];
-    } else if (gd.length > 0) {
-      graphicsDevice = gd[0];
-    } else {
-      throw new RuntimeException("No Screens Found");
-    }
-    Rectangle bounds = graphicsDevice.getDefaultConfiguration().getBounds();
-    int screenWidth = graphicsDevice.getDisplayMode().getWidth();
-    int screenHeight = graphicsDevice.getDisplayMode().getHeight();
-    frame.setLocation(bounds.x + (screenWidth - frame.getPreferredSize().width) / 2,
-        bounds.y + (screenHeight - frame.getPreferredSize().height) / 2);
-    frame.setVisible(true);
+    zxSpectrumDesktopApp.comeBack();
+    zxSpectrumDesktopApp.setVisible(true);
   }
 
   /** A machine with nothing loaded, sitting at the BASIC prompt, running at real speed. */
