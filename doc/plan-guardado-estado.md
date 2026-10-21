@@ -7,9 +7,10 @@ entorno. **Nada de lo que se guarda sabe que se guarda**: ni los aparatos, ni la
 las ventanas tienen algo para guardarse o restaurarse. Cómo va cada cosa a un archivo lo sabe quien
 conoce ese archivo.
 
-**Estado (21 de octubre de 2026):** hechos el paso 0 (en el código) y lo de llevar bloques del 2. El
-contrato del paso 1 (`Keeps` y `Kept`, que implementaba cada cosa guardada) se descartó y se sacó:
-un aparato no tiene que saber que lo guardan. Lo reemplaza el módulo de la sesión.
+**Estado (21 de octubre de 2026):** hechos el paso 0 (en el código), lo de llevar bloques del 2 y la
+mudanza de los mapeos de aparatos al módulo de mapeos (2b). El contrato del paso 1 (`Keeps` y
+`Kept`, que implementaba cada cosa guardada) se descartó y se sacó: un aparato no tiene que saber
+que lo guardan. Lo reemplaza el módulo de mapeos.
 Relevado sobre `traduccion` (oozx, `68d400341`) y `prueba-apuntar` (oozx-plugins, `0e3c6b2`).
 
 ## Cómo está hoy
@@ -61,21 +62,27 @@ Lo que estaba roto (1, 2, 3 y 5 arreglados en el paso 0):
 - **El entorno es un JSON**, el `config.json` de hoy, y lo conoce solo el entorno base.
 - **Lo que se guarda no sabe que se guarda.** Un aparato, una herramienta o una ventana tienen su
   API de siempre: lo que son y lo que hacen. No implementan nada para guardarse.
-- **Cada mapeo tiene un dueño que conoce las dos puntas.** Los bloques estándar los mapea el dueño
-  del SZX, que depende de los aparatos que conoce. Todo lo demás de una máquina lo mapea el módulo
-  de la sesión, que conoce el SZX, los aparatos, las herramientas y las ventanas.
+- **Todos los mapeos tienen un solo dueño, que conoce las dos puntas:** el módulo de mapeos, que
+  conoce los formatos, los aparatos, las herramientas y las ventanas. Los formatos llevan solo la
+  máquina base (procesador, memoria, paginado, borde, reloj, teclado) y no conocen ningún aparato.
 
-## El módulo de la sesión
+## El módulo de mapeos
 
-Un módulo nuevo de oozx-plugins, `tools/session`. Iría en `devices/snapshots`, que ya mapea el AY y
-ULAplus al SZX. No va ahí porque `tools/rzx` y `devices/spec256` dependen de `devices/snapshots`, y
-el lector de formatos arrastraría las herramientas del escritorio (pokes, controles, aspecto) a cada
-reproductor de RZX y a cada prueba.
+`tools/mappings` (`tool-mappings`), en oozx-plugins. Iría en `devices/snapshots`, que mapeaba el AY
+y ULAplus. No va ahí porque `tools/rzx` y `devices/spec256` dependen de `devices/snapshots`, y el
+lector de formatos arrastraría los aparatos y las herramientas del escritorio (pokes, controles,
+aspecto) a cada reproductor de RZX y a cada prueba.
 
 Sabe:
 
-- **Que existe el SZX y qué es un bloque.** Escribe la máquina con `SnapshotFormat.write(máquina,
-  bloques, notas)` agregando sus bloques, y los lee de vuelta con `carried(bytes)` (paso 2). El SZX
+- **Los bloques y campos de los aparatos en cada formato.** Hoy el AY (en SZX, Z80 y EZX) y ULAplus
+  (en SZX, con la regla que la enchufa si el archivo trae PLTT), que salieron de los formatos el 21
+  de octubre. Se los da a cada formato por el rol `Mapping` del motor (`libs/formats`): tablas,
+  bloques y lo que el archivo enchufa antes de recorrer la máquina. Acá es el formato el que llama,
+  porque un aparato es parte de la máquina y ya existe cuando se lee el archivo. Sin el módulo, un
+  snapshot se lee sin el estado de lo enchufado.
+- **Que existe el SZX y qué es un bloque propio.** Escribe la máquina con `SnapshotFormat.write(máquina,
+  bloques, notas)` agregando su bloque, y lo lee de vuelta con `carried(bytes)` (paso 2). El SZX
   no sabe qué hay adentro ni que el módulo existe.
 - **Los ajustes de la máquina y de sus aparatos, sin conocer a cada uno.** Ya están descriptos de
   forma neutral para la ventana de ajustes: `Settings.Configurable` (`ownSettings()` y
@@ -91,7 +98,7 @@ Sabe:
 - **El estado de los aparatos sin bloque estándar** (µSource, impresora paralela) y lo que un aparato
   tiene de más que su bloque, uno por uno.
 
-El escritorio no conoce el módulo: lo encuentra por un rol del kit, con dos operaciones. Una escribe
+Para lo que rodea a una máquina, el escritorio no conoce el módulo: lo encuentra por un rol del kit, con dos operaciones. Una escribe
 el archivo de una ventana de máquina. La otra, sobre la máquina ya leída de ese archivo, le devuelve
 a la ventana lo de alrededor. El sentido es escritorio → módulo → SZX, y no SZX → módulo. Al
 guardar, el SZX recibe solo la máquina, que no sabe cuál es su ventana. Al volver, la máquina se lee
@@ -102,8 +109,9 @@ escritorio.
 
 | Dónde | Quién | Ejemplos |
 |---|---|---|
-| Bloques estándar del SZX | `SzxFormat` (`devices/snapshots`), que depende de cada aparato que mapea | CPU, memoria, paginado, borde, AY, ULAplus; después MFCE, IF1 y MDRV, B128 y BDSK, PLSD, OPUS, +3 y DSK, DIDE, DMMC, ZXAT, ZXCF, SIDE, COVX, DRUM, AMXM, ZXPR, JOY, TAPE, SCLD, DOCK, USPE, ROM |
-| Bloque propio en el SZX | el módulo de la sesión | la ventana de la máquina; los ajustes de la máquina y de sus aparatos; el aspecto; mudo; pokes aplicados; qué aparatos están enchufados; cada ventana de equipo enganchada; los aparatos sin bloque estándar; lo que un aparato tiene de más |
+| Bloques estándar del SZX, de la máquina base | `SzxFormat` (`devices/snapshots`) | Z80R, SPCR, KEYB, RAMP |
+| Bloques estándar del SZX, de los aparatos | el módulo de mapeos, por el rol `Mapping` que el formato consulta | AY, PLTT; después MFCE, IF1 y MDRV, B128 y BDSK, PLSD, OPUS, +3 y DSK, DIDE, DMMC, ZXAT, ZXCF, SIDE, COVX, DRUM, AMXM, ZXPR, JOY, TAPE, SCLD, DOCK, USPE, ROM |
+| Bloque propio en el SZX | el módulo de mapeos, llamado por el escritorio | la ventana de la máquina; los ajustes de la máquina y de sus aparatos; el aspecto; mudo; pokes aplicados; qué aparatos están enchufados; cada ventana de equipo enganchada; los aparatos sin bloque estándar; lo que un aparato tiene de más |
 | JSON del entorno | el entorno base | la ventana principal; los archivos de la sesión, en orden; los recientes; los valores para las máquinas nuevas; las ventanas de escritorio |
 
 ## El bloque propio
@@ -140,13 +148,14 @@ Salir) y no hay un guardado a medias que deje referencias sueltas.
 
 ## Decisiones
 
-1. **Quién mapea.** Decidido el 21 de octubre: lo que se guarda no lo sabe; los aparatos con bloque
-   estándar los mapea el dueño del SZX, que depende de ellos (como hoy el AY y ULAplus); todo lo
-   demás, el módulo de la sesión. Descartados: que cada aparato traiga sus bytes (pone formato en
-   los aparatos), que implemente un contrato neutral para guardarse (`Keeps`: igual sabe que lo
-   guardan) y que el SZX mapee por nombre sin depender de los aparatos.
-2. **El sentido de las llamadas.** Propuesto: escritorio → módulo → SZX, por lo de arriba. A
-   confirmar.
+1. **Quién mapea.** Decidido el 21 de octubre: lo que se guarda no lo sabe, y todos los mapeos,
+   con bloque estándar o sin él, van en el módulo de mapeos; los formatos no conocen ningún aparato
+   y el RZX tampoco. Descartados: que cada aparato traiga sus bytes (pone formato en los aparatos),
+   que implemente un contrato neutral para guardarse (`Keeps`: igual sabe que lo guardan), que el
+   SZX mapee por nombre sin depender de los aparatos, y que el dueño del SZX dependa de los
+   aparatos que conoce (cada lector de snapshots cargaría con todos).
+2. **El sentido de las llamadas.** Decidido: para lo que rodea a una máquina, escritorio → módulo →
+   SZX; para los aparatos, el formato consulta los mapeos al leer y al escribir.
 3. **Ajustes por máquina o globales.** Recomendado: en la sesión van los de cada máquina; en
    `config.json` quedan los valores para las máquinas nuevas.
 4. **Los medios.** Recomendado: si el archivo está igual que cuando se abrió, se guarda su ruta;
@@ -167,7 +176,10 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    libspectrum). Faltan los identificadores de máquina del SZX 6 a 16 (+3e, Pentagon, TC2048,
    TC2068, Scorpion, SE, TS2068, Pentagon 512 y 1024, NTSC, 128Ke) para que toda máquina se pueda
    guardar.
-3. **El módulo y la sesión en archivos.** `tools/session` con el rol del kit. El escritorio escribe
+   - 2b. **La mudanza.** **Hecho:** el rol `Mapping` en el motor y `tools/mappings` con el AY y
+     ULAplus. La red sobre la máquina se mudó con ellos y sus 62 goldens quedaron con las mismas
+     líneas (solo se ordenaron las de las partes sin descripción, que seguían el orden del classpath).
+3. **La sesión en archivos.** El rol del kit, implementado en `tools/mappings`. El escritorio escribe
    un SZX por ventana de máquina y lista los archivos en `config.json`; al volver los abre como
    cualquier archivo y le pide al módulo lo de alrededor. Lo primero que mapea el módulo: la ventana
    (lugar, tamaño, pausa, mudo) y los ajustes. Migración de los snapshots empaquetados; se van
@@ -183,8 +195,8 @@ Uno por commit. Cada uno nace con su prueba en rojo.
 7. **Cada aparato, uno por commit**, por lo que más se usa: +3 (disco), Beta 128, +D, DISCiPLE,
    Opus, Multiface, Interface 1 y microdrives, Interface 2, DivIDE, DivMMC, ZXATASP, ZXCF, Simple
    IDE, joystick, mouse, Covox, SpecDrum, ZX Printer, cinta (TAPE), Timex (SCLD, DOCK), µSpeech,
-   ROM propia. Con bloque estándar, en `SzxFormat`, como el AY; sin él, en el módulo. Cada uno se
-   prueba contra libspectrum y con ida y vuelta. Si nadie más usa el camino viejo de `Snapshots`,
+   ROM propia. Cada uno en el módulo de mapeos, como el AY, y se prueba contra libspectrum y con
+   ida y vuelta. Si nadie más usa el camino viejo de `Snapshots`,
    se va con `RestoredFromASnapshot`.
 8. **Las ventanas de escritorio.** Según la decisión 5.
 9. **"Exactamente igual".** Una prueba que arma varias máquinas con aparatos, medios y ventanas,
