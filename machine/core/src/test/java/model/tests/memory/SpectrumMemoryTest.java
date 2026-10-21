@@ -378,6 +378,43 @@ class SpectrumMemoryTest {
     assertEquals(0x66, behind.read(0), "the RAM behind it did");
   }
 
+  /** A device over an address it does not answer: it sees every access there and hands it on to what it covers. */
+  private static final class Watching extends Registers {
+    private final MemoryBus bus;
+    private final List<String> seen;
+    final MappedMemory range = new MappedMemory(0x0000, this);
+
+    Watching(MemoryBus bus, List<String> seen) {
+      super(0x800);
+      this.bus = bus;
+      this.seen = seen;
+    }
+
+    public int read(int offset) {
+      seen.add("read " + offset);
+      return bus.peekBeneath(range, offset);
+    }
+
+    public void write(int offset, byte value) {
+      seen.add("write " + offset);
+      bus.pokeBeneath(range, offset, value);
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource("buses")
+  void aDeviceThatOnlyWatchesLetsWhatItCoversAnswer(MemoryBus bus) {
+    machine(bus);
+    List<String> seen = new ArrayList<>();
+    MappedMemory under = new MappedMemory(0x0000, new Ram(0x2000));
+    bus.plug(under, new Watching(bus, seen).range);
+    bus.write(0x0038, (byte) 0x5a);
+    assertEquals(0x5a, bus.read(0x0038), "what it covers took the write and gives it back");
+    assertEquals(List.of("write 56", "read 56"), seen, "and it saw both");
+    bus.unplug(under);
+    assertEquals(0x11, bus.read(0x0038), "with nothing between them, the machine's own ROM answers");
+  }
+
   @ParameterizedTest
   @MethodSource("buses")
   void aDeviceTakesOffTheRangeItNamedAndNotTheObjectItKept(MemoryBus bus) {

@@ -87,7 +87,12 @@ public class DacFrame<P extends Peripheral & Pluggable & DacDevice> extends Devi
       return;
     }
     meter.show(Math.abs(dac.level()) / fullScale);
-    last.setText(String.format("last byte sent: %d", dac.level() / 128 + (fullScale > 20000 ? 128 : 0)));
+    last.setText(said(device(), dac));
+  }
+
+  /** What is written under the meter: for a box on a port, the last byte it was sent. */
+  protected String said(P device, Dac dac) {
+    return String.format("last byte sent: %d", dac.level() / 128 + (fullScale > 20000 ? 128 : 0));
   }
 
   @Override
