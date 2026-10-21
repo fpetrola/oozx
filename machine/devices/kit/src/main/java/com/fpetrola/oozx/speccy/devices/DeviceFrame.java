@@ -21,8 +21,11 @@ import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 import com.fpetrola.oozx.speccy.peripherals.Pluggable;
 
+import javax.swing.JFileChooser;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The window of a device somebody plugs in: clipping it onto a machine is what plugs the device
@@ -65,6 +68,27 @@ public abstract class DeviceFrame<P extends Peripheral & Pluggable> extends Mach
 
   /** The device changed hands: this one, on another machine, or none at all. */
   protected void plugged(P device) {
+  }
+
+  /**
+   * Asks for the files the board is made with, one per title in the order it reads them, and
+   * restarts the machine on them: a board reads its ROMs at a hard reset, as the real ones did.
+   */
+  protected void chooseRoms(String... titles) {
+    if (machine() == null || device == null) {
+      return;
+    }
+    List<String> chosen = new ArrayList<>();
+    for (String title : titles) {
+      JFileChooser chooser = new JFileChooser();
+      chooser.setDialogTitle(title);
+      if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+        return;
+      }
+      chosen.add(chooser.getSelectedFile().getPath());
+    }
+    machine().roms.runOn(device, chosen);
+    machine().loop.later(() -> machine().machine.reset(true));
   }
 
   @Override
