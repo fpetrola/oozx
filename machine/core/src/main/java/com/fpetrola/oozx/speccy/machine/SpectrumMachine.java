@@ -95,11 +95,16 @@ public interface SpectrumMachine extends com.fpetrola.oozx.speccy.parts.Visitabl
   }
 
   /**
-   * Which machine a snapshot names when it was taken on this one, or null for a machine no
-   * snapshot format can name - a variant then loads into the machine it is a variant of.
+   * Which machine a snapshot names when it was taken on this one, and so which one a snapshot of
+   * that model chooses; null for a clone no snapshot format can name, which is never chosen by one.
    */
   default MachineTypes snapshotModel() {
     return null;
+  }
+
+  /** The model it is, or for a clone no format names, the one it copies: what a snapshot of it is written as. */
+  default MachineTypes nearestModel() {
+    return snapshotModel();
   }
 
   /** What the ULA's own port reads on the bits the keyboard does not drive, after this write to it. */

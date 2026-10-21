@@ -99,13 +99,19 @@ public class Machine implements com.fpetrola.oozx.speccy.parts.Visitable {
   }
 
   /**
-   * The build's exact match for a snapshot's model, or else one running the same code —
-   * e.g. a 16K snapshot lands on the 48K when this build has no 16K.
+   * The build's exact match for a snapshot's model, or else the usual one running the same code:
+   * a 16K snapshot lands on the 48K when this build has no 16K, a Pentagon's on the 128K.
    */
   public Optional<Spectrum> forSnapshotModel(MachineTypes model) {
-    return machineTypes.stream().filter(m -> m.snapshotModel() == model).findFirst()
-        .or(() -> machineTypes.stream()
-            .filter(m -> m.snapshotModel() != null && m.snapshotModel().codeModel == model.codeModel).findFirst());
+    return claiming(model).or(() -> claiming(switch (model.codeModel) {
+      case SPECTRUM48K -> MachineTypes.SPECTRUM48K;
+      case SPECTRUM128K -> MachineTypes.SPECTRUM128K;
+      case SPECTRUMPLUS3 -> MachineTypes.SPECTRUMPLUS3;
+    }));
+  }
+
+  private Optional<Spectrum> claiming(MachineTypes model) {
+    return machineTypes.stream().filter(m -> m.snapshotModel() == model).findFirst();
   }
 
   public Optional<Spectrum> forShortName(String shortName) {

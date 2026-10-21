@@ -178,9 +178,14 @@ Uno por commit. Cada uno nace con su prueba en rojo.
      cada máquina), cada modelo del build dice el suyo, el SZX los numera 6 a 16 y el Z80 los lee y
      escribe como libspectrum. `EveryMachineComesBackAsItselfTest`: dieciséis modelos vuelven sobre
      sí mismos con todos sus bancos y libspectrum lee el mismo (el Scorpion se saltea donde no está
-     su ROM). La cinta toma el reloj de la máquina, no del tipo. Falta: los clones que ningún
-     formato nombra (Inves, Czerweny, Chrome, Chloe, TK90X y TK95) se escriben como su base con
-     el modelo exacto en `OOZX`, y el juego de ROMs; los dos elegidos antes de recorrer la máquina.
+     su ROM). La cinta toma el reloj de la máquina, no del tipo. Los clones que ningún formato nombra
+     (Inves, Czerweny, Chrome, Chloe, TK90X y TK95) se escriben como el modelo que copian
+     (`nearestModel()`), y `OOZX` lleva la máquina exacta y su juego de ROMs, que la regla del SZX
+     en el módulo elige antes de recorrer la máquina; unas ROMs que no están quedan anotadas y la
+     máquina corre con las suyas. Sin el plugin de una máquina, un archivo cae en la típica de su
+     familia (48K, 128K o +3). Probado con lo que hay acá: el bloque que nombra una TC2048 la elige
+     y unas ROMs ausentes se anotan; ningún clon ni juego de ROMs alternativo viene con el build,
+     así que el cambio de juego no se probó.
    - 2b. **La mudanza.** **Hecho:** el rol `Mapping` en el motor y `tools/mappings` con el AY y
      ULAplus. La red sobre la máquina se mudó con ellos y sus 62 goldens quedaron con las mismas
      líneas (solo se ordenaron las de las partes sin descripción, que seguían el orden del classpath).
