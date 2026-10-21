@@ -8,7 +8,8 @@ las ventanas tienen algo para guardarse o restaurarse. Cómo va cada cosa a un a
 conoce ese archivo.
 
 **Estado (21 de octubre de 2026):** hechos el paso 0 (en el código), lo de llevar bloques del 2, la
-mudanza de los mapeos de aparatos al módulo de mapeos (2b) y la sesión en archivos (3). El contrato del paso 1 (`Keeps` y
+mudanza de los mapeos de aparatos al módulo de mapeos (2b), cada máquina como sí misma (2c), la
+sesión en archivos (3) y los aparatos enchufados con sus ventanas (5). El contrato del paso 1 (`Keeps` y
 `Kept`, que implementaba cada cosa guardada) se descartó y se sacó: un aparato no tiene que saber
 que lo guardan. Lo reemplaza el módulo de mapeos.
 Relevado sobre `traduccion` (oozx, `68d400341`) y `prueba-apuntar` (oozx-plugins, `0e3c6b2`).
@@ -134,12 +135,13 @@ para eso (Z80, SNA, SP) avisan y escriben solo la máquina.
 ## El orden al volver
 
 1. El entorno lee su JSON: la ventana principal, sin volver a centrarla, y la lista de archivos.
-2. Por cada archivo, en orden: lo abre como cualquier archivo (el formato elige el modelo, enchufa
-   lo que nombran los bloques estándar y recorre la máquina) y le hace su ventana. Abrirlos de atrás
-   hacia adelante deja el orden de las ventanas sin guardarlo aparte.
-3. Le pide al módulo lo de alrededor. El módulo lee su bloque, enchufa los aparatos sin bloque
-   estándar, pone los ajustes, el aspecto, el mudo y los pokes, ubica la ventana y reabre sus
-   ventanas de equipo.
+2. Por cada archivo, en orden: lo abre como cualquier archivo y le hace su ventana. El formato elige
+   el modelo y, antes de recorrer la máquina, le pide al módulo lo que tiene que estar antes: desde
+   su bloque, la máquina exacta y sus ROMs, los ajustes y lo enchufado, con el reset que pide
+   enchufar algunos aparatos; y lo que enchufan los bloques estándar. Recién ahí recorre la máquina.
+   Abrirlos de atrás hacia adelante deja el orden de las ventanas sin guardarlo aparte.
+3. Le pide al módulo lo de alrededor: ubica la ventana, la pausa, el archivo, los pokes y el
+   aspecto, y reengancha sus ventanas de equipo, que encuentran su aparato ya enchufado.
 4. Se reabren las ventanas de escritorio.
 
 Al guardar, lo mismo al revés. Se guarda al cerrar por cualquier camino (la ventana o Archivo >
@@ -194,8 +196,9 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    sobran y los nombra en `openWindows`; al volver los abre como cualquier archivo y le pide al
    módulo lo de alrededor. `SzxSession` (`tools/mappings`) guarda en `OOZX` el lugar y tamaño de
    la ventana, la pausa, el archivo de donde salió la máquina, el procesador, el turbo y todos los
-   ajustes declarados (`Settings.devices()`: volumen, mudo, joystick, cada aparato). El modelo y
-   las ROMs no: elegirlos después de leer el archivo arranca la máquina de cero (van con el 2c).
+   ajustes declarados (`Settings.devices()`: volumen, mudo, joystick, cada aparato). Los ajustes se
+   ponen antes de recorrer la máquina, con el paso 5: un Melodik que pone un ajuste tiene que estar
+   cuando se lee el bloque AY.
    Pruebas: ida y vuelta sin escritorio y libspectrum leyendo el archivo
    (`AMachineComesBackWithItsWindowTest`). Una configuración vieja vuelve una vez por el camino de
    antes y al salir queda en archivos. `putMachinesAway` (al cambiar de plugins) pasa por la misma
@@ -208,8 +211,28 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    - sin el plugin de mapeos las máquinas no vuelven, y nada lo pide todavía.
 4. **El aspecto.** `ScreenSettings`. (Los pokes aplicados y `MachineTool.remember/restore` ya
    quedaron en el paso 3.)
-5. **Los aparatos enchufados y sus ventanas.** Qué equipo está enchufado; cada ventana de equipo
-   enganchada (`AttachedFrame`: lado, tamaño, compacta; `MachineFrame` dice qué equipo es).
+5. **Los aparatos enchufados y sus ventanas.** **Hecho.** `OOZX` nombra cada aparato enchufado
+   (`plugged.N`, los `Pluggable` que dicen estarlo, por `PeripheralRegistry.allThatAre`) y cada
+   ventana de equipo enganchada (`equipment.N.*`: qué equipo, lado, tamaño, plegada o no y a qué
+   altura se despliega). Lo enchufado y los ajustes se ponen antes de recorrer la máquina
+   (`SzxSession.plug`, que llama la regla del SZX), con el reset que pide enchufar algunos aparatos
+   (SpecDrum, Multiface, Interface 1, DivIDE…). Enchufarlos después de leer reseteaba la máquina
+   recién leída, y un aparato que pone un ajuste (Melodik) no estaba cuando se leía su bloque. Las
+   ventanas vuelven en `bringBack` por dos métodos de `Desk`, `equipmentOn(ventana)` y
+   `equipment(nombre)`, en el orden en que estaban a lo largo de cada lado; al engancharse
+   encuentran su aparato ya enchufado y no resetean. La ventana del joystick, que se abre sola
+   cuando la máquina lo usa, ya no corre a una que volvió. Pruebas, en rojo antes y en verde
+   después: `whatIsPluggedIntoItIsInBeforeItIsRead` y `theEquipmentClippedOnItComesBackAsItWasLeft`.
+   Pendiente:
+   - una ventana de equipo desenganchada no es de ninguna máquina y no se guarda (va con el 8);
+   - la ventana de ajustes que engancha su herramienta (`MachineSettingsTool`) no es un `Equipment`
+     y no vuelve;
+   - lo que cada ventana tiene adentro: la cinta de la casetera, la grabación del reproductor, el
+     papel de la impresora, las pestañas del depurador (decisión 4 y paso 7);
+   - el lado al que vuelve el botón de enganchar, si no es el que tiene;
+   - la memoria del escritorio de qué ventanas ya le ofreció a cada máquina: una del joystick que
+     se cerró se vuelve a abrir una vez después de arrancar, si el juego usa el joystick;
+   - el escritorio no se probó corriendo.
 6. **El motor del SZX para los bloques que faltan.** Bloques repetidos (un BDSK por disquetera),
    largos variables, páginas de 8K y 32K, enchufar los aparatos que nombra un bloque. Prueba: los
    fixtures de libspectrum que ya están en `szx-chunks/`.

@@ -76,10 +76,12 @@ public class PeripheralRegistry {
    * what it is - for the places that must not know which device they are talking to.
    */
   public <T> T anyThatIs(Class<T> kind) {
-    for (Registration device : registry.values()) {
-      if (kind.isInstance(device.peripheral)) return kind.cast(device.peripheral);
-    }
-    return null;
+    return allThatAre(kind).stream().findFirst().orElse(null);
+  }
+
+  /** Every one registered that does it, switched on or not, in the order they were registered. */
+  public <T> java.util.List<T> allThatAre(Class<T> kind) {
+    return registry.values().stream().map(device -> device.peripheral).filter(kind::isInstance).map(kind::cast).toList();
   }
 
   /** The ones switched on, each presenting itself, in the order they were registered. */

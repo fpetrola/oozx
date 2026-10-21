@@ -771,6 +771,21 @@ public abstract class AttachedFrame extends JInternalFrame {
     repaint();
   }
 
+  /** The same, unfolding to that height: as somebody who dragged it there and folded it, or not, left it. */
+  public void setCompact(boolean wanted, int expandedHeight) {
+    chosenHeight = expandedHeight;
+    setCompact(wanted);
+  }
+
+  public boolean isCompact() {
+    return compact;
+  }
+
+  /** How tall it is expanded: the height somebody dragged it to, or nothing while nobody has. */
+  public int expandedHeight() {
+    return chosenHeight;
+  }
+
   /**
    * How far along, as a line under the buttons.
    * <p>

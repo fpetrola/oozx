@@ -1841,15 +1841,36 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       }
     }
 
+    MachineFrame window = another(kind);
+    if (machineBeingUsed() != null) {
+      window.attachTo(machineBeingUsed());
+    }
+    return window;
+  }
+
+  /** One more window of that kind on the desk, clipped onto nothing yet. */
+  private MachineFrame another(Equipment kind) {
+    java.util.List<MachineFrame> open = equipment.computeIfAbsent(kind.name(), k -> new java.util.ArrayList<>());
     MachineFrame window = kind.open();
     window.setLocation(360 + (open.size() * 30) % 300, 60 + (open.size() * 30) % 200);
     open.add(window);
     desktop.add(window);
     window.setVisible(true);
-    if (machineBeingUsed() != null) {
-      window.attachTo(machineBeingUsed());
-    }
     return window;
+  }
+
+  @Override
+  public MachineFrame equipment(String name) {
+    return has.equipment().stream().filter(kind -> kind.name().equals(name)).findFirst().map(this::another).orElse(null);
+  }
+
+  @Override
+  public java.util.Map<MachineFrame, String> equipmentOn(EmulatorWindow machine) {
+    java.util.Map<MachineFrame, String> on = new java.util.LinkedHashMap<>();
+    equipment.forEach((kind, open) -> open.stream()
+        .filter(window -> !window.isClosed() && window.isAttached() && window.getMachineWindow() == machine)
+        .forEach(window -> on.put(window, kind)));
+    return on;
   }
 
   /**
@@ -1926,7 +1947,8 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     EmulatorInternalFrame front = machineBeingUsed();
     if (front == null || front.machine() == null) return;
     for (Equipment kind : has.equipment()) {
-      if (kind.usedBy(front.machine()) && openedFor.computeIfAbsent(front, k -> new java.util.HashSet<>()).add(kind.name())) {
+      if (kind.usedBy(front.machine()) && openedFor.computeIfAbsent(front, k -> new java.util.HashSet<>()).add(kind.name())
+          && !equipmentOn(front).containsValue(kind.name())) {
         MachineFrame window = show(kind);
         window.setSize(Math.max(front.getWidth() / 3, 280), front.getHeight() / 2);
         window.attachTo(front, com.fpetrola.oozx.speccy.windows.AttachedFrame.Dock.RIGHT);

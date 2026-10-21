@@ -42,43 +42,12 @@ public interface Desk {
   }
 
   Desk NOBODY = new Desk() {
-    public File choose(String what) {
-      return null;
-    }
-
-    public void openMachineFor(File file, MachineFrame asking) {
-    }
-
-    public void open(Game game, Runnable whenDone) {
-      whenDone.run();
-    }
-
-    public void play(String url, String label) {
-    }
-
-    public void keep(Game game) {
-    }
-
-    public void showDetails(Game game) {
-    }
-
-    public EmulatorWindow show(com.fpetrola.oozx.Speccy machine, String title, MachineFrame asking) {
-      return null;
-    }
-
-    public void openRecording(MachineFrame asking) {
-    }
-
-    public void keepRecording(String url, String entry, String title) {
-    }
-
-    public java.util.List<String> machines() {
-      return java.util.List.of();
-    }
   };
 
   /** A file from whoever is in front, or null if they did not pick one. */
-  File choose(String what);
+  default File choose(String what) {
+    return null;
+  }
 
   /**
    * Builds a computer for this file and clips the window that asked onto it.
@@ -86,7 +55,8 @@ public interface Desk {
    * The window stays where it was put and the machine arrives above it: pressing play on a deck
    * is asking for a computer for THAT deck, not for another one holding the same cassette.
    */
-  void openMachineFor(File file, MachineFrame asking);
+  default void openMachineFor(File file, MachineFrame asking) {
+  }
 
   /**
    * Opens a game: fetched if it has to be, on a machine of its own.
@@ -94,10 +64,13 @@ public interface Desk {
    * @param whenDone run on the event thread once it is up or the attempt failed, so that whoever
    *                 asked can stop saying it is working on it
    */
-  void open(Game game, Runnable whenDone);
+  default void open(Game game, Runnable whenDone) {
+    whenDone.run();
+  }
 
   /** Plays a recording from wherever it lives, which is a machine driven by it. */
-  void play(String url, String label);
+  default void play(String url, String label) {
+  }
 
   /**
    * A window for a machine that already exists, clipped to the one that asked.
@@ -107,29 +80,37 @@ public interface Desk {
    *
    * @return the window the machine is shown on, or null where there is no desk to show it
    */
-  EmulatorWindow show(com.fpetrola.oozx.Speccy machine, String title, MachineFrame asking);
+  default EmulatorWindow show(com.fpetrola.oozx.Speccy machine, String title, MachineFrame asking) {
+    return null;
+  }
 
   /**
    * Asks for a recording and puts it into the window that asked, or into a free one when none
    * did. Choosing it, fetching it and unpacking the archive it came in are the desk's work: what
    * arrives here is one file that can be played.
    */
-  void openRecording(MachineFrame asking);
+  default void openRecording(MachineFrame asking) {
+  }
 
   /**
    * Keeps a recording to come back to. The address alone comes back to an archive rather than to
    * the recording that was being watched, so which file inside it was playing goes too.
    */
-  void keepRecording(String url, String entry, String title);
+  default void keepRecording(String url, String entry, String title) {
+  }
 
   /** Keeps a game to come back to, which is what the desk's favourites are. */
-  void keep(Game game);
+  default void keep(Game game) {
+  }
 
   /** Shows what the catalogue knows about it, the same page the machine's own button opens. */
-  void showDetails(Game game);
+  default void showDetails(Game game) {
+  }
 
   /** The machines this build can open a game on, for offering them beside it. */
-  java.util.List<String> machines();
+  default java.util.List<String> machines() {
+    return java.util.List.of();
+  }
 
   /** Lo que el escritorio recuerda entre corridas: favoritos, historial, estados guardados. */
   default com.fpetrola.oozx.speccy.config.OOZxConfiguration configuration() {
@@ -157,6 +138,16 @@ public interface Desk {
 
   /** Pone la ventana en el escritorio, adelante. */
   default void place(javax.swing.JInternalFrame window) {
+  }
+
+  /** The equipment clipped onto that machine's window, each with the name of the kind it is. */
+  default java.util.Map<MachineFrame, String> equipmentOn(EmulatorWindow machine) {
+    return java.util.Map.of();
+  }
+
+  /** A new window of the equipment offered under that name, on the desk and clipped onto nothing; null where none is. */
+  default MachineFrame equipment(String name) {
+    return null;
   }
 
   /** Un ajuste de pantalla que quedo elegido, para las maquinas que se abran despues. */
