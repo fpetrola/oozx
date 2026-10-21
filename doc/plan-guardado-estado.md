@@ -7,8 +7,8 @@ entorno. **Nada de lo que se guarda sabe que se guarda**: ni los aparatos, ni la
 las ventanas tienen algo para guardarse o restaurarse. Cómo va cada cosa a un archivo lo sabe quien
 conoce ese archivo.
 
-**Estado (21 de octubre de 2026):** hechos el paso 0 (en el código), lo de llevar bloques del 2 y la
-mudanza de los mapeos de aparatos al módulo de mapeos (2b). El contrato del paso 1 (`Keeps` y
+**Estado (21 de octubre de 2026):** hechos el paso 0 (en el código), lo de llevar bloques del 2, la
+mudanza de los mapeos de aparatos al módulo de mapeos (2b) y la sesión en archivos (3). El contrato del paso 1 (`Keeps` y
 `Kept`, que implementaba cada cosa guardada) se descartó y se sacó: un aparato no tiene que saber
 que lo guardan. Lo reemplaza el módulo de mapeos.
 Relevado sobre `traduccion` (oozx, `68d400341`) y `prueba-apuntar` (oozx-plugins, `0e3c6b2`).
@@ -179,12 +179,21 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    - 2b. **La mudanza.** **Hecho:** el rol `Mapping` en el motor y `tools/mappings` con el AY y
      ULAplus. La red sobre la máquina se mudó con ellos y sus 62 goldens quedaron con las mismas
      líneas (solo se ordenaron las de las partes sin descripción, que seguían el orden del classpath).
-3. **La sesión en archivos.** El rol del kit, implementado en `tools/mappings`. El escritorio escribe
-   un SZX por ventana de máquina y lista los archivos en `config.json`; al volver los abre como
-   cualquier archivo y le pide al módulo lo de alrededor. Lo primero que mapea el módulo: la ventana
-   (lugar, tamaño, pausa, mudo) y los ajustes. Migración de los snapshots empaquetados; se van
-   `packedState`, el mapa `snapshots`, `snapshotId` y `saveWindowState/restoreWindowState`. Pruebas:
-   ida y vuelta de una sesión sin escritorio; migración de un `config.json` viejo.
+3. **La sesión en archivos.** **Hecho:** el rol `Session` en el kit; el escritorio escribe un
+   `~/.oozx/session/<n>.szx` por ventana de máquina, de atrás hacia adelante, borra los que
+   sobran y los nombra en `openWindows`; al volver los abre como cualquier archivo y le pide al
+   módulo lo de alrededor. `SzxSession` (`tools/mappings`) guarda en `OOZX` el lugar y tamaño de
+   la ventana, la pausa, el archivo de donde salió la máquina, el procesador, el turbo y todos los
+   ajustes declarados (`Settings.devices()`: volumen, mudo, joystick, cada aparato). El modelo y
+   las ROMs no: elegirlos después de leer el archivo arranca la máquina de cero (van con el 2c).
+   Pruebas: ida y vuelta sin escritorio y libspectrum leyendo el archivo
+   (`AMachineComesBackWithItsWindowTest`). Una configuración vieja vuelve una vez por el camino de
+   antes y al salir queda en archivos. Pendiente:
+   - el escritorio no se probó corriendo: no hay Xvfb, y armarlo necesita una pantalla;
+   - `putMachinesAway` (al cambiar de plugins) y el historial siguen con los snapshots
+     empaquetados, y con ellos `saveWindowState/restoreWindowState`: si el plugin que se va es el
+     de mapeos, no puede guardar las máquinas;
+   - sin el plugin de mapeos las máquinas no vuelven, y nada lo pide todavía.
 4. **El aspecto y las herramientas.** `ScreenSettings`; los pokes aplicados. Se van
    `MachineTool.remember/restore` y los campos de herramientas de `WindowState`.
 5. **Los aparatos enchufados y sus ventanas.** Qué equipo está enchufado; cada ventana de equipo
