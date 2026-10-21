@@ -73,9 +73,12 @@ la investigación de septiembre registra de quejas y pedidos.
 ## Lo que queda fuera de la 1.0
 
 - Los juegos como programas Java: otra línea de trabajo, experimental, fuera del CI de la versión.
-- Spec256 (acierta entre 36 % y 84 % de los gráficos y usa casi todo el frame).
 - TTX2000S, Spectranet, SpeccyBoot, ZX-Uno y BaseConf.
 - µSpeech, µSource y DOCK salen como beta hasta probarlos con ROMs y cartuchos reales.
+- Spec256 sale como beta: de los 13 juegos con captura del título, once dan 90 % o más pixel por
+  pixel (ocho 97 % o más), Cybernoid 2 84 % por una animación y Underwurlde 36 % porque su
+  captura no es de esta copia; corre a ~3,8 veces tiempo real (5,24 ms por frame, 21 de
+  octubre). Los siete juegos que vienen solo en `.EZX` no se abren.
 
 ## Lo que solo tiene OOZX, y por eso tiene que andar sin fallas
 

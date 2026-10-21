@@ -113,8 +113,8 @@ None of the twenty-nine hangs or comes up black.
 |---|---|---|
 | Generated core, picture off | 0.10 | ~200 |
 | Object core, picture off | 0.35–0.38 | ~55 |
-| Nine in lockstep, picture off | 6.08 | 3.3 |
-| **Nine in lockstep, a real game painting itself** | **17–19** | **~1.1** |
+| Nine in lockstep, picture off | 4.31 | 4.6 |
+| **Nine in lockstep, a real game painting itself** (Cybernoid, 256 colours) | **5.24** | **~3.8** |
 
 Nine processors cost about nine processors, which is the honest price of the idea. It is still real time,
 and it is only paid while a Spec256 game is loaded: the core never names Spec256, so the core never pays
