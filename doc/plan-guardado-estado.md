@@ -172,9 +172,15 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    `keepTheSession()`). La prueba llega con el paso 3, cuando la sesión se pueda probar sin Swing.
 1. ~~El contrato `Keeps` y `Kept`.~~ Descartado y sacado.
 2. **El SZX lleva bloques ajenos.** **Hecho** (`ASessionIsKeptAsAnSzxTest`, una prueba contra
-   libspectrum). Faltan los identificadores de máquina del SZX 6 a 16 (+3e, Pentagon, TC2048,
-   TC2068, Scorpion, SE, TS2068, Pentagon 512 y 1024, NTSC, 128Ke) para que toda máquina se pueda
-   guardar.
+   libspectrum).
+   - 2c. **Cada máquina con número SZX se guarda como sí misma.** **Hecho:** `MachineTypes` tiene
+     los once tipos que nombra libspectrum (con sus bancos y su cuadro, nada más: los tiempos son de
+     cada máquina), cada modelo del build dice el suyo, el SZX los numera 6 a 16 y el Z80 los lee y
+     escribe como libspectrum. `EveryMachineComesBackAsItselfTest`: dieciséis modelos vuelven sobre
+     sí mismos con todos sus bancos y libspectrum lee el mismo (el Scorpion se saltea donde no está
+     su ROM). La cinta toma el reloj de la máquina, no del tipo. Falta: los clones que ningún
+     formato nombra (Inves, Czerweny, Chrome, Chloe, TK90X y TK95) se escriben como su base con
+     el modelo exacto en `OOZX`, y el juego de ROMs; los dos elegidos antes de recorrer la máquina.
    - 2b. **La mudanza.** **Hecho:** el rol `Mapping` en el motor y `tools/mappings` con el AY y
      ULAplus. La red sobre la máquina se mudó con ellos y sus 62 goldens quedaron con las mismas
      líneas (solo se ordenaron las de las partes sin descripción, que seguían el orden del classpath).

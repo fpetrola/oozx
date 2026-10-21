@@ -32,7 +32,23 @@ public enum MachineTypes {
     SPECTRUM128K(2),
     SPECTRUMPLUS2(3),
     SPECTRUMPLUS2A(4),
-    SPECTRUMPLUS3(5);
+    SPECTRUMPLUS3(5),
+    /*
+     * The rest of the machines a snapshot can name, as libspectrum numbers them: what a format needs
+     * of each is which RAM it has and how long its frame is. The rest of their timings are the
+     * machines' own.
+     */
+    SPECTRUMPLUS3E("ZX Spectrum +3e", "+3e", CodeModel.SPECTRUMPLUS3, 8, 70908),
+    PENTAGON128("Pentagon 128", "Pentagon", CodeModel.SPECTRUM128K, 8, 71680),
+    TC2048("Timex TC2048", "TC2048", CodeModel.SPECTRUM48K, 3, 69888),
+    TC2068("Timex TC2068", "TC2068", CodeModel.SPECTRUM48K, 3, 69888),
+    SCORPION("Scorpion ZS-256", "Scorpion", CodeModel.SPECTRUMPLUS3, 16, 69888),
+    SPECTRUMSE("ZX Spectrum SE", "SE", CodeModel.SPECTRUM128K, 9, 69888),
+    TS2068("Timex TS2068", "TS2068", CodeModel.SPECTRUM48K, 3, 58688),
+    PENTAGON512("Pentagon 512", "Pentagon 512", CodeModel.SPECTRUM128K, 32, 71680),
+    PENTAGON1024("Pentagon 1024", "Pentagon 1024", CodeModel.SPECTRUM128K, 64, 71680),
+    SPECTRUM48KNTSC("ZX Spectrum 48K (NTSC)", "48k NTSC", CodeModel.SPECTRUM48K, 3, 59136),
+    SPECTRUM128KE("ZX Spectrum 128Ke", "128Ke", CodeModel.SPECTRUM128K, 8, 70908);
 
     public enum CodeModel { SPECTRUM48K, SPECTRUM128K, SPECTRUMPLUS3 }
 
@@ -51,6 +67,7 @@ public enum MachineTypes {
     public int lengthINT;
     private boolean hasAY8912;
     private boolean hasDisk;
+    private int ramBanks = 8;
 
     MachineTypes(int model) {
         switch (model) {
@@ -157,6 +174,19 @@ public enum MachineTypes {
                 this.codeModel = CodeModel.SPECTRUMPLUS3;
                 break;
         }
+    }
+
+    MachineTypes(String longModelName, String shortModelName, CodeModel codeModel, int ramBanks, int tstatesFrame) {
+        this.longModelName = longModelName;
+        this.shortModelName = shortModelName;
+        this.codeModel = codeModel;
+        this.ramBanks = ramBanks;
+        this.tstatesFrame = tstatesFrame;
+    }
+
+    /** The banks of 16K of RAM a paged one has; one without paging has those of a 48K. */
+    public int ramBanks() {
+        return ramBanks;
     }
 
     public String getLongModelName() {
