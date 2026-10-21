@@ -1,8 +1,8 @@
 {
-  "game": "targetrenegade",
+  "game": "rainbowislands",
   "mode": "replay",
   "recording": null,
-  "speed": 4.5,
+  "speed": 1.5,
   "games": {
     "exolon": {
       "title": "Exolon",
