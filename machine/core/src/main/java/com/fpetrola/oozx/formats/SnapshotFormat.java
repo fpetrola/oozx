@@ -52,6 +52,15 @@ public interface SnapshotFormat {
   }
 
   /**
+   * The same, carrying beside the machine what the caller gives, each under its name, for
+   * {@link #carried} to hand back. A format with no room for it says so and writes the machine alone.
+   */
+  default byte[] write(Speccy machine, java.util.Map<String, byte[]> carrying, Consumer<String> notes) throws SnapshotException {
+    if (!carrying.isEmpty()) notes.accept(label() + " has no room for " + carrying.keySet());
+    return write(machine, notes);
+  }
+
+  /**
    * The RAM a file holds, bank after bank, understood without a machine: what a game is recognised
    * by. Nothing if the format cannot say, or the file is not one of it.
    */
@@ -65,9 +74,9 @@ public interface SnapshotFormat {
   }
 
   /**
-   * What the file carries that a game otherwise keeps in files beside it, each under the ending
-   * such a file would have - "gfx", "cfg" - so that whoever uses them needs to know nothing of
-   * the format.
+   * What the file carries beside the machine, each under the name it has there, so that whoever
+   * uses it needs to know nothing of the format: in an EZX, what a game otherwise keeps in files
+   * beside it ("gfx", "cfg"); in an SZX, the blocks it does not read itself.
    */
   default java.util.Map<String, byte[]> carried(byte[] file) {
     return java.util.Map.of();
