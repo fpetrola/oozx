@@ -26,5 +26,10 @@ import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 public interface Roms {
   byte[] of(Spectrum machine, int page, int length);
 
-  byte[] of(Peripheral device, int length);
+  /** A device made with more than one, like a board with a chip of its own, asks for each by its place in the list. */
+  byte[] of(Peripheral device, int page, int length);
+
+  default byte[] of(Peripheral device, int length) {
+    return of(device, 0, length);
+  }
 }

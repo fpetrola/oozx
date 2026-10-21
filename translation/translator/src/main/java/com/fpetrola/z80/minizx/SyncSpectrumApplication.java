@@ -27,41 +27,49 @@ public abstract class SyncSpectrumApplication extends SpectrumApplication {
   protected ZxObject[] objectMemory = new ZxObject[0x10000];
 
   public SyncSpectrumApplication() {
-    io = new MiniZXIO();
+    io = new DefaultMiniZXIO();
+  }
+
+  public SyncSpectrumApplication(MiniZXIO miniZXIO) {
+    io= miniZXIO;
   }
 
   public int mem(int address, int pc) {
     waitNanos(delay);
     syncChecker.checkSyncJava(address, 0, pc);
-    return getMem()[address] & 0xff;
+    return mem[address] & 0xff;
   }
 
   public void wMem(int address, int value, int pc) {
     waitNanos(delay);
     syncChecker.checkSyncJava(address, value, pc);
 //    System.out.println("pc: " + pc);
-    wMem(address, value);
+    mem[address] = value;
   }
 
   public void wMem16(int address, int value, int pc) {
     syncChecker.checkSyncJava(address, value, pc);
-    getMem()[address] = value & 0xFF;
+    mem[address] = value & 0xFF;
     syncChecker.checkSyncJava(address + 1, value, pc);
-    getMem()[address + 1] = value >> 8;
+    mem[address + 1] = value >> 8;
     if (address == 32985) {
       System.out.println();
     }
   }
 
+  public void pc(int address) {
+    syncChecker.checkSyncJava(-1, -1, address);
+  }
+
   public int mem16(int address, int pc) {
     syncChecker.checkSyncJava(address, 0, pc);
-    return mem(address + 1) * 256 + mem(address);
+    return mem[address + 1] * 256 + mem[address];
   }
 
   public void wMem(int address, int value) {
 //    long start = System.nanoTime();
 //    while (start + 4000 >= System.nanoTime()) ;
-    getMem()[address] = value & 0xff;
+    mem[address] = value & 0xff;
     objectMemory[address] = new ZxObject(value);
     replaceWithObject(address, value);
   }
@@ -69,13 +77,13 @@ public abstract class SyncSpectrumApplication extends SpectrumApplication {
   @Override
   public int in(int port, int pc) {
     syncChecker.checkSyncInJava(port, pc);
-    return ((MiniZXIO)io).in2((Integer) new Integer(port));
+    return ((DefaultMiniZXIO)io).in2(port);
   }
 
   @Override
   public int in(int port) {
     syncChecker.checkSyncInJava(port, -1);
-    return ((MiniZXIO)io).in2((Integer) new Integer(port));
+    return ((DefaultMiniZXIO)io).in2(port);
   }
 
   protected void replaceWithObject(int address, int value) {
@@ -88,8 +96,8 @@ public abstract class SyncSpectrumApplication extends SpectrumApplication {
   }
 
   public class DummySyncChecker implements SyncChecker {
-    public int getByteFromEmu(java.lang.Integer index) {
-      return getMem()[index];
+    public int getByteFromEmu(Integer index) {
+      return mem[index];
     }
   }
 

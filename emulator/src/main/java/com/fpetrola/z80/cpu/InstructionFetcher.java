@@ -26,6 +26,9 @@ public interface InstructionFetcher {
 
   void reset();
 
+  default void interruptedTo(int vector) {
+  }
+
   default void addFetchListener(FetchListener fetchListener) {
   }
 

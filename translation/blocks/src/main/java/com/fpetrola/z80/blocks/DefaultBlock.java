@@ -123,7 +123,7 @@ public class DefaultBlock implements Block {
 
   @Override
   public String toString() {
-    return getBlockType().toString() + ": " + rangeHandler.toString();
+    return /*getBlockType().toString() + ": " +*/ rangeHandler.toString();
   }
 
   @Override

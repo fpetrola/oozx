@@ -114,6 +114,7 @@ public class OOZ80 implements Z80Cpu {
     }
     pc.write(value);
     state.getMemptr().write(value);
+    instructionFetcher.interruptedTo(value);
   }
 
   /**

@@ -27,7 +27,7 @@ public class GenericAddressAction extends AddressAction {
   }
 
   public int getNext(int executedInstructionAddress, int currentPc) {
-    pending = false;
+    setPending(false);
     return currentPc;
   }
 

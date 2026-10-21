@@ -194,8 +194,8 @@ public final class RomFiles implements Roms {
     return read(keyOf(machine), page, length);
   }
 
-  public byte[] of(Peripheral device, int length) {
-    return read(keyOf(device), 0, length);
+  public byte[] of(Peripheral device, int page, int length) {
+    return read(keyOf(device), page, length);
   }
 
   /**

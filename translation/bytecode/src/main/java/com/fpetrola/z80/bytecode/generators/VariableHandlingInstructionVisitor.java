@@ -29,8 +29,6 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
 import org.cojen.maker.Variable;
 
-import java.util.Optional;
-import java.util.Set;
 import java.util.function.BiConsumer;
 
 import static com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.getRealVariable;
@@ -61,15 +59,6 @@ public class VariableHandlingInstructionVisitor implements InstructionVisitor<In
     OpcodeReferenceVisitor opcodeReferenceVisitor = new OpcodeReferenceVisitor(false, routineByteCodeGenerator);
     source.accept(opcodeReferenceVisitor);
     sourceVariable = opcodeReferenceVisitor.getResult();
-
-    int i = routineByteCodeGenerator.context.pc.read();
-    Set<java.lang.Integer> mutantAddress = (Set<java.lang.Integer>) routineByteCodeGenerator.context.symbolicExecutionAdapter.getMutantAddress();
-    Optional<java.lang.Integer> mutantCode = mutantAddress.stream()
-        .filter(m -> m >= i && m < routineByteCodeGenerator.currentInstruction.getLength() + i).findFirst();
-    if (mutantCode.isPresent()) {
-      routineByteCodeGenerator.mm.invoke("executeMutantCode", mutantCode.get());
-//      sourceVariable = routineByteCodeGenerator.getField("mem").aget(mutantCode.get());
-    }
   }
 
   public void visitingFlag(Register flag, DefaultTargetFlagInstruction targetSourceInstruction) {
@@ -81,8 +70,9 @@ public class VariableHandlingInstructionVisitor implements InstructionVisitor<In
 
   @Override
   public boolean visitingBitOperation(BitOperation tBitOperation) {
+    visitingTarget(tBitOperation.getTarget(), tBitOperation);
     variableAction.accept(sourceVariable, targetVariable);
-    return false;
+    return true;
   }
 
   private void createResult() {

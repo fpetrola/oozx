@@ -19,6 +19,16 @@
 package com.fpetrola.z80.memory;
 
 public interface Memory {
+  default void protect(int from, int to) {
+  }
+
+  default void unprotect(int from, int to) {
+  }
+
+  default boolean isProtected(int address) {
+    return false;
+  }
+
   default int read16Bits(int address) {
     int wordNumber1 = read(address, 0);
     int wordNumber = read((address + 1) & 0xFFFF, 0);

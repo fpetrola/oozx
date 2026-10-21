@@ -18,8 +18,11 @@
 
 package com.fpetrola.z80.bytecode;
 
+import com.fpetrola.z80.routines.CodeVersions;
 import com.fpetrola.z80.base.CPUExecutionContext;
 import com.fpetrola.z80.cpu.*;
+import com.fpetrola.z80.minizx.MiniZX;
+import com.fpetrola.z80.minizx.emulation.GameData;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.routines.Routine;
@@ -27,6 +30,10 @@ import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.transformations.*;
 
 import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import com.fpetrola.z80.bytecode.examples.RemoteZ80Translator;
+import com.fpetrola.z80.instructions.impl.Call;
 
 import static java.util.Comparator.comparingInt;
 
@@ -34,25 +41,37 @@ import static java.util.Comparator.comparingInt;
 public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements BytecodeGeneration {
   public RoutineManager routineManager;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
+  private final InstructionExecutor instructionExecutor;
+  private GameData gameData;
+  private int[] programImage;
+
+  public void setProgramImage(int[] programImage) {
+    this.programImage = programImage;
+  }
+
+  public StackAnalyzer getStackAnalyzer() {
+    return stackAnalyzer;
+  }
+
+  private final StackAnalyzer stackAnalyzer;
   private RegistersSetter registersSetter;
-  private RandomAccessInstructionFetcher randomAccessInstructionFetcher;
 
   public RealCodeBytecodeCreationBase(RoutineFinderInstructionSpy routineFinderInstructionSpy1, RoutineManager routineManager1,
                                       InstructionExecutor instructionExecutor1,
                                       SymbolicExecutionAdapter executionAdapter, InstructionTransformer instructionCloner1,
-                                      InstructionExecutor transformerInstructionExecutor1, OOZ80 z80, OpcodeConditions opcodeConditions, RegistersSetter registersSetter1) {
+                                      InstructionExecutor instructionExecutor, OOZ80 z80, OpcodeConditions opcodeConditions,
+                                      RegistersSetter registersSetter1, StackAnalyzer stackAnalyzer) {
     super(routineFinderInstructionSpy1, z80, opcodeConditions);
     routineManager = routineManager1;
 
     symbolicExecutionAdapter = executionAdapter;
-    RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> transformerInstructionExecutor1.getInstructionAt(address);
-    routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
+    this.instructionExecutor = instructionExecutor;
+    this.stackAnalyzer = stackAnalyzer;
     registersSetter = registersSetter1;
   }
 
   public void reset() {
     super.reset();
-    routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
   }
 
   public List<Routine> getRoutines() {
@@ -66,7 +85,113 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
   }
 
   public void stepUntilComplete(int startAddress) {
-    symbolicExecutionAdapter.stepUntilComplete(this, this.getState(), startAddress, 16384 + 4096);
+    symbolicExecutionAdapter.stepUntilComplete(this, this.getState(), startAddress, RemoteZ80Translator.SCREEN_END, 0x10000);
+  }
+
+  public void exploreRecording(RemoteZ80Translator.Footprint footprint, int start, int... entries) {
+    StackAnalyzer stackAnalyzer = getStackAnalyzer();
+    footprint.install(getState().getMemory(), getState().getRegisterSP().read());
+    stackAnalyzer.learnFrom(footprint.learned());
+    routineManager.pushedReturnSites.addAll(stackAnalyzer.layoutCallSites);
+    stackAnalyzer.codeVersions.decodeWith(RemoteZ80Translator.decoder());
+    stackAnalyzer.reset(getState());
+    routineManager.setSpans(footprint.executed());
+    footprint.bankedCode().values().forEach(banked -> banked.instructions().keySet().stream().filter(address -> !footprint.codeBytes().containsKey(address)).forEach(routineManager.bankedOnly::add));
+    getStackAnalyzer().codeVersions.mutant().addAll(footprint.modifiedCode());
+    routineManager.externalEntries.addAll(footprint.externalEntries());
+    routineManager.externalEntries.add(start);
+    stepUntilComplete(start);
+    Stream.of(IntStream.of(entries).boxed(), footprint.externalEntries().stream(), stackAnalyzer.dynamicInvocation.values().stream(), stackAnalyzer.calledThrough.values().stream(), stackAnalyzer.codeVersions.successors().stream())
+        .flatMap(addresses -> addresses).forEach(this::stepUntilComplete);
+    footprint.codeBytes().keySet().stream().sorted().filter(site -> site >= 0x4000 && routineManager.getInstructionAt(site) == null).forEach(site -> {
+      routineManager.externalEntries.add(site);
+      stepUntilComplete(site);
+    });
+    translateBankedCode(footprint);
+    translateRomRoutines(footprint.romEntries().stream().filter(entry -> stackAnalyzer.trampolineRegister(entry) == null).mapToInt(Integer::intValue).toArray());
+  }
+
+  public void translateRomRoutines(int... entries) {
+    for (int entry : entries)
+      symbolicExecutionAdapter.stepUntilComplete(this, this.getState(), entry, 0, 0x4000);
+  }
+
+  public void translateCodeVariants(int start, int end, int relocationBase, CodeVersions versions) {
+    int variableStart = versions.blockRegions().stream().filter(region -> region[0] >= start && region[1] <= end).findFirst().orElseThrow()[0];
+    List<int[]> variants = versions.blockContents(variableStart);
+    OOZ80 decoder = com.fpetrola.z80.minizx.emulation.EmulatedMiniZX.createOOZ80(new com.fpetrola.z80.minizx.DefaultMiniZXIO());
+    routineManager.forgetCode(relocationBase, relocationBase + variants.size() * (end - start + 1));
+    getStackAnalyzer().codeVersions.mutant().removeIf(address -> address >= variableStart && address < variableStart + variants.get(0).length);
+    symbolicExecutionAdapter.routineExecutorHandler.forgetExecutions(relocationBase, relocationBase + variants.size() * (end - start + 1));
+    int[] decoderMemory = (int[]) decoder.getState().getMemory().getData();
+    int size = end - start;
+    List<RoutineManager.CodeVariant> copies = new java.util.ArrayList<>();
+    for (int k = 0; k < variants.size(); k++) {
+      int[] variable = variants.get(k);
+      int[] code = java.util.Arrays.copyOfRange(programImage, start, end);
+      System.arraycopy(variable, 0, code, variableStart - start, variable.length);
+      int at = relocationBase + k * (size + 1);
+      System.arraycopy(code, 0, decoderMemory, start, size);
+      for (int address = start; address < end; ) {
+        decoder.getState().getPc().write(address);
+        int length = decoder.getInstructionFetcher().fetchNextInstruction().getLength();
+        relocateJump(code, start, end, at, address, length);
+        address += length;
+      }
+      for (int i = 0; i < size; i++)
+        getState().getMemory().write(at + i, code[i]);
+      copies.add(new RoutineManager.CodeVariant(start, end, variableStart, variable, at, code, -1));
+    }
+    routineManager.codeVariants.addAll(copies);
+    getState().getMemory().protect(relocationBase, relocationBase + variants.size() * (size + 1));
+    java.util.Set<Integer> explored = new java.util.HashSet<>();
+    for (java.util.Set<Integer> entries; !explored.containsAll(entries = routineManager.entriesInto(start, end)); )
+      entries.stream().filter(explored::add).toList().forEach(entry -> copies.forEach(v -> stepUntilComplete(v.relocated(entry))));
+    explored.forEach(entry -> copies.forEach(v -> routineManager.externalEntries.add(v.relocated(entry))));
+  }
+
+  private static void relocateJump(int[] code, int start, int end, int at, int address, int length) {
+    int opcode = code[address - start], target = length == 3 ? code[address - start + 1] | code[address - start + 2] << 8 : -1;
+    if ((opcode == 0xc3 || opcode == 0xcd || (opcode & 0xc7) == 0xc4 || (opcode & 0xc7) == 0xc2) && target >= start && target < end) {
+      code[address - start + 1] = target - start + at & 0xff;
+      code[address - start + 2] = target - start + at >> 8;
+    }
+  }
+
+  /** Code that ran with another bank paged at C000 is translated from a copy below C000, first in screen memory, which never runs as code, entered when that bank is paged. */
+  public void translateBankedCode(RemoteZ80Translator.Footprint footprint) {
+    footprint.bankedCode().forEach((bank, banked) -> {
+      java.util.Map<Integer, int[]> instructions = banked.instructions();
+      int start = java.util.Collections.min(instructions.keySet()), end = instructions.entrySet().stream().mapToInt(e -> e.getKey() + e.getValue().length).max().getAsInt();
+      int at = freeAreaFor(end - start);
+      int[] code = java.util.Arrays.copyOfRange(banked.contents(), start - com.fpetrola.z80.memory.MemoryBanks.WINDOW, end - com.fpetrola.z80.memory.MemoryBanks.WINDOW);
+      instructions.forEach((address, bytes) -> relocateJump(code, start, end, at, address, bytes.length));
+      for (int i = 0; i < code.length; i++)
+        getState().getMemory().write(at + i, code[i]);
+      getState().getMemory().protect(at, at + code.length);
+      RoutineManager.CodeVariant variant = new RoutineManager.CodeVariant(start, end, start, code, at, code, bank);
+      routineManager.codeVariants.add(variant);
+      banked.modified().forEach(address -> getStackAnalyzer().codeVersions.mutant().add(variant.relocated(address)));
+      StackAnalyzer stackAnalyzer = getStackAnalyzer();
+      java.util.Set<Integer> entries = new java.util.TreeSet<>(routineManager.entriesInto(start, end));
+      stackAnalyzer.dynamicInvocation.entries().stream().filter(jump -> instructions.containsKey(jump.getKey())).toList().forEach(jump -> stackAnalyzer.dynamicInvocation.put(variant.relocated(jump.getKey()), jump.getValue()));
+      entries.addAll(stackAnalyzer.dynamicInvocation.values());
+      entries.removeIf(entry -> !instructions.containsKey(entry));
+      entries.forEach(entry -> routineManager.externalEntries.add(variant.relocated(entry)));
+      java.util.stream.Stream.concat(entries.stream(), instructions.keySet().stream().sorted())
+          .map(variant::relocated).filter(entry -> routineManager.getInstructionAt(entry) == null).forEach(this::stepUntilComplete);
+    });
+  }
+
+  private int freeAreaFor(int size) {
+    java.util.BitSet code = routineManager.codeAddresses();
+    int free = com.fpetrola.z80.minizx.SpectrumApplication.ROM_END, address = free;
+    for (; address < com.fpetrola.z80.memory.MemoryBanks.WINDOW && address - free < size; address++)
+      if (code.get(address) || getState().getMemory().isProtected(address))
+        free = address + 1;
+    if (address - free < size)
+      throw new IllegalStateException("no free area of " + size + " bytes below C000 for another bank's code");
+    return free;
   }
 
   @Override
@@ -80,15 +205,30 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
 
   @Override
   public String generateAndDecompile(String base64Memory, List<Routine> routines, String targetFolder, String className, SymbolicExecutionAdapter symbolicExecutionAdapter) {
-    return getDecompiledSource(className, targetFolder, getState(), !base64Memory.isBlank(), this.symbolicExecutionAdapter, base64Memory);
+    return getDecompiledSource(className, targetFolder, getState(), !base64Memory.isBlank(), this.symbolicExecutionAdapter, withCodeVariants(base64Memory), gameData);
+  }
+
+  private String withCodeVariants(String base64Memory) {
+    if (base64Memory.isBlank() || routineManager.codeVariants.isEmpty())
+      return base64Memory;
+    byte[] image = Base64Utils.gzipDecompressFromBase64(base64Memory);
+    routineManager.codeVariants.stream().filter(v -> v.bank() == -1).forEach(v -> {
+      for (int i = 0; i < v.code().length; i++)
+        image[v.relocatedAt() + i] = (byte) v.code()[i];
+    });
+    return Base64Utils.gzipArrayCompressToBase64(image);
   }
 
 
-  public void translateToJava(String className, String memoryInBase64, String startMethod) {
-    BytecodeGeneration.super.translateToJava(className, startMethod, getState(), !memoryInBase64.isBlank(), symbolicExecutionAdapter, memoryInBase64);
+  public MiniZX translatedProgram(String className, String memoryInBase64) {
+    return translatedProgram(className, getState(), symbolicExecutionAdapter, withCodeVariants(memoryInBase64), gameData);
   }
 
   public RegistersSetter getRegistersSetter() {
     return registersSetter;
+  }
+
+  public void setGameData(GameData gameData) {
+    this.gameData = gameData;
   }
 }

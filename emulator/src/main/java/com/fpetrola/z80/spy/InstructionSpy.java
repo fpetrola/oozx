@@ -19,9 +19,9 @@
 package com.fpetrola.z80.spy;
 
 import com.fpetrola.z80.cpu.InstructionExecutor;
+import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
 import com.fpetrola.z80.registers.Composed16BitRegister;

@@ -18,7 +18,9 @@
 
 package com.fpetrola.z80.blocks;
 
-public interface BlockType {
+import com.fpetrola.z80.blocks.spy.Nameable;
+
+public interface BlockType extends Nameable {
   Block getBlock();
 
   void accept(BlockRoleVisitor blockRoleVisitor);

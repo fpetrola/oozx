@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.bytecode.generators.helpers;
 
+import com.fpetrola.z80.minizx.emulation.GameData;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
@@ -32,16 +33,51 @@ public class BytecodeGenerationContext {
   public boolean optimize16Convertion = false;
   public ClassMaker cm;
   public Map<String, MethodMaker> methods;
+  /** Addresses a method's start dispatches to: each gets an entry method, for whoever reaches it by address at run time. */
+  public final java.util.Set<Integer> dispatchedEntries = new java.util.TreeSet<>();
   public Register pc;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
-  public boolean syncEnabled;
+  public GameData gameData;
+  public final boolean direct;
+  private java.util.Set<com.fpetrola.z80.routines.Routine> routinesInJumpCycles;
 
-  public BytecodeGenerationContext(RoutineManager routineManager, ClassMaker classMaker, Register pc1, SymbolicExecutionAdapter symbolicExecutionAdapter) {
+  public java.util.Set<com.fpetrola.z80.routines.Routine> routinesInJumpCycles() {
+    if (routinesInJumpCycles == null)
+      routinesInJumpCycles = routineManager.routinesInJumpCycles(pc -> symbolicExecutionAdapter.getStackAnalyzer().getInvocationsSet(pc));
+    return routinesInJumpCycles;
+  }
+
+  private org.apache.commons.collections4.MultiValuedMap<Integer, Integer> callSitesByTarget;
+
+  public java.util.Collection<Integer> callSitesOf(int target) {
+    if (callSitesByTarget == null)
+      callSitesByTarget = routineManager.callSitesByTarget();
+    return callSitesByTarget.get(target);
+  }
+
+  private java.util.Set<com.fpetrola.z80.routines.Routine> routinesThatMayUnwind;
+
+  public boolean mayUnwind(com.fpetrola.z80.routines.Routine routine) {
+    if (routinesThatMayUnwind == null)
+      routinesThatMayUnwind = routineManager.routinesThatMayUnwind(symbolicExecutionAdapter.getStackAnalyzer(), ancestorJumps(), pc -> symbolicExecutionAdapter.getStackAnalyzer().getInvocationsSet(pc));
+    return routine == null || routinesThatMayUnwind.contains(routine);
+  }
+
+  private RoutineManager.AncestorJumps ancestorJumps;
+
+  public RoutineManager.AncestorJumps ancestorJumps() {
+    if (ancestorJumps == null)
+      ancestorJumps = routineManager.ancestorJumps(pc -> symbolicExecutionAdapter.getStackAnalyzer().getInvocationsSet(pc));
+    return ancestorJumps;
+  }
+
+  public BytecodeGenerationContext(RoutineManager routineManager, ClassMaker classMaker, Register pc1, SymbolicExecutionAdapter symbolicExecutionAdapter, GameData gameData, boolean direct) {
     this.routineManager = routineManager;
     this.cm = classMaker;
     this.pc = pc1;
     this.symbolicExecutionAdapter = symbolicExecutionAdapter;
+    this.gameData = gameData;
     this.methods = new HashMap<>();
-    this.syncEnabled = true;
+    this.direct = direct;
   }
 }

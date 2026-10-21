@@ -32,7 +32,11 @@ public class WriteMemoryReference extends AbstractSpyReference implements Undoab
   }
 
   public WriteMemoryReference(int address, int value, Memory memory, boolean indirectReference) {
+    if (address == 0xF9EC)
+      System.out.println("eh!!!");
     this.address = address;
+    if (address == 0xef59)
+      System.out.println("asasgsag");
     this.value = value;
     this.memory = memory;
     this.indirectReference = indirectReference;

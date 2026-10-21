@@ -23,6 +23,7 @@ import java.util.function.Supplier;
 @SuppressWarnings("unchecked")
 public class MockedMemory extends AbstractMemory {
   protected int[] data =  new int[0x10000];
+  public com.fpetrola.z80.memory.MemoryBanks banks;
 
   public MockedMemory(boolean canDisable1) {
     super();

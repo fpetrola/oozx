@@ -22,7 +22,6 @@ import com.fpetrola.z80.blocks.*;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.routines.RoutineFinder;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.spy.ExecutionStep;
 import com.fpetrola.z80.spy.WrapperInstructionSpy;
@@ -35,7 +34,6 @@ import java.util.List;
 public class RoutineFinderInstructionSpy extends WrapperInstructionSpy {
   private List<WriteMemoryReference> writeMemoryReferences = new ArrayList<>();
   private BlocksManager blocksManager;
-  private RoutineFinder routineFinder;
   private final RoutineManager routineManager;
   private final List<Instruction> executedInstructions = new ArrayList<>();
   private Instruction lastInstruction;
@@ -43,11 +41,10 @@ public class RoutineFinderInstructionSpy extends WrapperInstructionSpy {
   private int lastPC;
 
   @Inject
-  public RoutineFinderInstructionSpy(RoutineManager routineManager, BlocksManager blocksManager1, RoutineFinder routineFinder1) {
+  public RoutineFinderInstructionSpy(RoutineManager routineManager, BlocksManager blocksManager1) {
     this.routineManager = routineManager;
     capturing = false;
     this.blocksManager = blocksManager1;
-    this.routineFinder= routineFinder1;
   }
 
   @Override
@@ -60,7 +57,6 @@ public class RoutineFinderInstructionSpy extends WrapperInstructionSpy {
     lastPC = 0;
     executedInstructions.clear();
     writeMemoryReferences.clear();
-    routineFinder.reset();
   }
 
   @Override
@@ -77,7 +73,6 @@ public class RoutineFinderInstructionSpy extends WrapperInstructionSpy {
     Register pc = state.getPc();
     int pcValue =  pc.read();
     int pcIntValue = pcValue;
-    routineFinder.checkBeforeExecution(instruction, pcIntValue, state);
   }
 
   @Override
@@ -87,7 +82,6 @@ public class RoutineFinderInstructionSpy extends WrapperInstructionSpy {
     int pcIntValue = pcValue;
     int instructionLength = instruction.getLength();
     if (instructionLength > 0) {
-      routineFinder.checkExecution(instruction, pcIntValue, state);
       lastInstruction = instruction;
       super.afterExecution(instruction);
       lastPC = pcValue;

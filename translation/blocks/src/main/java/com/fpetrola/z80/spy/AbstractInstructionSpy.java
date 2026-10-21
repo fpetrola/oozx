@@ -41,7 +41,6 @@ public class AbstractInstructionSpy extends WrapperInstructionSpy implements Com
   private ExecutionPoint lastExecutionPoint;
   private final LinkedList<ExecutionPoint> executionPoints = new LinkedList<>();
   protected int enabledExecutionNumber;
-  private final Set<java.lang.Integer> mutantCode = new HashSet<>();
 
   public static  Instruction processToBase(Instruction instruction) {
     while (instruction instanceof DefaultFetchNextOpcodeInstruction fetchNextOpcodeInstruction) {
@@ -164,16 +163,6 @@ public class AbstractInstructionSpy extends WrapperInstructionSpy implements Com
 
     if (capturing) {
       executionStep.setIndex(executionSteps.size());
-
-      if (!executionStep.writeMemoryReferences.isEmpty()) {
-        executionStep.writeMemoryReferences.stream().forEach(wmr -> {
-          int i = wmr.address;
-          if (fetchedMemory[i] != null && i >= 16384 && i != 65535) {
-            mutantCode.add(i);
-            System.out.println("mutant: " + mutantCode);
-          }
-        });
-      }
       addMemoryChanges(executionStep);
       executionSteps.add(executionStep);
     }

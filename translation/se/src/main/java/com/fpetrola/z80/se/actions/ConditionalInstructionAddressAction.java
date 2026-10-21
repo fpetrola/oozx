@@ -46,7 +46,7 @@ public class ConditionalInstructionAddressAction extends AddressAction {
 
   @Override
   public int getNext(int executedInstructionAddress, int currentPc) {
-    pending = branch;
+    setPending(branch);
     return super.getNext(executedInstructionAddress, currentPc);
   }
 }

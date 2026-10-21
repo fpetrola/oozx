@@ -115,6 +115,29 @@ public class MemoryBus {
     writing(address).write(address, value);
   }
 
+  /**
+   * A read through a plugged range, of what it covers up. For a device that has to see the
+   * accesses to an address it does not answer: plugged over it, it hands them on to what is below.
+   */
+  public int peekBeneath(MappedMemory over, int address) {
+    return beneath(over, address, false).read(address);
+  }
+
+  /** A write through a plugged range, to what it covers up. */
+  public void pokeBeneath(MappedMemory over, int address, byte value) {
+    beneath(over, address, true).write(address, value);
+  }
+
+  private MappedMemory beneath(MappedMemory over, int address, boolean writing) {
+    for (int i = plugged.indexOf(over) - 1; i >= 0; i--) {
+      MappedMemory range = plugged.get(i);
+      if ((writing ? range.writable() : range.readable()) && range.covers(address)) {
+        return range;
+      }
+    }
+    return slots[address >>> 14];
+  }
+
   /** Hook for {@link DecodedMemoryBus} to invalidate its cache after a plug, unplug, or slot change. */
   protected void changed(int address, int length) {
   }

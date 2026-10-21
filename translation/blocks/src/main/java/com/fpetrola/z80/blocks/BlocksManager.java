@@ -18,12 +18,13 @@
 
 package com.fpetrola.z80.blocks;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BlocksManager {
+public class BlocksManager implements Serializable {
   List<Block> blocks = new ArrayList<>();
-  BlockChangesListener blockChangesListener;
+  ParentChildChangesListener<Block> blockChangesListener;
   private long executionNumber;
   private Block[] blocksAddresses = new Block[0x10000];
   private final boolean romEnabled;
@@ -34,7 +35,7 @@ public class BlocksManager {
 
   private int cycle;
 
-  public BlocksManager(BlockChangesListener blockChangesListener, boolean romEnabled) {
+  public BlocksManager(ParentChildChangesListener<Block> blockChangesListener, boolean romEnabled) {
     this.blockChangesListener = new BlockChangesListenerDelegator(blockChangesListener) {
       public void blockChanged(Block block) {
         updateBlockAddresses(block);
@@ -74,7 +75,7 @@ public class BlocksManager {
     blocks.remove(block);
   }
 
-  public BlockChangesListener getBlockChangesListener() {
+  public ParentChildChangesListener<Block> getBlockChangesListener() {
     return blockChangesListener;
   }
 
@@ -111,5 +112,14 @@ public class BlocksManager {
     addBlock(block);
     if (romEnabled)
       block.split(16383, UnknownBlockType.class);
+  }
+
+  public Block findBlockByName(String blockName) {
+    for (Block b : new ArrayList<>(blocks)) {
+      if (b!= null && b.getName().equals(blockName)) {
+        return b;
+      }
+    }
+    return null;
   }
 }

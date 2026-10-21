@@ -36,12 +36,16 @@ public class Decompiler {
   private HashMap<String, Object> customProperties;
   private Fernflower fernflower;
   private SimpleBytecodeProvider bytecodeProvider;
+  /** What Fernflower reports from WARN up: why a method or the whole class could not be decompiled. */
+  private final ByteArrayOutputStream log = new ByteArrayOutputStream();
 
   public Decompiler() {
     saver = new SimpleResultSaverFor();
     customProperties = createCustomProperties();
     bytecodeProvider = new SimpleBytecodeProvider();
-    fernflower = new Fernflower(bytecodeProvider, saver, customProperties, new PrintStreamLogger(new PrintStream(new ByteArrayOutputStream())));
+    PrintStreamLogger logger = new PrintStreamLogger(new PrintStream(log));
+    logger.setSeverity(org.jetbrains.java.decompiler.main.extern.IFernflowerLogger.Severity.WARN);
+    fernflower = new Fernflower(bytecodeProvider, saver, customProperties, logger);
   }
 
   private static byte[] optimize(String className, String targetFolder, File source, byte[] bytecode) throws IOException {
@@ -103,7 +107,14 @@ public class Decompiler {
 
   public String decompile() {
     fernflower.decompileContext();
+    if (saver.getContent() == null)
+      throw new IllegalStateException("Fernflower produced no source:\n" + warnings());
     return saver.getContent();
+  }
+
+  public String warnings() {
+    String text = log.toString();
+    return text.length() > 20000 ? text.substring(0, 20000) + "\n..." : text;
   }
 
   public void addClass(byte[] bytecode, File source) {

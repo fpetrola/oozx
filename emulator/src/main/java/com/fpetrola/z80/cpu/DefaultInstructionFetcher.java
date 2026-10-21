@@ -103,6 +103,11 @@ public class DefaultInstructionFetcher implements InstructionFetcher {
     this.fetchListener = fetchListener;
   }
 
+  @Override
+  public void interruptedTo(int vector) {
+    fetchListener.interruptedTo(vector);
+  }
+
   public void setClone(boolean clone) {
     multiOpcodeFetcher.setClone(clone);
   }

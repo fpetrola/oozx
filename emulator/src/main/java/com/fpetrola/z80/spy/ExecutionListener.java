@@ -21,6 +21,9 @@ package com.fpetrola.z80.spy;
 import com.fpetrola.z80.instructions.types.Instruction;
 
 public interface ExecutionListener {
-  void beforeExecution(Instruction instruction);
-  void afterExecution(Instruction instruction);
+  default void beforeExecution(Instruction instruction) {
+  }
+
+  default void afterExecution(Instruction instruction) {
+  }
 }

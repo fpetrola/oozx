@@ -38,7 +38,6 @@ import com.fpetrola.z80.se.DataflowService;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.se.VirtualRegisterDataflowService;
 import com.fpetrola.z80.spy.InstructionSpy;
-import com.fpetrola.z80.spy.SpyRegisterBankFactory;
 import com.fpetrola.z80.transformations.*;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
@@ -63,18 +62,19 @@ public class BaseModule extends AbstractModule {
   @Provides
   @Inject
   @Singleton
-  protected RoutineFinder getRoutineFinder(RoutineManager routineManager) {
-    return new RoutineFinder(routineManager);
+  protected RoutineFinder getRoutineFinder(RoutineManager routineManager, StackAnalyzer stackAnalyzer, InstructionExecutor instructionExecutor, State state) {
+    RoutineFinder routineFinder = new RoutineFinder(routineManager, stackAnalyzer, state);
+    routineFinder.addExecutionListener(instructionExecutor);
+    return routineFinder;
   }
 
   @Provides
   @Inject
-  private Memory getMemory(RoutineFinderInstructionSpy spy) {
-    return spy.wrapMemory(new MockedMemory(true));
+  private Memory getMemory() {
+    return new MockedMemory(true);
   }
 
   protected void configure() {
-//    bind(new TypeLiteral<IDriverConfigurator<T>>(){}).to(new TypeLiteral<DriverConfigurator<T>>() {});
     bind(IDriverConfigurator.class).to(DriverConfigurator.class);
     bind(InstructionSpy.class).to(RoutineFinderInstructionSpy.class);
 //    bind(InstructionExecutor.class).to(SpyInstructionExecutor.class);
@@ -83,29 +83,41 @@ public class BaseModule extends AbstractModule {
   @Provides
   @Inject
   @Singleton
-  private State getState(RoutineFinderInstructionSpy spy, Memory aMemory) {
-    return new State(new MockedIO(), new SpyRegisterBankFactory(spy).createBank(), aMemory);
+  private State getState(Memory aMemory) {
+    return new State(new MockedIO(), aMemory);
   }
 
   @Provides
   @Inject
   @Singleton
-  private RoutineFinderInstructionSpy getSpy(RoutineManager routineManager, BlocksManager blocksManager, RoutineFinder routineFinder1) {
-    return new RoutineFinderInstructionSpy(routineManager, blocksManager, routineFinder1);
+  private StackAnalyzer getStackAnalyzer(State state, InstructionExecutor instructionExecutor) {
+    StackAnalyzer stackAnalyzer = new StackAnalyzer(state);
+    stackAnalyzer.addExecutionListener(instructionExecutor);
+    return stackAnalyzer;
   }
 
   @Provides
   @Inject
   @Singleton
-  private InstructionExecutor getInstructionExecutor(RoutineFinderInstructionSpy routineFinderInstructionSpy1, State state) {
-    return new SpyInstructionExecutor(routineFinderInstructionSpy1, state);
+  private RoutineFinderInstructionSpy getSpy(RoutineManager routineManager, BlocksManager blocksManager, InstructionExecutor instructionExecutor, State state) {
+    RoutineFinderInstructionSpy routineFinderInstructionSpy1 = new RoutineFinderInstructionSpy(routineManager, blocksManager);
+    routineFinderInstructionSpy1.addExecutionListeners(instructionExecutor);
+    routineFinderInstructionSpy1.wrapMemory(state.getMemory());
+    return routineFinderInstructionSpy1;
   }
 
   @Provides
   @Inject
   @Singleton
-  private SymbolicExecutionAdapter getExecutionAdapter(State state1, RoutineManager routineManager, RoutineFinderInstructionSpy spy, DataflowService dataflowService1) {
-    return new SymbolicExecutionAdapter(state1, routineManager, spy, dataflowService1);
+  private InstructionExecutor getInstructionExecutor(State state) {
+    return new DefaultInstructionExecutor(state, true);
+  }
+
+  @Provides
+  @Inject
+  @Singleton
+  private SymbolicExecutionAdapter getExecutionAdapter(State state1, RoutineManager routineManager, RoutineFinderInstructionSpy spy, DataflowService dataflowService1, StackAnalyzer stackAnalyzer, RoutineFinder routineFinder, InstructionExecutor instructionExecutor) {
+    return new SymbolicExecutionAdapter(state1, routineManager, spy, dataflowService1, stackAnalyzer, routineFinder, instructionExecutor);
   }
 
   @Provides
@@ -131,7 +143,7 @@ public class BaseModule extends AbstractModule {
   @Provides
   @Inject
   protected OpcodeConditions getOpcodeConditions(State state1) {
-    return new OpcodeConditions(state1.getFlag(), state1.getRegister(B));
+    return OpcodeConditions.createOpcodeConditions(state1.getFlag(), state1.getRegister(B));
   }
 
   @Provides
@@ -151,8 +163,6 @@ public class BaseModule extends AbstractModule {
   @Inject
   public CPUExecutionContext getSecondContext(State state1, RoutineManager routineManager, InstructionExecutor instructionExecutor1, InstructionTransformer instructionTransformer, MutableOpcodeConditions opcodeConditions, InstructionSpy spy, SymbolicExecutionAdapter symbolicExecutionAdapter1, FetchNextOpcodeInstructionFactory fetchInstructionFactory, InstructionExecutor instructionExecutor, DefaultInstructionFactory instructionFactory) {
 //    TransformerInstructionExecutor transformerInstructionExecutor1 = new TransformerInstructionExecutor(state1.getPc(), instructionExecutor1, false, instructionTransformer);
-    RandomAccessInstructionFetcher randomAccessInstructionFetcher = (address) -> instructionExecutor1.getInstructionAt(address);
-    routineManager.setRandomAccessInstructionFetcher(randomAccessInstructionFetcher);
 //    InstructionFetcher instructionFetcher1 = new TransformerInstructionFetcher(state1, transformerInstructionExecutor1);
     InstructionFetcher instructionFetcher1 = new InstructionFetcherForTest(state1, instructionExecutor);
     OOZ80 z80 = new OOZ80(state1, instructionFetcher1, instructionExecutor);
@@ -163,7 +173,7 @@ public class BaseModule extends AbstractModule {
   @Provides
   @Inject
   @Singleton
-  public FetchNextOpcodeInstructionFactory getMutableOpcodeConditions(State state1, InstructionSpy spy) {
+  public FetchNextOpcodeInstructionFactory getMutableOpcodeConditions(State state1) {
     return new FetchNextOpcodeInstructionFactory(state1);
   }
 

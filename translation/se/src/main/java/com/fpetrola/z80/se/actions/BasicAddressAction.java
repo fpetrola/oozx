@@ -30,7 +30,7 @@ public class BasicAddressAction extends AddressAction {
   }
 
   public int getNext(int executedInstructionAddress, int currentPc) {
-    setPending(false);
+    this.pending = false;
     return super.getNext(executedInstructionAddress, currentPc);
   }
 }

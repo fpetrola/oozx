@@ -19,10 +19,25 @@
 package com.fpetrola.z80.minizx;
 
 public class StackException extends RuntimeException {
+  public void setNextPC(int nextPC) {
+    this.nextPC = nextPC;
+  }
+
   private int nextPC;
+  private String poppedInto = "";
 
   public StackException(int nextPC) {
     this.nextPC = nextPC;
+  }
+
+  public StackException(int nextPC, String poppedInto) {
+    this.nextPC = nextPC;
+    this.poppedInto = poppedInto;
+  }
+
+  /** The register a virtual pop loads, for when no translated caller owns the return address it takes. */
+  public String getPoppedInto() {
+    return poppedInto;
   }
 
   public int getNextPC() {
