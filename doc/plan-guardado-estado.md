@@ -32,15 +32,14 @@ Todo vive en `~/.oozx/config.json`, en la sección `desktop` (`OOZxConfiguration
 
 Lo que sabe que se guarda, y deja de saberlo:
 
-- `MachineTool.remember/restore`: los pokes (`PokesTool`) y el mudo (`SoundTool`) escriben en el
-  `WindowState`.
+- ~~`MachineTool.remember/restore`~~ y ~~`EmulatorInternalFrame.saveWindowState/restoreWindowState`~~:
+  se fueron con el paso 3. Los campos de herramientas de `WindowState` (`appliedPokes`, `muted`,
+  `turboMode`, `paused`, `snapshotName`, `zOrder`) y `PokModState` quedan sin uso hasta que se
+  publique un `tool-pokes` que ya no los nombre (`plugin-binary-api`).
 - `KeepsItsPlace`: el catálogo y el historial (`GamesFrame`, `HistoryFrame`) escriben su
   `WindowState`.
-- `EmulatorInternalFrame.saveWindowState/restoreWindowState`: la ventana de máquina arma su
-  `WindowState`, con campos fijos para lo de las herramientas (`appliedPokes`, `muted`,
-  `turboMode`, `paused`, `searchQuery`).
-- `RestoredFromASnapshot` (el AY, con `AyFromASnapshot`): el camino viejo de `Snapshots`, que es el
-  que usa hoy la sesión empaquetada.
+- `RestoredFromASnapshot` (el AY, con `AyFromASnapshot`): el camino viejo de `Snapshots`, que usa
+  el historial.
 
 Lo que estaba roto (1, 2, 3 y 5 arreglados en el paso 0):
 
@@ -188,14 +187,16 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    las ROMs no: elegirlos después de leer el archivo arranca la máquina de cero (van con el 2c).
    Pruebas: ida y vuelta sin escritorio y libspectrum leyendo el archivo
    (`AMachineComesBackWithItsWindowTest`). Una configuración vieja vuelve una vez por el camino de
-   antes y al salir queda en archivos. Pendiente:
-   - el escritorio no se probó corriendo: no hay Xvfb, y armarlo necesita una pantalla;
-   - `putMachinesAway` (al cambiar de plugins) y el historial siguen con los snapshots
-     empaquetados, y con ellos `saveWindowState/restoreWindowState`: si el plugin que se va es el
-     de mapeos, no puede guardar las máquinas;
+   antes y al salir queda en archivos. `putMachinesAway` (al cambiar de plugins) pasa por la misma
+   sesión, en una carpeta temporal; la máquina que nadie puede guardar queda como está. Los pokes
+   aplicados van en `OOZX` por la API de `PokesTool`, y el botón de mudo y su volumen leen la
+   máquina cada vez que se muestran, sin que nadie les avise (`TheMuteButtonSaysWhatTheMachineDoesTest`).
+   Pendiente:
+   - el escritorio no se probó corriendo: arma máquinas con sonido y ventanas sobre la pantalla;
+   - el historial sigue con los snapshots empaquetados;
    - sin el plugin de mapeos las máquinas no vuelven, y nada lo pide todavía.
-4. **El aspecto y las herramientas.** `ScreenSettings`; los pokes aplicados. Se van
-   `MachineTool.remember/restore` y los campos de herramientas de `WindowState`.
+4. **El aspecto.** `ScreenSettings`. (Los pokes aplicados y `MachineTool.remember/restore` ya
+   quedaron en el paso 3.)
 5. **Los aparatos enchufados y sus ventanas.** Qué equipo está enchufado; cada ventana de equipo
    enganchada (`AttachedFrame`: lado, tamaño, compacta; `MachineFrame` dice qué equipo es).
 6. **El motor del SZX para los bloques que faltan.** Bloques repetidos (un BDSK por disquetera),

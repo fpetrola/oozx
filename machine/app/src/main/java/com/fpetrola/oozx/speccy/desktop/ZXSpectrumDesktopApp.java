@@ -348,59 +348,6 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
 
   /** Every toolbar in the application draws its icons at this size. */
   public static final int TOOLBAR_ICON_SIZE = 19;
-
-  public OOZxConfiguration.WindowState saveWindowState(String filePath) {
-    OOZxConfiguration.WindowState state = new OOZxConfiguration.WindowState(
-        "EMULATOR", getX(), getY(), getWidth(), getHeight());
-    state.setFilePath(filePath);
-    state.setZOrder(com.fpetrola.oozx.speccy.windows.Widgets.zOrderOf(this));
-
-    if (filePath != null && !filePath.isEmpty()) {
-      state.setSnapshotName(new java.io.File(filePath).getName());
-    }
-
-    state.setTurboMode(emulatorCore.isTurboMode());
-    state.setMuted(emulatorCore.isMuted());
-    state.setPaused(emulatorCore.isPaused());
-
-    WhatIsPluggedIn.theOne().tools().forEach(tool -> tool.remember(this, state));
-
-    try {
-      String unicodePackedSnapshot = emulatorCore.packedState();
-      String snapshotId = ((ZXSpectrumDesktopApp) SwingUtilities.getWindowAncestor(this)).config.saveSnapshot(unicodePackedSnapshot);
-      state.setSnapshotId(snapshotId);
-    } catch (Exception e) {
-      System.err.println("Error guardando snapshot en configuración: " + e.getMessage());
-    }
-
-    return state;
-  }
-
-  /**
-   * Puts the window back the way it was left: its size and place, its buttons, and the pokes
-   * that were applied to it.
-   * <p>
-   * Not the machine. What the window state carries of the machine is the id of a snapshot, and by
-   * the time this runs the machine has already been built from that snapshot - restoreOpenWindows
-   * decodes it, makes a machine of it and only then makes this window for it. Decoding it a second
-   * time here and dropping what came back, which is what this did under a comment saying it
-   * restored the emulator, restored nothing and unpacked the same bytes twice.
-   */
-  public void restoreWindowState(OOZxConfiguration.WindowState state) {
-    if (state.getWidth() > 0 && state.getHeight() > 0) {
-      setSize(state.getWidth(), state.getHeight());
-    }
-    if (state.getX() >= 0 && state.getY() >= 0) {
-      setLocation(state.getX(), state.getY());
-    }
-
-    emulatorCore.setGeneralOption("turbo", state.isTurboMode());
-    emulatorCore.setGeneralOption("pause", state.isPaused());
-
-    emulatorCore.setFilename(state.getFilePath());
-
-    WhatIsPluggedIn.theOne().tools().forEach(tool -> tool.restore(this, state));
-  }
 }
 
 
@@ -2157,12 +2104,16 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
    */
   private void saveOpenWindows() {
     config.getOpenWindows().clear();
-    List<JInternalFrame> backToFront = new java.util.ArrayList<>(List.of(desktop.getAllFrames()));
-    java.util.Collections.reverse(backToFront);
     java.util.Set<File> kept = new java.util.HashSet<>();
-    for (JInternalFrame frame : backToFront) {
+    for (JInternalFrame frame : backToFront()) {
       if (frame instanceof EmulatorInternalFrame machine) {
-        keep(machine, kept);
+        File file = keep(machine, sessionFolder(), kept.size());
+        if (file == null) continue;
+        kept.add(file);
+        OOZxConfiguration.WindowState state = new OOZxConfiguration.WindowState();
+        state.setType("EMULATOR");
+        state.setFilePath(file.getPath());
+        config.getOpenWindows().add(state);
       } else if (frame instanceof com.fpetrola.oozx.speccy.devices.KeepsItsPlace keeper) {
         config.getOpenWindows().add(keeper.saveWindowState());
       }
@@ -2171,22 +2122,28 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     if (before != null) java.util.Arrays.stream(before).filter(file -> !kept.contains(file)).forEach(File::delete);
   }
 
-  /** A machine and what is around it, as whatever keeps them writes it: nothing where no plugin does. */
-  private void keep(EmulatorInternalFrame machine, java.util.Set<File> kept) {
+  private List<JInternalFrame> backToFront() {
+    List<JInternalFrame> frames = new ArrayList<>(List.of(desktop.getAllFrames()));
+    java.util.Collections.reverse(frames);
+    return frames;
+  }
+
+  /**
+   * That machine and what is around it as file n of that folder, written by whatever keeps them:
+   * null where no plugin does, or where it could not.
+   */
+  private static File keep(EmulatorInternalFrame machine, File folder, int n) {
     com.fpetrola.oozx.speccy.devices.Session session = session();
-    if (session == null) return;
-    File file = new File(sessionFolder(), kept.size() + "." + session.extension());
+    if (session == null) return null;
+    File file = new File(folder, n + "." + session.extension());
     try {
       byte[] bytes = session.write(machine);
-      sessionFolder().mkdirs();
+      folder.mkdirs();
       java.nio.file.Files.write(file.toPath(), bytes);
-      kept.add(file);
-      OOZxConfiguration.WindowState state = new OOZxConfiguration.WindowState();
-      state.setType("EMULATOR");
-      state.setFilePath(file.getPath());
-      config.getOpenWindows().add(state);
+      return file;
     } catch (Exception cannot) {
       System.err.println("Error guardando la máquina en " + file + ": " + cannot.getMessage());
+      return null;
     }
   }
 
@@ -2214,27 +2171,21 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   }
 
   /**
-   * Una maquina desde el archivo que se guardo de ella, abierto como cualquier archivo, y lo que su
-   * ventana tenia alrededor. Las que se guardaron empaquetadas en la configuracion, antes de la
-   * sesion en archivos o al cambiar de plugins, vuelven como entonces.
+   * Una maquina desde el archivo que se guardo de ella. Las que se guardaron empaquetadas en la
+   * configuracion, antes de que la sesion fuera archivos, vuelven una vez por donde volvian.
    */
   private void reopen(OOZxConfiguration.WindowState windowState) {
     if (windowState.getSnapshotId() == null || windowState.getSnapshotId().isEmpty()) {
-      com.fpetrola.oozx.speccy.devices.Session session = session();
-      String path = windowState.getFilePath();
-      if (session == null || path == null || !new File(path).isFile()) return;
-      try {
-        EmulatorInternalFrame window = createNewEmulator(mockCore.apply(path, null));
-        session.bringBack(java.nio.file.Files.readAllBytes(new File(path).toPath()), window);
-      } catch (Exception e) {
-        System.err.println("Error restaurando la máquina de " + path + ": " + e.getMessage());
-      }
+      if (windowState.getFilePath() != null) reopen(new File(windowState.getFilePath()));
       return;
     }
     try {
       String snapshotData = config.getSnapshot(windowState.getSnapshotId());
       if (snapshotData != null && !snapshotData.isEmpty()) {
-        createNewEmulator(mockCoreState.apply(snapshotData)).restoreWindowState(windowState);
+        EmulatorInternalFrame window = createNewEmulator(mockCoreState.apply(snapshotData), windowState.getFilePath());
+        if (windowState.getWidth() > 0) {
+          window.setBounds(windowState.getX(), windowState.getY(), windowState.getWidth(), windowState.getHeight());
+        }
       }
     } catch (Exception e) {
       System.err.println("Error restaurando snapshot desde configuración: " + e.getMessage());
@@ -2242,14 +2193,41 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   }
 
   /**
-   * Guarda el estado de cada maquina abierta y la cierra; lo devuelto las vuelve a abrir desde ahi.
-   * Una maquina retiene los plugins con que se armo, y esto es lo que la deja rearmarse sin uno.
+   * Una maquina desde un archivo de la sesion, abierto como cualquier archivo, y lo que su ventana
+   * tenia alrededor si sigue estando el plugin que lo guardo. El archivo no es de donde salio la
+   * maquina: eso lo dice lo de alrededor.
+   */
+  private void reopen(File file) {
+    if (!file.isFile()) return;
+    try {
+      EmulatorCore core = mockCore.apply(file.getPath(), null);
+      core.setFilename(null);
+      EmulatorInternalFrame window = createNewEmulator(core);
+      com.fpetrola.oozx.speccy.devices.Session session = session();
+      if (session != null) session.bringBack(java.nio.file.Files.readAllBytes(file.toPath()), window);
+    } catch (Exception e) {
+      System.err.println("Error restaurando la máquina de " + file + ": " + e.getMessage());
+    }
+  }
+
+  /**
+   * Guarda cada maquina abierta y la cierra; lo devuelto las vuelve a abrir desde ahi. Una maquina
+   * retiene los plugins con que se armo, y esto es lo que la deja rearmarse sin uno. La que nadie
+   * puede guardar queda como esta.
    */
   Runnable putMachinesAway() {
-    List<OOZxConfiguration.WindowState> were = new java.util.ArrayList<>();
-    for (JInternalFrame frame : desktop.getAllFrames()) {
+    File away;
+    try {
+      away = java.nio.file.Files.createTempDirectory("oozx-away").toFile();
+    } catch (java.io.IOException cannot) {
+      return () -> { };
+    }
+    List<File> were = new ArrayList<>();
+    for (JInternalFrame frame : backToFront()) {
       if (frame instanceof EmulatorInternalFrame machine) {
-        were.add(machine.saveWindowState(machine.emulatorCore.getFilename()));
+        File file = keep(machine, away, were.size());
+        if (file == null) continue;
+        were.add(file);
         machine.dispose();
       }
     }
@@ -2260,7 +2238,11 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       SwingUtilities.invokeLater(pending::exit);
       pending.enter();
     }
-    return () -> were.forEach(this::reopen);
+    return () -> {
+      were.forEach(this::reopen);
+      were.forEach(File::delete);
+      away.delete();
+    };
   }
 
   private void updateRecentFilesMenu() {

@@ -17,7 +17,6 @@
 
 package com.fpetrola.oozx.speccy.devices;
 
-import com.fpetrola.oozx.speccy.config.OOZxConfiguration;
 import dev.crystal.plugins.api.RoleInterface;
 
 /**
@@ -25,9 +24,6 @@ import dev.crystal.plugins.api.RoleInterface;
  * <p>
  * La ventana de maquina no sabe que herramientas hay: pone la pantalla, y cada plugin que trae
  * una herramienta pone su boton. Sin plugins queda la pantalla sola.
- * <p>
- * Una herramienta que deja algo hecho sobre la maquina -unos pokes aplicados- lo guarda con la
- * ventana y lo vuelve a hacer cuando la ventana se reabre.
  */
 @RoleInterface
 public interface MachineTool {
@@ -73,13 +69,5 @@ public interface MachineTool {
 
   /** La ventana se cerro: lo que se guardaba de ella la mantenia viva, y con ella a su maquina. */
   default void closed(EmulatorWindow window) {
-  }
-
-  /** Lo que esta herramienta dejo hecho en esa ventana, escrito en lo que se guarda de ella. */
-  default void remember(EmulatorWindow window, OOZxConfiguration.WindowState into) {
-  }
-
-  /** Lo mismo al reves, cuando la ventana se vuelve a abrir. */
-  default void restore(EmulatorWindow window, OOZxConfiguration.WindowState from) {
   }
 }
