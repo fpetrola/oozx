@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Binder;
 import com.google.inject.Provider;
@@ -325,34 +324,6 @@ public class Configuration {
     }
   }
 
-  /** What the environment keeps of something that belongs to no machine: in its own part of the file, saved with the rest. */
-  public Kept kept(String name) {
-    return new Tree(make("kept")).in(name);
-  }
-
-  /** Values to keep that travel inside something else, a machine's file, in the environment's own form. */
-  public static Kept fresh() {
-    return new Tree(json.createObjectNode());
-  }
-
-  /** That form as bytes, for whoever carries them; only this class reads them back. */
-  public static byte[] bytes(Kept kept) {
-    try {
-      return json.writer().without(SerializationFeature.INDENT_OUTPUT).writeValueAsBytes(((Tree) kept).node());
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-  }
-
-  /** The values {@link #bytes} wrote; what cannot be read reads as nothing kept. */
-  public static Kept kept(byte[] bytes) {
-    try {
-      return new Tree(json.readTree(bytes) instanceof ObjectNode node ? node : json.createObjectNode());
-    } catch (IOException unreadable) {
-      return fresh();
-    }
-  }
-
   static String nameOf(Class<?> type) {
     Section section = type.getAnnotation(Section.class);
     if (section == null)
@@ -364,84 +335,5 @@ public class Configuration {
   public static <T> void section(Binder binder, Class<T> type) {
     Provider<Configuration> configuration = binder.getProvider(Configuration.class);
     binder.bind(type).toProvider(() -> configuration.get().of(type)).in(Singleton.class);
-  }
-
-  /** {@link Kept} over the same kind of tree the file is made of. */
-  private record Tree(ObjectNode node) implements Kept {
-    public Kept put(String name, String value) {
-      node.put(name, value);
-      return this;
-    }
-
-    public Kept put(String name, long value) {
-      node.put(name, value);
-      return this;
-    }
-
-    public Kept put(String name, double value) {
-      node.put(name, value);
-      return this;
-    }
-
-    public Kept put(String name, boolean value) {
-      node.put(name, value);
-      return this;
-    }
-
-    public Kept put(String name, byte[] value) {
-      node.put(name, value);
-      return this;
-    }
-
-    public String text(String name, String otherwise) {
-      JsonNode value = node.get(name);
-      return value == null || value.isNull() ? otherwise : value.asText();
-    }
-
-    public long number(String name, long otherwise) {
-      JsonNode value = node.get(name);
-      return value == null ? otherwise : value.asLong(otherwise);
-    }
-
-    public double real(String name, double otherwise) {
-      JsonNode value = node.get(name);
-      return value == null ? otherwise : value.asDouble(otherwise);
-    }
-
-    public boolean flag(String name, boolean otherwise) {
-      JsonNode value = node.get(name);
-      return value == null ? otherwise : value.asBoolean(otherwise);
-    }
-
-    public byte[] bytes(String name) {
-      JsonNode value = node.get(name);
-      try {
-        return value == null || value.isNull() ? null : value.binaryValue();
-      } catch (IOException notBytes) {
-        return null;
-      }
-    }
-
-    public Kept in(String name) {
-      return new Tree(node.get(name) instanceof ObjectNode group ? group : node.putObject(name));
-    }
-
-    public List<Kept> all(String name) {
-      List<Kept> groups = new ArrayList<>();
-      if (node.get(name) instanceof ArrayNode list) {
-        list.forEach(group -> {
-          if (group instanceof ObjectNode object) groups.add(new Tree(object));
-        });
-      }
-      return groups;
-    }
-
-    public Kept add(String name) {
-      return new Tree((node.get(name) instanceof ArrayNode list ? list : node.putArray(name)).addObject());
-    }
-
-    public boolean has(String name) {
-      return node.has(name);
-    }
   }
 }
