@@ -284,6 +284,31 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    ida y vuelta. Si nadie más usa el camino viejo de `Snapshots`,
    se va con `RestoredFromASnapshot`. libspectrum no tiene bloque para el DISCiPLE ni el µSource.
    PLTT tiene un byte más en libspectrum (el registro ff), que el mapeo de ULAplus no escribe.
+
+   **Cómo va cada uno (22 de octubre):**
+   - Cada aparato tiene su `Mapping`, una clase propia de `tools/mappings` marcada `@OnlyWith` con su
+     plugin y los plugins de los que este depende.
+   - Crystal (`only-with-1`, que el CI de los dos repos compila por `.github/workflows/maven.yml`)
+     escribe esas dependencias como opcionales. `tool-mappings` anda sin ese aparato y deja afuera
+     su mapeo; instalarlo no instala el aparato. Si el aparato se instala o se saca con el emulador
+     andando, recarga `tool-mappings`.
+   - Antes de esto, `tool-mappings` dependía de cada aparato que nombraba, y si faltaba uno se
+     rechazaba entero.
+   - Se publica primero crystal (`main` y el tag), después oozx y después los plugins.
+   - El aparato no cambia: le agrego lo que su dominio no tenía para leerlo y ponerlo, nunca algo para
+     guardarse.
+   - La prueba de cada uno va en `WhatIsPluggedInComesBackTest`:
+     - libspectrum lee lo que escribe una máquina con el aparato;
+     - otra máquina lo lee y lo tiene enchufado como estaba;
+     - el archivo de libspectrum del bloque da lo que dicen sus pruebas.
+
+   Hechos:
+   - **ZXATASP:** ZXAT (jumpers, el 8255 y el banco paginado, `0xff` con la memoria apagada) y un
+     ATRP por banco. Un archivo con ZXAT lo enchufa.
+
+   Siguen siendo obligatorios para `tool-mappings` el AY, ULAplus, la memoria de 128K, los
+   snapshots y los pokes. Los mapeos de los primeros cuatro están repartidos entre `SzxMapping`, los
+   del Z80 y el EZX, y `AyFields`. Para hacerlos opcionales hay que separarlos como al ZXATASP.
 8. **Las ventanas de escritorio.** Según la decisión 5.
 9. **"Exactamente igual".** Una prueba que arma varias máquinas con aparatos, medios y ventanas,
    cierra, levanta un escritorio nuevo y compara: el SZX que escribe cada máquina, byte a byte, y el
