@@ -7,9 +7,10 @@ entorno. **Nada de lo que se guarda sabe que se guarda**: ni los aparatos, ni la
 las ventanas tienen algo para guardarse o restaurarse. Cómo va cada cosa a un archivo lo sabe quien
 conoce ese archivo.
 
-**Estado (21 de octubre de 2026):** hechos el paso 0 (en el código), lo de llevar bloques del 2, la
+**Estado (22 de octubre de 2026):** hechos el paso 0 (en el código), lo de llevar bloques del 2, la
 mudanza de los mapeos de aparatos al módulo de mapeos (2b), cada máquina como sí misma (2c), la
-sesión en archivos (3), el aspecto (4) y los aparatos enchufados con sus ventanas (5). El contrato del paso 1 (`Keeps` y
+sesión en archivos (3), el aspecto (4), los aparatos enchufados con sus ventanas (5) y el motor del
+SZX para los bloques de los aparatos (6). El contrato del paso 1 (`Keeps` y
 `Kept`, que implementaba cada cosa guardada) se descartó y se sacó: un aparato no tiene que saber
 que lo guardan. Lo reemplaza el módulo de mapeos.
 Relevado sobre `traduccion` (oozx, `68d400341`) y `prueba-apuntar` (oozx-plugins, `0e3c6b2`).
@@ -243,15 +244,46 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    - la memoria del escritorio de qué ventanas ya le ofreció a cada máquina: una del joystick que
      se cerró se vuelve a abrir una vez después de arrancar, si el juego usa el joystick;
    - el escritorio no se probó corriendo.
-6. **El motor del SZX para los bloques que faltan.** Bloques repetidos (un BDSK por disquetera),
-   largos variables, páginas de 8K y 32K, enchufar los aparatos que nombra un bloque. Prueba: los
-   fixtures de libspectrum que ya están en `szx-chunks/`.
+6. **El motor del SZX para los bloques que faltan.** **Hecho.** Lo que un mapeo puede declarar
+   ahora:
+   - `Fixed.pages(id, largo)`: un bloque que viene una vez por página, como RAMP (ATRP y CFRP de
+     16K, DIRP y DMRP de 8K). Las páginas quedan en el archivo por bloque y número
+     (`SnapshotFile.pages(bloque)`). `Layout.pages(bloque, cuántas, campo)` las lleva al aparato y
+     las trae. El SZX las lee y escribe con el mismo código que RAMP.
+   - `Layout.rest(bloque, byte, bit, campo)`: lo que un bloque trae después de sus campos (una ROM,
+     la RAM de un aparato), tan largo como lo que tiene el aparato, con zlib cuando ese bit lo dice.
+     `Bytes.append` deja crecer el bloque al escribir. `packedRest` es lo mismo siempre comprimido,
+     con el largo comprimido en el bloque (IF2R).
+   - `Layout.present(bloque)`: un bloque que solo dice que el aparato está (SIDE, ZMMC).
+   - Enchufar: cada mapeo enchufa lo suyo en `plug`, y el formato prende lo pedido y hace el reset que
+     piden algunos una sola vez, después de todos, antes de recorrer la máquina. `SzxSession` y la
+     regla de ULAplus ya no lo hacen cada uno.
+
+   Prueba: `WhatIsPluggedInIsKeptInItsBlocksTest` (`devices/snapshots`), sobre aparatos inventados
+   para la prueba. Lee los fixtures de libspectrum (ATRP comprimido y sin comprimir, DIDE, DIRP,
+   MFCE, IF2R, SIDE) como los lee la prueba de libspectrum. Después libspectrum lee lo que escribe:
+   32 páginas de 16K, la EPROM y 4 páginas de 8K, la RAM de una Multiface, un cartucho, un bloque
+   vacío y 32K de ROM de una 128K.
+
+   La tabla de cada bloque según libspectrum, con sus desplazamientos, quedó en
+   `~/detodo/spectrum/investigacion/research_notes/szx-bloques-libspectrum.md`.
+
+   Pendiente para el paso 7 o la decisión 4:
+   - un bloque por disquetera (BDSK, DSK, PDSK, ODSK, MDRV) y TAPE: libspectrum los saltea y su forma
+     va con los medios;
+   - DOCK guarda en el mismo bloque las páginas del cartucho y las del EXROM, y si cada una es RAM:
+     `pages` las separa solo por número;
+   - OPUS y PLSD llevan dos memorias seguidas, cada una con su zlib y su largo en la cabecera:
+     `rest` lleva una sola, así que van con un `encoded`, que ahora puede hacer crecer el bloque;
+   - un archivo sin el bloque de un aparato no lo desenchufa, como sí hace Fuse;
+   - la prueba se escribió después del motor: sin él no compila, porque usa sus métodos nuevos.
 7. **Cada aparato, uno por commit**, por lo que más se usa: +3 (disco), Beta 128, +D, DISCiPLE,
    Opus, Multiface, Interface 1 y microdrives, Interface 2, DivIDE, DivMMC, ZXATASP, ZXCF, Simple
    IDE, joystick, mouse, Covox, SpecDrum, ZX Printer, cinta (TAPE), Timex (SCLD, DOCK), µSpeech,
    ROM propia. Cada uno en el módulo de mapeos, como el AY, y se prueba contra libspectrum y con
    ida y vuelta. Si nadie más usa el camino viejo de `Snapshots`,
-   se va con `RestoredFromASnapshot`.
+   se va con `RestoredFromASnapshot`. libspectrum no tiene bloque para el DISCiPLE ni el µSource.
+   PLTT tiene un byte más en libspectrum (el registro ff), que el mapeo de ULAplus no escribe.
 8. **Las ventanas de escritorio.** Según la decisión 5.
 9. **"Exactamente igual".** Una prueba que arma varias máquinas con aparatos, medios y ventanas,
    cierra, levanta un escritorio nuevo y compara: el SZX que escribe cada máquina, byte a byte, y el
