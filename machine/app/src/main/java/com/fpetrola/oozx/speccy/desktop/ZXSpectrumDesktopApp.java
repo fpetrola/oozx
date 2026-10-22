@@ -855,21 +855,17 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     config.setScreenDefaults(defaults);
     config.save();
     ScreenSettings.setDefaults(defaults);
-    applyScreenSettingsToAll();
-  }
-
-  private String screenDefault(String key, String fallback) {
-    return config.getScreenDefaults().getOrDefault(key, fallback);
-  }
-
-  private void applyScreenSettingsToAll() {
     for (JInternalFrame frame : desktop.getAllFrames()) {
       if (frame instanceof EmulatorInternalFrame emulator
           && emulator.emulatorCore != null
           && emulator.emulatorCore.getPanel() instanceof SpeccyScreen screen) {
-        screen.getScreenSettings().apply(config.getScreenDefaults());
+        screen.getScreenSettings().apply(Map.of(key, value));
       }
     }
+  }
+
+  private String screenDefault(String key, String fallback) {
+    return config.getScreenDefaults().getOrDefault(key, fallback);
   }
 
   private void addWindowMenu(JMenuBar menuBar) {

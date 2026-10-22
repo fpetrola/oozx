@@ -9,7 +9,7 @@ conoce ese archivo.
 
 **Estado (21 de octubre de 2026):** hechos el paso 0 (en el código), lo de llevar bloques del 2, la
 mudanza de los mapeos de aparatos al módulo de mapeos (2b), cada máquina como sí misma (2c), la
-sesión en archivos (3) y los aparatos enchufados con sus ventanas (5). El contrato del paso 1 (`Keeps` y
+sesión en archivos (3), el aspecto (4) y los aparatos enchufados con sus ventanas (5). El contrato del paso 1 (`Keeps` y
 `Kept`, que implementaba cada cosa guardada) se descartó y se sacó: un aparato no tiene que saber
 que lo guardan. Lo reemplaza el módulo de mapeos.
 Relevado sobre `traduccion` (oozx, `68d400341`) y `prueba-apuntar` (oozx-plugins, `0e3c6b2`).
@@ -209,8 +209,18 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    - el escritorio no se probó corriendo: arma máquinas con sonido y ventanas sobre la pantalla;
    - el historial sigue con los snapshots empaquetados;
    - sin el plugin de mapeos las máquinas no vuelven, y nada lo pide todavía.
-4. **El aspecto.** `ScreenSettings`. (Los pokes aplicados y `MachineTool.remember/restore` ya
-   quedaron en el paso 3.)
+4. **El aspecto.** **Hecho.** `OOZX` lleva cada perilla de la pantalla de la ventana
+   (`screen.<perilla>`, de `ScreenSettings.values()`, también las de un efecto que vino en un
+   plugin) y el zoom (`window.zoom`); `bringBack` se los pone a su `SpeccyScreen` con `apply`, que
+   saltea lo que no conoce. El escritorio, al cambiar un valor por defecto (el botón del borde, la
+   entrada y las líneas del menú de TV), les ponía a todas las ventanas abiertas todos los valores
+   por defecto y les borraba el aspecto propio; ahora les pone solo el que cambió. Prueba, en rojo
+   antes y en verde después: `itsPictureIsShownAsItWas`. Pendiente:
+   - el escritorio no se probó corriendo;
+   - el botón del borde de una ventana también lo cambia en las otras abiertas, sin darles ni
+     sacarles el lugar (ya era así);
+   - las perillas de un efecto que vino en un plugin son las mismas para todas las ventanas (ya era
+     así): vuelven como las tenía la última ventana que se abre.
 5. **Los aparatos enchufados y sus ventanas.** **Hecho.** `OOZX` nombra cada aparato enchufado
    (`plugged.N`, los `Pluggable` que dicen estarlo, por `PeripheralRegistry.allThatAre`) y cada
    ventana de equipo enganchada (`equipment.N.*`: qué equipo, lado, tamaño, plegada o no y a qué
