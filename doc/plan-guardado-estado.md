@@ -273,8 +273,9 @@ Uno por commit. Cada uno nace con su prueba en rojo.
      va con los medios;
    - DOCK guarda en el mismo bloque las páginas del cartucho y las del EXROM, y si cada una es RAM:
      `pages` las separa solo por número;
-   - OPUS y PLSD llevan dos memorias seguidas, cada una con su zlib y su largo en la cabecera:
-     `rest` lleva una sola, así que van con un `encoded`, que ahora puede hacer crecer el bloque;
+   - OPUS y PLSD llevan dos memorias seguidas, cada una con su largo en la cabecera. Resuelto en el
+     paso 7: `rest` puede tomar el largo que dice la cabecera, y la ROM propia, que va después de la
+     RAM, no se escribe;
    - un archivo sin el bloque de un aparato no lo desenchufa, como sí hace Fuse;
    - la prueba se escribió después del motor: sin él no compila, porque usa sus métodos nuevos.
 7. **Cada aparato, uno por commit**, por lo que más se usa: +3 (disco), Beta 128, +D, DISCiPLE,
@@ -302,9 +303,54 @@ Uno por commit. Cada uno nace con su prueba en rojo.
      - otra máquina lo lee y lo tiene enchufado como estaba;
      - el archivo de libspectrum del bloque da lo que dicen sus pruebas.
 
-   Hechos:
-   - **ZXATASP:** ZXAT (jumpers, el 8255 y el banco paginado, `0xff` con la memoria apagada) y un
-     ATRP por banco. Un archivo con ZXAT lo enchufa.
+   Hechos (en `oozx-plugins`, un commit cada uno):
+   - **ZXATASP** (`e2f2b98`): ZXAT (jumpers, el 8255 y el banco paginado, `0xff` con la memoria
+     apagada) y un ATRP por banco.
+   - **DivIDE** (`eef97c1`) y **DivMMC** (`befc0df`): DIDE y DMMC (el jumper de la EPROM, si está
+     paginada, su registro y la EPROM) y un DIRP o DMRP por página de RAM.
+   - **Multiface** (`bfdbd5a`): MFCE como la guarda Fuse: One o posterior, paginada, J2, el botón y
+     la RAM.
+   - **Interface 2** (`32d931b`): IF2R con el cartucho paginado.
+   - **Simple IDE** (`2ab6d62`) y **ZXMMC** (`1ce484a`): solo dicen que están.
+   - **ZXCF** (`80d3b92`): el jumper, el registro de memoria y un CFRP por banco.
+   - **Covox** (`75ebd87`) y **SpecDrum** (`f9410b8`): el último byte que se les escribió.
+   - **µSpeech** (`ab06686`): USPE, con su ROM adentro o afuera.
+   - **ZX Printer** (`10a61e7`): ZXPR prendida la enchufa. libspectrum escribe ZXPR apagado para
+     cualquier máquina, y eso no enchufa nada. El `random.szx` de Fuse ahora la enchufa.
+   - **Mouse Kempston** (`e3aef1a`): AMXM de tipo 2; dónde está y sus botones son de la mano.
+   - **Interface 1** (`8e341ad`): IF1 prendido, paginado o no, con ocho microdrives.
+   - **Beta 128** (`c3886ad`): B128, la de la Pentagon o la enchufada en una 48K.
+   - **SCLD** (`f67b535`): lo último escrito a los puertos 0xf4 y 0xff de un Timex.
+   - **+D** (`e404002`) y **Opus** (`53c31e3`): PLSD y OPUS con los registros del controlador, la
+     PIA de la Opus y la RAM.
+   - **Melodik** (`73734da`) y **Fuller Box** (`78c06c6`): un bit del bloque AY en el SZX, y en el Z80
+     el byte 37 (0x04 la Melodik, 0x44 la Fuller), como libspectrum. La parte del Z80 va anidada
+     en el mismo mapeo, porque un `Mapping` responde a un solo formato.
+
+   Cada uno, salvo el SCLD que va a bordo: un archivo con su bloque lo enchufa. La ROM propia de un
+   aparato no se escribe, y sus medios (discos, cartuchos de microdrive) van con la decisión 4.
+
+   Queda:
+   - **JOY.** La interfaz Kempston no se enchufa a una máquina: la prende para todas un ajuste
+     global (`Input.Setup.kempstonJoystick`). Para que JOY la diga por máquina tiene que ser
+     `Pluggable`, como el mouse. Los demás tipos de JOY (Sinclair, cursor) son teclas, de la mano.
+     A decidir.
+   - **Los medios** (decisión 4): TAPE, DSK, BDSK, PDSK, ODSK, MDRV, DOCK y ROM.
+   - **El Z80 también puede decir el IF1, el +D y el DISCiPLE** (el byte 34 de hardware, si está
+     paginado, su memoria como página 1). libspectrum los lee; el Z80 de acá todavía no.
+   - **Tablas repetidas.** Las de la DivIDE y la DivMMC, y los registros del controlador de disco de
+     la Beta, el +D y la Opus, se repiten en cada mapeo. No pueden compartir una clase de apoyo:
+     `@OnlyWith` solo vale en extensiones. Si crystal lo aceptara en clases de apoyo, el AY y
+     ULAplus también podrían ser opcionales.
+   - **Sin probar con ROMs reales** (las pruebas no las tienen): la paginación del IF1, la Beta y el
+     +D. Además:
+     - la Multiface en modo 16K se rechaza;
+     - el xfdd de la Multiface 3 no se guarda;
+     - el autoboot de la Beta se escribe y no se lee.
+   - **El camino viejo de `Snapshots`** (`SpectrumState`) todavía lo usan el lector de RZX, MiniZX,
+     las sesiones viejas empaquetadas y varias pruebas. `RestoredFromASnapshot` se queda hasta
+     entonces.
+   - La libspectrum instalada (8.9.0) no tiene USPE, así que esa comparación se saltea.
 
    Siguen siendo obligatorios para `tool-mappings` el AY, ULAplus, la memoria de 128K, los
    snapshots y los pokes. Los mapeos de los primeros cuatro están repartidos entre `SzxMapping`, los
