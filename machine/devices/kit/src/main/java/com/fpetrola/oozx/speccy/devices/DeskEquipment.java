@@ -40,12 +40,4 @@ public interface DeskEquipment {
   default javax.swing.Icon icon() {
     return null;
   }
-
-  /**
-   * What the saved layout calls this window, when it keeps its place. The name it is offered
-   * under, unless a layout already written says something else.
-   */
-  default String keeps() {
-    return name();
-  }
 }

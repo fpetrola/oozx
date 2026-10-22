@@ -607,8 +607,18 @@ public class OOZxConfiguration implements Configuration.Saves {
     private boolean paused;
     private String snapshotId;
     private List<PokModState> appliedPokes = new ArrayList<>();
+    /** What the session says the window is and has inside, which the desk keeps without reading. */
+    private Map<String, String> inside;
 
     public WindowState() {
+    }
+
+    public Map<String, String> getInside() {
+      return inside;
+    }
+
+    public void setInside(Map<String, String> inside) {
+      this.inside = inside;
     }
 
     public WindowState(String type, int x, int y, int width, int height) {

@@ -1035,9 +1035,21 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     }
   }
 
-  /** The kind of desk window a saved layout is about, or null if this build has none such. */
-  private DeskEquipment deskKindThatKeeps(String type) {
-    return deskKinds.stream().filter(kind -> kind.keeps().equals(type)).findFirst().orElse(null);
+  @Override
+  public String nameOf(JInternalFrame window) {
+    if (window == plugins) return PLUGINS;
+    return java.util.stream.Stream.concat(onTheDesk.keySet().stream().filter(name -> onTheDesk.get(name) == window),
+        equipment.keySet().stream().filter(name -> equipment.get(name).contains(window))).findFirst().orElse(null);
+  }
+
+  @Override
+  public JInternalFrame window(String name) {
+    if (PLUGINS.equals(name)) {
+      showPlugins();
+      return plugins;
+    }
+    DeskEquipment kind = deskKinds.stream().filter(one -> one.name().equals(name)).findFirst().orElse(null);
+    return kind != null ? showOnTheDesk(kind) : equipment(name);
   }
 
   /**
@@ -1790,20 +1802,14 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   }
 
   private PluginsInternalFrame plugins;
+  private static final String PLUGINS = "Plugins";
 
   /** The window that says what is published and brings in what is ticked. */
   public void showPlugins() {
     if (plugins == null || plugins.isClosed()) {
       plugins = new PluginsInternalFrame();
-      desktop.add(plugins);
     }
-    plugins.setVisible(true);
-    plugins.toFront();
-    try {
-      plugins.setSelected(true);
-    } catch (java.beans.PropertyVetoException itWouldNot) {
-      // The window is there either way.
-    }
+    place(plugins);
   }
 
   /**
@@ -2123,6 +2129,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   private void saveOpenWindows() {
     config.getOpenWindows().clear();
     java.util.Set<File> kept = new java.util.HashSet<>();
+    com.fpetrola.oozx.speccy.devices.Session session = session();
     for (JInternalFrame frame : backToFront()) {
       if (frame instanceof EmulatorInternalFrame machine) {
         File file = keep(machine, sessionFolder(), kept.size());
@@ -2132,8 +2139,16 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         state.setType("EMULATOR");
         state.setFilePath(file.getPath());
         config.getOpenWindows().add(state);
-      } else if (frame instanceof com.fpetrola.oozx.speccy.devices.KeepsItsPlace keeper) {
-        config.getOpenWindows().add(keeper.saveWindowState());
+      } else if (session != null) {
+        try {
+          java.util.Map<String, String> inside = session.keep(frame);
+          if (inside.isEmpty()) continue;
+          OOZxConfiguration.WindowState state = new OOZxConfiguration.WindowState("WINDOW", frame.getX(), frame.getY(), frame.getWidth(), frame.getHeight());
+          state.setInside(inside);
+          config.getOpenWindows().add(state);
+        } catch (RuntimeException | LinkageError cannot) {
+          System.err.println("Error guardando la ventana " + frame.getTitle() + ": " + cannot);
+        }
       }
     }
     File[] before = sessionFolder().listFiles();
@@ -2174,18 +2189,23 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         .stream().findFirst().orElse(null);
   }
 
+  /** Each window in the order it was kept: a machine from its file, any other as the session brings it back, where it was. */
   private void restoreOpenWindows() {
+    com.fpetrola.oozx.speccy.devices.Session session = session();
     for (OOZxConfiguration.WindowState windowState : config.getOpenWindows()) {
       if ("EMULATOR".equals(windowState.getType())) {
         reopen(windowState);
-      } else if (deskKindThatKeeps(windowState.getType()) != null) {
-        JInternalFrame window = showOnTheDesk(deskKindThatKeeps(windowState.getType()));
-        if (window instanceof com.fpetrola.oozx.speccy.devices.KeepsItsPlace keeper) {
-          keeper.restoreWindowState(windowState);
+      } else if (session != null && windowState.getInside() != null) {
+        try {
+          JInternalFrame window = session.bringBack(windowState.getInside());
+          if (window == null) continue;
+          window.setBounds(windowState.getX(), windowState.getY(), windowState.getWidth(), windowState.getHeight());
+          place(window);
+        } catch (RuntimeException | LinkageError cannot) {
+          System.err.println("Error restaurando la ventana " + windowState.getInside() + ": " + cannot);
         }
       }
     }
-
   }
 
   /**

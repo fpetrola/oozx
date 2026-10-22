@@ -9,8 +9,9 @@ conoce ese archivo.
 
 **Estado (22 de octubre de 2026):** hechos el paso 0 (en el código), lo de llevar bloques del 2, la
 mudanza de los mapeos de aparatos al módulo de mapeos (2b), cada máquina como sí misma (2c), la
-sesión en archivos (3), el aspecto (4), los aparatos enchufados con sus ventanas (5) y el motor del
-SZX para los bloques de los aparatos (6). El contrato del paso 1 (`Keeps` y
+sesión en archivos (3), el aspecto (4), los aparatos enchufados con sus ventanas (5), el motor del
+SZX para los bloques de los aparatos (6), los aparatos que tienen bloque (7, sin los medios ni JOY)
+y las ventanas de escritorio (8). El contrato del paso 1 (`Keeps` y
 `Kept`, que implementaba cada cosa guardada) se descartó y se sacó: un aparato no tiene que saber
 que lo guardan. Lo reemplaza el módulo de mapeos.
 Relevado sobre `traduccion` (oozx, `68d400341`) y `prueba-apuntar` (oozx-plugins, `0e3c6b2`).
@@ -38,8 +39,8 @@ Lo que sabe que se guarda, y deja de saberlo:
   se fueron con el paso 3. Los campos de herramientas de `WindowState` (`appliedPokes`, `muted`,
   `turboMode`, `paused`, `snapshotName`, `zOrder`) y `PokModState` quedan sin uso hasta que se
   publique un `tool-pokes` que ya no los nombre (`plugin-binary-api`).
-- `KeepsItsPlace`: el catálogo y el historial (`GamesFrame`, `HistoryFrame`) escriben su
-  `WindowState`.
+- ~~`KeepsItsPlace`~~: el catálogo y el historial escribían su `WindowState`. Se fue con el paso 8;
+  la interfaz queda deprecada en el kit mientras un tool-games publicado la implemente.
 - `RestoredFromASnapshot` (el AY, con `AyFromASnapshot`): el camino viejo de `Snapshots`, que usa
   el historial.
 
@@ -163,9 +164,12 @@ Salir) y no hay un guardado a medias que deje referencias sueltas.
 4. **Los medios.** Recomendado: si el archivo está igual que cuando se abrió, se guarda su ruta;
    si la máquina escribió en él (un disco formateado, un microdrive), se guarda la imagen adentro,
    como prevén los bloques DSK, BDSK, PDSK, ODSK y MDRV.
-5. **Las ventanas de escritorio.** El catálogo y el historial dejan `KeepsItsPlace` y los mapea el
-   módulo, pero van al JSON, que el módulo no conoce. Candidato: las secciones de `Configuration`,
-   que son objetos y no JSON. A decidir en su paso.
+5. **Las ventanas de escritorio.** Decidido el 22 de octubre: el escritorio sabe de cada ventana
+   que no es de una máquina solo que la tiene y dónde está, y no qué plugin la trae. Qué ventana es,
+   si está plegada y lo que tiene adentro lo dice el módulo por el rol `Session`, como clave=valor
+   que el escritorio guarda en la misma entrada del JSON sin leerlo. Descartado: que el módulo
+   mapee también el lugar, en una sección propia (un mapeo por tipo de ventana aunque solo guarde
+   dónde está, y el apilado con las máquinas aparte).
 
 ## Los pasos
 
@@ -235,7 +239,7 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    cuando la máquina lo usa, ya no corre a una que volvió. Pruebas, en rojo antes y en verde
    después: `whatIsPluggedIntoItIsInBeforeItIsRead` y `theEquipmentClippedOnItComesBackAsItWasLeft`.
    Pendiente:
-   - una ventana de equipo desenganchada no es de ninguna máquina y no se guarda (va con el 8);
+   - ~~una ventana de equipo desenganchada no es de ninguna máquina y no se guarda~~: hecho en el 8;
    - la ventana de ajustes que engancha su herramienta (`MachineSettingsTool`) no es un `Equipment`
      y no vuelve;
    - lo que cada ventana tiene adentro: la cinta de la casetera, la grabación del reproductor, el
@@ -355,7 +359,38 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    Siguen siendo obligatorios para `tool-mappings` el AY, ULAplus, la memoria de 128K, los
    snapshots y los pokes. Los mapeos de los primeros cuatro están repartidos entre `SzxMapping`, los
    del Z80 y el EZX, y `AyFields`. Para hacerlos opcionales hay que separarlos como al ZXATASP.
-8. **Las ventanas de escritorio.** Según la decisión 5.
+8. **Las ventanas de escritorio.** **Hecho**, según la decisión 5:
+   - **El escritorio** anota en `openWindows`, de atrás hacia adelante junto con las máquinas, cada
+     otra ventana que el módulo reconoce: su lugar, su tamaño y `inside`, lo que el módulo dijo de
+     ella. Al volver le pide la ventana al módulo con eso, la pone donde estaba y la trae adelante.
+     No tiene un caso por tipo de ventana.
+   - **El kit:** `Session.keep(ventana)` y `bringBack(lo guardado)`; `Desk.nameOf(ventana)` y
+     `window(nombre)`, el nombre con que el escritorio abrió una ventana y otra abierta igual: la de
+     plugins, las del escritorio (catálogo, historial, favoritos, ajustes) y las de equipo
+     desenganchadas.
+   - **El módulo:** `SzxSession` guarda ese nombre, si está plegada y a qué altura se despliega, y le
+     pregunta a cada `WindowInside` (un rol del módulo) lo que la ventana tiene adentro. La que va
+     enganchada a una máquina va con la máquina. `GamesWindowMapping` (`@OnlyWith` tool-games y
+     tool-catalogue) guarda la búsqueda del catálogo: las palabras, dónde, el orden, la máquina, el
+     género, el año y los cinco filtros. Al volver es una sola búsqueda.
+   - **El catálogo:** `GamesFrame.Search`, que `search()` lee de los controles y `search(Search)`
+     pone. `performSearch` lee por ahí. Una máquina o un género que las listas no trajeron todavía
+     entra en ellas.
+   - **Se fue:** el uso de `KeepsItsPlace` (deprecado mientras un tool-games publicado lo
+     implemente), `DeskEquipment.keeps()` y sus cuatro versiones, lo que guardaban el catálogo y el
+     historial, `setSearchQuery` y `deskKindThatKeeps`.
+
+   Prueba: `theOtherWindowsOfTheDeskComeBackAsTheyWereLeft` (`AMachineComesBackWithItsWindowTest`).
+   Una ventana de equipo vuelve plegada como estaba y el catálogo buscando lo mismo; la enganchada a
+   una máquina y una que el escritorio no abrió no se guardan. En rojo sin los métodos de la sesión
+   (no guarda ninguna) y sin `GamesWindowMapping` (la búsqueda vuelve vacía).
+   Pendiente:
+   - el escritorio no se probó corriendo;
+   - las ventanas de escritorio de una configuración vieja (el catálogo con su búsqueda) no vuelven
+     esa vez: no tienen `inside`;
+   - minimizada o maximizada no se guarda;
+   - lo de adentro de las demás: la página de los ajustes, lo tildado en la de plugins, la cinta de la
+     casetera (decisión 4).
 9. **"Exactamente igual".** Una prueba que arma varias máquinas con aparatos, medios y ventanas,
    cierra, levanta un escritorio nuevo y compara: el SZX que escribe cada máquina, byte a byte, y el
    lugar, tamaño y estado de cada ventana.

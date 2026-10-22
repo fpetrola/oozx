@@ -22,7 +22,8 @@ import dev.crystal.plugins.api.RoleInterface;
 
 /**
  * Una ventana de maquina con lo que tiene alrededor, como un archivo, y de vuelta: lo que deja
- * cada maquina como estaba al cerrar el escritorio y volver a abrirlo.
+ * cada maquina como estaba al cerrar el escritorio y volver a abrirlo. Y cada otra ventana del
+ * escritorio, de la que el escritorio sabe solo donde esta.
  * <p>
  * El escritorio no sabe que hay en el archivo ni como se escribe: lo guarda donde guarda lo suyo,
  * y al volver lo abre como abre cualquier archivo. La maquina sale de ahi, y esto le devuelve a su
@@ -39,4 +40,14 @@ public interface Session {
 
   /** Sobre la maquina ya leida de ese archivo, lo que su ventana tenia alrededor. */
   void bringBack(byte[] file, EmulatorWindow window);
+
+  /** Que ventana es esa y lo que tiene adentro, por nombre; nada si no es de las que vuelven. */
+  default java.util.Map<String, String> keep(javax.swing.JInternalFrame window) {
+    return java.util.Map.of();
+  }
+
+  /** Esa ventana otra vez en el escritorio, como estaba por dentro; null si ya no hay quien la abra. */
+  default javax.swing.JInternalFrame bringBack(java.util.Map<String, String> kept) {
+    return null;
+  }
 }

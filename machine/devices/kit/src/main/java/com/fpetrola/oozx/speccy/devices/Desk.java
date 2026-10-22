@@ -150,6 +150,16 @@ public interface Desk {
     return null;
   }
 
+  /** The name the desk opened that window under, or null where it is not one of those. */
+  default String nameOf(javax.swing.JInternalFrame window) {
+    return null;
+  }
+
+  /** A window of that name, opened as the desk's menu opens it: the one of the desk, or another of equipment; null where none is. */
+  default javax.swing.JInternalFrame window(String name) {
+    return null;
+  }
+
   /** Un ajuste de pantalla que quedo elegido, para las maquinas que se abran despues. */
   default void rememberScreen(String setting, String value) {
   }

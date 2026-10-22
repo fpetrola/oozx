@@ -21,10 +21,11 @@ import com.fpetrola.oozx.speccy.config.OOZxConfiguration;
 
 /**
  * A window that comes back where it was left: it says what to write down and reads it again.
- * <p>
- * The desk saves this for whatever window offers it, so a window that was found rather than
- * named still reopens where and how it was.
+ *
+ * @deprecated the desk keeps where each window is, and the session what it has inside; this stays
+ * while a published tool-games still implements it.
  */
+@Deprecated
 public interface KeepsItsPlace {
 
   OOZxConfiguration.WindowState saveWindowState();
