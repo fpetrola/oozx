@@ -27,7 +27,6 @@ import com.fpetrola.oozx.speccy.modules.keyboard.PcLayout;
 import com.fpetrola.oozx.speccy.modules.keyboard.RecreatedLayout;
 import com.fpetrola.oozx.speccy.modules.keyboard.SpectrumKey;
 
-import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.peripherals.AbstractPeripheral;
@@ -396,11 +395,8 @@ public class Input extends AbstractPeripheral {
   /** Everything the person at the keyboard reaches the machine through. */
   @Singleton
   public static class Setup {
-    @JsonMerge
     public Pad joystick1 = new Pad();
-    @JsonMerge
     public Pad joystick2 = new Pad();
-    @JsonMerge
     public Keys keyboard = new Keys();
     /** Whether the arrow keys are read shifted, which is what a Spectrum's own cursor keys are. */
     public boolean arrowsShifted;
@@ -434,9 +430,9 @@ public class Input extends AbstractPeripheral {
     public static abstract class Stick {
       public Joystick.JoystickType output;
 
-      /** What the file names, over what this had; a key it leaves out keeps the machine's own. */
+      /** What was chosen, all of it: a key it leaves out is one this does not have any more. */
       void take(Stick chosen) {
-        if (chosen != null && chosen.output != null) output = chosen.output;
+        if (chosen != null) output = chosen.output;
       }
     }
 
@@ -448,8 +444,8 @@ public class Input extends AbstractPeripheral {
       void take(Pad chosen) {
         super.take(chosen);
         if (chosen == null) return;
-        for (int button = 0; button < chosen.fire.length && button < fire.length; button++)
-          if (chosen.fire[button] != null) fire[button] = chosen.fire[button];
+        for (int button = 0; button < fire.length; button++)
+          fire[button] = button < chosen.fire.length ? chosen.fire[button] : null;
       }
     }
 
@@ -503,11 +499,11 @@ public class Input extends AbstractPeripheral {
       void take(Keys chosen) {
         super.take(chosen);
         if (chosen == null) return;
-        if (chosen.up != null) up = chosen.up;
-        if (chosen.down != null) down = chosen.down;
-        if (chosen.left != null) left = chosen.left;
-        if (chosen.right != null) right = chosen.right;
-        if (chosen.fire != null) fire = chosen.fire;
+        up = chosen.up;
+        down = chosen.down;
+        left = chosen.left;
+        right = chosen.right;
+        fire = chosen.fire;
       }
     }
   }

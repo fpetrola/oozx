@@ -35,7 +35,6 @@ import com.fpetrola.oozx.speccy.modules.z80.Cpu;
 import com.fpetrola.oozx.speccy.modules.ports.MachinePortBus;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.fpetrola.oozx.config.Configuration;
 import com.fpetrola.oozx.config.Settings;
 import com.fpetrola.oozx.speccy.modules.timer.Speed;
 import com.google.inject.util.Modules;
@@ -54,7 +53,7 @@ public class Speccy {
   public com.fpetrola.oozx.EmulatorControl control;
   /** This machine's configuration, for whoever has to reach a section nothing else hands out. */
   public final com.fpetrola.oozx.config.Configuration configuration;
-  /** The file's hold on this machine's values, let go of when the machine ends; null for one built without the file. */
+  /** This machine's settings, which start as the file says; null for one built without the file. */
   private Settings settings;
 
   /** What this machine's settings are and where they came from, for whoever shows them to a person. */
@@ -106,8 +105,7 @@ public class Speccy {
     Speccy speccy = injector.getInstance(Speccy.class);
     // The file's values go into the machine here, from outside it: no part of the machine knows
     // there is a file, only that it has a speed, a set of ROMs, and so on.
-    speccy.settings = Settings.load(injector.getInstance(Configuration.class));
-    speccy.settings.into(injector);
+    speccy.settings = Settings.of(injector);
     return speccy;
   }
 
@@ -183,6 +181,5 @@ public class Speccy {
   public void end() {
     timer.end();
     peripheralRegistry.end();
-    if (settings != null) settings.letGo();
   }
 }

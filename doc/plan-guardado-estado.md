@@ -12,7 +12,7 @@ mudanza de los mapeos de aparatos al módulo de mapeos (2b), cada máquina como 
 sesión en archivos (3), el aspecto (4), los aparatos enchufados con sus ventanas (5), el motor del
 SZX para los bloques de los aparatos (6), los aparatos que tienen bloque (7, sin los medios ni JOY),
 las ventanas de escritorio (8) y la prueba de que todo vuelve exactamente igual (9, sin los medios).
-El contrato del paso 1 (`Keeps` y
+Decididas la 1, la 2, la 3 y la 5; queda la 4, los medios. El contrato del paso 1 (`Keeps` y
 `Kept`, que implementaba cada cosa guardada) se descartó y se sacó: un aparato no tiene que saber
 que lo guardan. Lo reemplaza el módulo de mapeos.
 Relevado sobre `traduccion` (oozx, `68d400341`) y `prueba-apuntar` (oozx-plugins, `0e3c6b2`).
@@ -31,8 +31,9 @@ Todo vive en `~/.oozx/config.json`, en la sección `desktop` (`OOZxConfiguration
   qué aparatos estaban enchufados; el aspecto de cada máquina (escalador, filtros, perfiles: solo
   los valores por defecto globales); el volumen y la velocidad de cada una; la cinta, los
   discos, cartuchos y tarjetas que tenían adentro.
-- Los valores de `Settings.mirror` son globales: al guardar, cada máquina escribe los suyos encima
-  y queda el de la última creada.
+- ~~Los valores de `Settings.mirror` son globales: al guardar, cada máquina escribe los suyos
+  encima y queda el de la última creada.~~ Hecho con la decisión 3: son los de las máquinas nuevas,
+  y cada máquina tiene los suyos.
 
 Lo que sabe que se guarda, y deja de saberlo:
 
@@ -161,8 +162,24 @@ Salir) y no hay un guardado a medias que deje referencias sueltas.
    aparatos que conoce (cada lector de snapshots cargaría con todos).
 2. **El sentido de las llamadas.** Decidido: para lo que rodea a una máquina, escritorio → módulo →
    SZX; para los aparatos, el formato consulta los mapeos al leer y al escribir.
-3. **Ajustes por máquina o globales.** Recomendado: en la sesión van los de cada máquina; en
-   `config.json` quedan los valores para las máquinas nuevas.
+3. **Ajustes por máquina o globales.** Decidido el 23 de octubre: en la sesión van los de cada
+   máquina; en `config.json` quedan los valores para las máquinas nuevas, y los cambia solo la
+   ventana de valores por defecto (la de ajustes, desenganchada). **Hecho:**
+   - al guardar, las máquinas abiertas ya no escriben sus ajustes en el archivo. Se fueron
+     `Configuration.beforeSave`, `notBeforeSave` y `put`, `Settings.letGo` y `from`, y
+     `Settings.Part`, que con eso quedaba con un método y una sola clase;
+   - un valor por defecto cambiado ya no se les pone a las máquinas abiertas: estaba solo porque
+     ellas lo iban a pisar al guardar;
+   - un joystick o un teclado que se le pone a una máquina (`Input.Setup.setJoystick1`, `setKeyboard`)
+     es todo lo que tiene. Antes se sumaba al que tenía, y una máquina sin joystick volvía con el de
+     los valores por defecto. Lo que el archivo no dice lo sigue cubriendo la mezcla de su JSON con
+     el del build.
+
+   Pruebas, en rojo antes: `whatAMachineHoldsStaysOutOfTheFile` (una velocidad), `theFileReachesTheSetup`
+   (un teclado) y `theDefaultsChangedWhileItIsOpenAreForTheMachinesOpenedAfterIt` (un joystick que
+   cambia en los valores por defecto con la máquina abierta). Queda: el lanzador pone tiempo real a
+   cada máquina que crea, sin mirar la velocidad por defecto (20000 en el `config.json` del build).
+   Antes el primer guardado escribía 100 en el archivo.
 4. **Los medios.** Recomendado: si el archivo está igual que cuando se abrió, se guarda su ruta;
    si la máquina escribió en él (un disco formateado, un microdrive), se guarda la imagen adentro,
    como prevén los bloques DSK, BDSK, PDSK, ODSK y MDRV.
@@ -435,10 +452,9 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    - qué ventana está elegida no se ve sin pantalla;
    - una ventana enganchada vuelve justo delante de su máquina, aunque antes hubiera otra entre las
      dos;
-   - al cerrar, cada máquina escribe sus ajustes en `config.json` como valores para las máquinas
-     nuevas (`Settings.mirror`) y queda el de la última (decisión 3). Con eso, una máquina puede
-     volver con algo de otra: un `Pad` se pone sumando (`Input.Setup.Pad.take`), y un joystick que
-     la máquina no tenía se le queda;
+   - ~~al cerrar, cada máquina escribe sus ajustes en `config.json` como valores para las máquinas
+     nuevas y queda el de la última; con eso, una máquina puede volver con un joystick de otra~~:
+     hecho con la decisión 3;
    - una sesión guardada antes de este paso vuelve una vez con cada ventana de máquina donde la pone
      el escritorio: su lugar estaba en `OOZX`.
 

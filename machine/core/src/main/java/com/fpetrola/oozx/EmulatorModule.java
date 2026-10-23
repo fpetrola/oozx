@@ -129,7 +129,7 @@ public class EmulatorModule extends AbstractModule {
     com.google.inject.multibindings.OptionalBinder
         .newOptionalBinder(binder(), com.fpetrola.oozx.speccy.modules.ula.EarLine.class)
         .setDefault().toInstance(com.fpetrola.oozx.speccy.modules.ula.EarLine.NOTHING_PLUGGED_IN);
-    Multibinder.newSetBinder(binder(), com.fpetrola.oozx.config.Settings.Part.class);
+    Multibinder.newSetBinder(binder(), com.fpetrola.oozx.config.Settings.Mirror.class);
     arrived.forEach(this::install);
 
     // The machines themselves arrive as extensions, bound into Set<Spectrum>; none is named here.

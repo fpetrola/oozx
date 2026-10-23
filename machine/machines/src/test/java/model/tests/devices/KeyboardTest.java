@@ -31,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
@@ -279,7 +280,10 @@ class KeyboardTest extends MachineTest {
         new Input.InputEventKey(key, key)));
   }
 
-  /** Config JSON overrides only the input keys it names; unmentioned keys keep their defaults. */
+  /**
+   * Config JSON overrides only the input keys it names; unmentioned keys keep their defaults. A
+   * keyboard given to the machine afterwards is the whole of it, which is how a kept one comes back.
+   */
   @Test
   void theFileReachesTheSetup() throws Exception {
     Path file = Files.createTempFile("oozx", ".json");
@@ -293,6 +297,6 @@ class KeyboardTest extends MachineTest {
     onlyUp.up = Input.InputKey.INPUT_KEY_q;
     setup.setKeyboard(onlyUp);
     assertEquals(Input.InputKey.INPUT_KEY_q, setup.keyboard.up);
-    assertEquals(Input.InputKey.INPUT_KEY_space, setup.keyboard.fire, "a key the file did not name is still the machine's own");
+    assertNull(setup.keyboard.fire, "a key the keyboard given did not name is not the one the machine had");
   }
 }

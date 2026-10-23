@@ -30,8 +30,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * The file's values reach the machine's parts from outside, and the parts' values reach the file
- * on save, with no part of the machine knowing there is a file.
+ * The file's values reach the machine's parts from outside, with no part of the machine knowing
+ * there is a file. They are what a machine starts with: what it holds after that is its own.
  */
 class SettingsReachTheMachineTest {
   private static Speccy machineWith(File file) {
@@ -56,24 +56,13 @@ class SettingsReachTheMachineTest {
   }
 
   @Test
-  void whatTheMachineHoldsIsWhatTheFileWrites() throws Exception {
-    Path file = Files.createTempFile("oozx", ".json");
-    Files.writeString(file, "{}");
-    Speccy speccy = machineWith(file.toFile());
-    speccy.speed.emulation = 456;
-    speccy.configuration.save();
-    assertEquals(456, machineWith(file.toFile()).speed.emulation, "the speed the knob was turned to is the one read back");
-  }
-
-  @Test
-  void aMachineThatEndedNoLongerWritesItsValues() throws Exception {
+  void whatAMachineHoldsStaysOutOfTheFile() throws Exception {
     Path file = Files.createTempFile("oozx", ".json");
     Files.writeString(file, "{\"speed\": {\"emulation\": 123}}");
     Configuration shared = new Configuration(file.toFile());
-    Speccy gone = MachineTest.silentMachine(binder -> binder.bind(Configuration.class).toInstance(shared));
-    gone.speed.emulation = 456;
-    gone.end();
+    Speccy open = MachineTest.silentMachine(binder -> binder.bind(Configuration.class).toInstance(shared));
+    open.speed.emulation = 456;
     shared.save();
-    assertEquals(123, machineWith(file.toFile()).speed.emulation, "what a closed machine held stays out of the file");
+    assertEquals(123, machineWith(file.toFile()).speed.emulation, "the speed one machine was turned to is not what the next one starts with");
   }
 }

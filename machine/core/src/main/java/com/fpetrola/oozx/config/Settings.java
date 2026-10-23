@@ -32,18 +32,11 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Copies config values into machine parts ({@link Speed}, {@link Sound.Output}, etc.) after the machine is built,
- * and back out before the file is written; the machine itself has no reference to this class.
- * A field is null only when neither the file nor the shipped config.json set it.
+ * Copies config values into machine parts ({@link Speed}, {@link Sound.Output}, etc.) after the machine is built:
+ * the file says what a machine starts with, and what it holds after that is its own. The machine itself has no
+ * reference to this class. A field is null only when neither the file nor the shipped config.json set it.
  */
 public final class Settings {
-  /** Lets a device's own module contribute its settings sync, since Settings can't know about jars it never imports. */
-  public interface Part {
-    void into();
-
-    void from();
-  }
-
   /**
    * What something says about the settings it has: the name they are kept under, which they are,
    * and what each one is. Said by a device about its own properties, and by anything else that has
@@ -73,11 +66,10 @@ public final class Settings {
 
   /**
    * What a device said about itself: which section of the file it keeps, what holds it, and which
-   * of its properties are settings rather than workings. A {@link Part} that also answers what it
-   * is about, so that something wanting to show these to a person - rather than copy them - does
-   * not need a second list of the same thing.
+   * of its properties are settings rather than workings. Said from the device's own module, since
+   * Settings can't know about jars it never imports.
    */
-  public static final class Mirror implements Part, Described {
+  public static final class Mirror implements Described {
     private final String name;
     private final Class<?> device;
     private final List<String> properties;
@@ -153,20 +145,12 @@ public final class Settings {
 
         public void set(String property, Object value) {
           configuration.get().setValue(name, property, value);
-          if (value == null) return;
-          // Each open machine writes what it holds into the file before it is saved, so it has to hold this too.
-          List.copyOf(OPEN.keySet()).forEach(open -> open.mirrors.stream()
-              .filter(mirror -> mirror.name.equals(name)).forEach(mirror -> mirror.live().set(property, value)));
         }
       };
     }
 
-    public void into() {
+    void into() {
       configuration.get().fill(name, held.get(), properties.toArray(new String[0]));
-    }
-
-    public void from() {
-      configuration.get().put(name, held.get(), properties.toArray(new String[0]));
     }
   }
 
@@ -259,7 +243,7 @@ public final class Settings {
   }
 
   /**
-   * Binds a {@link Part} that syncs the named properties of {@code device} with the config file, so
+   * Binds a {@link Mirror} that fills the named properties of {@code device} from the config file, so
    * a module needn't write that out itself. The machine's own parts - the speed it runs at, whether
    * its ROMs can be written - say it the same way as anything plugged into it: there used to be a
    * second spelling of this for them, and nothing ever asked which of the two a setting came from.
@@ -274,37 +258,23 @@ public final class Settings {
     DECLARED.removeIf(declared -> declared.name().equals(name));
     DECLARED.add(new Mirror(name, device, List.of(properties), Configuration::shared,
         () -> { throw new IllegalStateException(name + " is a declaration, not a device"); }));
-    Multibinder.newSetBinder(binder, Part.class).addBinding().toInstance(mirror);
+    Multibinder.newSetBinder(binder, Mirror.class).addBinding().toInstance(mirror);
   }
 
-  private static final Key<Set<Part>> PARTS = Key.get(new TypeLiteral<Set<Part>>() {});
+  private static final Key<Set<Mirror>> MIRRORS = Key.get(new TypeLiteral<Set<Mirror>>() {});
 
-  private final Configuration configuration;
+  private final List<Mirror> mirrors;
 
-  private Settings(Configuration configuration) {
-    this.configuration = configuration;
+  private Settings(List<Mirror> mirrors) {
+    this.mirrors = mirrors;
   }
 
-  public static Settings load(Configuration configuration) {
-    return new Settings(configuration);
+  /** The settings of the machine this injector built, with the file's values put into its parts: through the injector, so this needs no knowledge of which module holds which. */
+  public static Settings of(Injector injector) {
+    Set<Mirror> mirrors = injector.getInstance(MIRRORS);
+    mirrors.forEach(Mirror::into);
+    return new Settings(mirrors.stream().sorted(java.util.Comparator.comparing(Mirror::name)).toList());
   }
-
-  /** Applies file values to the machine's parts (via the injector, so this needs no knowledge of which module holds which) and registers {@link #from} to run on every later save. */
-  public void into(Injector injector) {
-    mirrors = injector.getInstance(PARTS).stream().filter(Mirror.class::isInstance)
-        .map(Mirror.class::cast).sorted(java.util.Comparator.comparing(Mirror::name)).toList();
-    injector.getInstance(PARTS).forEach(Part::into);
-
-    gather = () -> from(injector);
-    configuration.beforeSave(gather);
-    OPEN.put(this, true);
-  }
-
-  private Runnable gather;
-  private List<Mirror> mirrors = List.of();
-  /** The settings of every machine that is open, held weakly like the file holds their gathering. */
-  private static final java.util.Map<Settings, Boolean> OPEN =
-      java.util.Collections.synchronizedMap(new java.util.WeakHashMap<>());
 
   /** The devices of this machine that have settings, with their own instances behind them. */
   public List<Configurable> devices() {
@@ -315,15 +285,5 @@ public final class Settings {
   public static List<Configurable> defaults() {
     return declared().stream().map(mirror -> new Configurable(mirror, mirror.inTheFile())).toList();
   }
-
-  public void letGo() {
-    configuration.notBeforeSave(gather);
-    OPEN.remove(this);
-  }
-
-  public void from(Injector injector) {
-    injector.getInstance(PARTS).forEach(Part::from);
-  }
-
 
 }

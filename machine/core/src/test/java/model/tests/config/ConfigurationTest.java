@@ -194,7 +194,7 @@ class ConfigurationTest {
     assertFalse(again.of(RadioSection.class).on, "writing the inner one did not take the outer one with it");
   }
 
-  /** A device knows no section: its module names its properties, the file sets them and reads them back. */
+  /** A device knows no section: its module names its properties, and the file sets them. */
   public static class Knob {
     private int level = 70;
 
@@ -208,20 +208,12 @@ class ConfigurationTest {
   }
 
   @Test
-  void aPropertyFilledByNameIsWrittenBackUnderIt(@TempDir Path dir) throws Exception {
+  void aPropertyTheFileLeavesOutKeepsWhatTheDeviceWasBuiltWith(@TempDir Path dir) throws Exception {
     File file = write(dir, """
         { "covox": { "other": 1 } }""");
-    Configuration configuration = new Configuration(file);
     Knob knob = new Knob();
-    configuration.fill("covox", knob, "level");
-    assertEquals(70, knob.level(), "a key the file leaves out keeps what the device was built with");
-
-    knob.setLevel(10);
-    configuration.put("covox", knob, "level");
-    configuration.save();
-    Knob again = new Knob();
-    new Configuration(file).fill("covox", again, "level");
-    assertEquals(10, again.level(), "and what the device held is what the file has");
+    new Configuration(file).fill("covox", knob, "level");
+    assertEquals(70, knob.level());
   }
 
   /** The ROM table is the file's: an entry it names goes over what shipped, and the rest stay. */
@@ -239,31 +231,5 @@ class ConfigurationTest {
     File file = dir.resolve("config.json").toFile();
     Files.writeString(file.toPath(), json);
     return file;
-  }
-
-  /**
-   * There is one configuration for the whole program and every machine ever built registers with
-   * it to be saved. If it held those callbacks, it would hold the machine behind each of them: the
-   * suite that builds a machine per test ran out of two gigabytes of heap doing exactly that.
-   */
-  @Test
-  void aMachineNobodyHasAnyMoreIsNotKeptAliveByHavingAskedToBeSaved(@TempDir Path where) {
-    Configuration configuration = new Configuration(where.resolve("config.json").toFile());
-    java.util.List<String> ran = new java.util.ArrayList<>();
-
-    Runnable kept = () -> ran.add("kept");
-    configuration.beforeSave(kept);
-    Runnable dropped = () -> ran.add("dropped");
-    configuration.beforeSave(dropped);
-    java.lang.ref.WeakReference<Runnable> watching = new java.lang.ref.WeakReference<>(dropped);
-    dropped = null;
-
-    for (int tries = 0; tries < 100 && watching.get() != null; tries++) System.gc();
-    assertNull(watching.get(), "nothing but the configuration was holding it");
-
-    configuration.beforeSave(() -> {
-    });
-    configuration.save();
-    assertEquals(java.util.List.of("kept"), ran, "the one still held ran, the one let go did not");
   }
 }
