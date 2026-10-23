@@ -190,6 +190,21 @@ public class Configuration {
     make(name).set(property, json.valueToTree(value));
   }
 
+  /** A setting as one line of text, the way the file has it: a number, a word or a name as it is, anything bigger as JSON. */
+  public static String asText(Object value) {
+    JsonNode node = json.valueToTree(value);
+    return node.isValueNode() ? node.asText() : node.toString();
+  }
+
+  /** The same back, as what the device holds. */
+  public static Object fromText(String text, Class<?> type) {
+    try {
+      return json.readValue(text, type);
+    } catch (com.fasterxml.jackson.core.JsonProcessingException aWord) {
+      return json.convertValue(text, type);
+    }
+  }
+
   /** Reads one property of a part, whether it is written as a field or as any of the usual getters. */
   public static Object read(Object held, String property) throws ReflectiveOperationException {
     try {

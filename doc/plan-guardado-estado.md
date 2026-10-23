@@ -7,11 +7,12 @@ entorno. **Nada de lo que se guarda sabe que se guarda**: ni los aparatos, ni la
 las ventanas tienen algo para guardarse o restaurarse. Cómo va cada cosa a un archivo lo sabe quien
 conoce ese archivo.
 
-**Estado (22 de octubre de 2026):** hechos el paso 0 (en el código), lo de llevar bloques del 2, la
+**Estado (23 de octubre de 2026):** hechos el paso 0 (en el código), lo de llevar bloques del 2, la
 mudanza de los mapeos de aparatos al módulo de mapeos (2b), cada máquina como sí misma (2c), la
 sesión en archivos (3), el aspecto (4), los aparatos enchufados con sus ventanas (5), el motor del
-SZX para los bloques de los aparatos (6), los aparatos que tienen bloque (7, sin los medios ni JOY)
-y las ventanas de escritorio (8). El contrato del paso 1 (`Keeps` y
+SZX para los bloques de los aparatos (6), los aparatos que tienen bloque (7, sin los medios ni JOY),
+las ventanas de escritorio (8) y la prueba de que todo vuelve exactamente igual (9, sin los medios).
+El contrato del paso 1 (`Keeps` y
 `Kept`, que implementaba cada cosa guardada) se descartó y se sacó: un aparato no tiene que saber
 que lo guardan. Lo reemplaza el módulo de mapeos.
 Relevado sobre `traduccion` (oozx, `68d400341`) y `prueba-apuntar` (oozx-plugins, `0e3c6b2`).
@@ -94,7 +95,7 @@ Sabe:
   sin tocar el módulo.
 - **El aspecto**, también neutral: `ScreenSettings.values()` y `apply(valores)`, todas las perillas
   por nombre.
-- **La ventana de la máquina** (lugar, tamaño, pausa, mudo), **las herramientas** (los pokes
+- **La ventana de la máquina** (pausa, mudo; su lugar lo guarda el escritorio), **las herramientas** (los pokes
   aplicados, por la API de `PokesTool`), **qué aparatos están enchufados** y **cada ventana de
   equipo enganchada** (qué equipo, lado, tamaño, compacta), cada una por su API.
 - **El estado de los aparatos sin bloque estándar** (µSource, impresora paralela) y lo que un aparato
@@ -113,8 +114,8 @@ escritorio.
 |---|---|---|
 | Bloques estándar del SZX, de la máquina base | `SzxFormat` (`devices/snapshots`) | Z80R, SPCR, KEYB, RAMP |
 | Bloques estándar del SZX, de los aparatos | el módulo de mapeos, por el rol `Mapping` que el formato consulta | AY, PLTT; después MFCE, IF1 y MDRV, B128 y BDSK, PLSD, OPUS, +3 y DSK, DIDE, DMMC, ZXAT, ZXCF, SIDE, COVX, DRUM, AMXM, ZXPR, JOY, TAPE, SCLD, DOCK, USPE, ROM |
-| Bloque propio en el SZX | el módulo de mapeos, llamado por el escritorio | la ventana de la máquina; los ajustes de la máquina y de sus aparatos; el aspecto; mudo; pokes aplicados; qué aparatos están enchufados; cada ventana de equipo enganchada; los aparatos sin bloque estándar; lo que un aparato tiene de más |
-| JSON del entorno | el entorno base | la ventana principal; los archivos de la sesión, en orden; los recientes; los valores para las máquinas nuevas; las ventanas de escritorio |
+| Bloque propio en el SZX | el módulo de mapeos, llamado por el escritorio | la pausa y el archivo de la máquina; los ajustes de la máquina y de sus aparatos; el aspecto; mudo; pokes aplicados; qué aparatos están enchufados; cada ventana de equipo enganchada; los aparatos sin bloque estándar; lo que un aparato tiene de más |
+| JSON del entorno | el entorno base | la ventana principal; los archivos de la sesión, en orden; los recientes; los valores para las máquinas nuevas; dónde está cada ventana, de máquina o de escritorio, y si está maximizada o minimizada; qué es cada ventana de escritorio, como lo dice el módulo |
 
 ## El bloque propio
 
@@ -142,8 +143,9 @@ para eso (Z80, SNA, SP) avisan y escriben solo la máquina.
    su bloque, la máquina exacta y sus ROMs, los ajustes y lo enchufado, con el reset que pide
    enchufar algunos aparatos; y lo que enchufan los bloques estándar. Recién ahí recorre la máquina.
    Abrirlos de atrás hacia adelante deja el orden de las ventanas sin guardarlo aparte.
-3. Le pide al módulo lo de alrededor: ubica la ventana, la pausa, el archivo, los pokes y el
-   aspecto, y reengancha sus ventanas de equipo, que encuentran su aparato ya enchufado.
+3. Le pide al módulo lo de alrededor: la pausa, el archivo, los pokes y el aspecto, y reengancha
+   sus ventanas de equipo, que encuentran su aparato ya enchufado. Después pone la ventana donde
+   estaba, maximizada o minimizada, y las enganchadas la siguen.
 4. Se reabren las ventanas de escritorio.
 
 Al guardar, lo mismo al revés. Se guarda al cerrar por cualquier camino (la ventana o Archivo >
@@ -169,7 +171,8 @@ Salir) y no hay un guardado a medias que deje referencias sueltas.
    si está plegada y lo que tiene adentro lo dice el módulo por el rol `Session`, como clave=valor
    que el escritorio guarda en la misma entrada del JSON sin leerlo. Descartado: que el módulo
    mapee también el lugar, en una sección propia (un mapeo por tipo de ventana aunque solo guarde
-   dónde está, y el apilado con las máquinas aparte).
+   dónde está, y el apilado con las máquinas aparte). Desde el paso 9 vale también para las ventanas
+   de máquina: su lugar lo guarda el escritorio, y el módulo lo de alrededor de la máquina.
 
 ## Los pasos
 
@@ -199,8 +202,8 @@ Uno por commit. Cada uno nace con su prueba en rojo.
 3. **La sesión en archivos.** **Hecho:** el rol `Session` en el kit; el escritorio escribe un
    `~/.oozx/session/<n>.szx` por ventana de máquina, de atrás hacia adelante, borra los que
    sobran y los nombra en `openWindows`; al volver los abre como cualquier archivo y le pide al
-   módulo lo de alrededor. `SzxSession` (`tools/mappings`) guarda en `OOZX` el lugar y tamaño de
-   la ventana, la pausa, el archivo de donde salió la máquina, el procesador, el turbo y todos los
+   módulo lo de alrededor. `SzxSession` (`tools/mappings`) guarda en `OOZX` la pausa (el lugar y
+   tamaño de la ventana también, hasta el paso 9), el archivo de donde salió la máquina, el procesador, el turbo y todos los
    ajustes declarados (`Settings.devices()`: volumen, mudo, joystick, cada aparato). Los ajustes se
    ponen antes de recorrer la máquina, con el paso 5: un Melodik que pone un ajuste tiene que estar
    cuando se lee el bloque AY.
@@ -388,12 +391,56 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    - el escritorio no se probó corriendo;
    - las ventanas de escritorio de una configuración vieja (el catálogo con su búsqueda) no vuelven
      esa vez: no tienen `inside`;
-   - minimizada o maximizada no se guarda;
+   - ~~minimizada o maximizada no se guarda~~: hecho en el 9;
    - lo de adentro de las demás: la página de los ajustes, lo tildado en la de plugins, la cinta de la
      casetera (decisión 4).
 9. **"Exactamente igual".** Una prueba que arma varias máquinas con aparatos, medios y ventanas,
    cierra, levanta un escritorio nuevo y compara: el SZX que escribe cada máquina, byte a byte, y el
-   lugar, tamaño y estado de cada ventana.
+   lugar, tamaño y estado de cada ventana. **Hecho, sin los medios:**
+   - **La prueba**, `theDeskComesBackExactlyAsItWasLeft` (`AMachineComesBackWithItsWindowTest`), arma
+     en un escritorio:
+     - una 128K pausada, más baja y muda, con su aspecto, zoom 3, un poke aplicado y la SpecDrum y la
+       impresora enganchadas abajo;
+     - una 48K con la Melodik, un joystick Sinclair, la Interface 2 con un cartucho y el mouse
+       enganchado a la derecha;
+     - una Pentagon maximizada, con su Beta 128 y una Covox;
+     - el catálogo minimizado, buscando algo, y una impresora suelta.
+
+     Lo guarda como lo guarda el escritorio, lo abre en otro y compara cada ventana de atrás hacia
+     adelante: qué es, dónde está, su tamaño, si está maximizada o minimizada, cómo se pliega y a cuál
+     está enganchada. Guardado otra vez, compara cada archivo bloque por bloque y byte a byte.
+   - **El escritorio guarda y reabre con métodos de `Desk`** (en el kit): `keep(sesión, ventanas,
+     carpeta)` y `bringBack(sesión, lo guardado)`, y `machineFrom(archivo)`, que implementa cada
+     escritorio. Salieron de `ZXSpectrumDesktopApp`, que ninguna prueba puede armar: así la prueba corre
+     lo mismo que el escritorio y no una copia. `putMachinesAway` usa lo mismo.
+   - **El lugar de toda ventana es del escritorio**, también el de las de máquina: su tamaño normal y si
+     está maximizada o minimizada (`WindowState.maximum` e `icon`). `OOZX` ya no lo lleva. Es la
+     decisión 5 llevada a las máquinas.
+   - **Lo que encontró la prueba:**
+     - el joystick y el teclado (`input.joystick1`, `joystick2`, `keyboard`) se escribían como
+       `Pad@2e913e78` y no volvían. Ahora cada ajuste se escribe como lo escribe `config.json`
+       (`Configuration.asText` y `fromText`: un número, una palabra o un nombre tal cual, y lo demás
+       en JSON), y se fue la conversión a mano de `SzxSession`;
+     - un archivo con B128 enchufaba la Beta de a bordo de una Pentagon, y con el plugin de la
+       enchufable le ponía una segunda en los mismos puertos. Ahora la enchufa solo donde no viene de
+       fábrica, como ya decía su javadoc;
+     - la Pentagon maximizada volvía del tamaño del escritorio sin estar maximizada, y el catálogo
+       minimizado volvía abierto.
+   - En rojo antes de cada arreglo. Con `fromText` sin JSON, el joystick vuelve sin salida.
+
+   Pendiente:
+   - los medios (decisión 4): la cinta, los discos, los microdrives, el DOCK y la ROM propia. De medios
+     la prueba tiene solo el cartucho de la Interface 2, que va en su bloque;
+   - el escritorio no se probó corriendo;
+   - qué ventana está elegida no se ve sin pantalla;
+   - una ventana enganchada vuelve justo delante de su máquina, aunque antes hubiera otra entre las
+     dos;
+   - al cerrar, cada máquina escribe sus ajustes en `config.json` como valores para las máquinas
+     nuevas (`Settings.mirror`) y queda el de la última (decisión 3). Con eso, una máquina puede
+     volver con algo de otra: un `Pad` se pone sumando (`Input.Setup.Pad.take`), y un joystick que
+     la máquina no tenía se le queda;
+   - una sesión guardada antes de este paso vuelve una vez con cada ventana de máquina donde la pone
+     el escritorio: su lugar estaba en `OOZX`.
 
 ## Lo que no entra
 

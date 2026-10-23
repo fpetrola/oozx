@@ -609,6 +609,9 @@ public class OOZxConfiguration implements Configuration.Saves {
     private List<PokModState> appliedPokes = new ArrayList<>();
     /** What the session says the window is and has inside, which the desk keeps without reading. */
     private Map<String, String> inside;
+    /** Maximised or minimised, over the place above, which is where it goes back to. */
+    private boolean maximum;
+    private boolean icon;
 
     public WindowState() {
     }
@@ -619,6 +622,22 @@ public class OOZxConfiguration implements Configuration.Saves {
 
     public void setInside(Map<String, String> inside) {
       this.inside = inside;
+    }
+
+    public boolean isMaximum() {
+      return maximum;
+    }
+
+    public void setMaximum(boolean maximum) {
+      this.maximum = maximum;
+    }
+
+    public boolean isIcon() {
+      return icon;
+    }
+
+    public void setIcon(boolean icon) {
+      this.icon = icon;
     }
 
     public WindowState(String type, int x, int y, int width, int height) {

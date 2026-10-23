@@ -17,7 +17,16 @@
 
 package com.fpetrola.oozx.speccy.devices;
 
+import com.fpetrola.oozx.speccy.config.OOZxConfiguration.WindowState;
+
+import javax.swing.JInternalFrame;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * What a window that was found can ask of the desk it was opened on.
@@ -30,6 +39,9 @@ import java.io.File;
  * There is one, set by whoever runs the desk. With none - the tests, a headless build - asking
  * for a file gets nothing and asking for a machine does nothing, which is what a window with no
  * desk under it should see.
+ * <p>
+ * How a desk keeps its windows from one run to the next is here too, so that any desk, the
+ * application's or a test's, keeps them and brings them back the same way.
  */
 public interface Desk {
 
@@ -151,13 +163,87 @@ public interface Desk {
   }
 
   /** The name the desk opened that window under, or null where it is not one of those. */
-  default String nameOf(javax.swing.JInternalFrame window) {
+  default String nameOf(JInternalFrame window) {
     return null;
   }
 
   /** A window of that name, opened as the desk's menu opens it: the one of the desk, or another of equipment; null where none is. */
-  default javax.swing.JInternalFrame window(String name) {
+  default JInternalFrame window(String name) {
     return null;
+  }
+
+  /** A window with the machine of that file, opened as any file is; null where none came of it. */
+  default EmulatorWindow machineFrom(File file) {
+    return null;
+  }
+
+  /**
+   * Those windows, from the back to the front, written down so that opening them again in that order
+   * leaves them stacked as they were: each machine as a file of that folder, and any other window the
+   * session knows. What the folder held before and is not kept now goes.
+   */
+  default List<WindowState> keep(Session session, List<JInternalFrame> windows, File folder) {
+    List<WindowState> kept = new ArrayList<>();
+    for (JInternalFrame window : windows) {
+      WindowState state = keep(session, window, folder, kept.size());
+      if (state != null) kept.add(state);
+    }
+    Set<String> files = kept.stream().map(WindowState::getFilePath).filter(Objects::nonNull).collect(Collectors.toSet());
+    File[] before = folder.listFiles();
+    if (before != null) Arrays.stream(before).filter(file -> !files.contains(file.getPath())).forEach(File::delete);
+    return kept;
+  }
+
+  /**
+   * That window written down: where it is, maximised or minimised, and what it is: a machine as file n
+   * of that folder, written by the session, and any other as the session says. Null where the session
+   * does not keep it, or could not.
+   */
+  default WindowState keep(Session session, JInternalFrame window, File folder, int n) {
+    if (session == null) return null;
+    try {
+      java.awt.Rectangle place = window.getNormalBounds();
+      WindowState state = new WindowState(window instanceof EmulatorWindow ? "EMULATOR" : "WINDOW", place.x, place.y, place.width, place.height);
+      state.setMaximum(window.isMaximum());
+      state.setIcon(window.isIcon());
+      if (window instanceof EmulatorWindow machine) {
+        File file = new File(folder, n + "." + session.extension());
+        byte[] bytes = session.write(machine);
+        folder.mkdirs();
+        java.nio.file.Files.write(file.toPath(), bytes);
+        state.setFilePath(file.getPath());
+        return state;
+      }
+      state.setInside(session.keep(window));
+      return state.getInside().isEmpty() ? null : state;
+    } catch (Exception | LinkageError cannot) {
+      System.err.println("Error guardando la ventana " + window.getTitle() + ": " + cannot);
+      return null;
+    }
+  }
+
+  /** Each window kept, in that order, where it was: a machine from its file as any file opens, any other as the session brings it back. */
+  default void bringBack(Session session, List<WindowState> kept) {
+    for (WindowState state : kept) {
+      try {
+        JInternalFrame window = null;
+        if ("EMULATOR".equals(state.getType())) {
+          File file = new File(state.getFilePath());
+          EmulatorWindow machine = file.isFile() ? machineFrom(file) : null;
+          if (machine != null && session != null) session.bringBack(java.nio.file.Files.readAllBytes(file.toPath()), machine);
+          if (machine instanceof JInternalFrame frame) window = frame;
+        } else if (session != null && state.getInside() != null) {
+          window = session.bringBack(state.getInside());
+          if (window != null) place(window);
+        }
+        if (window == null) continue;
+        if (state.getWidth() > 0) window.setBounds(state.getX(), state.getY(), state.getWidth(), state.getHeight());
+        window.setMaximum(state.isMaximum());
+        window.setIcon(state.isIcon());
+      } catch (Exception | LinkageError cannot) {
+        System.err.println("Error restaurando " + (state.getFilePath() != null ? state.getFilePath() : state.getInside()) + ": " + cannot);
+      }
+    }
   }
 
   /** Un ajuste de pantalla que quedo elegido, para las maquinas que se abran despues. */
