@@ -57,6 +57,8 @@ public abstract class Spectrum extends AbstractSpectrumMachine {
 
   private long frames;
   private final Timer timer;
+  /** The ROM chips it is switched on with, by page, each as long as it is. */
+  private final java.util.Map<Integer, Integer> romChips = new java.util.TreeMap<>();
   protected Sound sound;
 
   public Spectrum(MemoryBus memory, SpectrumMemory banks, Display display, Scheduler scheduler, Cpu cpu, Timer timer, PeripheralRegistry peripherals, Sound sound, Roms roms) {
@@ -109,6 +111,31 @@ public abstract class Spectrum extends AbstractSpectrumMachine {
   /** This machine's ROM page, whichever bytes stand in for it outside. */
   public void loadRom(int pageNum, int expectedLength) {
     banks.rom(pageNum).fill(roms.of(this, pageNum, expectedLength));
+    romChips.put(pageNum, expectedLength);
+  }
+
+  /** What its ROM chips hold now, one after another. */
+  public byte[] rom() {
+    java.io.ByteArrayOutputStream all = new java.io.ByteArrayOutputStream();
+    romChips.forEach((page, length) -> all.write(banks.rom(page).bytes, 0, length));
+    return all.toByteArray();
+  }
+
+  /** What they would hold made from those ROMs: from a choice nobody made, what this build makes it with. */
+  public byte[] romOf(Roms from) {
+    java.io.ByteArrayOutputStream all = new java.io.ByteArrayOutputStream();
+    romChips.forEach((page, length) -> all.writeBytes(from.of(this, page, length)));
+    return all.toByteArray();
+  }
+
+  /** Those bytes in its ROM chips, one after another, as far as they go. */
+  public void rom(byte[] image) {
+    int at = 0;
+    for (java.util.Map.Entry<Integer, Integer> chip : romChips.entrySet()) {
+      if (at >= image.length) return;
+      banks.rom(chip.getKey()).fill(java.util.Arrays.copyOfRange(image, at, Math.min(image.length, at + chip.getValue())));
+      at += chip.getValue();
+    }
   }
 
   private final class EndOfFrame extends Task {
