@@ -291,7 +291,7 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    aplicados van en `OOZX` por la API de `PokesTool`, y el botón de mudo y su volumen leen la
    máquina cada vez que se muestran, sin que nadie les avise (`TheMuteButtonSaysWhatTheMachineDoesTest`).
    Pendiente:
-   - el escritorio no se probó corriendo: arma máquinas con sonido y ventanas sobre la pantalla;
+   - ~~el escritorio no se probó corriendo~~ (corrió en el paso 9, el 24 de octubre);
    - el historial sigue con los snapshots empaquetados;
    - sin el plugin de mapeos las máquinas no vuelven, y nada lo pide todavía.
 4. **El aspecto.** **Hecho.** `OOZX` lleva cada perilla de la pantalla de la ventana
@@ -301,7 +301,7 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    entrada y las líneas del menú de TV), les ponía a todas las ventanas abiertas todos los valores
    por defecto y les borraba el aspecto propio; ahora les pone solo el que cambió. Prueba, en rojo
    antes y en verde después: `itsPictureIsShownAsItWas`. Pendiente:
-   - el escritorio no se probó corriendo;
+   - ~~el escritorio no se probó corriendo~~ (corrió en el paso 9, el 24 de octubre);
    - el botón del borde de una ventana también lo cambia en las otras abiertas, sin darles ni
      sacarles el lugar (ya era así);
    - las perillas de un efecto que vino en un plugin son las mismas para todas las ventanas (ya era
@@ -327,7 +327,7 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    - el lado al que vuelve el botón de enganchar, si no es el que tiene;
    - la memoria del escritorio de qué ventanas ya le ofreció a cada máquina: una del joystick que
      se cerró se vuelve a abrir una vez después de arrancar, si el juego usa el joystick;
-   - el escritorio no se probó corriendo.
+   - ~~el escritorio no se probó corriendo~~ (corrió en el paso 9, el 24 de octubre).
 6. **El motor del SZX para los bloques que faltan.** **Hecho.** Lo que un mapeo puede declarar
    ahora:
    - `Fixed.pages(id, largo)`: un bloque que viene una vez por página, como RAMP (ATRP y CFRP de
@@ -467,7 +467,7 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    una máquina y una que el escritorio no abrió no se guardan. En rojo sin los métodos de la sesión
    (no guarda ninguna) y sin `GamesWindowMapping` (la búsqueda vuelve vacía).
    Pendiente:
-   - el escritorio no se probó corriendo;
+   - ~~el escritorio no se probó corriendo~~ (corrió en el paso 9, el 24 de octubre);
    - las ventanas de escritorio de una configuración vieja (el catálogo con su búsqueda) no vuelven
      esa vez: no tienen `inside`;
    - ~~minimizada o maximizada no se guarda~~: hecho en el 9;
@@ -511,7 +511,17 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    - ~~los medios (decisión 4): la cinta, los discos, los microdrives, el DOCK y la ROM propia. De medios
      la prueba tiene solo el cartucho de la Interface 2, que va en su bloque~~: la prueba lleva ahora
      también una cinta y un disco; la ROM propia sigue en la decisión 4;
-   - el escritorio no se probó corriendo;
+   - ~~el escritorio no se probó corriendo~~: corrió el 24 de octubre en Xephyr, con una copia de la
+     configuración de Fernando y los plugins recién armados, como lo arranca IntelliJ. Una 48K con
+     Manic Miner 2 cargado de su cinta, pausada, con el joystick y la casetera enganchados, vuelve en
+     su lugar, pausada, con su pantalla, la cinta en el bloque 4 y las dos ventanas; salir sin tocar
+     nada deja el archivo igual byte a byte. Encontró dos cosas, arregladas con su prueba en rojo
+     antes: la máquina pausada corría unos cuadros antes de que le llegara la pausa (plugins
+     `3e7faa1`), y desde ese arreglo su pantalla quedaba negra (oozx `10a329be1`). Además: con los
+     plugins que Fernando tiene instalados (18, sin `tool-mappings`) salir no guarda nada; el cohete
+     de `TurboTool` queda con el gris de la velocidad a la que se armó; la línea de progreso de la
+     casetera no vuelve (SZX guarda el bloque); el "+" del escritorio espera la lista de plugins de la
+     red;
    - qué ventana está elegida no se ve sin pantalla;
    - una ventana enganchada vuelve justo delante de su máquina, aunque antes hubiera otra entre las
      dos;
