@@ -33,8 +33,6 @@ import java.util.zip.*;
 
 public class DownloadAndUnzip {
 
-  private static final Path TMP_DIR = Paths.get(System.getProperty("java.io.tmpdir"));
-
   /**
    * Which files an archive says it may not hand out. Nothing here knows that: whoever offers the
    * downloads says it, the way {@code RomFiles.askingFirst} is told how to ask. Without anybody
@@ -52,13 +50,13 @@ public class DownloadAndUnzip {
   }
 
   /**
-   * The file to load out of whatever is at a URL, brought down into the working directory. Not
+   * The file to load out of whatever is at a URL, brought down as {@link #fetchAll} keeps it. Not
    * every one of them is a zip: ZXDB hands out .tzx.zip, the TOSEC set at archive.org hands out
    * the .z80 itself, and reading the second as a zip finds nothing in it.
    */
   public Path unzip(String url) {
     try {
-      Path file = fetch(url, TMP_DIR.resolve("zxinfo_extracted"));
+      Path file = fetch(url);
       if (file == null) {
         throw new IOException("nothing this emulator can open came down from " + url);
       }
@@ -69,12 +67,12 @@ public class DownloadAndUnzip {
   }
 
   /**
-   * Fetches whatever is at a URL into a directory and returns what to load: a zip is unpacked
-   * and the entry worth loading chosen, anything else is written as it comes. The RZX Archive
-   * offers both - 3188 recordings as plain files and 859 inside zips.
+   * Fetches whatever is at a URL and returns what to load: a zip is unpacked and the entry worth
+   * loading chosen, anything else is written as it comes. The RZX Archive offers both - 3188
+   * recordings as plain files and 859 inside zips.
    */
-  public static Path fetch(String url, Path directory) throws IOException {
-    return chooseLoadable(fetchAll(url, directory));
+  public static Path fetch(String url) throws IOException {
+    return chooseLoadable(fetchAll(url));
   }
 
   /**
@@ -83,8 +81,14 @@ public class DownloadAndUnzip {
    * A zip does not always hold one thing: a recording of a game played over several sittings
    * comes as one file per part, and taking any single one of them plays a fifth of the game and
    * looks like a failure. The caller decides what to do with more than one.
+   * <p>
+   * Kept with the person's things, in a folder for that URL: a session goes on pointing at the
+   * tape a machine had, which the temporary folder does not keep past a restart, and two archives
+   * with a file of the same name inside would otherwise share it.
    */
-  public static List<Path> fetchAll(String url, Path directory) throws IOException {
+  public static List<Path> fetchAll(String url) throws IOException {
+    Path directory = com.fpetrola.oozx.config.Configuration.home().toPath().resolve("downloads")
+        .resolve(java.util.UUID.nameUUIDFromBytes(url.getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString());
     Files.createDirectories(directory);
     if (url.toLowerCase().endsWith(".zip")) {
       List<Path> entries = new ArrayList<>();

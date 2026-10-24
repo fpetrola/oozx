@@ -17,19 +17,25 @@
 
 package model.tests.media;
 
+import com.fpetrola.oozx.config.Configuration;
 import com.fpetrola.oozx.speccy.media.DownloadAndUnzip;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Function;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Which of an entry's several downloads gets picked.
+ * Which of an entry's several downloads gets picked, and where what comes down is kept.
  * <p>
  * A game in the archive usually has more than one file and they are not interchangeable: a
  * snapshot loads at once, a tape has to be played in, and some of them the archive is not allowed
@@ -125,5 +131,27 @@ class DownloadChoiceTest {
         "answered with something it cannot open");
     assertNull(DownloadAndUnzip.chooseLoadable(List.of()),
         "a folder with nothing in it was answered with its first file");
+  }
+
+  @Test
+  void what_comes_out_of_an_archive_is_still_there_tomorrow() throws Exception {
+    // A session keeps a machine's tape by where it is, and the temporary folder is emptied when
+    // the computer starts again. Two archives with a game.tap each also unpacked into the same
+    // folder, so opening the second changed the first one's tape under it.
+    Path archives = Files.createTempDirectory("archives");
+    Path one = new DownloadAndUnzip().unzip(zipWith(archives.resolve("one.zip"), "game.tap", 1).toUri().toString());
+    Path other = new DownloadAndUnzip().unzip(zipWith(archives.resolve("other.zip"), "game.tap", 2).toUri().toString());
+    assertTrue(one.startsWith(Configuration.home().toPath()), "kept in " + one + ", which does not last");
+    assertArrayEquals(new byte[]{1}, Files.readAllBytes(one), "the second archive's tape went over the first's");
+    assertArrayEquals(new byte[]{2}, Files.readAllBytes(other));
+  }
+
+  private static Path zipWith(Path zip, String entry, int content) throws Exception {
+    try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(zip))) {
+      out.putNextEntry(new ZipEntry(entry));
+      out.write(content);
+      out.closeEntry();
+    }
+    return zip;
   }
 }

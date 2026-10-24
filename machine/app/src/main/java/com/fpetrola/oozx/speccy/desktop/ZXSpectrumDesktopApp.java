@@ -1249,8 +1249,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
    */
   public void playRecording(String label, String url, String preferredEntry) {
     playWhatever("Could not fetch " + label + ".", () -> {
-      java.util.List<java.nio.file.Path> parts = DownloadAndUnzip.fetchAll(url,
-          java.nio.file.Path.of(System.getProperty("java.io.tmpdir"), "rzx-downloads"));
+      java.util.List<java.nio.file.Path> parts = DownloadAndUnzip.fetchAll(url);
       if (parts.isEmpty()) {
         throw new java.io.IOException("nothing playable came out of it");
       }
@@ -1432,17 +1431,15 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     if (!chosen.getName().toLowerCase().endsWith(".zip")) {
       return new Chosen(chosen, null, null);
     }
-    java.util.List<java.nio.file.Path> parts = DownloadAndUnzip.fetchAll(
-        chosen.toURI().toString(),
-        java.nio.file.Path.of(System.getProperty("java.io.tmpdir"), "rzx-downloads"));
+    java.util.List<java.nio.file.Path> parts = DownloadAndUnzip.fetchAll(chosen.toURI().toString());
     if (parts.isEmpty()) {
       throw new IllegalArgumentException("there is nothing playable inside it");
     }
     java.io.File part =
         choosePart(chosen.getName(), parts, null).toFile();
-    // The unpacked entry lives in a temporary directory that will not be there tomorrow. What
-    // lasts is the zip the person picked plus which recording inside it this was, so a
-    // favourite made from here can unpack the same one again.
+    // The unpacked entry is this emulator's copy. What the person has is the zip they picked,
+    // plus which recording inside it this was, so a favourite made from here can unpack the
+    // same one again.
     return new Chosen(part, chosen.getAbsolutePath(), part.getName());
   }
 
