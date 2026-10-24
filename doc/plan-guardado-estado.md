@@ -11,8 +11,9 @@ conoce ese archivo.
 mudanza de los mapeos de aparatos al módulo de mapeos (2b), cada máquina como sí misma (2c), la
 sesión en archivos (3), el aspecto (4), los aparatos enchufados con sus ventanas (5), el motor del
 SZX para los bloques de los aparatos (6), los aparatos que tienen bloque (7, sin los medios ni JOY),
-las ventanas de escritorio (8) y la prueba de que todo vuelve exactamente igual (9, sin los medios).
-Decididas la 1, la 2, la 3 y la 5; queda la 4, los medios. El contrato del paso 1 (`Keeps` y
+las ventanas de escritorio (8), la prueba de que todo vuelve exactamente igual (9) y los medios
+(decisión 4: la cinta, los discos, los microdrives, el dock, los discos IDE y MMC, las ROMs de cada
+máquina y el bloque ROM; queda la +3). Decididas las cinco. El contrato del paso 1 (`Keeps` y
 `Kept`, que implementaba cada cosa guardada) se descartó y se sacó: un aparato no tiene que saber
 que lo guardan. Lo reemplaza el módulo de mapeos.
 Relevado sobre `traduccion` (oozx, `68d400341`) y `prueba-apuntar` (oozx-plugins, `0e3c6b2`).
@@ -29,8 +30,8 @@ Todo vive en `~/.oozx/config.json`, en la sección `desktop` (`OOZxConfiguration
   cualquier otro periférico escribe "not carried" y lo pierde.
 - No se guarda: la posición, el tamaño, el lado ni el modo compacto de ninguna ventana de equipo;
   qué aparatos estaban enchufados; el aspecto de cada máquina (escalador, filtros, perfiles: solo
-  los valores por defecto globales); el volumen y la velocidad de cada una; la cinta, los
-  discos, cartuchos y tarjetas que tenían adentro.
+  los valores por defecto globales); el volumen y la velocidad de cada una; ~~la cinta, los
+  discos, cartuchos y tarjetas que tenían adentro~~ (hecho con la decisión 4).
 - ~~Los valores de `Settings.mirror` son globales: al guardar, cada máquina escribe los suyos
   encima y queda el de la última creada.~~ Hecho con la decisión 3: son los de las máquinas nuevas,
   y cada máquina tiene los suyos.
@@ -180,9 +181,68 @@ Salir) y no hay un guardado a medias que deje referencias sueltas.
    cambia en los valores por defecto con la máquina abierta). Queda: el lanzador pone tiempo real a
    cada máquina que crea, sin mirar la velocidad por defecto (20000 en el `config.json` del build).
    Antes el primer guardado escribía 100 en el archivo.
-4. **Los medios.** Recomendado: si el archivo está igual que cuando se abrió, se guarda su ruta;
-   si la máquina escribió en él (un disco formateado, un microdrive), se guarda la imagen adentro,
-   como prevén los bloques DSK, BDSK, PDSK, ODSK y MDRV.
+4. **Los medios.** Decidido el 23 de octubre: si el archivo está igual que cuando se abrió, se guarda
+   su ruta; si la máquina escribió en él (un disco formateado, un microdrive), se guarda la imagen
+   adentro, como prevén los bloques DSK, BDSK, PDSK, ODSK y MDRV. Lo que trae el catálogo o sale de un
+   zip se descomprime en `~/.oozx/downloads`, una carpeta por cada uno, para que esa ruta dure: antes
+   iba a `/tmp`, que se vacía al reiniciar, y dos zips con un archivo del mismo nombre se pisaban
+   (oozx `64a5ad886`). **Hecho**, cada uno en `tools/mappings` y en rojo antes:
+   - **la cinta** (`TapeMapping`, TAPE; plugins `e74c153`): la máquina nunca la escribe, así que va
+     por su ruta, con el bloque en que estaba la casetera. Una casetera vacía no escribe TAPE;
+   - **los discos de la Beta, el +D y la Opus** (BDSK, PDSK y ODSK, uno por disquetera, con la misma
+     tabla en `Beta128Mapping`; `e4c3491`, `76923ff`): por su ruta o adentro, si está protegido y el
+     cilindro donde está el cabezal (`Fdd.headAt`; sin eso el registro de pista y el cabezal no
+     coincidían al volver);
+   - **los cartuchos de los microdrives** (MDRV en `Interface1Mapping`; `6ecb611`): por su ruta o
+     adentro, si el motor andaba y dónde está el cabezal. `Microdrive` es pública, como `Fdd`;
+   - **el cartucho del dock** de un Timex (DOCK, `DockMapping`; `ada2a48`): todas sus páginas adentro,
+     también las de ROM, como libspectrum, porque SZX no guarda el archivo de un cartucho;
+   - **la ventana de la casetera**, enganchada sin cinta propia a una máquina con cinta, toma esa:
+     sin eso, la cinta que volvía no se podía tocar, porque el botón de play queda apagado
+     (`clippedOnAMachineWithATapeInItsDeckItHasThatTape`; `e5f2e3f`);
+   - **los discos IDE y las tarjetas MMC** (DivIDE, ZXATASP, ZXCF, Simple IDE, DivMMC y ZXMMC; `36a72a5`):
+     SZX no tiene bloque para ellos y una imagen de disco duro es grande para ir adentro, así que,
+     como eligió Fernando el 24 de octubre, el archivo de cada unidad es un ajuste del aparato, como en
+     Fuse: `IdeInterface.getDisks/setDisks`, que cada una nombra en su `Settings.mirror`, y `OOZX` lo
+     lleva por máquina. Lo escrito y no guardado se pierde al cerrar, como antes;
+   - **las ROMs de cada máquina** (oozx `06f6c67cf`, plugins `b68606a`), también elegido el 24:
+     `RomFiles` era una sola sección para todas, y elegir el juego español en una 48K (o en una +3,
+     que el plugin de Amstrad trae) se lo cambiaba a todas las de su modelo y quedaba en
+     `config.json`; `SzxSession.runsOn` hacía lo mismo al volver. Ahora cada máquina recibe sus
+     elecciones copiadas de las del archivo (`RomFiles.forOneMachine`), la ventana de valores por
+     defecto cambia las del archivo, y `OOZX` guarda en `roms` todas las de la máquina: su juego o
+     su archivo, y el firmware de cada placa. Una sesión de antes, con solo el nombre de un juego,
+     vuelve una vez con las ROMs de las máquinas nuevas. Elegir la ROM de una placa en su ventana
+     también es para esa máquina: las nuevas arrancan con la del archivo;
+   - **el bloque ROM** (oozx `f7ee9fbd7`, plugins `e3dad21`), también elegido el 24: lo que tienen
+     los chips de ROM de la máquina, solo cuando no es lo que el build le da (otro juego, un archivo
+     de la persona, algo escrito encima con ROMs escribibles) y con el largo que libspectrum lee para
+     ese modelo. La máquina dice lo que tienen sus chips (`Spectrum.rom`) y lo que tendrían con unas ROMs
+     dadas (`romOf`); con una elección que nadie hizo es la del build, y la máquina sigue sin saber de
+     archivos. Al leerlo, los bytes van a los chips: la máquina corre lo que corría hasta que se
+     prende de nuevo. Escribirlo siempre no servía: libspectrum rechaza el archivo de una 48K NTSC y
+     una 128Ke que lo trae. Queda afuera donde el largo no coincide: el Scorpion (carga tres chips y
+     SZX lee cuatro), las Pentagon 512 y 1024 (cargan dos y SZX lee cuatro) y los Timex, cuyo EXROM
+     no está entre los chips de `Spectrum`.
+
+   El motor sumó `medium` (la cola que es un medio: el nombre de su archivo o la imagen con zlib),
+   `writtenWhen`, `each` con `Fixed.each` (un bloque por disquetera, con su número), `Fixed.only`
+   (los DOCK del dock y los del EXROM) y `sizedRest` (una cola tan larga como dice el bloque: la ROM).
+   La prueba del escritorio entero lleva una cinta en la 48K y
+   un disco en la Pentagon (`0770943`).
+
+   No vuelve igual:
+   - un disco o un cartucho que vuelve de adentro no tiene el nombre de su archivo: el bloque guarda
+     el nombre o la imagen, no los dos;
+   - un disco en blanco sin formatear no es todavía una imagen de ningún tipo: la disquetera vuelve
+     vacía;
+   - una carga a medias: la cinta vuelve parada en el bloque que sonaba, que empieza de nuevo;
+   - una cinta que otro emulador puso adentro de TAPE todavía no se lee;
+   - `~/.oozx/downloads` crece con cada juego distinto que se abre, y nada lo limpia.
+
+   Queda:
+   - **el disco de la +3** (DSK y +3): la +3 no tiene ventana ni otro camino para meterle un disco,
+     así que su disquetera vuelve vacía, como estaba.
 5. **Las ventanas de escritorio.** Decidido el 22 de octubre: el escritorio sabe de cada ventana
    que no es de una máquina solo que la tiene y dónde está, y no qué plugin la trae. Qué ventana es,
    si está plegada y lo que tiene adentro lo dice el módulo por el rol `Session`, como clave=valor
@@ -293,10 +353,11 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    `~/detodo/spectrum/investigacion/research_notes/szx-bloques-libspectrum.md`.
 
    Pendiente para el paso 7 o la decisión 4:
-   - un bloque por disquetera (BDSK, DSK, PDSK, ODSK, MDRV) y TAPE: libspectrum los saltea y su forma
-     va con los medios;
-   - DOCK guarda en el mismo bloque las páginas del cartucho y las del EXROM, y si cada una es RAM:
-     `pages` las separa solo por número;
+   - ~~un bloque por disquetera (BDSK, DSK, PDSK, ODSK, MDRV) y TAPE: libspectrum los saltea y su forma
+     va con los medios~~: hecho con la decisión 4, salvo DSK; su forma, de la especificación de
+     Spectaculator, quedó en la nota de los bloques;
+   - ~~DOCK guarda en el mismo bloque las páginas del cartucho y las del EXROM, y si cada una es RAM:
+     `pages` las separa solo por número~~: hecho con la decisión 4 (`Fixed.only`);
    - OPUS y PLSD llevan dos memorias seguidas, cada una con su largo en la cabecera. Resuelto en el
      paso 7: `rest` puede tomar el largo que dice la cabecera, y la ROM propia, que va después de la
      RAM, no se escribe;
@@ -352,14 +413,15 @@ Uno por commit. Cada uno nace con su prueba en rojo.
      en el mismo mapeo, porque un `Mapping` responde a un solo formato.
 
    Cada uno, salvo el SCLD que va a bordo: un archivo con su bloque lo enchufa. La ROM propia de un
-   aparato no se escribe, y sus medios (discos, cartuchos de microdrive) van con la decisión 4.
+   aparato no se escribe; sus medios (discos, cartuchos de microdrive) vuelven desde la decisión 4.
 
    Queda:
    - **JOY.** La interfaz Kempston no se enchufa a una máquina: la prende para todas un ajuste
      global (`Input.Setup.kempstonJoystick`). Para que JOY la diga por máquina tiene que ser
      `Pluggable`, como el mouse. Los demás tipos de JOY (Sinclair, cursor) son teclas, de la mano.
      A decidir.
-   - **Los medios** (decisión 4): TAPE, DSK, BDSK, PDSK, ODSK, MDRV, DOCK y ROM.
+   - ~~**Los medios** (decisión 4): TAPE, DSK, BDSK, PDSK, ODSK, MDRV, DOCK y ROM~~: hechos salvo DSK y
+     ROM, que siguen en la decisión 4.
    - **El Z80 también puede decir el IF1, el +D y el DISCiPLE** (el byte 34 de hardware, si está
      paginado, su memoria como página 1). libspectrum los lee; el Z80 de acá todavía no.
    - **Tablas repetidas.** Las de la DivIDE y la DivMMC, y los registros del controlador de disco de
@@ -409,8 +471,8 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    - las ventanas de escritorio de una configuración vieja (el catálogo con su búsqueda) no vuelven
      esa vez: no tienen `inside`;
    - ~~minimizada o maximizada no se guarda~~: hecho en el 9;
-   - lo de adentro de las demás: la página de los ajustes, lo tildado en la de plugins, la cinta de la
-     casetera (decisión 4).
+   - lo de adentro de las demás: la página de los ajustes, lo tildado en la de plugins, la cinta de una
+     casetera suelta (la enganchada toma la de su máquina desde la decisión 4).
 9. **"Exactamente igual".** Una prueba que arma varias máquinas con aparatos, medios y ventanas,
    cierra, levanta un escritorio nuevo y compara: el SZX que escribe cada máquina, byte a byte, y el
    lugar, tamaño y estado de cada ventana. **Hecho, sin los medios:**
@@ -446,8 +508,9 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    - En rojo antes de cada arreglo. Con `fromText` sin JSON, el joystick vuelve sin salida.
 
    Pendiente:
-   - los medios (decisión 4): la cinta, los discos, los microdrives, el DOCK y la ROM propia. De medios
-     la prueba tiene solo el cartucho de la Interface 2, que va en su bloque;
+   - ~~los medios (decisión 4): la cinta, los discos, los microdrives, el DOCK y la ROM propia. De medios
+     la prueba tiene solo el cartucho de la Interface 2, que va en su bloque~~: la prueba lleva ahora
+     también una cinta y un disco; la ROM propia sigue en la decisión 4;
    - el escritorio no se probó corriendo;
    - qué ventana está elegida no se ve sin pantalla;
    - una ventana enganchada vuelve justo delante de su máquina, aunque antes hubiera otra entre las
