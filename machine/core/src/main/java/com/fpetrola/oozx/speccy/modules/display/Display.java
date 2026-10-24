@@ -174,14 +174,24 @@ public class Display {
 
 
   public void frame() {
-    painting.upTo(WIDTH_COLS, HEIGHT - 1);
-    painting.startAgain();
-    border.paintTheFrame();
+    paintTheFrame();
     framesIntoTheFlash = (framesIntoTheFlash + 1) & 31;
     if ((framesIntoTheFlash & 15) == 0) {
       colouring.reversed(framesIntoTheFlash == 16);
       dirtyEveryFlashingCell();
     }
+  }
+
+  /** The whole screen painted now as the memory has it, for a machine that runs no frame to paint it: one loaded while it is paused. */
+  public void paintNow() {
+    refreshAll();
+    paintTheFrame();
+  }
+
+  private void paintTheFrame() {
+    painting.upTo(WIDTH_COLS, HEIGHT - 1);
+    painting.startAgain();
+    border.paintTheFrame();
   }
 
   private void dirtyEveryFlashingCell() {

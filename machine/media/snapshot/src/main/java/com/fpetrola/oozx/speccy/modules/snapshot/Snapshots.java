@@ -147,7 +147,7 @@ public class Snapshots extends AbstractPeripheral {
         throw new RuntimeException(cannotBeRead);
       }
       notes = java.util.List.copyOf(said);
-      display.refreshAll();
+      display.paintNow();
       return;
     }
     load(SnapshotSaver.loadSnapshotFromUnicodePacked(packed));
@@ -196,7 +196,7 @@ public class Snapshots extends AbstractPeripheral {
       throw new RuntimeException(cannot);
     }
     notes = java.util.List.copyOf(said);
-    display.refreshAll();
+    display.paintNow();
   }
 
   /**
@@ -236,7 +236,7 @@ public class Snapshots extends AbstractPeripheral {
       state.clock.setTStates(spectrumState.getTstates());
     }
     theColoursItWasTakenIn(spectrumState);
-    display.refreshAll();
+    display.paintNow();
   }
 
   /**
