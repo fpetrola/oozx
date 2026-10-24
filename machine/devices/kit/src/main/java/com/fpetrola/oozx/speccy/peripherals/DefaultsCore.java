@@ -96,7 +96,7 @@ public class DefaultsCore extends MockEmulatorCore {
 
   @Override
   public String getRomSet() {
-    return chosenType().map(type -> build().roms.chosenSet(type)).orElse("");
+    return chosenType().map(type -> newOnes().chosenSet(type)).orElse("");
   }
 
   /** Only one this machine has, the way a running one also leaves its ROMs alone when asked for
@@ -104,7 +104,12 @@ public class DefaultsCore extends MockEmulatorCore {
   @Override
   public void setRomSet(String set) {
     chosenType().filter(type -> build().roms.setsFor(type).containsKey(set))
-        .ifPresent(type -> build().roms.chooseSet(type, set));
+        .ifPresent(type -> newOnes().chooseSet(type, set));
+  }
+
+  /** The ROMs new machines start on, which are the file's: each machine has its own, copied from these. */
+  private com.fpetrola.oozx.config.RomFiles newOnes() {
+    return build().configuration.of(com.fpetrola.oozx.config.RomFiles.class);
   }
 
   private java.util.Optional<com.fpetrola.oozx.speccy.machine.Spectrum> chosenType() {

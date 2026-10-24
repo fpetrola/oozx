@@ -186,7 +186,7 @@ public class OOSpectrumLauncher {
     speccy.machine.getMachineTypes().stream()
         .filter(type -> type.getName().equals(wanted))
         .findFirst().ifPresent(type -> {
-          if (!RomNotShippedDialog.readyFor(type)) return;
+          if (!RomNotShippedDialog.readyFor(com.fpetrola.oozx.config.Configuration.shared().of(com.fpetrola.oozx.config.RomFiles.class), type)) return;
           speccy.machine.selectDefault();
           speccy.machine.select(type);
         });

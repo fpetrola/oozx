@@ -19,6 +19,7 @@ package model.tests.config;
 
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.config.Configuration;
+import com.fpetrola.oozx.config.RomFiles;
 import model.harness.MachineTest;
 import org.junit.jupiter.api.Test;
 
@@ -64,5 +65,17 @@ class SettingsReachTheMachineTest {
     open.speed.emulation = 456;
     shared.save();
     assertEquals(123, machineWith(file.toFile()).speed.emulation, "the speed one machine was turned to is not what the next one starts with");
+  }
+
+  @Test
+  void theRomsOneMachineIsPutOnAreItsOwn() throws Exception {
+    Path file = Files.createTempFile("oozx", ".json");
+    Files.writeString(file, "{}");
+    Configuration shared = new Configuration(file.toFile());
+    Speccy one = MachineTest.silentMachine(binder -> binder.bind(Configuration.class).toInstance(shared));
+    Speccy other = MachineTest.silentMachine(binder -> binder.bind(Configuration.class).toInstance(shared));
+    one.roms.chooseSet(one.machine.current, "Spanish");
+    assertEquals("English", other.roms.chosenSet(other.machine.current), "another machine runs on its own");
+    assertEquals("English", shared.of(RomFiles.class).chosenSet(one.machine.current), "and new machines start on what they did");
   }
 }

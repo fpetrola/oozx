@@ -56,12 +56,11 @@ public class RomNotShippedDialog implements RomFiles.Consent {
    * Whether this machine can be started: everything it asks for is here, or was brought just now
    * because somebody said so. Answered from the window's own thread, where questions belong.
    */
-  public static boolean readyFor(Object machine) {
-    return ASKING.bringWhatIsMissing(machine);
+  public static boolean readyFor(RomFiles roms, Object machine) {
+    return ASKING.bringWhatIsMissing(roms, machine);
   }
 
-  private boolean bringWhatIsMissing(Object machine) {
-    RomFiles roms = Configuration.shared().of(RomFiles.class);
+  private boolean bringWhatIsMissing(RomFiles roms, Object machine) {
     List<String> missing = roms.missingFor(machine);
     if (missing.isEmpty()) return true;
     if (!SwingUtilities.isEventDispatchThread()) return false;

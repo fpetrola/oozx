@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
@@ -50,13 +51,12 @@ class SectionsAreDeclaredTest {
     injector.getInstance(Speccy.class);
     Configuration configuration = injector.getInstance(Configuration.class);
 
-    // Confirms the config file's section instance matches what's actually injected elsewhere.
-    for (Class<?> section : List.of(com.fpetrola.oozx.config.RomFiles.class))
-      assertSame(configuration.of(section), injector.getInstance(section),
-          section.getSimpleName() + " is not declared with Configuration.section, so everything that asks for it gets its own");
+    // The ROMs a machine runs on are its own, as its settings are, and start as the file says.
+    assertEquals(configuration.of(com.fpetrola.oozx.config.RomFiles.class).files,
+        injector.getInstance(com.fpetrola.oozx.config.RomFiles.class).files, "a new machine starts on the ROMs the file says");
 
     // Must each be a true singleton, or the timer and sound could read different, stale values.
-    for (Class<?> value : List.of(Speed.class, Rom.Protection.class, Machine.Unit.class, Sound.Output.class))
+    for (Class<?> value : List.of(Speed.class, Rom.Protection.class, Machine.Unit.class, Sound.Output.class, com.fpetrola.oozx.config.RomFiles.class))
       assertSame(injector.getInstance(value), injector.getInstance(value),
           value.getName() + " is not a singleton, so everything that asks for it gets its own");
   }

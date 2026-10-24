@@ -152,6 +152,18 @@ public final class RomFiles implements Roms {
     return chosen != null ? chosen : theBuild().files.getOrDefault(key, List.of());
   }
 
+  /**
+   * These choices for one machine: what it is put on is its own, and the file's stay what new machines start with,
+   * as its settings do. What is known about ROMs - the sets, where each is published - is the build's, and the same.
+   */
+  public RomFiles forOneMachine() {
+    RomFiles one = new RomFiles();
+    files.forEach((key, roms) -> one.files.put(key, List.copyOf(roms)));
+    one.sources = sources;
+    one.sets = sets;
+    return one;
+  }
+
   public void runOn(Object device, List<String> roms) {
     files.put(keyOf(device), List.copyOf(roms));
   }

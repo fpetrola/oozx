@@ -77,7 +77,9 @@ public class EmulatorModule extends AbstractModule {
     bind(Backplane.class).in(Singleton.class);
     // The ROMs come from outside the machine: it asks by page, and this is what knows the files.
     bind(Configuration.class).toInstance(Configuration.shared());
-    Configuration.section(binder(), com.fpetrola.oozx.config.RomFiles.class);
+    com.google.inject.Provider<Configuration> configuration = getProvider(Configuration.class);
+    bind(com.fpetrola.oozx.config.RomFiles.class)
+        .toProvider(() -> configuration.get().of(com.fpetrola.oozx.config.RomFiles.class).forOneMachine()).in(Singleton.class);
     // What the machine itself keeps in the file, said where the parts are bound rather than in a
     // list inside Settings: the same declaration a device makes about itself.
     com.fpetrola.oozx.config.Settings.mirror(binder(), "speed",
