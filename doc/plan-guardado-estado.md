@@ -437,11 +437,20 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    fondo se muestra. Los bloques van sin comprimir: el archivo de Head over Heels pesa 563 KB. Una
    sesión guardada antes no tiene los colores: hay que abrir el juego de nuevo.
 
-   Encontrado de paso, sin arreglar: un juego cargado en una máquina que ya está en los nueve no sigue
-   como en una recién abierta. Si es de otro modelo (Head over Heels, de 128K, sobre Exolon), la
-   máquina queda en `OOP` con la sesión abierta: el cambio de modelo la termina, la vuelta queda
-   diferida y el pedido de los nueve no se agenda, porque todavía están. Si es del mismo, los colores
-   difieren a los diez cuadros con la RAM igual.
+   Encontrado de paso y arreglado después (oozx `b690a7ecb`, plugins `d3568d0`): un juego cargado en
+   una máquina que ya estaba en los nueve no seguía como en una recién abierta.
+   - De otro modelo (Head over Heels, de 128K, sobre Exolon), la máquina quedaba en `OOP` con la
+     sesión abierta. El cambio de modelo la terminaba y pedía volver a `OOP`; el juego nuevo preguntaba
+     dónde estaba y oía `Spec256`, porque el cambio se hace entre instrucciones; y su pedido de los nueve
+     se descartaba. Ahora un procesador pedido cuenta desde que se pide (`Processors.current` y `use`).
+   - Del mismo modelo, seguía en los nueve del anterior, y a los diez cuadros difería en 995 bytes de
+     colores con la RAM igual. Lo viejo estaba en los seguidores que arma `Spec256Core.cpu()`, no en
+     `Permutations`. Ahora un snapshot que llega termina lo que estaba jugando, y si trae colores la
+     máquina pasa a nueve armados para él.
+
+   En el escritorio esto todavía no se puede hacer: un juego se abre siempre en una máquina nueva, y
+   Archivo > Cargar estado no está hecho (lo atiende `MockEmulatorCore`, que solo imprime "Mock: Loading
+   state from"). Lo cargan sobre otro el núcleo libretro (`LocalLibretroCore`) y las pruebas.
 
    Queda:
    - **JOY.** La interfaz Kempston no se enchufa a una máquina: la prende para todas un ajuste
