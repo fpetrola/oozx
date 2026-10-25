@@ -61,6 +61,8 @@ public class Processors {
 
   /** Not final: a machine can be asked to run on another implementation of the processor. */
   private Core core;
+  /** The one it was last asked to run on, until it is on it. */
+  private volatile Core asked;
   private final MachineLoop loop;
   private Cpu cpu;
   private final List<Runnable> listeners = new CopyOnWriteArrayList<>();
@@ -122,8 +124,14 @@ public class Processors {
     return all;
   }
 
+  /** The one it runs on, or the one it was asked to run on and will be by the next instruction. */
   public String current() {
-    return core.name();
+    return inUse().name();
+  }
+
+  private Core inUse() {
+    Core going = asked;
+    return going != null ? going : core;
   }
 
   private Optional<Core> forName(String name) {
@@ -136,10 +144,17 @@ public class Processors {
    * were never the processor's to begin with.
    * <p>
    * Asked for from a window and done between instructions, because the processor cannot be
-   * replaced while that thread is inside one.
+   * replaced while that thread is inside one. Until then it counts as done: asked for another,
+   * the machine goes on from this one to that one, and the last one asked for is where it ends.
    */
   public void use(String name) {
-    forName(name).filter(wanted -> wanted != core).ifPresent(wanted -> loop.later(() -> runOn(wanted)));
+    forName(name).filter(wanted -> wanted != inUse()).ifPresent(wanted -> {
+      asked = wanted;
+      loop.later(() -> {
+        runOn(wanted);
+        if (asked == wanted) asked = null;
+      });
+    });
   }
 
   /** Told after the machine changes processor, for whoever kept hold of the one it had. */
