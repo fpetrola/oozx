@@ -29,4 +29,12 @@ package com.fpetrola.oozx.speccy.peripherals;
 public interface FilesOfItsOwn {
   /** Where the snapshot came from, so that whoever keeps something beside it can go and look. */
   void beside(String url);
+
+  /**
+   * What it keeps beside a snapshot as it stands now, each under the name it looks for it by: a snapshot with room
+   * for them carries them, and whoever opens that one finds them in it.
+   */
+  default java.util.Map<String, byte[]> files() {
+    return java.util.Map.of();
+  }
 }

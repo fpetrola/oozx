@@ -185,7 +185,7 @@ public class Snapshots extends AbstractPeripheral {
     return notes;
   }
 
-  /** A file read by a format that walks the machine: the keys let go first, the screen drawn again after. */
+  /** A file read by a format that walks the machine, the keys let go first. */
   private void loadWith(com.fpetrola.oozx.formats.SnapshotFormat format, java.io.File file) {
     java.util.List<String> said = new java.util.ArrayList<>();
     try {
@@ -196,17 +196,18 @@ public class Snapshots extends AbstractPeripheral {
       throw new RuntimeException(cannot);
     }
     notes = java.util.List.copyOf(said);
-    display.paintNow();
   }
 
   /**
    * A snapshot came from somewhere, and a device may keep a file of its own next to it. This is
-   * the only thing said about that path, and it is said to whoever asked to hear it.
+   * the only thing said about that path, and it is said to whoever asked to hear it. The screen is
+   * drawn again after, because what it keeps may be the colours it is drawn in.
    */
   private void whateverKeepsFilesBesideIt(String url) {
     com.fpetrola.oozx.speccy.peripherals.FilesOfItsOwn device =
         peripherals.anyThatIs(com.fpetrola.oozx.speccy.peripherals.FilesOfItsOwn.class);
     if (device != null) device.beside(url);
+    display.paintNow();
   }
 
   /**
