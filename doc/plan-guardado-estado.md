@@ -415,6 +415,34 @@ Uno por commit. Cada uno nace con su prueba en rojo.
    Cada uno, salvo el SCLD que va a bordo: un archivo con su bloque lo enchufa. La ROM propia de un
    aparato no se escribe; sus medios (discos, cartuchos de microdrive) vuelven desde la decisión 4.
 
+   **Spec256**, que SZX no conoce (oozx `0c0068c75`, plugins `5d2b272` y `c2e2688`). Lo encontró
+   Fernando el 24 de octubre corriendo su escritorio: Head over Heels, abierto en 256 colores desde su
+   EZX, volvía en los colores de la máquina, porque la sesión guardaba solo `processor=Spec256`. Ahora:
+   - el SZX lleva lo que Spec256 tiene al lado de un snapshot, como lo lleva un EZX: un bloque por
+     cosa, con el nombre con que Spec256 la busca. Son los colores como los dejaron los seguidores
+     (`gfx`), los de la ROM (`gfb`), lo que dice el juego con lo que se le cambió en su ventana (`cfg`),
+     los fondos (`b00`…), qué juego es (`name`) y los registros de los ocho seguidores (`regs`);
+   - Spec256 los toma por el camino por el que ya los tomaba de un EZX (`FilesOfItsOwn.beside`), así
+     que no sabe que lo guardan: dice lo que tiene (`FilesOfItsOwn.files`) y el mapeo del SZX lo lleva
+     (`Layout.carried`, en `SzxMapping` para cualquier `FilesOfItsOwn`);
+   - la pantalla se pinta después de que el aparato toma lo suyo, así que vuelve en sus colores
+     también pausada;
+   - sin los registros, la imagen volvía igual pero de 6 a 44 bytes de los colores, en la pila, se
+     escribían sin su color. Con ellos, Exolon y Head over Heels siguen igual byte a byte durante 500
+     cuadros, guardados a los 50, 137 y 400.
+
+   Corrido en Xephyr con los plugins de Fernando recién armados: Head over Heels abierto de su EZX,
+   en la primera habitación, vuelve con la misma imagen, corriendo y pausado, y salir sin tocar nada
+   deja el archivo igual byte a byte. No vuelven: la casilla de sus colores o los de la máquina, y qué
+   fondo se muestra. Los bloques van sin comprimir: el archivo de Head over Heels pesa 563 KB. Una
+   sesión guardada antes no tiene los colores: hay que abrir el juego de nuevo.
+
+   Encontrado de paso, sin arreglar: un juego cargado en una máquina que ya está en los nueve no sigue
+   como en una recién abierta. Si es de otro modelo (Head over Heels, de 128K, sobre Exolon), la
+   máquina queda en `OOP` con la sesión abierta: el cambio de modelo la termina, la vuelta queda
+   diferida y el pedido de los nueve no se agenda, porque todavía están. Si es del mismo, los colores
+   difieren a los diez cuadros con la RAM igual.
+
    Queda:
    - **JOY.** La interfaz Kempston no se enchufa a una máquina: la prende para todas un ajuste
      global (`Input.Setup.kempstonJoystick`). Para que JOY la diga por máquina tiene que ser
