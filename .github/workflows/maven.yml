@@ -46,8 +46,10 @@ jobs:
 
     # Sin los plugins adentro: son otro repositorio, aca no estan, y este build no publica nada.
     # Vacio apaga el empaquetado; con el groupId puesto y ninguno encontrado, el build falla.
+    # Sin translation/translator: depende de zx-rzx y device-ay, que se construyen en oozx-plugins
+    # y aca no estan. Es la rama de investigacion; lo que se publica es el emulador.
     - name: Build with Maven
-      run: mvn -B -U verify --file pom.xml -Dcrystal.bundleGroupId=
+      run: mvn -B -U verify --file pom.xml -Dcrystal.bundleGroupId= -pl '!translation/translator'
   
     
        
