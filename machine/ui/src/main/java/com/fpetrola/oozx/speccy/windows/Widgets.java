@@ -34,6 +34,10 @@ import java.awt.Image;
 import java.net.URL;
 import java.awt.Container;
 import java.awt.Insets;
+import java.io.File;
+import java.util.function.Consumer;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
 
 /**
  * The small change of a toolbar: an icon off the classpath, a button with one on it, and the
@@ -58,6 +62,35 @@ public class Widgets {
       }
     }
     return 0;
+  }
+
+  /** Remembered between choosers, so the next file is looked for where the last one was. */
+  private static File lastDirectory;
+
+  /** Asks which file to open and hands it over; nothing happens when the person backs out. */
+  public static void openFile(Component parent, String title, FileFilter filter, Consumer<File> chosen) {
+    choose(parent, title, filter, null, chosen);
+  }
+
+  /** Asks where to save, with a name already filled in, and hands the file over. */
+  public static void saveFile(Component parent, String title, FileFilter filter, String suggestedName,
+                              Consumer<File> chosen) {
+    choose(parent, title, filter, suggestedName == null ? "" : suggestedName, chosen);
+  }
+
+  private static void choose(Component parent, String title, FileFilter filter, String saveAs,
+                             Consumer<File> chosen) {
+    JFileChooser chooser = new JFileChooser(lastDirectory);
+    chooser.setDialogTitle(title);
+    chooser.setFileFilter(filter);
+    if (saveAs != null && !saveAs.isEmpty()) {
+      chooser.setSelectedFile(new File(chooser.getCurrentDirectory(), saveAs));
+    }
+    int answer = saveAs == null ? chooser.showOpenDialog(parent) : chooser.showSaveDialog(parent);
+    if (answer == JFileChooser.APPROVE_OPTION) {
+      lastDirectory = chooser.getCurrentDirectory();
+      chosen.accept(chooser.getSelectedFile());
+    }
   }
 
   public static ImageIcon loadIcon(String iconFile) {

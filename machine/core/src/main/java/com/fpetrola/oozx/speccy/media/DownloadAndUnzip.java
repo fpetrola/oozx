@@ -33,18 +33,6 @@ import java.util.zip.*;
 
 public class DownloadAndUnzip {
 
-  /**
-   * Which files an archive says it may not hand out. Nothing here knows that: whoever offers the
-   * downloads says it, the way {@code RomFiles.askingFirst} is told how to ask. Without anybody
-   * saying so, every file is taken at face value, which is right when the links did not come
-   * from an archive that keeps such a list.
-   */
-  private static java.util.function.Predicate<String> notHandedOut = path -> false;
-
-  public static void marking(java.util.function.Predicate<String> asNotHandedOut) {
-    notHandedOut = asNotHandedOut == null ? path -> false : asNotHandedOut;
-  }
-
   public static void main(String[] args) {
     new DownloadAndUnzip().unzip("https://zxinfo.dk/media/zxdb/sinclair/entries/0030743/BigBrother.z80.zip");
   }
@@ -75,6 +63,11 @@ public class DownloadAndUnzip {
     return chooseLoadable(fetchAll(url));
   }
 
+  /** The same, kept in a folder of the caller's: the catalogue builder keeps each game's image with the game. */
+  public static Path fetch(String url, Path into) throws IOException {
+    return chooseLoadable(fetchAll(url, into));
+  }
+
   /**
    * Everything worth loading that came out of a URL, in the order the archive held it.
    * <p>
@@ -82,17 +75,20 @@ public class DownloadAndUnzip {
    * comes as one file per part, and taking any single one of them plays a fifth of the game and
    * looks like a failure. The caller decides what to do with more than one.
    * <p>
-   * Kept with the person's things, in a folder for that URL: a session goes on pointing at the
-   * tape a machine had, which the temporary folder does not keep past a restart, and two archives
-   * with a file of the same name inside would otherwise share it.
+   * Kept with the person's things, at {@link #placeFor the URL's own path}: a session goes on
+   * pointing at the tape a machine had, which the temporary folder does not keep past a restart,
+   * and two archives with a file of the same name inside would otherwise share it.
    */
   public static List<Path> fetchAll(String url) throws IOException {
-    Path directory = com.fpetrola.oozx.config.Configuration.home().toPath().resolve("downloads")
-        .resolve(java.util.UUID.nameUUIDFromBytes(url.getBytes(java.nio.charset.StandardCharsets.UTF_8)).toString());
-    Files.createDirectories(directory);
-    if (url.toLowerCase().endsWith(".zip")) {
+    Path place = placeFor(url);
+    return fetchAll(url, isZip(url) ? place : place.getParent());
+  }
+
+  public static List<Path> fetchAll(String url, Path into) throws IOException {
+    Files.createDirectories(into);
+    if (isZip(url)) {
       List<Path> entries = new ArrayList<>();
-      for (Path entry : unzipAll(url, directory)) {
+      for (Path entry : unzipAll(url, into)) {
         if (!Files.isDirectory(entry) && scoreOf(entry.getFileName().toString()) > Integer.MIN_VALUE + 1) {
           entries.add(entry);
         }
@@ -100,10 +96,36 @@ public class DownloadAndUnzip {
       entries.sort(Comparator.comparing(path -> path.getFileName().toString()));
       return entries;
     }
-    String name = nameOf(url);
-    Path file = directory.resolve(name.isEmpty() ? "download" : name);
+    Path file = into.resolve(nameOf(url).isEmpty() ? "download" : nameOf(url));
     Files.write(file, downloadFile(new URL(url)));
     return List.of(file);
+  }
+
+  private static boolean isZip(String url) {
+    return url.toLowerCase().endsWith(".zip");
+  }
+
+  /**
+   * Where what comes from a URL is kept: under ~/.oozx/downloads, by host and then the path as it
+   * reads, so the folders can be walked through and say where each thing came from. A zip is a
+   * folder of its name with its entries inside; anything else is a file at its own path. It used
+   * to be a folder named by a hash of the URL, which nobody could find anything in.
+   */
+  public static Path placeFor(String url) {
+    String host = "disk";
+    String path = url;
+    try {
+      URI address = new URI(url);
+      if (address.getHost() != null) host = address.getHost();
+      if (address.getPath() != null) path = address.getPath();
+    } catch (URISyntaxException unescaped) {
+      path = url.replaceFirst("^[a-zA-Z]+://", "");
+    }
+    Path place = com.fpetrola.oozx.config.Configuration.home().toPath().resolve("downloads").resolve(host);
+    for (String segment : path.split("/")) {
+      if (!segment.isEmpty() && !segment.equals(".") && !segment.equals("..")) place = place.resolve(segment);
+    }
+    return nameOf(url).isEmpty() ? place.resolve("download") : place;
   }
 
   private static List<Path> unzipAll(String zipUrl, Path extractTo) throws IOException {
@@ -195,13 +217,24 @@ public class DownloadAndUnzip {
 
   private static final int UNLOADABLE = Integer.MIN_VALUE + 1;
 
+  /**
+   * Whether this is a snapshot: one of the three the emulator reads on its own, or one a plugged
+   * format reads, asked of them so a format plugged in later counts at once.
+   */
+  private static boolean aSnapshot(String name) {
+    File file = new File(name);
+    return name.endsWith(".z80") || name.endsWith(".sna") || name.endsWith(".szx")
+        || com.fpetrola.oozx.plugins.Plugins.found(com.fpetrola.oozx.formats.SnapshotFormat.class).stream()
+        .anyMatch(format -> format.reads(file));
+  }
+
   private static int scoreOf(String fileName) {
     // A URL carries TOSEC's brackets escaped, and the rules below read the name, not the escaping.
     String path = fileName.toLowerCase().replace("%5b", "[");
     // ZXDB puts what it is not allowed to hand out under /denied/. Such a file is still the kind
     // of thing that could be loaded, so it is not rejected here - it is simply the last resort,
     // behind anything that will actually come down.
-    int denied = notHandedOut.test(path) ? 50 : 0;
+    int denied = available(path) ? 0 : 50;
     String name = path.substring(path.lastIndexOf('/') + 1);
     // ZXDB lists downloads as .tzx.zip while the entries inside them are plain .tzx, and the
     // same scoring serves both.
@@ -211,9 +244,11 @@ public class DownloadAndUnzip {
     int score;
     if (name.endsWith(".rzx")) {
       score = 40; // a recording: a zip holding one holds nothing else worth loading
-    } else if (name.endsWith(".z80") || name.endsWith(".sna") || name.endsWith(".szx")) {
+    } else if (aSnapshot(name)) {
       score = 30; // a snapshot loads instantly and cannot fail on tape timing
-    } else if (name.endsWith(".tzx") || name.endsWith(".tap")) {
+    } else if (name.endsWith(".tzx")) {
+      score = 22; // a TZX can say which machine it wants, and keeps a loader's timing; a TAP neither
+    } else if (name.endsWith(".tap")) {
       score = 20;
     } else if (name.endsWith(".csw")) {
       score = 10;
@@ -310,7 +345,7 @@ public class DownloadAndUnzip {
    * offered its TOSEC files instead.
    */
   public static boolean available(String fileName) {
-    return fileName != null && !notHandedOut.test(fileName);
+    return fileName != null && !fileName.toLowerCase().contains("/denied/");
   }
 
   private static String cannotReach(URL url, IOException failure) {

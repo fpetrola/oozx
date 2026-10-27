@@ -19,7 +19,6 @@ package com.fpetrola.oozx.speccy.devices;
 import com.fpetrola.oozx.speccy.windows.Widgets;
 
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
@@ -47,9 +46,6 @@ public class MediaSlot extends JPanel {
   private JToggleButton flip;
   private JToggleButton protect;
 
-  /** Remembered between choosers, so the next disk is looked for where the last one was. */
-  private static File lastDirectory;
-
   public MediaSlot(String kind, String icon, FileNameExtensionFilter filter, Consumer<File> onInsert,
                    Runnable onEject) {
     super(new FlowLayout(FlowLayout.LEFT, 4, 0));
@@ -59,7 +55,7 @@ public class MediaSlot extends JPanel {
     setOpaque(false);
     insert = Widgets.iconButton(icon, "Insert", "Insert a " + kind);
     eject = Widgets.iconButton("23CF.svg", "Eject", "Take the " + kind + " out");
-    insert.addActionListener(e -> choose());
+    insert.addActionListener(e -> Widgets.openFile(this, "Insert a " + kind, filter, onInsert));
     eject.addActionListener(e -> onEject.run());
     led.setVisible(false);
     add(led);
@@ -90,15 +86,7 @@ public class MediaSlot extends JPanel {
   /** Writes what is on it back to a file. */
   public MediaSlot withSave(Consumer<File> onSaveAs) {
     JButton save = Widgets.iconButton("slot-save.svg", "Save...", "Save the " + kind + " to a file");
-    save.addActionListener(e -> {
-      JFileChooser chooser = new JFileChooser(lastDirectory);
-      chooser.setDialogTitle("Save the " + kind);
-      chooser.setFileFilter(filter);
-      if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-        lastDirectory = chooser.getCurrentDirectory();
-        onSaveAs.accept(chooser.getSelectedFile());
-      }
-    });
+    save.addActionListener(e -> Widgets.saveFile(this, "Save the " + kind, filter, null, onSaveAs));
     add(save);
     Widgets.tighten(this);
     return this;
@@ -141,15 +129,5 @@ public class MediaSlot extends JPanel {
 
   public void led(boolean on) {
     led.setForeground(on ? new Color(0x30c030) : Color.GRAY);
-  }
-
-  private void choose() {
-    JFileChooser chooser = new JFileChooser(lastDirectory);
-    chooser.setDialogTitle("Insert a " + kind);
-    chooser.setFileFilter(filter);
-    if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-      lastDirectory = chooser.getCurrentDirectory();
-      onInsert.accept(chooser.getSelectedFile());
-    }
   }
 }

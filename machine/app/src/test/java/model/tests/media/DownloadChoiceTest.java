@@ -146,6 +146,22 @@ class DownloadChoiceTest {
     assertArrayEquals(new byte[]{2}, Files.readAllBytes(other));
   }
 
+  @Test
+  void what_comes_down_is_kept_where_its_address_says() throws Exception {
+    // A folder named by a hash of the URL kept things apart and hid them: nobody could walk
+    // ~/.oozx/downloads and find the tape they fetched last week. The address itself does both.
+    Path archives = Files.createTempDirectory("archives");
+    Path tape = new DownloadAndUnzip().unzip(zipWith(archives.resolve("Big Brother.tzx.zip"), "game.tzx", 3).toUri().toString());
+    assertEquals(Configuration.home().toPath().resolve("downloads").resolve("disk")
+        .resolve(archives.toAbsolutePath().toString().substring(1)).resolve("Big Brother.tzx.zip").resolve("game.tzx"), tape);
+    assertEquals(Path.of("zxinfo.dk", "media", "zxdb", "entries", "0030743", "BigBrother.z80.zip"),
+        Configuration.home().toPath().resolve("downloads").relativize(
+            DownloadAndUnzip.placeFor("https://zxinfo.dk/media/zxdb/entries/0030743/BigBrother.z80.zip")));
+    assertEquals(Path.of("www.rzxarchive.co.uk", "0", "techted48.rzx"),
+        Configuration.home().toPath().resolve("downloads").relativize(
+            DownloadAndUnzip.placeFor("https://www.rzxarchive.co.uk/0/techted48.rzx")));
+  }
+
   private static Path zipWith(Path zip, String entry, int content) throws Exception {
     try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(zip))) {
       out.putNextEntry(new ZipEntry(entry));
