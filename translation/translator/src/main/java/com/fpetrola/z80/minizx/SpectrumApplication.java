@@ -401,9 +401,13 @@ public abstract class SpectrumApplication {
   }
 
   public int pop() {
-    int value = mem[SP] | mem[SP + 1 & 0xffff] << 8;
+    int value = peek();
     SP = SP + 2 & 0xffff;
     return value;
+  }
+
+  public int peek() {
+    return mem[SP] | mem[SP + 1 & 0xffff] << 8;
   }
 
   public int bank() {

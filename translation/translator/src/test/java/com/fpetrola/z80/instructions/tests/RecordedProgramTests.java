@@ -1335,6 +1335,32 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aPartOfALoopBodyThatBreaksOrContinuesReportsWhichToTheLoop() {
+    int[] first = IntStream.range(0, 400).flatMap(i -> IntStream.of(0x32, 0x02, 0x90)).toArray(), second = IntStream.range(0, 300).flatMap(i -> IntStream.of(0x32, 0x03, 0x90)).toArray();
+    translate(with(listing("""
+        8000  3A 00 90  LD A, (0x9000)
+        8003  3C  INC A
+        8004  32 00 90  LD (0x9000), A
+        8007  FE 05  CP A, 0x05
+        8009  28 02  JR Z, 0x800D
+        800B  18 01  JR 0x800E
+        800D  76  HALT
+        84BE  FE 03  CP A, 0x03
+        84C0  CA 0D 80  JP Z, 0x800D
+        84C3  E6 01  AND A, 0x01
+        84C5  CA 00 80  JP Z, 0x8000
+        8850  C3 00 80  JP 0x8000
+        """), at(0x800E, first), at(0x84C8, second)));
+    Routine routine = routineManager.findRoutineAt(0x8000);
+    Assert.assertEquals(1, routineManager.outlined.size());
+    RoutineManager.Outlined part = routineManager.outlined.values().iterator().next();
+    Assert.assertEquals(routine, part.parent());
+    Assert.assertEquals(Set.of(0x800D, 0x8000), part.exits().stream().map(RoutineManager.Outlined.Continuation::to).collect(Collectors.toSet()));
+    Assert.assertFalse(part.leaves());
+    Assert.assertEquals(Set.of(), routineManager.routinesInJumpCycles(pc -> stackAnalyzer.getInvocationsSet(pc)));
+  }
+
+  @Test
   public void emlyn98C2ReadsAWordWithPopAndStepsBackAByte() {
     // Emlyn Hughes 98C2: POP DE / DEC SP takes a byte from the sprite and leaves SP on the next one (the code at 8000 points SP at the sprite and HL at the screen; the loop at 98C5 ends the scene, where the game goes on with JR Z)
     String java = translate(with(listing("""
@@ -3879,7 +3905,7 @@ public class RecordedProgramTests {
 
            public void $8100() {
               int[] var12;
-              label46:
+              label44:
               do {
                  if(this.isNextPC(0x8108)) {
                     this.setNextAddress(0x8108);
@@ -3910,17 +3936,15 @@ public class RecordedProgramTests {
                                 int var14 = this.D();
                                 int var15 = this.alu("inc", var14);
                                 this.D(var15);
-                                if(this.flag(64, true)) {
-                                   this.setNextAddress(0x8108);
-                                } else {
+                                if(!this.flag(64, true)) {
+                                   continue;
                                 }
-                                continue;
-                             }
-
-                             int[] var11 = new int[]{0x8108};
-                             if(this.ownAddress(var11) == -1) {
-                                var12 = new int[]{0x8108};
-                                continue label46;
+                             } else {
+                                int[] var11 = new int[]{0x8108};
+                                if(this.ownAddress(var11) == -1) {
+                                   var12 = new int[]{0x8108};
+                                   continue label44;
+                                }
                              }
                           } else {
                              int var8 = this.SP();
@@ -4512,11 +4536,11 @@ public class RecordedProgramTests {
         E3CC  FD CB 00 7E  BIT 7, (IY+00)
         E3D0  28 02  JR Z, 0xE3D4
         """, 0x5D68, 0x5DC6, 0x5DD3, 0x5DE8, 0x5EFF, 0x5F1B, 0xD6D6, 0xDCAA, 0xDD06, 0xDFD3, 0xE012, 0xE609, 0xE709, 0xE726, 0xE7A0, 0xE7AA, 0xE88B, 0xEC00, 0xF3A6, 0xF3DB, 0xF455, 0xF465, 0xF565, 0xF651, 0xF69A, 0xF98D));
-    String continuation = withoutTiming(java.substring(java.indexOf("public void $E0D6()")));
-    continuation = continuation.substring(0, continuation.indexOf("\n   }\n"));
-    Assert.assertFalse(continuation, continuation.contains("this.$D6E4()") || continuation.contains("this.$D794()"));
-    Assert.assertTrue(continuation, continuation.contains("this.unwind(0xD794);"));
-    Assert.assertTrue("D794, dispatched at the start of its owner, can be reached by address", withoutTiming(java).contains("public void $D794() {\n      this.setNextAddress(0xD794);"));
+    Assert.assertEquals("E0D6 runs in the frame of the loop whose call it catches", routineManager.findRoutineAt(0xD6E4), routineManager.findRoutineAt(0xE0D6));
+    String loop = withoutTiming(java.substring(java.indexOf("public void $D6E4()")));
+    loop = loop.substring(0, loop.indexOf("\n   }\n"));
+    Assert.assertFalse(loop, loop.contains("this.$D6E4()"));
+    Assert.assertTrue(withoutTiming(java), withoutTiming(java).contains("this.unwind(0xE0D6, \"HL\");"));
   }
 
   @Test
@@ -5259,6 +5283,20 @@ public class RecordedProgramTests {
         at(STACK, 0x20, 0x80));
     Assert.assertEquals("8000 8003 8020", routines());
     Assert.assertTrue(stackAnalyzer.codeVersions.mutant().contains(0x8000));
+  }
+
+  @Test
+  public void aSimulatedCallWhoseContinuationIsARoutineOfItsOwnEndsTheMethodInsteadOfFallingIntoTheNextBlock() {
+    // Target: Renegade F42E: the JP (HL) is followed in its routine by another block (there, the byte at FFFF); when the callee takes the pushed continuation itself (here with POP HL; JP (HL)) the site has nothing left to do
+    translate(
+        at(0x8000, 0x21, 0x34, 0x12, 0x11, 0x50, 0x80, 0xCD, 0x20, 0x80, 0x3E, 0x01, 0x32, 0x00, 0x90, 0xCD, 0x20, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8020, 0x3A, 0x00, 0x90, 0xB7, 0x20, 0x07, 0xE5, 0x21, 0x30, 0x80, 0xE5, 0xEB, 0xE9, 0x0C, 0xC9),
+        at(0x8030, 0xE1, 0x7D, 0xC9),
+        at(0x8050, 0x04, 0xE1, 0xE9));
+    Assert.assertEquals(RoutineManager.Exit.SIMULATED_CALL, routineManager.exitOfJump(0x802C, routineManager.findRoutineAt(0x802C), stackAnalyzer));
+    Assert.assertEquals(routineManager.findRoutineAt(0x802C), routineManager.findRoutineAt(0x802D));
+    Assert.assertEquals(1, endValue("B") & 0xff);
+    Assert.assertEquals(1, endValue("C") & 0xff);
   }
 
   @Test
@@ -6546,7 +6584,7 @@ public class RecordedProgramTests {
   }
 
   @Test
-  public void aRoutineTooLargeForOneJavaMethodIsSplitAtItsBlocks() {
+  public void aRoutineTooLargeForOneJavaMethodIsCutIntoPartsOfAtMostThatSizeCalledOneAfterTheOther() {
     int[] first = new int[1 + 2000 + 3], second = new int[1 + 2000 + 5];
     first[0] = START;
     Arrays.fill(first, 1, 2001, 0x3C);
@@ -6555,7 +6593,10 @@ public class RecordedProgramTests {
     Arrays.fill(second, 1, 2001, 0x3C);
     System.arraycopy(new int[]{0x06, 0x01, 0x76, 0x18, 0xFD}, 0, second, 2001, 5);
     translate(first, second);
-    Assert.assertTrue(routines(), routineManager.getRoutines().size() >= 2 && routines().contains("8800"));
+    Routine routine = routineManager.findRoutineAt(START);
+    Assert.assertEquals(routines(), 2, routineManager.outlined.size());
+    Assert.assertTrue(routineManager.outlined.values().stream().allMatch(part -> part.parent() == routine && part.exits().size() <= 1 && !part.leaves()));
+    Assert.assertEquals(Set.of(), routineManager.routinesInJumpCycles(pc -> stackAnalyzer.getInvocationsSet(pc)));
   }
 
   @Test

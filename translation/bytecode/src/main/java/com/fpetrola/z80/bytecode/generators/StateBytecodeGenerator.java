@@ -36,6 +36,7 @@ import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.fpetrola.z80.bytecode.generators.MemoryType.*;
 
@@ -191,10 +192,14 @@ public class StateBytecodeGenerator {
     entries.addAll(routineManager.ancestorJumps(pc -> stackAnalyzer.getInvocationsSet(pc)).landings().getOrDefault(routine, Set.of()));
     List<ControlFlowStructuring.Outline> outlines = new ControlFlowStructuring(routine, routineManager, entries, address -> routineManager.continuation(address, stackAnalyzer), pc -> stackAnalyzer.getInvocationsSet(pc)).outlines(keep);
     if (Boolean.getBoolean("translation.reportRoutines"))
-      System.out.println("CUT " + routine + " entries " + entries.stream().map(Helper::formatAddress).toList() + " parts " + outlines.stream().map(part -> "%s->%s %d bytes%s".formatted(Helper.formatAddress(part.entry()), Helper.formatAddress(part.continuation()), part.nodes().size(), part.leaves() ? " leaves" : "")).toList());
-    if (outlines.isEmpty() || size(routine) - outlines.stream().mapToInt(part -> part.nodes().stream().mapToInt(address -> routineManager.getInstructionAt(address).getLength()).sum()).sum() > keep)
-      return split(routine);
-    List<Routine> pieces = new ArrayList<>(outlines.stream().map(part -> routineManager.outline(routine, part.entry(), part.nodes(), part.continuation(), part.leaves())).toList());
+      System.out.println("CUT " + routine + " keep " + keep + (routineManager.outlined.containsKey(routine) ? " part" : "") + " entries " + entries.stream().map(Helper::formatAddress).toList() + " parts " + outlines.stream().map(part -> "%s->%s %d bytes%s".formatted(Helper.formatAddress(part.entry()), part.exits().stream().map(exit -> Helper.formatAddress(exit.to())).toList(), part.nodes().size(), part.leaves() ? " leaves" : "")).toList());
+    boolean inAFamily = routineManager.outlined.containsKey(routine) || routineManager.outlined.values().stream().anyMatch(part -> part.parent() == routine);
+    if (outlines.isEmpty() || !inAFamily && size(routine) - outlines.stream().mapToInt(part -> part.nodes().stream().filter(routine::contains).mapToInt(address -> routineManager.getInstructionAt(address).getLength()).sum()).sum() > keep) {
+      if (Boolean.getBoolean("translation.reportRoutines"))
+        System.out.println("CUT " + routine + (inAFamily ? " stays" : " by blocks"));
+      return inAFamily ? List.of() : split(routine);
+    }
+    List<Routine> pieces = new ArrayList<>(outlines.stream().map(part -> routineManager.outline(routine, part.entry(), part.nodes().stream().filter(routine::contains).collect(Collectors.toCollection(LinkedHashSet::new)), part.exits(), part.leaves())).toList());
     pieces.add(routine);
     return pieces;
   }

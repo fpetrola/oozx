@@ -301,13 +301,32 @@ public class RoutineManager {
     return instruction instanceof Call ? stackAnalyzer.callContinuations.getOrDefault(address, next) : next;
   }
 
-  /** A part taken out of a routine as a method it calls: it comes back to {@code continuation} (-1: never), and {@code leaves} says whether it can end the routine instead, by a RET or a jump out. */
-  public record Outlined(Routine parent, int continuation, boolean leaves) {}
+  /** A part taken out of a routine as a method it calls: it goes on at one of {@code exits}, in the routine or not (when there is more than one outcome the method reports which, -1 when the routine ended), and {@code leaves} says whether it can end the routine instead, by a RET. */
+  public record Outlined(Routine parent, java.util.List<Continuation> exits, boolean leaves) {
+    /** Where a part goes on, {@code to}, from the instruction at {@code from}. */
+    public record Continuation(int to, int from) {}
+
+    public boolean reports() {
+      return exits.size() + (leaves ? 1 : 0) > 1;
+    }
+
+    /** The exit that goes on at this address from this instruction, or from any when the instruction is not known (-1); -1 when there is none. */
+    public int exit(int to, int from) {
+      int byAddress = -1;
+      for (int i = 0; i < exits.size(); i++)
+        if (exits.get(i).to() == to) {
+          if (exits.get(i).from() == from)
+            return i;
+          byAddress = byAddress == -1 ? i : byAddress;
+        }
+      return byAddress;
+    }
+  }
 
   public final Map<Routine, Outlined> outlined = new HashMap<>();
 
   /** Takes these addresses out of {@code parent} as a routine of its own entered at {@code entry}, which the parent calls. */
-  public Routine outline(Routine parent, int entry, java.util.Set<Integer> addresses, int continuation, boolean leaves) {
+  public Routine outline(Routine parent, int entry, java.util.Set<Integer> addresses, java.util.List<Outlined.Continuation> exits, boolean leaves) {
     Routine piece = null;
     for (int first : addresses.stream().sorted().filter(address -> !addresses.contains(addressBefore(address))).toList()) {
       Routine moved = parent.split(first);
@@ -319,7 +338,7 @@ public class RoutineManager {
       piece = piece == null ? moved : merge(moved, piece);
     }
     piece.setEntryPoint(entry);
-    outlined.put(piece, new Outlined(parent, continuation, leaves));
+    outlined.put(piece, new Outlined(parent, exits, leaves));
     return piece;
   }
 
@@ -329,10 +348,10 @@ public class RoutineManager {
     return into;
   }
 
-  /** The parent of a part goes to it as a call, and the part goes back to the parent, or to another part with the same continuation, as a return. */
+  /** The parent of a part goes to it as a call, and so does a part to another of the same parent; a part goes back to its parent as a return. */
   private boolean linkedByOutlining(Routine from, Routine to) {
     Outlined part = outlined.get(to), mine = outlined.get(from);
-    return part != null && (part.parent() == from || mine != null && mine.parent() == part.parent() && mine.continuation() == part.continuation()) || mine != null && mine.parent() == to;
+    return part != null && (part.parent() == from || mine != null && mine.parent() == part.parent()) || mine != null && mine.parent() == to;
   }
 
   public java.util.Set<Routine> routinesInJumpCycles(java.util.function.IntFunction<java.util.Set<Integer>> dynamicTargets) {
@@ -479,7 +498,7 @@ public class RoutineManager {
           targets.add(jump.getJumpAddress());
       if (fallsThrough(instruction))
         targets.add(address + instruction.getLength());
-      targets.forEach(target -> edge.accept(from, target));
+      targets.forEach(target -> edge.accept(outlined.containsKey(from) && topParent(from) != topParent(routineGoneOnAt(target)) ? topParent(from) : from, target));
     });
   }
 
@@ -530,19 +549,33 @@ public class RoutineManager {
     return candidates;
   }
 
+  /** Whether the address is in the routine or in a part of it: what a part does, its parent does. */
+  public boolean owns(Routine owner, int address) {
+    for (Routine routine = findRoutineAt(address); routine != null; routine = outlined.containsKey(routine) ? outlined.get(routine).parent() : null)
+      if (routine == owner)
+        return true;
+    return false;
+  }
+
+  private Routine topParent(Routine routine) {
+    while (outlined.containsKey(routine))
+      routine = outlined.get(routine).parent();
+    return routine;
+  }
+
   public boolean isEnteredFromOutside(Routine owner, int address) {
-    return owner.getEntryPoint() != address && (jumpsAfterStackReset.get(address).stream().anyMatch(caller -> !owner.contains(caller)) || isFallenIntoFromOutside(owner, address)
+    return owner.getEntryPoint() != address && (jumpsAfterStackReset.get(address).stream().anyMatch(caller -> !owns(owner, caller)) || isFallenIntoFromOutside(owner, address)
         || externalEntries.contains(address) || isJumpedIntoFromOtherRoutine(owner, address) || isReturnPointOfCallFromOutside(owner, address));
   }
 
   private boolean isReturnPointOfCallFromOutside(Routine owner, int address) {
     return returnPoints.entries().stream().anyMatch(point -> point.getValue() == address
-        && instructions.entrySet().stream().anyMatch(e -> e.getValue() instanceof Call call && call.getJumpAddress() == point.getKey() && !owner.contains(e.getKey())))
-        || siteReturnPoints.entries().stream().anyMatch(point -> point.getValue() == address && !owner.contains(point.getKey()));
+        && instructions.entrySet().stream().anyMatch(e -> e.getValue() instanceof Call call && call.getJumpAddress() == point.getKey() && !owns(owner, e.getKey())))
+        || siteReturnPoints.entries().stream().anyMatch(point -> point.getValue() == address && !owns(owner, point.getKey()));
   }
 
   private boolean isFallenIntoFromOutside(Routine owner, int address) {
-    return instructions.entrySet().stream().anyMatch(e -> fallsThrough(e.getValue()) && (e.getKey() + e.getValue().getLength() & 0xffff) == address && !owner.contains(e.getKey()) && findRoutineAt(e.getKey()) != null);
+    return instructions.entrySet().stream().anyMatch(e -> fallsThrough(e.getValue()) && (e.getKey() + e.getValue().getLength() & 0xffff) == address && !owns(owner, e.getKey()) && findRoutineAt(e.getKey()) != null);
   }
 
   private void splitAtEntriesFromOutside() {
@@ -597,7 +630,7 @@ public class RoutineManager {
 
   public boolean isJumpedIntoFromOtherRoutine(Routine routine, int entry) {
     Stream<Integer> staticJumps = instructions.entrySet().stream().filter(e -> jumpsTo(e.getValue(), entry)).map(Map.Entry::getKey);
-    return Stream.concat(staticJumps, callers.get(entry).stream()).anyMatch(pc -> !routine.contains(pc) && findRoutineAt(pc) != null);
+    return Stream.concat(staticJumps, callers.get(entry).stream()).anyMatch(pc -> !owns(routine, pc) && findRoutineAt(pc) != null);
   }
 
   private static boolean jumpsTo(Instruction instruction, int target) {

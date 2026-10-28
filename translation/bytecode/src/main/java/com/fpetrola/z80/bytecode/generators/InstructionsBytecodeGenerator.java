@@ -592,7 +592,8 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
         methodMaker.invoke("jump", methodMaker.invoke(register.getName()));
         routineByteCodeGenerator.afterInvoke();
       }
-      if (exit != RoutineManager.Exit.SIMULATED_CALL)
+      List<Integer> continuations = stackAnalyzer.dataOnTopAt.get(pcValue1).stream().flatMap(push -> stackAnalyzer.pushedValues.get(push).stream()).toList();
+      if (exit != RoutineManager.Exit.SIMULATED_CALL || !continuations.isEmpty() && continuations.stream().noneMatch(routineByteCodeGenerator.routine::contains))
         routineByteCodeGenerator.returnFromMethod();
       return true;
     } else
@@ -607,7 +608,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
         if (label != null) {
           if (isSimulatedCall)
             methodMaker.invoke("pop");
-          methodMaker.goto_(label);
+          routineByteCodeGenerator.goTo(pcValue1, c);
         } else if (isSimulatedCall) {
           Variable sp = methodMaker.invoke("SP");
           routineByteCodeGenerator.jumpInto(c);
