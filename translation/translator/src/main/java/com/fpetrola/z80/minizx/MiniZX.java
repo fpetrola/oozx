@@ -105,8 +105,8 @@ public abstract class MiniZX extends SpectrumApplication {
     stacks.put(mine, new Parked(Thread.currentThread(), mem16(mine, -1)));
     runningStack = SP;
     Parked other = stacks.get(SP);
-    if (other == null || other.top() != mem16(SP, -1))
-      stacks.put(SP, new Parked(Thread.ofVirtual().start(() -> {
+    if (other == null || other.top() != mem16(SP, -1)) {
+      Thread started = Thread.ofVirtual().unstarted(() -> {
         try {
           run(pop());
         } catch (Throwable e) {
@@ -114,8 +114,10 @@ public abstract class MiniZX extends SpectrumApplication {
         }
         runningStack = mine;
         LockSupport.unpark(stacks.get(mine).thread());
-      }), mem16(SP, -1)));
-    else
+      });
+      stacks.put(SP, new Parked(started, mem16(SP, -1)));
+      started.start();
+    } else
       LockSupport.unpark(other.thread());
     while (runningStack != mine)
       LockSupport.park();

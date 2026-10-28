@@ -31,11 +31,8 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public interface BytecodeGeneration {
-  Pattern UNDECOMPILED_METHOD = Pattern.compile("(?:void|int) \\$([0-9A-F]+)\\(\\) \\{\\s*// \\$FF: Couldn't be decompiled");
-
   default String getDecompiledSource(String className, String targetFolder, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory, GameData gameData) {
     for (int attempt = 0; ; attempt++) {
       StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation, symbolicExecutionAdapter, base64Memory, gameData);
@@ -44,11 +41,14 @@ public interface BytecodeGeneration {
       if (Boolean.getBoolean("translation.skipDecompile"))
         return "";
       String source = decompiler.decompile();
-      List<Integer> undecompiled = UNDECOMPILED_METHOD.matcher(source).results().map(m -> Integer.parseInt(m.group(1), 16)).toList();
+      List<Integer> undecompiled = decompiler.undecompiledMethods();
       if (!undecompiled.isEmpty())
         System.out.println("NOT DECOMPILED (attempt " + attempt + ") " + undecompiled.stream().map(Integer::toHexString).toList() + ":\n" + decompiler.warnings());
-      if (undecompiled.isEmpty() || attempt == 5 || !undecompiled.stream().allMatch(bytecodeGenerator::splitRoutineAt))
+      if (undecompiled.isEmpty() || attempt == 5 || !undecompiled.stream().allMatch(bytecodeGenerator::splitRoutineAt)) {
+        if (source == null)
+          throw new IllegalStateException("Fernflower produced no source:\n" + decompiler.warnings());
         return source.replace("// $FF: Couldn't be decompiled", "throw new IllegalStateException(\"not decompiled\");");
+      }
     }
   }
 

@@ -426,7 +426,7 @@ public class StackAnalyzer implements java.io.Serializable {
 
   private boolean learnContinuation(int returnPc, int callSite, int continuation) {
     Integer known = callContinuations.get(callSite);
-    if (known != null && known != continuation)
+    if (known != null && known != continuation || returnsConsumedBy.containsValue(callSite))
       jumpTableAt(callSite);
     if (jumpTableSites.contains(callSite))
       return false;
@@ -483,8 +483,11 @@ public class StackAnalyzer implements java.io.Serializable {
           return false;
         Entry consumedReturn = consumedReturns.get(poppedSlot());
         Entry entry = entries.remove(poppedSlot());
-        if (entry != null && entry.returnAddress())
+        if (entry != null && entry.returnAddress()) {
           returnsConsumedBy.put(pcValue, entry.pc());
+          if (callContinuations.containsKey(entry.pc()))
+            jumpTableAt(entry.pc());
+        }
         if (entry != null && !entry.returnAddress()) {
           if (entry.pc() != -1 && (collecting() || !learnedFromRecording))
             dataConsumedBy.put(pcValue, entry.pc());

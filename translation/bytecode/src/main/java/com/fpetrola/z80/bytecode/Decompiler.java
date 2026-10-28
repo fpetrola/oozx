@@ -30,6 +30,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.List;
+import java.util.regex.Pattern;
 
 public class Decompiler {
   private SimpleResultSaverFor saver;
@@ -38,6 +40,7 @@ public class Decompiler {
   private SimpleBytecodeProvider bytecodeProvider;
   /** What Fernflower reports from WARN up: why a method or the whole class could not be decompiled. */
   private final ByteArrayOutputStream log = new ByteArrayOutputStream();
+  private static final Pattern UNDECOMPILED_METHOD = Pattern.compile("Method \\$([0-9A-F]+) \\(\\)[IV] couldn't be decompiled");
 
   public Decompiler() {
     saver = new SimpleResultSaverFor();
@@ -105,11 +108,15 @@ public class Decompiler {
     return customProperties;
   }
 
+  /** The source, or null when Fernflower gave up on the whole class; {@link #undecompiledMethods()} and {@link #warnings()} say why. */
   public String decompile() {
     fernflower.decompileContext();
-    if (saver.getContent() == null)
-      throw new IllegalStateException("Fernflower produced no source:\n" + warnings());
     return saver.getContent();
+  }
+
+  /** The routines whose methods Fernflower could not decompile, from its log: it names them whether it then wrote the class with a marker or gave up. */
+  public List<Integer> undecompiledMethods() {
+    return UNDECOMPILED_METHOD.matcher(log.toString()).results().map(m -> Integer.parseInt(m.group(1), 16)).distinct().toList();
   }
 
   public String warnings() {

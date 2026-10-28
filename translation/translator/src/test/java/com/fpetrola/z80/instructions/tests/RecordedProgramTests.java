@@ -1273,6 +1273,42 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void emlynC7EBReturnsNormallyAlthoughTheDispatcherOnceJumpedNearItsReturn() {
+    // Emlyn Hughes C7EB: CALL C94C, whose callee drops the return with POP HL and goes back to the main loop (C938); the loop's table dispatcher JP (HL) at C777 then
+    // runs with SP where that return was popped and lands at C841, 83 bytes past C7EE, which looked like a return shifted past inline data. Later the callee returns normally to C7EE.
+    String java = translate(with(listing("""
+        8000  3A 00 90  LD A, (0x9000)
+        8003  5F  LD E, A
+        8004  16 00  LD D, 0x00
+        8006  3C  INC A
+        8007  32 00 90  LD (0x9000), A
+        800A  21 20 80  LD HL, 0x8020
+        800D  19  ADD HL, DE
+        800E  19  ADD HL, DE
+        800F  7E  LD A, (HL)
+        8010  23  INC HL
+        8011  66  LD H, (HL)
+        8012  6F  LD L, A
+        8013  E9  JP 0x0000
+        8040  CD 80 80  CALL 0x8080
+        8043  3E 03  LD A, 0x03
+        8045  32 01 90  LD (0x9001), A
+        8048  C3 00 80  JP 0x8000
+        8050  3E 01  LD A, 0x01
+        8052  32 02 90  LD (0x9002), A
+        8055  C3 00 80  JP 0x8000
+        8060  76  HALT
+        8080  3A 02 90  LD A, (0x9002)
+        8083  A7  AND A, A
+        8084  C0  RET NZ
+        8085  E1  POP HL
+        8086  C3 00 80  JP 0x8000
+        """), at(0x8020, 0x40, 0x80, 0x50, 0x80, 0x40, 0x80, 0x60, 0x80)));
+    Assert.assertNull(stackAnalyzer.callContinuations.get(0x8040));
+    Assert.assertEquals(Set.of(0x8040, 0x8050, 0x8060), Set.copyOf(stackAnalyzer.dynamicInvocation.get(0x8013)));
+  }
+
+  @Test
   public void emlyn98C2ReadsAWordWithPopAndStepsBackAByte() {
     // Emlyn Hughes 98C2: POP DE / DEC SP takes a byte from the sprite and leaves SP on the next one (the code at 8000 points SP at the sprite and HL at the screen; the loop at 98C5 ends the scene, where the game goes on with JR Z)
     String java = translate(with(listing("""
