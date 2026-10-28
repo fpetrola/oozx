@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.bytecode.generators;
 
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.transformations.StackAnalyzer;
 import com.fpetrola.z80.blocks.Block;
 import com.fpetrola.z80.bytecode.generators.helpers.BytecodeGenerationContext;
@@ -110,6 +111,9 @@ public class StateBytecodeGenerator {
     routineManager.planEntries(symbolicExecutionAdapter.getStackAnalyzer());
     new ArrayList<>(routineManager.getRoutines()).forEach(this::splitIfTooLargeForOneMethod);
     routineManager.planNonLocalReturns(symbolicExecutionAdapter.getStackAnalyzer(), bytecodeGenerationContext.routinesInJumpCycles());
+    if (Boolean.getBoolean("translation.reportJumpCycles"))
+      routineManager.jumpCycleComponents(pc -> symbolicExecutionAdapter.getStackAnalyzer().getInvocationsSet(pc)).forEach(cycle -> System.out.println("JUMP CYCLE " + cycle.members().stream().map(r -> Helper.formatAddress(r.getEntryPoint())).toList()
+          + " heads " + cycle.heads().stream().map(r -> Helper.formatAddress(r.getEntryPoint())).toList() + " entered by " + cycle.entries().keySet().stream().sorted().map(cause -> cause + " " + cycle.entries().get(cause).stream().sorted().map(Helper::formatAddress).toList()).collect(java.util.stream.Collectors.joining(", "))));
     List<Routine> routines = routineManager.getRoutinesInDepth();
 
     RoutineBytecodeGenerator routineBytecodeGenerator1 = new RoutineBytecodeGenerator(bytecodeGenerationContext, null);
@@ -166,16 +170,33 @@ public class StateBytecodeGenerator {
     return classMaker;
   }
 
-  private static final int MAX_ROUTINE_BYTES = 1500;
+  private static final int MAX_ROUTINE_BYTES = Integer.getInteger("translation.methodBytes", 1500);
 
   private void splitIfTooLargeForOneMethod(Routine routine) {
     if (size(routine) > MAX_ROUTINE_BYTES)
-      split(routine).forEach(this::splitIfTooLargeForOneMethod);
+      cut(routine, MAX_ROUTINE_BYTES).forEach(this::splitIfTooLargeForOneMethod);
   }
 
   public boolean splitRoutineAt(int entryPoint) {
     Routine routine = routineManager.findRoutineAt(entryPoint);
-    return routine != null && !split(routine).isEmpty();
+    return routine != null && !cut(routine, size(routine) / 2).isEmpty();
+  }
+
+  /** The parts of the routine that can be methods it calls, until at most {@code keep} bytes remain; when they are not enough, its blocks as before, since a part must not end up jumped into from a block. */
+  private List<Routine> cut(Routine routine, int keep) {
+    StackAnalyzer stackAnalyzer = symbolicExecutionAdapter.getStackAnalyzer();
+    Set<Integer> entries = routineManager.entriesFromOutside(routine);
+    entries.addAll(routineManager.catchPointsOfCallsIn(routine).values());
+    entries.addAll(routineManager.returnsOfCallsInTakenByNonLocalReturns(routine, stackAnalyzer));
+    entries.addAll(routineManager.ancestorJumps(pc -> stackAnalyzer.getInvocationsSet(pc)).landings().getOrDefault(routine, Set.of()));
+    List<ControlFlowStructuring.Outline> outlines = new ControlFlowStructuring(routine, routineManager, entries, address -> routineManager.continuation(address, stackAnalyzer), pc -> stackAnalyzer.getInvocationsSet(pc)).outlines(keep);
+    if (Boolean.getBoolean("translation.reportRoutines"))
+      System.out.println("CUT " + routine + " entries " + entries.stream().map(Helper::formatAddress).toList() + " parts " + outlines.stream().map(part -> "%s->%s %d bytes%s".formatted(Helper.formatAddress(part.entry()), Helper.formatAddress(part.continuation()), part.nodes().size(), part.leaves() ? " leaves" : "")).toList());
+    if (outlines.isEmpty() || size(routine) - outlines.stream().mapToInt(part -> part.nodes().stream().mapToInt(address -> routineManager.getInstructionAt(address).getLength()).sum()).sum() > keep)
+      return split(routine);
+    List<Routine> pieces = new ArrayList<>(outlines.stream().map(part -> routineManager.outline(routine, part.entry(), part.nodes(), part.continuation(), part.leaves())).toList());
+    pieces.add(routine);
+    return pieces;
   }
 
   private List<Routine> split(Routine routine) {

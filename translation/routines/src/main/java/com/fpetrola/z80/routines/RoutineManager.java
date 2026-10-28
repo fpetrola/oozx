@@ -268,6 +268,73 @@ public class RoutineManager {
         .findFirst().map(v -> v.start() + address - v.relocatedAt()).orElse(address);
   }
 
+  /** {@code heads}: the members through which every cycle of the group passes, so the group is a loop around one of them. */
+  public record JumpCycle(List<Routine> members, List<Routine> heads, MultiValuedMap<String, Integer> entries) {}
+
+  /** The groups of routines that jump to each other without a CALL in between (the ones {@link #routinesInJumpCycles} finds), each with where it is entered from outside: a CALL to a member, a jump into one, an external entry. */
+  public List<JumpCycle> jumpCycleComponents(java.util.function.IntFunction<java.util.Set<Integer>> dynamicTargets) {
+    org.jgrapht.Graph<Routine, org.jgrapht.graph.DefaultEdge> graph = new org.jgrapht.graph.DefaultDirectedGraph<>(org.jgrapht.graph.DefaultEdge.class);
+    flow(dynamicTargets, false).forEach((from, targets) -> targets.forEach(to -> {
+      graph.addVertex(from);
+      graph.addVertex(to);
+      graph.addEdge(from, to);
+    }));
+    MultiValuedMap<Integer, Integer> callSites = callSitesByTarget();
+    return new org.jgrapht.alg.connectivity.KosarajuStrongConnectivityInspector<>(graph).stronglyConnectedSets().stream().filter(members -> members.size() > 1).map(members -> {
+      MultiValuedMap<String, Integer> entries = new HashSetValuedHashMap<>();
+      edges(dynamicTargets, false, (from, target) -> {
+        if (!members.contains(from) && members.contains(routineGoneOnAt(target)))
+          entries.put("jump", target);
+      });
+      callSites.entries().stream().filter(e -> members.contains(findRoutineAt(e.getKey())) && !members.contains(findRoutineAt(e.getValue()))).forEach(e -> entries.put("call", e.getKey()));
+      externalEntries.stream().filter(entry -> members.contains(findRoutineAt(entry))).forEach(entry -> entries.put("external", entry));
+      List<Routine> sorted = members.stream().sorted(comparingInt(Routine::getEntryPoint)).toList();
+      List<Routine> heads = sorted.stream().filter(head -> !new org.jgrapht.alg.cycle.CycleDetector<>(new org.jgrapht.graph.AsSubgraph<>(graph, members.stream().filter(m -> m != head).collect(java.util.stream.Collectors.toSet()))).detectCycles()).toList();
+      return new JumpCycle(sorted, heads, entries);
+    }).toList();
+  }
+
+  /** Where the code goes on after the instruction at this address when it falls through: past the data a CALL with a learned continuation skips. */
+  public int continuation(int address, StackAnalyzer stackAnalyzer) {
+    Instruction instruction = getInstructionAt(address);
+    int next = address + instruction.getLength() & 0xffff;
+    return instruction instanceof Call ? stackAnalyzer.callContinuations.getOrDefault(address, next) : next;
+  }
+
+  /** A part taken out of a routine as a method it calls: it comes back to {@code continuation} (-1: never), and {@code leaves} says whether it can end the routine instead, by a RET or a jump out. */
+  public record Outlined(Routine parent, int continuation, boolean leaves) {}
+
+  public final Map<Routine, Outlined> outlined = new HashMap<>();
+
+  /** Takes these addresses out of {@code parent} as a routine of its own entered at {@code entry}, which the parent calls. */
+  public Routine outline(Routine parent, int entry, java.util.Set<Integer> addresses, int continuation, boolean leaves) {
+    Routine piece = null;
+    for (int first : addresses.stream().sorted().filter(address -> !addresses.contains(addressBefore(address))).toList()) {
+      Routine moved = parent.split(first);
+      int last = first;
+      while (addresses.contains(addressAfter(last)))
+        last = addressAfter(last);
+      if (moved.contains(addressAfter(last)))
+        merge(moved.split(addressAfter(last)), parent);
+      piece = piece == null ? moved : merge(moved, piece);
+    }
+    piece.setEntryPoint(entry);
+    outlined.put(piece, new Outlined(parent, continuation, leaves));
+    return piece;
+  }
+
+  private Routine merge(Routine from, Routine into) {
+    new ArrayList<>(from.getBlocks()).forEach(into::addBlock);
+    removeRoutine(from);
+    return into;
+  }
+
+  /** The parent of a part goes to it as a call, and the part goes back to the parent, or to another part with the same continuation, as a return. */
+  private boolean linkedByOutlining(Routine from, Routine to) {
+    Outlined part = outlined.get(to), mine = outlined.get(from);
+    return part != null && (part.parent() == from || mine != null && mine.parent() == part.parent() && mine.continuation() == part.continuation()) || mine != null && mine.parent() == to;
+  }
+
   public java.util.Set<Routine> routinesInJumpCycles(java.util.function.IntFunction<java.util.Set<Integer>> dynamicTargets) {
     Map<Routine, java.util.Set<Routine>> next = flow(dynamicTargets, false);
     return next.keySet().stream().filter(routine -> reaches(next, routine, routine, new java.util.HashSet<>())).collect(java.util.stream.Collectors.toSet());
@@ -391,7 +458,7 @@ public class RoutineManager {
     Map<Routine, java.util.Set<Routine>> next = new HashMap<>();
     edges(dynamicTargets, withCalls, (from, target) -> {
       Routine to = routineGoneOnAt(target);
-      if (to != null && to != from)
+      if (to != null && to != from && !(outlined.containsKey(from) && outlined.get(from).parent() == to) && (withCalls || !linkedByOutlining(from, to)))
         next.computeIfAbsent(from, k -> new java.util.HashSet<>()).add(to);
     });
     return next;
@@ -444,6 +511,23 @@ public class RoutineManager {
 
   public boolean isCalledFrom(Routine routine, int callAddress) {
     return !(getInstructionAt(callAddress) instanceof Call call && isCode(call.getJumpAddress()) && !routine.contains(call.getJumpAddress()));
+  }
+
+  /** The addresses of the routine, other than its entry, that {@link #isEnteredFromOutside} holds for: the candidates come from one pass over what can enter it. */
+  public java.util.Set<Integer> entriesFromOutside(Routine routine) {
+    java.util.Set<Integer> candidates = new java.util.TreeSet<>(externalEntries);
+    candidates.addAll(callers.keySet());
+    candidates.addAll(jumpsAfterStackReset.keySet());
+    candidates.addAll(returnPoints.values());
+    candidates.addAll(siteReturnPoints.values());
+    instructions.forEach((address, instruction) -> {
+      if (fallsThrough(instruction) && !routine.contains(address))
+        candidates.add(address + instruction.getLength() & 0xffff);
+      if (fixedJumpTarget(instruction) != -1)
+        candidates.add(fixedJumpTarget(instruction));
+    });
+    candidates.removeIf(address -> !routine.contains(address) || address == routine.getEntryPoint() || getInstructionAt(address) == null || !isEnteredFromOutside(routine, address));
+    return candidates;
   }
 
   public boolean isEnteredFromOutside(Routine owner, int address) {
@@ -562,6 +646,7 @@ public class RoutineManager {
     instructions.clear();
     blocksManager.clear();
     routines.clear();
+    outlined.clear();
     callees.clear();
     callers.clear();
     jumpsAfterStackReset.clear();

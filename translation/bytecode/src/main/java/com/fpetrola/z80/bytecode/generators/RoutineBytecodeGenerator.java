@@ -236,7 +236,8 @@ public class RoutineBytecodeGenerator {
 
     List<Integer> entries = new ArrayList<>(labels.keySet()).stream().filter(address -> routine.contains(address) && address != routine.getEntryPoint() && (context.routineManager.isEnteredFromOutside(routine, address) || Stream.concat(context.routineManager.callers.get(address).stream(), context.callSitesOf(address).stream()).anyMatch(caller -> !routine.contains(caller)) || landings().contains(address))).toList();
     context.dispatchedEntries.addAll(entries);
-    structuring = new ControlFlowStructuring(routine, context.routineManager, entries, this::continuation);
+    context.routineManager.outlined.entrySet().stream().filter(e -> e.getValue().parent() == routine && e.getValue().continuation() != -1).forEach(e -> addLabel(e.getValue().continuation()));
+    structuring = new ControlFlowStructuring(routine, context.routineManager, entries, this::continuation, pc -> stackAnalyzer().getInvocationsSet(pc));
     entries.forEach(address -> mm.invoke("isNextPC", address).ifTrue(() -> goTo(-1, address)));
 
     Label label = getLabel(routine.getEntryPoint());
@@ -355,7 +356,9 @@ public class RoutineBytecodeGenerator {
 
   protected MethodMaker createMethod(int address, String methodName) {
     Routine owner = context.routineManager.findRoutineAt(address);
-    return context.cm.addMethod(isJumpMember(owner) && owner.getEntryPoint() == address ? int.class : void.class, methodName).public_();
+    RoutineManager.Outlined part = context.routineManager.outlined.get(owner);
+    boolean entry = owner != null && owner.getEntryPoint() == address;
+    return context.cm.addMethod(entry && isJumpMember(owner) ? int.class : entry && part != null && part.leaves() ? boolean.class : void.class, methodName).public_();
   }
 
   public  Variable getField(String name) {
@@ -465,7 +468,32 @@ public class RoutineBytecodeGenerator {
   public void tailJump(int target, int site) {
     int address = inOwnBank(target);
     Routine owner = context.routineManager.findRoutineAt(address);
-    if (owner != null && context.routineManager.callersWhoseReturnIsTaken(routine, site != -1 ? site : context.pc.read(), stackAnalyzer()).contains(owner) && context.ancestorJumps().goesBack(routine, owner)) {
+    RoutineManager.Outlined part = context.routineManager.outlined.get(owner), mine = context.routineManager.outlined.get(routine);
+    if (mine != null && address == mine.continuation()) {
+      if (mine.leaves())
+        mm.return_(true);
+      else
+        mm.return_();
+    } else if (owner != null && owner.getEntryPoint() == address && part != null && (part.parent() == routine || mine != null && mine.parent() == part.parent() && mine.continuation() == part.continuation())) {
+      Variable cameBack = mm.invoke(createLabelName(address));
+      if (context.mayUnwind(owner))
+        afterInvoke();
+      if (mine != null) {
+        if (!mine.leaves())
+          mm.return_();
+        else if (part.leaves())
+          mm.return_(cameBack);
+        else
+          mm.return_(true);
+      } else {
+        if (part.leaves())
+          cameBack.ifFalse(this::returnFromMethod);
+        if (part.continuation() != -1)
+          goTo(site, part.continuation());
+        else
+          returnFromMethod();
+      }
+    } else if (owner != null && context.routineManager.callersWhoseReturnIsTaken(routine, site != -1 ? site : context.pc.read(), stackAnalyzer()).contains(owner) && context.ancestorJumps().goesBack(routine, owner)) {
       mm.invoke("unwind", address);
       returnFromMethod();
     } else if (isJumpMember(routine) && isJumpMember(owner) && (site == -1 || context.routineManager.ownDataLeftForOthers(site, routine, stackAnalyzer()).isEmpty())) {
@@ -636,11 +664,8 @@ public class RoutineBytecodeGenerator {
     return landings;
   }
 
-  /** Where the code goes on after the instruction at this address when it falls through. */
   private int continuation(int address) {
-    Instruction instruction = context.routineManager.getInstructionAt(address);
-    int next = address + instruction.getLength() & 0xffff;
-    return instruction instanceof Call ? stackAnalyzer().callContinuations.getOrDefault(address, next) : next;
+    return context.routineManager.continuation(address, stackAnalyzer());
   }
 
   /** A jump inside this routine: into a region entered in more than one place, through its header with nextAddress set. */
@@ -686,8 +711,11 @@ public class RoutineBytecodeGenerator {
   }
 
   protected void returnFromMethod() {
+    RoutineManager.Outlined mine = context.routineManager.outlined.get(routine);
     if (isJumpMember(routine))
       mm.return_(-1);
+    else if (mine != null && mine.leaves())
+      mm.return_(false);
     else
       mm.return_();
   }

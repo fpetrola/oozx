@@ -165,6 +165,87 @@ Caso Emlyn: el planificador 94AA elige una tarea de la tabla 94EF y salta con `J
   Si un Ti no cumple el patrón, queda como hoy.
 - **4.4 Medir.** Los 62 miembros del partido de Emlyn deberían bajar a pocos.
 
+### Lo que midió la fase 0 (2026-10-28)
+
+Con `jumpCycleComponents()` y una sonda temporal que anotaba quién creaba cada rutina, cruzado con las
+activaciones de la grabación (bajo qué CALL o vector corrió cada dirección):
+
+- Ningún miembro de ningún ciclo, en 7 juegos y 42 componentes, es destino de CALL en la grabación: los ciclos
+  no son rutinas del juego que se llaman en rueda.
+- 22 componentes corren enteros bajo una sola activación (casi siempre el programa principal, `root`), 15 más
+  son código de `root` al que además entra una rutina llamada con `JP` sin desapilar (la familia que resuelve
+  `unwind`), 4 son código que solo recorrió la exploración.
+- Los componentes grandes salen de `StateBytecodeGenerator.splitIfTooLargeForOneMethod`: al pasarse de 1500
+  bytes la rutina se partía **en cada frontera de bloque**. Emlyn: el programa del partido era una sola rutina
+  (BA29) de la que salieron 31 de los 32 miembros, y la ISR (963E) dio los otros dos componentes; Target
+  Renegade: 15 de los 17 miembros vienen de partir F408. Los componentes chicos restantes salen de
+  `Routine.splitVirtualRoutines` (partir donde salta otra rutina).
+
+Conclusión: no hay máquinas de estado del juego; el `runJumps` lo fabrica el corte por tamaño. La fase 3.3
+("extraer regiones sin ciclo como métodos llamados, nunca cortar por una arista del ciclo") pasa a ser el
+trabajo principal y las fases 1, 2 y 4 quedan para los ciclos que sobrevivan.
+
+### Corte por regiones (hecho el 2026-10-28)
+
+`ControlFlowStructuring.outlines(keep)` elige las partes de una rutina que pueden ser métodos llamados:
+cada una empieza en un destino de salto, es el subgrafo que ese destino domina, vuelve a un solo punto de lo
+que queda de la rutina (su continuación: directa o por otra parte con la misma continuación) y puede además
+terminar la rutina con RET o saltando afuera. Quedan en el padre los puntos de captura de sus llamadas, los
+aterrizajes de saltos a ancestro y toda entrada desde afuera. Entre las partes que valen un método (64 bytes),
+primero las más internas y de ellas la más grande, para que la rutina conserve su forma; sigue hasta que el
+padre entra en el límite. Si no hay ninguna parte, queda el corte viejo por bloques.
+
+`RoutineManager.outline` mueve los bloques a la rutina nueva y anota `Outlined(padre, continuación, leaves)`;
+`flow()` no cuenta como saltos ni la llamada del padre a la parte ni la vuelta de la parte, así no entran en
+`routinesInJumpCycles`. En el generador: el padre llama a la parte y sigue en la continuación (`goTo`); la
+parte devuelve `void`, o `boolean` cuando puede terminar la rutina (`false` = hubo RET, y el padre retorna);
+un salto de una parte a otra hermana es `return $hermana()`. Las partes no son miembros de ciclo: no hay
+`runJumps`, `setNextAddress` ni etiquetas para ellas. El reintento de Fernflower (`splitRoutineAt`) usa el mismo
+corte con la mitad del tamaño.
+
+Test: `aRoutineTooLargeForOneMethodIsCutIntoTasksCalledFromItsLoopNotJumpedBetween` (planificador de 1652
+bytes con dos tareas por `JP (HL)`: queda `while (true) { ... this.$8100(); }` y la tarea vuelve con
+`return`). De paso, `targetRenegadeE0D6…` pasó a afirmar la decisión (E0D6 sigue dentro del método del bucle)
+en vez del texto, y `MiniZX.switchStack` registraba la corrutina nueva después de arrancar su hilo: una carrera
+que dejaba a veces el mapa de pilas corrupto (apareció como un test que fallaba solo según el orden).
+
+### Fase 4, diseño afinado (2026-10-28), para los ciclos que queden
+
+Lo que hay hoy para apoyarse: `RoutineManager.jumpCycleComponents()` (fase 0.1) da cada componente con sus
+miembros, sus **cabezas** (miembros por los que pasan todos los ciclos del componente, calculado quitando cada
+candidato y buscando ciclos con jgrapht) y sus entradas desde afuera por causa (`call`, `jump`, `external`).
+`ControlFlowStructuring` ya estructura regiones con varias entradas dentro de un método. El protocolo
+`unwind()` reemplazó a las excepciones, así que "salir del bucle" ya no necesita `StackException`.
+
+Un componente **con cabeza H** se genera como un bucle en el método de H; los demás miembros son tareas:
+
+| Hoy (`runJumps`) | Con cabeza |
+|---|---|
+| todo miembro devuelve `int` (la próxima dirección o -1) | H es `void`; una tarea devuelve `boolean` (true: volvió a H; false: hizo RET y el bucle termina), o `void` si nunca hace RET |
+| salto de tarea a H: `return H` | `return true` |
+| salto de tarea T a tarea U: `setNextAddress(U); return dueño` | `return $U();` (tail call: lo que U devuelva vale para T) |
+| salto de tarea a rutina de afuera X: `$X(); return -1` | `$X(); return false;` (se dejó el bucle, el RET de X vuelve al que llamó al bucle) |
+| RET de una tarea: `return -1` | `return false` |
+| en H, salto o despacho `JP (HL)` a una tarea T: `return T` | `if (!$T()) return;` y `goto inicio` (Fernflower lo deja como `while (true) { ... continue; }`) |
+| CALL desde afuera a una tarea T: `runJumps(T)` | `setNextAddress(T); $H();` y H despacha `isNextPC(T)` al empezar, antes de su propio código |
+| entrada externa en medio de una tarea: stub `setNextAddress(x); runJumps(H)` | igual, con `$H()` |
+| entrada por reflexión en una tarea (`MiniZX.run`, ISR, `jump`): `invokeMethod` encadena `runJumps(next)` | si la tarea devuelve true, `invokeMethod` sigue en `headOf(tarea)` (un `switch` generado como `pagedCopy`) |
+| después de `$T()` en H | `if (unwinding()) return;` como ya hace `runJumps` (es lo que `afterInvoke` emite para las rutinas que pueden desenrollar) |
+
+Condiciones, las de 4.1 más la de cabeza: el componente tiene al menos una cabeza (si hay varias, la que
+más entradas desde afuera recibe; las otras entradas van por stub); al saltar a H no se dejan datos propios
+(`ownDataLeftForOthers`, el mismo chequeo que hoy en `tailJump`). Un componente sin cabeza (irreducible) sigue
+en `runJumps` y se reporta. Los bucles anidados dentro de un componente (ciclos que no pasan por H pero sí por
+otra cabeza interior) no entran en la primera versión: el `boolean` no distingue "sigo el bucle interior" de
+"sigo el exterior"; se miden primero.
+
+Qué toca: `createMethod` (tipo por rol), `tailJump`, `invokeTransformedMethod`, `returnFromMethod`,
+`StateBytecodeGenerator` (sin `runJumps` para los componentes con cabeza, stubs a `$H()`, despacho inicial de H),
+`SpectrumApplication.invokeMethod` (`Boolean` + `headOf`). Primero el test en `RecordedProgramTests` con el
+patrón planificador (H despacha por `JP (HL)` a dos tareas que vuelven con `JP H`, una termina con RET), con la
+expectativa del Java completo como en los casos del informe; después los juegos: Emlyn (94AA), Dizzy, Manic
+Miner, y las expectativas de `renegade128At7C46` y `renegadeF28C` que hoy fijan `runJumps`.
+
 ## Fase 5. Despachos dentro de un método
 
 Los `JP (reg)` cuyos destinos caen en el mismo método ya se generan como saltos a etiquetas: `invokeDynamicCall` usa `getLabel`. Hay que verificar que, después de las fases 2 y 3, la tabla de comandos de la música de Dizzy (F9B4) quede como `if`/`switch` sobre HL dentro del método del reproductor, y que Fernflower la descompile.
@@ -211,6 +292,7 @@ Hay que cargar `~/detodo/spectrum/investigacion/tools/traduccion/run/env.sh`. Su
 | base | DD | 3 | ? | 0 | completo / completo / — | d5be2f045 |
 | base | Dizzy | 48 | ? (fase 0) | 0 | completo / completo / semillas 1 y 2 | d5be2f045 |
 | base | Emlyn | 67 | ? (fase 0) | 0 | r3 y r4 completos / completos / semillas 2 y 4 | d5be2f045 |
+| 0 (medido sobre los fuentes de la nocturna 1012-fall, miembros = métodos `int`; componentes = SCC de los `return dirección`) | Emlyn 60 (32,4,3,2,2) · Dizzy 23 (11,6,3,3) · DD 5 · Wally 0 · Target Renegade 46 (17,12) · Rainbow Islands 62 (12,12,10,7) · Renegade 26 (9,5) · Renegade 128 33 (8,5,4,3) · Manic Miner 9 (6,3) · Skool Daze 117 (casi todos sueltos, 258 `runJumps` desde afuera) · Head over Heels 20 · Fairlight 22 · Monty 13 · R-Type 13 · Great Escape 13 · Exolon 15 · Zynaps 6 · Equinox 2 · DD2 2 | | 0 en 1012-fall | 19/20 completos (Batman 415) | e396ab725 |
 
 ## 10. Segunda parte: dejar de depender de la pila y de SP
 

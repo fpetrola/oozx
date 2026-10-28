@@ -1,11 +1,15 @@
 package com.fpetrola.z80.bytecode.generators;
 
 import com.fpetrola.z80.instructions.impl.Call;
+import com.fpetrola.z80.instructions.impl.Ret;
+import com.fpetrola.z80.instructions.types.ConditionalInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
+import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
 
 import java.util.*;
+import java.util.function.IntFunction;
 import java.util.function.IntUnaryOperator;
 
 /**
@@ -20,9 +24,13 @@ public class ControlFlowStructuring {
 
   public record Region(int header, Set<Integer> entries, Set<Integer> nodes) {}
 
-  /** {@code continuation}: where the code goes on after the instruction at an address that falls through. */
-  public ControlFlowStructuring(Routine routine, RoutineManager routineManager, Collection<Integer> entries, IntUnaryOperator continuation) {
-    List<Integer> nodes = new ArrayList<>();
+  private final List<Integer> nodes = new ArrayList<>(), roots = new ArrayList<>();
+  private final Set<Integer> jumpTargets = new HashSet<>(), jumpsOut = new HashSet<>();
+  private final RoutineManager routineManager;
+
+  /** {@code continuation}: where the code goes on after the instruction at an address that falls through; {@code dynamicTargets}: where a jump through a register or a RET used as a jump goes. */
+  public ControlFlowStructuring(Routine routine, RoutineManager routineManager, Collection<Integer> entries, IntUnaryOperator continuation, IntFunction<Set<Integer>> dynamicTargets) {
+    this.routineManager = routineManager;
     for (int address = routine.getStartAddress(); address <= routine.getEndAddress(); address++)
       if (routine.contains(address) && routineManager.getInstructionAt(address) != null)
         nodes.add(address);
@@ -33,12 +41,111 @@ public class ControlFlowStructuring {
         next.add(continuation.applyAsInt(node));
       if (!(instruction instanceof Call) && RoutineManager.fixedJumpTarget(instruction) != -1)
         next.add(RoutineManager.fixedJumpTarget(instruction));
+      if (instruction instanceof Ret || instruction instanceof ConditionalInstruction<?> jump && !(jump instanceof Call) && jump.getPositionOpcodeReference() instanceof Register)
+        next.addAll(dynamicTargets.apply(node));
+      if (next.stream().anyMatch(to -> !successors.containsKey(to) && !nodes.contains(to)))
+        jumpsOut.add(node);
       next.removeIf(to -> !successors.containsKey(to) && !nodes.contains(to));
+      next.stream().filter(to -> !RoutineManager.fallsThrough(instruction) || to != continuation.applyAsInt(node)).forEach(jumpTargets::add);
     }
-    List<Integer> roots = new ArrayList<>();
     roots.add(routine.getEntryPoint());
     entries.stream().filter(nodes::contains).filter(at -> at != routine.getEntryPoint()).sorted().forEach(roots::add);
     structure(new LinkedHashSet<>(nodes), roots, new HashSet<>(roots));
+  }
+
+  /** A part of the routine to take out as a called method: entered only at {@code entry}, it comes back to {@code continuation} in what remains (-1: never), and {@code leaves} says whether it can also end the routine with a RET; a part never jumps out of the routine. */
+  public record Outline(int entry, Set<Integer> nodes, int continuation, boolean leaves) {}
+
+  private static final int LEAST_PART_BYTES = 64;
+
+  /** Parts to take out as called methods until at most {@code keep} bytes of the routine remain: each starts at a jump target and comes back to one point of what remains, directly or through another part with the same continuation; a tail that only ends the routine is not a part. Among the parts worth a method, the innermost go first, the biggest of them, so the routine keeps its own shape. */
+  public List<Outline> outlines(int keep) {
+    List<Outline> chosen = new ArrayList<>();
+    Set<Integer> remaining = new LinkedHashSet<>(nodes);
+    while (bytes(remaining) > keep) {
+      Map<Integer, Integer> idom = immediateDominators(remaining);
+      Map<Integer, List<Integer>> children = new HashMap<>();
+      idom.forEach((node, dominator) -> children.computeIfAbsent(dominator, k -> new ArrayList<>()).add(node));
+      List<Outline> candidates = remaining.stream().filter(entry -> jumpTargets.contains(entry) && !roots.contains(entry) && idom.containsKey(entry))
+          .map(entry -> outline(entry, dominated(entry, children), remaining, chosen))
+          .flatMap(Optional::stream).toList();
+      List<Outline> worthAMethod = candidates.stream().filter(part -> bytes(part.nodes()) >= LEAST_PART_BYTES).toList();
+      Optional<Outline> best = worthAMethod.stream().filter(part -> worthAMethod.stream().noneMatch(other -> other != part && part.nodes().contains(other.entry()))).max(Comparator.comparingInt(part -> bytes(part.nodes())));
+      if (best.isEmpty())
+        break;
+      chosen.add(best.get());
+      remaining.removeAll(best.get().nodes());
+    }
+    return chosen;
+  }
+
+  private Optional<Outline> outline(int entry, Set<Integer> region, Set<Integer> remaining, List<Outline> chosen) {
+    if (region.stream().anyMatch(node -> node != entry && roots.contains(node) || jumpsOut.contains(node)))
+      return Optional.empty();
+    int continuation = -1;
+    boolean leaves = false;
+    for (int node : region) {
+      Set<Integer> next = successors.getOrDefault(node, Set.of());
+      leaves |= next.isEmpty();
+      for (int to : next) {
+        if (region.contains(to))
+          continue;
+        int goesOn = chosen.stream().filter(part -> part.entry() == to).mapToInt(Outline::continuation).findFirst().orElse(to);
+        if (goesOn != -1 && continuation != -1 && goesOn != continuation)
+          return Optional.empty();
+        continuation = goesOn != -1 ? goesOn : continuation;
+      }
+    }
+    return continuation == -1 ? Optional.empty() : Optional.of(new Outline(entry, region, continuation, leaves));
+  }
+
+  private int bytes(Set<Integer> addresses) {
+    return addresses.stream().mapToInt(address -> routineManager.getInstructionAt(address).getLength()).sum();
+  }
+
+  /** The immediate dominator of each node reachable in the subgraph from its roots (Cooper, Harvey and Kennedy); the roots hang from a virtual one, -1. */
+  private Map<Integer, Integer> immediateDominators(Set<Integer> subgraph) {
+    Map<Integer, Set<Integer>> predecessors = new HashMap<>();
+    subgraph.forEach(node -> successors.getOrDefault(node, Set.of()).stream().filter(subgraph::contains).forEach(to -> predecessors.computeIfAbsent(to, k -> new HashSet<>()).add(node)));
+    List<Integer> order = new ArrayList<>(preorder(subgraph, roots.stream().filter(subgraph::contains).toList()).entrySet().stream().sorted(Map.Entry.comparingByValue()).map(Map.Entry::getKey).toList());
+    Map<Integer, Integer> position = new HashMap<>(), idom = new HashMap<>();
+    for (int i = 0; i < order.size(); i++)
+      position.put(order.get(i), i);
+    position.put(-1, -1);
+    roots.stream().filter(subgraph::contains).forEach(root -> idom.put(root, -1));
+    for (boolean changed = true; changed; ) {
+      changed = false;
+      for (int node : order) {
+        if (roots.contains(node))
+          continue;
+        int dominator = -2;
+        for (int from : predecessors.getOrDefault(node, Set.of()))
+          if (idom.containsKey(from)) {
+            int a = from, b = dominator == -2 ? from : dominator;
+            while (a != b)
+              if (position.get(a) > position.get(b))
+                a = idom.get(a);
+              else
+                b = idom.get(b);
+            dominator = a;
+          }
+        if (dominator != -2 && !Integer.valueOf(dominator).equals(idom.put(node, dominator)))
+          changed = true;
+      }
+    }
+    return idom;
+  }
+
+  /** The nodes the entry dominates: its subtree in the dominator tree. */
+  private static Set<Integer> dominated(int entry, Map<Integer, List<Integer>> children) {
+    Set<Integer> subtree = new LinkedHashSet<>();
+    Deque<Integer> pending = new ArrayDeque<>(List.of(entry));
+    while (!pending.isEmpty()) {
+      int node = pending.pop();
+      if (subtree.add(node))
+        pending.addAll(children.getOrDefault(node, List.of()));
+    }
+    return subtree;
   }
 
   private void structure(Set<Integer> nodes, List<Integer> roots, Set<Integer> enteredFromOutside) {

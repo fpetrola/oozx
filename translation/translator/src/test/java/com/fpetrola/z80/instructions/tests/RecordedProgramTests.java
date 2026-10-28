@@ -1309,6 +1309,32 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aRoutineTooLargeForOneMethodIsCutIntoTasksCalledFromItsLoopNotJumpedBetween() {
+    // Emlyn BA29 (the match program) and 963E (the ISR), Target Renegade F408: one routine over the method size, cut at every block boundary, became 32, 5 and 17 routines jumping to each other through runJumps
+    int[] task = IntStream.concat(IntStream.range(0, 270).flatMap(i -> IntStream.of(0x32, 0x02, 0x90)), IntStream.of(0xC3, 0x00, 0x80)).toArray();
+    translate(with(listing("""
+        8000  3A 00 90  LD A, (0x9000)
+        8003  3C  INC A
+        8004  32 00 90  LD (0x9000), A
+        8007  FE 03  CP A, 0x03
+        8009  28 15  JR Z, 0x8020
+        800B  E6 01  AND A, 0x01
+        800D  5F  LD E, A
+        800E  16 00  LD D, 0x00
+        8010  21 30 80  LD HL, 0x8030
+        8013  19  ADD HL, DE
+        8014  19  ADD HL, DE
+        8015  7E  LD A, (HL)
+        8016  23  INC HL
+        8017  66  LD H, (HL)
+        8018  6F  LD L, A
+        8019  E9  JP 0x0000
+        8020  76  HALT
+        """), at(0x8030, 0x00, 0x81, 0x00, 0x85), at(0x8100, task), at(0x8500, task)));
+    Assert.assertEquals(Set.of(), routineManager.routinesInJumpCycles(pc -> stackAnalyzer.getInvocationsSet(pc)));
+  }
+
+  @Test
   public void emlyn98C2ReadsAWordWithPopAndStepsBackAByte() {
     // Emlyn Hughes 98C2: POP DE / DEC SP takes a byte from the sprite and leaves SP on the next one (the code at 8000 points SP at the sprite and HL at the screen; the loop at 98C5 ends the scene, where the game goes on with JR Z)
     String java = translate(with(listing("""
