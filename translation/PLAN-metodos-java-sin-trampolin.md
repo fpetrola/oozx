@@ -311,6 +311,30 @@ patrón planificador (H despacha por `JP (HL)` a dos tareas que vuelven con `JP 
 expectativa del Java completo como en los casos del informe; después los juegos: Emlyn (94AA), Dizzy, Manic
 Miner, y las expectativas de `renegade128At7C46` y `renegadeF28C` que hoy fijan `runJumps`.
 
+## Fase 4b. La dirección viaja como dato: parámetro de entrada y valor de retorno (pendiente, anotado el 2026-10-28)
+
+Hoy hay dos encarnaciones de la misma variable de estructuración de No More Gotos:
+- `nextAddress`, un campo del objeto: quien salta a una entrada por el medio lo escribe (`setNextAddress`) y el
+  método que lo recibe pregunta `isNextPC(x)` al entrar o en la cabecera de su región, consumiéndolo.
+- el índice que devuelve una parte: dice por dónde siguió y el padre lo despacha con `if (o == i)`.
+
+Unificarlas: la dirección viaja como dato, hacia adentro como **argumento** y hacia afuera como **retorno**, con
+`switch` en los dos extremos.
+- Un método con entradas por el medio toma `int at` y empieza con `switch (at)` a sus etiquetas; la llamada
+  normal pasa su propia entrada (o una sobrecarga sin argumento). `this.$BA29(0xC7EE)` en vez de
+  `setNextAddress(0xC7EE); this.$BA29()`. Las cabeceras de regiones anidadas reciben la dirección como variable
+  local y hacen su propio `switch`.
+- Una parte devuelve la **dirección** a la que siguió (-1 si terminó con RET) y el padre hace `switch` sobre
+  ella: es lo mismo que hoy hace la cabecera con `isNextPC`, pero con el valor en la mano.
+- La entrada por reflexión (`invokeMethod`, `headOf`) y la ISR pasan el argumento en vez de escribir el campo.
+- El campo tiene otro uso, que no es de flujo: `unwind` deja ahí adónde se desenrolla (`ownAddress`,
+  `isOwnAddress`). Ese queda aparte, es otro concepto; separarlo ya es una ganancia.
+
+Desaparecen `setNextAddress`, `isNextPC` y el campo para el flujo; queda un solo mecanismo, visible en el
+fuente. Toca al generador (`goTo`, `callPart`, `dispatchEntry`, `invokeTransformedMethod`, los stubs de
+entrada) y a `SpectrumApplication.invokeMethod`; se comprueba con la batería y los dos lockstep. Conviene hacerlo
+antes que los tres ciclos que quedan en Target Renegade, porque simplifica el código por el que se resisten.
+
 ## Fase 5. Despachos dentro de un método
 
 Los `JP (reg)` cuyos destinos caen en el mismo método ya se generan como saltos a etiquetas: `invokeDynamicCall` usa `getLabel`. Hay que verificar que, después de las fases 2 y 3, la tabla de comandos de la música de Dizzy (F9B4) quede como `if`/`switch` sobre HL dentro del método del reproductor, y que Fernflower la descompile.
