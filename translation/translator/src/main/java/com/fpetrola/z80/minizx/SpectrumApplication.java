@@ -248,10 +248,19 @@ public abstract class SpectrumApplication {
     return address;
   }
 
+  /** The routine whose method runs the loop a part belongs to: a part is entered through it, with the part as the next address. */
+  protected int headOf(int address) {
+    return address;
+  }
+
   protected void invokeMethod(int address) {
     try {
       Method method;
       int translated = pagedCopy(address);
+      if (headOf(translated) != translated) {
+        nextAddress = translated;
+        translated = headOf(translated);
+      }
       try {
         method = getClass().getMethod("$" + Integer.toHexString(translated).toUpperCase());
       } catch (NoSuchMethodException decimalNamed) {

@@ -1335,6 +1335,33 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void routinesJumpingToEachOtherAroundAHeadAreALoopInTheHeadsMethodAndTheOthersItsParts() {
+    // Target: Renegade D794/D780/D783 and E695/F408, Emlyn 67F7...: the main loop and the routines it jumps to that jump back, one of them also called as a subroutine
+    translate(listing("""
+        8000  06 00  LD B, 0x00
+        8002  CD 00 81  CALL 0x8100
+        8005  C3 20 80  JP 0x8020
+        8020  04  INC B
+        8021  78  LD A, B
+        8022  FE 05  CP A, 0x05
+        8024  28 03  JR Z, 0x8029
+        8026  C3 00 81  JP 0x8100
+        8029  76  HALT
+        8100  0C  INC C
+        8101  78  LD A, B
+        8102  B7  OR A, A
+        8103  C8  RET Z
+        8104  C3 20 80  JP 0x8020
+        """));
+    Routine loop = routineManager.findRoutineAt(0x8020), called = routineManager.findRoutineAt(0x8100);
+    Assert.assertNotEquals(loop, called);
+    Assert.assertEquals("the called member is the head, a call must come back to its caller", called, routineManager.outlined.get(loop).parent());
+    Assert.assertEquals(Set.of(), routineManager.routinesInJumpCycles(pc -> stackAnalyzer.getInvocationsSet(pc)));
+    Assert.assertEquals(5, endValue("B") & 0xff);
+    Assert.assertEquals(5, endValue("C") & 0xff);
+  }
+
+  @Test
   public void aPartOfALoopBodyThatBreaksOrContinuesReportsWhichToTheLoop() {
     int[] first = IntStream.range(0, 400).flatMap(i -> IntStream.of(0x32, 0x02, 0x90)).toArray(), second = IntStream.range(0, 300).flatMap(i -> IntStream.of(0x32, 0x03, 0x90)).toArray();
     translate(with(listing("""
@@ -6197,13 +6224,14 @@ public class RecordedProgramTests {
   }
 
   @Test
-  public void aRoutineEnteredInItsMiddleWhoseTailLoopsBackToItsHeadBecomesAJumpCycle() {
+  public void aRoutineEnteredInItsMiddleWhoseTailLoopsBackToItsHeadIsALoopInTheHeadsMethod() {
     translate(
         at(0x8000, 0xCD, 0x10, 0x80, 0xCD, 0x20, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
         at(0x8010, 0x3C, 0x16, 0x02, 0xFE, 0x03, 0x20, 0xF9, 0xC9),
         at(0x8020, 0x1E, 0x03, 0xC3, 0x11, 0x80));
     Assert.assertEquals("8000 8010 8011 8020", routines());
-    Assert.assertEquals(Set.of(0x8010, 0x8011), routineManager.routinesInJumpCycles(address -> Set.copyOf(stackAnalyzer.dynamicInvocation.get(address))).stream().map(Routine::getEntryPoint).collect(Collectors.toSet()));
+    Assert.assertEquals(routineManager.findRoutineAt(0x8010), routineManager.outlined.get(routineManager.findRoutineAt(0x8011)).parent());
+    Assert.assertEquals(Set.of(), routineManager.routinesInJumpCycles(address -> Set.copyOf(stackAnalyzer.dynamicInvocation.get(address))));
   }
 
   @Test

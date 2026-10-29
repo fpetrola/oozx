@@ -236,6 +236,44 @@ esperado de `aCalleeThatPopsItsReturn…` cambió a la forma estructurada (el sa
 `setNextAddress`). `MiniZX.switchStack` registraba la corrutina nueva después de arrancar su hilo: una carrera
 que dejaba a veces el mapa de pilas corrupto (apareció como un test que fallaba solo según el orden).
 
+### Fase 4, hecha (2026-10-28, noche): el bucle vive en el método de la cabeza
+
+Con las partes de varias salidas, un componente de saltos con cabeza se pliega sin código nuevo de protocolo:
+`StateBytecodeGenerator.foldJumpCyclesIntoTheirHeads` toma cada componente de `jumpCycleComponents` que tiene
+cabeza y anota a los demás miembros como partes de ella (`Outlined(cabeza, salidas, leaves)`, las salidas de
+`ControlFlowStructuring.whole()`): la tarea vuelve a la cabeza, a una hermana o afuera con el índice de la
+salida, y el ciclo deja de existir para `flow()`, así que no hay `runJumps`. La cabeza es el miembro llamado
+(una llamada tiene que volver a quien llamó), o si ninguno lo es, el que más entradas recibe.
+
+Lo que entra por el medio de una tarea pasa por la cabeza: `invokeTransformedMethod` y `enter` llaman al
+padre de arriba con `setNextAddress`; los stubs de entrada también; `invokeMethod` del runtime consulta
+`headOf` (un método generado) para la entrada por reflexión (ISR, `MiniZX.run`, `jump`); y la cabeza despacha
+al empezar, y cada cabecera de región despacha, todas las entradas de sus partes (`entriesOf`: la entrada de
+la parte y lo que se entra desde afuera adentro de ella), con el salto llevando la dirección interior
+(`goTo(from, target, carry)`) y sus entradas contadas como raíces de la estructura (si no, el despacho entra al
+bucle sin pasar por la cabecera y Fernflower lo rechaza: así falló `$F408`, y `$BA29` desbordaba la pila).
+
+Un componente no se pliega, y queda en `runJumps`, cuando no es un bucle sino llamadas y retornos:
+- algún miembro que no es la cabeza es llamado (`twoRoutinesThatJumpToEachOtherRunThroughATrampoline`);
+- un salto entre miembros es un salto a ancestro (`goesBack`);
+- un RET de un miembro toma datos empujados por otro miembro: la continuación plantada la corre quien salta
+  (`leaveWithOwnData`), y plegado ese salto es una llamada de parte que no la corre
+  (`aStackResetDropsTheReturnIntoTheExecutionThatMadeTheCall`, TR E695/F408);
+- una rutina que el ciclo llama salta de vuelta a un miembro sin que ese salto se desenrolle
+  (`callersWhoseReturnIsTaken` no lo cubre): TR 5B2C… y D780/D783/D794, con `JP (HL)`/`JP` de vuelta desde
+  rutinas llamadas. Si `runJumps` lo aplanaba, al plegar anidaría un marco por vuelta.
+
+Resultado: Emlyn sin `runJumps` (los 5 componentes plegados: FE61/FE65, 603C/6078, 9BEA, 6865 con 10 tareas,
+5F9E); Target Renegade 31 → 9 casos (pliegan la tabla DBB6 con 10 tareas, DAE9 y D8FA; quedan los tres de
+arriba). Ambos completos por bytecode y por fuente (corrida 1028-outline12). Test:
+`routinesJumpingToEachOtherAroundAHeadAreALoopInTheHeadsMethodAndTheOthersItsParts`;
+`aRoutineEnteredInItsMiddleWhoseTailLoopsBackToItsHead…` afirma ahora el plegado.
+
+Pendiente de esta fase: los tres componentes de TR. El de E695/F408 pide que la parte haga lo que hoy hace
+quien salta con `leaveWithOwnData`; los otros dos, que un salto de vuelta a un miembro desde una rutina llamada
+se trate como `unwind` aunque nadie haya sacado el retorno con POP (hoy el retorno queda en la pila y lo consume
+un RET posterior).
+
 ### Fase 4, diseño afinado (2026-10-28), para los ciclos que queden
 
 Lo que hay hoy para apoyarse: `RoutineManager.jumpCycleComponents()` (fase 0.1) da cada componente con sus
@@ -321,6 +359,7 @@ Hay que cargar `~/detodo/spectrum/investigacion/tools/traduccion/run/env.sh`. Su
 | base | Emlyn | 67 | ? (fase 0) | 0 | r3 y r4 completos / completos / semillas 2 y 4 | d5be2f045 |
 | 0 (medido sobre los fuentes de la nocturna 1012-fall, miembros = métodos `int`; componentes = SCC de los `return dirección`) | Emlyn 60 (32,4,3,2,2) · Dizzy 23 (11,6,3,3) · DD 5 · Wally 0 · Target Renegade 46 (17,12) · Rainbow Islands 62 (12,12,10,7) · Renegade 26 (9,5) · Renegade 128 33 (8,5,4,3) · Manic Miner 9 (6,3) · Skool Daze 117 (casi todos sueltos, 258 `runJumps` desde afuera) · Head over Heels 20 · Fairlight 22 · Monty 13 · R-Type 13 · Great Escape 13 · Exolon 15 · Zynaps 6 · Equinox 2 · DD2 2 | | 0 en 1012-fall | 19/20 completos (Batman 415) | e396ab725 |
 | 3.3 corte por regiones (2026-10-28, corridas 1028-outline7..9) | Emlyn: casos de `runJumps` 60 → 23 en 5 componentes del juego (FE61/FE65, 603C/6078, 9B23…, 67F7… de 11, 5F9E…), 4 partes, traduce en 2-3 min y Fernflower descompila al primer intento · Target Renegade: 48 → 31 en 6 componentes del juego (despachador DB9D…DC1B, bucle E695/F408, 5B2C…, D780/D783/D794, DAE9…, D8FA…), 2 partes | | 0 | Emlyn y TR completos por bytecode y por fuente | pendiente de commit |
+| 4 bucle en la cabeza (2026-10-28, corrida 1028-outline12) | Emlyn: `runJumps` 23 → 0 · Target Renegade: 31 → 9 (quedan E695/F408, 5B2C…, D780/D783/D794, ver arriba) | | 0 | Emlyn y TR completos por bytecode y por fuente | pendiente de commit |
 
 ## 10. Segunda parte: dejar de depender de la pila y de SP
 

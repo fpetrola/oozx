@@ -193,7 +193,7 @@ public class RoutineBytecodeGenerator {
         }
         ControlFlowStructuring.Region region = structuring.regions().get(address);
         if (region != null)
-          region.entries().forEach(entry -> mm.invoke("isNextPC", entry).ifTrue(() -> goTo(address, entry)));
+          region.entries().forEach(entry -> dispatchRegionEntry(address, entry));
 
         List<RoutineManager.CodeVariant> variants = context.routineManager.codeVariantsAt(address);
         if (!variants.isEmpty()) {
@@ -246,8 +246,9 @@ public class RoutineBytecodeGenerator {
     List<Integer> entries = new ArrayList<>(labels.keySet()).stream().filter(address -> routine.contains(address) && address != routine.getEntryPoint() && (context.routineManager.isEnteredFromOutside(routine, address) || Stream.concat(context.routineManager.callers.get(address).stream(), context.callSitesOf(address).stream()).anyMatch(caller -> !routine.contains(caller)) || landings().contains(address))).toList();
     context.dispatchedEntries.addAll(entries);
     context.routineManager.outlined.values().stream().filter(part -> part.parent() == routine).flatMap(part -> part.exits().stream().map(RoutineManager.Outlined.Continuation::to)).filter(routine::contains).forEach(this::addLabel);
-    structuring = new ControlFlowStructuring(routine, context.routineManager, entries, this::continuation, pc -> stackAnalyzer().getInvocationsSet(pc));
-    entries.forEach(address -> mm.invoke("isNextPC", address).ifTrue(() -> goTo(-1, address)));
+    List<Integer> dispatched = Stream.concat(entries.stream(), partEntries.values().stream().filter(part -> context.routineManager.outlined.get(part).parent() == routine).flatMap(part -> entriesOf(part).stream())).toList();
+    structuring = new ControlFlowStructuring(routine, context.routineManager, Stream.concat(entries.stream(), dispatched.stream().map(address -> partEntries.values().stream().filter(part -> part.contains(address)).findFirst().map(Routine::getEntryPoint).orElse(address))).distinct().toList(), this::continuation, pc -> stackAnalyzer().getInvocationsSet(pc));
+    dispatched.forEach(address -> dispatchEntry(-1, address));
 
     Label label = getLabel(routine.getEntryPoint());
     if (label != null)
@@ -442,9 +443,10 @@ public class RoutineBytecodeGenerator {
 
   private void enter(int address) {
     Routine owner = context.routineManager.findRoutineAt(address);
-    if (owner != null && context.routineManager.isEnteredFromOutside(owner, address)) {
+    Routine top = owner == null ? null : context.routineManager.topParent(owner);
+    if (owner != null && (top != owner || context.routineManager.isEnteredFromOutside(owner, address))) {
       mm.invoke("setNextAddress", address);
-      invokeTransformedMethod(owner.getEntryPoint());
+      invokeTransformedMethod(top.getEntryPoint());
     } else if (owner != null)
       invokeTransformedMethod(address);
     else if (stackAnalyzer().trampolineRegister(address) != null)
@@ -510,7 +512,7 @@ public class RoutineBytecodeGenerator {
     partCalls.put(part, mm.label().here());
     ControlFlowStructuring.Region region = structuring.regions().get(part.getEntryPoint());
     if (region != null)
-      region.entries().forEach(entry -> mm.invoke("isNextPC", entry).ifTrue(() -> goTo(part.getEntryPoint(), entry)));
+      region.entries().forEach(entry -> dispatchRegionEntry(part.getEntryPoint(), entry));
     RoutineManager.Outlined outlined = context.routineManager.outlined.get(part);
     Variable outcome = mm.invoke(createLabelName(part.getEntryPoint()));
     if (context.mayUnwind(part))
@@ -549,6 +551,14 @@ public class RoutineBytecodeGenerator {
         entry = target.getEntryPoint();
         labelName = createLabelName(entry);
         context.dispatchedEntries.add(jumpLabel);
+      }
+      Routine top = target == null ? null : context.routineManager.topParent(target);
+      if (top != null && top != target && entry == target.getEntryPoint()) {
+        if (entry == jumpLabel)
+          mm.invoke("setNextAddress", jumpLabel);
+        target = top;
+        entry = top.getEntryPoint();
+        labelName = createLabelName(entry);
       }
       boolean chain = isJumpMember(target) && target.getEntryPoint() == entry;
       invoke = chain ? mm.invoke("runJumps", entry) : mm.invoke(labelName);
@@ -695,14 +705,41 @@ public class RoutineBytecodeGenerator {
 
   /** A jump inside this routine: into a region entered in more than one place, through its header with nextAddress set. */
   public void goTo(int from, int target) {
+    goTo(from, target, target);
+  }
+
+  /** A jump to {@code target} that carries {@code carry} as the address to go on at, when it is inside the part at the target. */
+  private void goTo(int from, int target, int carry) {
     int header = structuring.headerFor(from, target);
     if (header != -1)
-      mm.invoke("setNextAddress", target);
+      mm.invoke("setNextAddress", carry);
     int at = header == -1 ? target : header;
-    if (partEntries.containsKey(at))
+    if (partEntries.containsKey(at)) {
+      if (header == -1 && carry != target)
+        mm.invoke("setNextAddress", carry);
       callPart(partEntries.get(at));
-    else
+    } else
       getLabel(at).goto_();
+  }
+
+  /** The addresses of a part the code outside its family comes in at: its entry (a call, a jump, a RET that goes on there) and what is entered from outside inside it. */
+  private List<Integer> entriesOf(Routine part) {
+    List<Integer> entries = new ArrayList<>(List.of(part.getEntryPoint()));
+    entries.addAll(context.routineManager.entriesFromOutside(part));
+    return entries;
+  }
+
+  /** An entry of a region: a part entered there is entered at any of its own entries. */
+  private void dispatchRegionEntry(int from, int entry) {
+    if (partEntries.containsKey(entry))
+      entriesOf(partEntries.get(entry)).forEach(address -> dispatchEntry(from, address));
+    else
+      dispatchEntry(from, entry);
+  }
+
+  private void dispatchEntry(int from, int address) {
+    Routine part = partEntries.values().stream().filter(candidate -> candidate.contains(address)).findFirst().orElse(null);
+    mm.invoke("isNextPC", address).ifTrue(() -> goTo(from, part != null ? part.getEntryPoint() : address, address));
   }
 
   private Variable addresses(Collection<Integer> values) {

@@ -557,7 +557,7 @@ public class RoutineManager {
     return false;
   }
 
-  private Routine topParent(Routine routine) {
+  public Routine topParent(Routine routine) {
     while (outlined.containsKey(routine))
       routine = outlined.get(routine).parent();
     return routine;
@@ -736,7 +736,7 @@ public class RoutineManager {
     Instruction leaving = getInstructionAt(site);
     Stream<Integer> below = stackAnalyzer.dataOnTopAt.get(site).stream();
     Stream<Integer> onTop = leaving instanceof Ret ? stackAnalyzer.getInvocationsSet(site).stream().flatMap(target -> stackAnalyzer.dataOnTopAt.get(target).stream()) : leaving instanceof Push ? Stream.concat(Stream.of(site), below) : below;
-    return onTop.distinct().filter(push -> routine.contains(push) && stackAnalyzer.dataConsumedBy.entries().stream().anyMatch(e -> e.getValue().equals(push) && !routine.contains(e.getKey()))).toList();
+    return onTop.distinct().filter(push -> owns(routine, push) && stackAnalyzer.dataConsumedBy.entries().stream().anyMatch(e -> e.getValue().equals(push) && !owns(routine, e.getKey()))).toList();
   }
 
   /** This RET sometimes takes a return that a virtual POP (one of no routine) had taken off the stack and that was pushed back: it goes where the word says, every caller it returns to having pushed its return. */

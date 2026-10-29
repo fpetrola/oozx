@@ -36,6 +36,7 @@ import org.cojen.maker.MethodMaker;
 import org.cojen.maker.Variable;
 
 import java.util.*;
+import org.apache.commons.collections4.MultiValuedMap;
 import java.util.stream.Collectors;
 
 import static com.fpetrola.z80.bytecode.generators.MemoryType.*;
@@ -111,6 +112,7 @@ public class StateBytecodeGenerator {
     routineManager.planPoppedReturnsOfRewrittenCalls(symbolicExecutionAdapter.getStackAnalyzer());
     routineManager.planEntries(symbolicExecutionAdapter.getStackAnalyzer());
     new ArrayList<>(routineManager.getRoutines()).forEach(this::splitIfTooLargeForOneMethod);
+    foldJumpCyclesIntoTheirHeads();
     routineManager.planNonLocalReturns(symbolicExecutionAdapter.getStackAnalyzer(), bytecodeGenerationContext.routinesInJumpCycles());
     if (Boolean.getBoolean("translation.reportJumpCycles"))
       routineManager.jumpCycleComponents(pc -> symbolicExecutionAdapter.getStackAnalyzer().getInvocationsSet(pc)).forEach(cycle -> System.out.println("JUMP CYCLE " + cycle.members().stream().map(r -> Helper.formatAddress(r.getEntryPoint())).toList()
@@ -144,13 +146,21 @@ public class StateBytecodeGenerator {
       if (owner != null && owner.getEntryPoint() != entry && !bytecodeGenerationContext.methods.containsKey(RoutineBytecodeGenerator.createLabelName(entry))) {
         MethodMaker entryMethod = new RoutineBytecodeGenerator(bytecodeGenerationContext, owner).getMethod(entry);
         entryMethod.invoke("setNextAddress", entry);
-        if (bytecodeGenerationContext.routinesInJumpCycles().contains(owner))
-          entryMethod.invoke("runJumps", owner.getEntryPoint());
+        Routine top = routineManager.topParent(owner);
+        if (bytecodeGenerationContext.routinesInJumpCycles().contains(top))
+          entryMethod.invoke("runJumps", top.getEntryPoint());
         else
-          entryMethod.invoke(RoutineBytecodeGenerator.createLabelName(owner.getEntryPoint()));
+          entryMethod.invoke(RoutineBytecodeGenerator.createLabelName(top.getEntryPoint()));
         entryMethod.return_();
       }
     });
+
+    if (!routineManager.outlined.isEmpty()) {
+      MethodMaker headOf = classMaker.addMethod(int.class, "headOf", int.class).protected_();
+      Variable address = headOf.param(0);
+      routineManager.outlined.keySet().stream().sorted(Comparator.comparingInt(Routine::getEntryPoint)).forEach(part -> address.ifEq(part.getEntryPoint(), () -> headOf.return_(routineManager.topParent(part).getEntryPoint())));
+      headOf.return_(address);
+    }
 
     if (jumpMembers.length > 0) {
       Variable next = runJumps.var(int.class).set(runJumps.param(0));
@@ -172,6 +182,52 @@ public class StateBytecodeGenerator {
   }
 
   private static final int MAX_ROUTINE_BYTES = Integer.getInteger("translation.methodBytes", 1500);
+
+  /** The jumps out of a routine, by site: the fixed target, or the recorded ones of a jump through a register or a RET. */
+  private List<Map.Entry<Integer, Set<Integer>>> jumpSites(Routine routine, java.util.function.IntFunction<Set<Integer>> dynamicTargets) {
+    List<Map.Entry<Integer, Set<Integer>>> sites = new ArrayList<>();
+    routine.getBlocks().forEach(block -> {
+      for (int address = block.getRangeHandler().getStartAddress(); address <= block.getRangeHandler().getEndAddress(); address++) {
+        com.fpetrola.z80.instructions.types.Instruction instruction = routineManager.getInstructionAt(address);
+        if (instruction == null || !routine.contains(address))
+          continue;
+        Set<Integer> targets = new HashSet<>();
+        if (!(instruction instanceof com.fpetrola.z80.instructions.impl.Call) && RoutineManager.fixedJumpTarget(instruction) != -1)
+          targets.add(RoutineManager.fixedJumpTarget(instruction));
+        if (instruction instanceof com.fpetrola.z80.instructions.impl.Ret || instruction instanceof com.fpetrola.z80.instructions.types.ConditionalInstruction<?> jump && !(jump instanceof com.fpetrola.z80.instructions.impl.Call) && jump.getPositionOpcodeReference() instanceof com.fpetrola.z80.registers.Register)
+          targets.addAll(dynamicTargets.apply(address));
+        if (!targets.isEmpty())
+          sites.add(Map.entry(address, targets));
+      }
+    });
+    return sites;
+  }
+
+  /** Routines that jump to each other around a head (a member every cycle passes through) are a loop in the head's method: the others become its parts, which report where they went on, so no runJumps is needed. The head is the member that is called, or else the one entered from outside the most; a cycle with a called member besides the head, or with a jump back to an ancestor frame between members, stays as it is: those are calls and returns, not turns of a loop. */
+  private void foldJumpCyclesIntoTheirHeads() {
+    StackAnalyzer stackAnalyzer = symbolicExecutionAdapter.getStackAnalyzer();
+    java.util.function.IntFunction<Set<Integer>> dynamicTargets = pc -> stackAnalyzer.getInvocationsSet(pc);
+    RoutineManager.AncestorJumps ancestorJumps = routineManager.ancestorJumps(dynamicTargets);
+    MultiValuedMap<Integer, Integer> callSites = routineManager.callSitesByTarget();
+    routineManager.jumpCycleComponents(dynamicTargets).stream().filter(cycle -> !cycle.heads().isEmpty()).forEach(cycle -> {
+      List<Routine> called = cycle.members().stream().filter(member -> !callSites.get(member.getEntryPoint()).isEmpty()).toList();
+      boolean goesBack = cycle.members().stream().anyMatch(from -> cycle.members().stream().anyMatch(to -> ancestorJumps.goesBack(from, to)));
+      boolean stackData = cycle.members().stream().anyMatch(member -> stackAnalyzer.dataConsumedBy.entries().stream().anyMatch(e -> member.contains(e.getKey()) && cycle.members().stream().anyMatch(other -> other != member && other.contains(e.getValue()))));
+      boolean nested = ancestorJumps.targets().entrySet().stream().filter(e -> !cycle.members().contains(e.getKey())).anyMatch(e -> e.getValue().stream().anyMatch(cycle.members()::contains) && jumpSites(e.getKey(), dynamicTargets).stream().anyMatch(site -> site.getValue().stream().map(routineManager::routineGoneOnAt).anyMatch(to -> cycle.members().contains(to) && !routineManager.callersWhoseReturnIsTaken(e.getKey(), site.getKey(), stackAnalyzer).contains(to))));
+      if (goesBack || stackData || nested || called.size() > 1 || called.size() == 1 && !cycle.heads().contains(called.get(0))) {
+        if (Boolean.getBoolean("translation.reportRoutines"))
+          System.out.println("LOOP kept as runJumps " + cycle.members().stream().map(m -> Helper.formatAddress(m.getEntryPoint())).toList() + (goesBack ? " jumps back to an ancestor" : "") + (stackData ? " a RET takes another member's data" : "") + (nested ? " a routine it calls jumps back in without unwinding" : "") + " called " + called.stream().map(m -> Helper.formatAddress(m.getEntryPoint())).toList());
+        return;
+      }
+      Routine head = called.size() == 1 ? called.get(0) : cycle.heads().stream().max(Comparator.comparingLong((Routine member) -> cycle.entries().values().stream().filter(member::contains).count()).thenComparing(Comparator.comparingInt(Routine::getEntryPoint).reversed())).get();
+      cycle.members().stream().filter(member -> member != head).forEach(task -> {
+        ControlFlowStructuring.Outline whole = new ControlFlowStructuring(task, routineManager, List.of(), address -> routineManager.continuation(address, stackAnalyzer), dynamicTargets).whole();
+        routineManager.outlined.put(task, new RoutineManager.Outlined(head, whole.exits(), whole.leaves()));
+      });
+      if (Boolean.getBoolean("translation.reportRoutines"))
+        System.out.println("LOOP " + Helper.formatAddress(head.getEntryPoint()) + " tasks " + cycle.members().stream().filter(m -> m != head).map(m -> Helper.formatAddress(m.getEntryPoint())).toList());
+    });
+  }
 
   private void splitIfTooLargeForOneMethod(Routine routine) {
     if (size(routine) > MAX_ROUTINE_BYTES)

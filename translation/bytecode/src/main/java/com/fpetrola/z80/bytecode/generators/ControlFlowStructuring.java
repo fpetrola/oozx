@@ -34,10 +34,12 @@ public class ControlFlowStructuring {
   private final Map<Integer, Set<Integer>> outside = new HashMap<>();
   private final MultiValuedMap<Integer, Integer> catchPoints;
   private final RoutineManager routineManager;
+  private final int entry;
 
   /** {@code continuation}: where the code goes on after the instruction at an address that falls through; {@code dynamicTargets}: where a jump through a register or a RET used as a jump goes. The parts of the routine, and those of its parent, are nodes of their own that go on where the part does. */
   public ControlFlowStructuring(Routine routine, RoutineManager routineManager, Collection<Integer> entries, IntUnaryOperator continuation, IntFunction<Set<Integer>> dynamicTargets) {
     this.routineManager = routineManager;
+    entry = routine.getEntryPoint();
     catchPoints = routineManager.catchPointsOfCallsIn(routine);
     RoutineManager.Outlined mine = routineManager.outlined.get(routine);
     routineManager.outlined.forEach((piece, part) -> {
@@ -100,8 +102,15 @@ public class ControlFlowStructuring {
   }
 
   private Optional<Outline> outline(int entry, Set<Integer> region) {
-    if (region.stream().anyMatch(node -> node != entry && roots.contains(node)))
-      return Optional.empty();
+    return region.stream().anyMatch(node -> node != entry && roots.contains(node)) ? Optional.empty() : Optional.of(exitsOf(entry, region));
+  }
+
+  /** The whole routine as a part: where it goes on outside itself, and whether it can end with a RET. */
+  public Outline whole() {
+    return exitsOf(entry, nodes);
+  }
+
+  private Outline exitsOf(int entry, Set<Integer> region) {
     List<Continuation> exits = new ArrayList<>();
     boolean leaves = false;
     for (int node : region) {
@@ -109,7 +118,7 @@ public class ControlFlowStructuring {
       leaves |= next.isEmpty() || leaving.contains(node) || !parts.containsKey(node) && routineManager.getInstructionAt(node) instanceof Ret;
       Stream.of(next, outside.getOrDefault(node, Set.of())).flatMap(Collection::stream).filter(to -> !region.contains(to)).map(to -> new Continuation(to, node)).filter(exit -> !exits.contains(exit)).forEach(exits::add);
     }
-    return Optional.of(new Outline(entry, region, exits, leaves));
+    return new Outline(entry, region, exits, leaves);
   }
 
   private int bytes(Set<Integer> addresses) {
