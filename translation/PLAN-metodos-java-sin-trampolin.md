@@ -335,6 +335,29 @@ fuente. Toca al generador (`goTo`, `callPart`, `dispatchEntry`, `invokeTransform
 entrada) y a `SpectrumApplication.invokeMethod`; se comprueba con la batería y los dos lockstep. Conviene hacerlo
 antes que los tres ciclos que quedan en Target Renegade, porque simplifica el código por el que se resisten.
 
+## Legibilidad del Java, en orden (anotado el 2026-10-28 sobre JSW)
+
+Medido sobre JSW con el generador de hoy: sin trampolín ni métodos `int` de ciclo, pero el bucle principal
+`$34463` es un método de 2108 sentencias con 14 etiquetas; con `-Dtranslation.methodBytes=700` se parte en
+partes de hasta 1008 sentencias y las etiquetas solo se reparten (26 en total, igual). Las etiquetas son de tres
+tipos: escaleras `if (flag) {} else { if (flag) …` (cadenas de `JR cc` a un mismo destino), cabeceras con
+`isNextPC` (nuestra variable de No More Gotos) y `break`/`continue` con etiqueta (salida a una cola común, o
+vuelta a la cabecera de un bucle exterior desde uno interior). Lo que ordena cada cosa, en este orden:
+
+1. **Corte por estructura, no solo por tamaño.** Sacar como parte toda región de una sola entrada (y una o pocas
+   salidas) aunque la rutina quepa en un método: es la misma maquinaria de `outlines()` con otro criterio de
+   parada (tamaño mínimo de la parte y pocas salidas, en vez de "hasta que el padre entre"). Métodos más chicos y
+   con nombre propio por región; las etiquetas se van con las regiones que las contienen.
+2. **Fase 4b**, la dirección como dato: `switch` en vez de cadenas de `isNextPC` y de `if (o == i)`.
+3. **Recuperación de condiciones**: `flag(64, false)` → `A == 0`, `B() == 0`, etc., propagando el resultado de
+   la ALU que fijó la bandera a la condición que la lee. Es lo que más legibilidad da por línea, y es una pasada
+   aparte de la estructuración.
+4. **No More Gotos completo** solo si escribimos nuestro emisor de fuente desde `ControlFlowStructuring`
+   (condiciones de alcance, refinamiento, impresión de Java) y Fernflower desaparece con sus fallos y
+   reintentos. Mejora las escaleras (una condición compuesta) y deja igual las cabeceras; para las salidas de
+   varios niveles cambia `break label` por banderas y guardas repetidas por nivel, que en Java no es mejor.
+   Vale por el control del resultado, no por las etiquetas.
+
 ## Fase 5. Despachos dentro de un método
 
 Los `JP (reg)` cuyos destinos caen en el mismo método ya se generan como saltos a etiquetas: `invokeDynamicCall` usa `getLabel`. Hay que verificar que, después de las fases 2 y 3, la tabla de comandos de la música de Dizzy (F9B4) quede como `if`/`switch` sobre HL dentro del método del reproductor, y que Fernflower la descompile.
