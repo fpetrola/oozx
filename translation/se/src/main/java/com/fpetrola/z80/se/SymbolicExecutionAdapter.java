@@ -37,6 +37,7 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.opcodes.references.*;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.RoutineFinder;
+import com.fpetrola.z80.routines.Space;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.se.actions.*;
 import com.fpetrola.z80.se.instructions.SEInstructionFactory;
@@ -261,7 +262,7 @@ public class SymbolicExecutionAdapter {
           else
             routineFinder.returnedTo(next = popReturnAddress());
         } else if (routineManager.getInstructionAt(pcValue) instanceof RST rst) {
-          boolean skipped = routineManager.isCode(rst.getP()) ? routineExecutorHandler.findRoutineExecutionAt(rst.getP()) != null : routineManager.wasExecuted(pcValue + 1 & 0xffff);
+          boolean skipped = routineManager.isCode(rst.getP()) ? routineExecutorHandler.findRoutineExecutionAt(rst.getP()) != null : routineManager.wasExecuted(Space.next(pcValue, 1));
           if (skipped)
             next = popReturnAddress();
           else if (routineManager.isCode(rst.getP()))

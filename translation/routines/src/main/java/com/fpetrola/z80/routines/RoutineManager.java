@@ -296,7 +296,7 @@ public class RoutineManager {
   /** Where the code goes on after the instruction at this address when it falls through: past the data a CALL with a learned continuation skips. */
   public int continuation(int address, StackAnalyzer stackAnalyzer) {
     Instruction instruction = getInstructionAt(address);
-    int next = address + instruction.getLength() & 0xffff;
+    int next = addressAfter(address);
     return instruction instanceof Call ? stackAnalyzer.callContinuations.getOrDefault(address, next) : next;
   }
 
@@ -379,7 +379,7 @@ public class RoutineManager {
     edges(stackAnalyzer, false, (from, target) -> {
       Routine to = enteredAt(from, target);
       if (to != null && targets.getOrDefault(from, java.util.Set.of()).contains(to))
-        landings.computeIfAbsent(to, k -> new java.util.HashSet<>()).add(target & 0xffff);
+        landings.computeIfAbsent(to, k -> new java.util.HashSet<>()).add(target);
     });
     return new AncestorJumps(targets, landings);
   }
@@ -444,7 +444,7 @@ public class RoutineManager {
 
   private boolean unwindsAt(Routine owner, int address, Instruction instruction, StackAnalyzer stackAnalyzer) {
     if (nonLocalReturns.containsKey(address) || !stackAnalyzer.codeVersions.instructionVersions(address).isEmpty() || !codeVariantsAt(address).isEmpty()
-        || java.util.stream.IntStream.range(0, instruction.getLength()).anyMatch(i -> stackAnalyzer.codeVersions.mutant().contains(address + i & 0xffff)))
+        || java.util.stream.IntStream.range(0, instruction.getLength()).anyMatch(i -> stackAnalyzer.codeVersions.mutant().contains(Space.next(address, i))))
       return true;
     if (instruction instanceof Ret)
       return java.util.Set.of(Exit.NON_LOCAL, Exit.DISPATCH).contains(exitOf(address, stackAnalyzer).kind());
@@ -453,12 +453,12 @@ public class RoutineManager {
 
   /** The routine the code at this address goes on in: instructions of no routine (a virtual POP) fall through to the next one. */
   public Routine routineGoneOnAt(int address) {
-    for (int at = address & 0xffff, steps = 0; steps < 16; steps++) {
+    for (int at = address, steps = 0; steps < 16; steps++) {
       Routine owner = findRoutineAt(at);
       Instruction instruction = instructions.get(at);
       if (owner != null || instruction == null || !fallsThrough(instruction))
         return owner;
-      at = at + instruction.getLength() & 0xffff;
+      at = addressAfter(at);
     }
     return null;
   }
@@ -528,7 +528,7 @@ public class RoutineManager {
     this.spans = spans;
     spans.forEach((address, length) -> {
       for (int i = 1; i < length; i++)
-        interiors.add(address + i & 0xffff);
+        interiors.add(Space.next(address, i));
     });
     interiors.removeAll(spans.keySet());
   }
@@ -558,7 +558,7 @@ public class RoutineManager {
     candidates.addAll(siteReturnPoints.values());
     instructions.forEach((address, instruction) -> {
       if (fallsThrough(instruction) && !routine.contains(address))
-        candidates.add(address + instruction.getLength() & 0xffff);
+        candidates.add(addressAfter(address));
       if (fixedJumpTarget(instruction) != -1)
         candidates.add(fixedJumpTarget(instruction));
     });
@@ -600,7 +600,7 @@ public class RoutineManager {
   }
 
   private boolean isFallenIntoFromOutside(Routine owner, int address) {
-    return instructions.entrySet().stream().anyMatch(e -> fallsThrough(e.getValue()) && (e.getKey() + e.getValue().getLength() & 0xffff) == address && !owns(owner, e.getKey()) && findRoutineAt(e.getKey()) != null);
+    return instructions.entrySet().stream().anyMatch(e -> fallsThrough(e.getValue()) && addressAfter(e.getKey()) == address && !owns(owner, e.getKey()) && findRoutineAt(e.getKey()) != null);
   }
 
   private void splitAtEntriesFromOutside() {
@@ -610,7 +610,7 @@ public class RoutineManager {
     instructions.forEach((address, instruction) -> {
       candidates.add(fixedJumpTarget(instruction));
       if (fallsThrough(instruction))
-        candidates.add(address + instruction.getLength() & 0xffff);
+        candidates.add(addressAfter(address));
     });
     routines.forEach(routine -> routine.getBlocks().forEach(block -> candidates.add(block.getRangeHandler().getStartAddress())));
     for (boolean changed = true; changed; ) {
@@ -697,7 +697,7 @@ public class RoutineManager {
   }
 
   public int addressAfter(int address) {
-    return address + instructions.get(address).getLength();
+    return Space.next(address, instructions.get(address).getLength());
   }
 
   public void reset() {

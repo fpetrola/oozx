@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.bytecode.generators;
 
+import com.fpetrola.z80.routines.Space;
 import com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable;
 import com.fpetrola.z80.opcodes.references.MemoryAccessOpcodeReference;
 import com.fpetrola.z80.base.InstructionVisitor;
@@ -122,9 +123,9 @@ public class OpcodeReferenceVisitor implements InstructionVisitor<Object> {
   }
 
   private Integer modifiedOperand(int delta, int length) {
-    int pc = routineByteCodeGenerator.context.pc.read(), address = routineByteCodeGenerator.context.routineManager.originalAddress(pc) + delta & 0xffff;
+    int pc = routineByteCodeGenerator.context.pc.read(), address = Space.next(routineByteCodeGenerator.context.routineManager.originalAddress(pc), delta);
     java.util.Set<?> modified = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer().codeVersions.mutant();
-    return java.util.stream.IntStream.of(address, pc + delta & 0xffff).anyMatch(at -> modified.contains(at) || length == 2 && modified.contains(at + 1 & 0xffff)) ? address : null;
+    return java.util.stream.IntStream.of(address, Space.next(pc, delta)).anyMatch(at -> modified.contains(at) || length == 2 && modified.contains(Space.next(at, 1))) ? address : null;
   }
 
   private boolean readsModifiedOperand(int delta, int length, java.util.function.Function<Object, Object> reader) {

@@ -51,7 +51,7 @@ public class CodeVersions implements java.io.Serializable {
   public void patched(Set<Integer> addresses, Map<Integer, int[]> executed) {
     patched.addAll(addresses);
     executed.forEach((address, bytes) -> {
-      if (IntStream.range(0, bytes.length).anyMatch(i -> patched.contains(address + i & 0xffff)))
+      if (IntStream.range(0, bytes.length).anyMatch(i -> patched.contains(Space.next(address, i))))
         record(address, bytes, bytes);
     });
   }
@@ -94,7 +94,7 @@ public class CodeVersions implements java.io.Serializable {
     versions.forEach((address, known) -> known.forEach(v -> {
       for (int i = 0; i < Math.max(v.length, known.get(0).length); i++)
         if (i >= v.length || i >= known.get(0).length || v[i] != known.get(0)[i])
-          modified.add(address + i & 0xffff);
+          modified.add(Space.next(address, i));
     }));
     modified.addAll(patched);
     return modified;
@@ -169,14 +169,14 @@ public class CodeVersions implements java.io.Serializable {
       return Kind.BLOCK;
     Instruction instruction = decode(address, first);
     Set<Integer> operands = operandOffsets(instruction);
-    boolean operandsOnly = known.stream().allMatch(v -> IntStream.range(0, v.length).allMatch(i -> v[i] == first[i] || operands.contains(i))) && IntStream.range(0, first.length).filter(i -> patched.contains(address + i & 0xffff)).allMatch(operands::contains);
+    boolean operandsOnly = known.stream().allMatch(v -> IntStream.range(0, v.length).allMatch(i -> v[i] == first[i] || operands.contains(i))) && IntStream.range(0, first.length).filter(i -> patched.contains(Space.next(address, i))).allMatch(operands::contains);
     return operandsOnly && !(instruction instanceof JumpInstruction) ? Kind.OPERAND : Kind.INSTRUCTION;
   }
 
   public static List<Integer> fixedStoreTargets(int address, Instruction instruction, int[] memory) {
     if (!(instruction instanceof Ld ld && (ld.getTarget() instanceof IndirectMemory8BitReference target ? target.getTarget() : ld.getTarget() instanceof IndirectMemory16BitReference target ? target.getTarget() : null) instanceof Memory16BitReference operand))
       return List.of();
-    int at = address + operand.getDelta(), stored = memory[at & 0xffff] | memory[at + 1 & 0xffff] << 8;
+    int at = address + operand.getDelta(), stored = memory[Space.address(at)] | memory[Space.address(at + 1)] << 8;
     return ld.getTarget() instanceof IndirectMemory16BitReference ? List.of(stored, stored + 1 & 0xffff) : List.of(stored);
   }
 

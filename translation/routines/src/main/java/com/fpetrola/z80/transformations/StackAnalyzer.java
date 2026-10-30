@@ -33,6 +33,7 @@ import com.fpetrola.z80.opcodes.references.OpcodeReference;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.routines.CodeVersions;
+import com.fpetrola.z80.routines.Space;
 import com.fpetrola.z80.se.StackListener;
 import com.fpetrola.z80.spy.ExecutionListener;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -182,9 +183,9 @@ public class StackAnalyzer implements java.io.Serializable {
   private int placeOf(Object reference) {
     int[] memory = state.getMemory().getData();
     if (reference instanceof IndirectMemory16BitReference indirect && indirect.getTarget() instanceof Memory16BitReference operand)
-      return memory[pcValue + operand.getDelta() & 0xffff] | memory[pcValue + operand.getDelta() + 1 & 0xffff] << 8;
+      return memory[Space.address(pcValue + operand.getDelta())] | memory[Space.address(pcValue + operand.getDelta() + 1)] << 8;
     if (reference instanceof Memory16BitReference operand)
-      return pcValue + operand.getDelta() & 0xffff;
+      return Space.next(pcValue, operand.getDelta());
     return -1;
   }
 
@@ -206,7 +207,7 @@ public class StackAnalyzer implements java.io.Serializable {
     int opcode = state.getMemory().read(address, 0);
     if (opcode == 0xE9)
       return RegisterName.HL;
-    if ((opcode == 0xDD || opcode == 0xFD) && state.getMemory().read(address + 1 & 0xffff, 0) == 0xE9)
+    if ((opcode == 0xDD || opcode == 0xFD) && state.getMemory().read(Space.address(address + 1), 0) == 0xE9)
       return opcode == 0xDD ? RegisterName.IX : RegisterName.IY;
     return null;
   }
@@ -289,7 +290,7 @@ public class StackAnalyzer implements java.io.Serializable {
           }
           addDynamicInvocationData(jumpAddress);
           Entry caller = entryAtSp();
-          if (collecting() && caller != null && caller.returnAddress() && state.getMemory().read16Bits(caller.pc() + 1 & 0xffff) == pcValue)
+          if (collecting() && caller != null && caller.returnAddress() && state.getMemory().read16Bits(Space.address(caller.pc() + 1)) == pcValue)
             calledThrough.put(caller.pc(), jumpAddress);
           int sp = state.getRegisterSP().read();
           if (sp >= 16384) {

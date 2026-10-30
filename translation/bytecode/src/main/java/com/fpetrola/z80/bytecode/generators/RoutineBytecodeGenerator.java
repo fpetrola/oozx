@@ -19,6 +19,7 @@
 package com.fpetrola.z80.bytecode.generators;
 
 import com.fpetrola.z80.routines.CodeVersions;
+import com.fpetrola.z80.routines.Space;
 import com.fpetrola.z80.routines.RoutineManager;
 
 import com.fpetrola.z80.opcodes.references.*;
@@ -271,7 +272,7 @@ public class RoutineBytecodeGenerator {
   private void executeMutantCode(int address, Instruction instruction) {
     Variable executedUpTo = mm.invoke("executeMutantCode", address);
     afterInvoke();
-    int next = address + instruction.getLength() & 0xffff;
+    int next = Space.next(address, instruction.getLength());
     Runnable leave = () -> {
       for (int inside = address + 1; inside < address + instruction.getLength(); inside++)
         if (getLabel(inside) != null) {
@@ -616,7 +617,7 @@ public class RoutineBytecodeGenerator {
       return new int[]{0, 0};
     int[] bytes = new int[instruction.getLength()];
     for (int i = 0; i < bytes.length; i++)
-      bytes[i] = context.symbolicExecutionAdapter.state.getMemory().read(address + i & 0xffff, 0);
+      bytes[i] = context.symbolicExecutionAdapter.state.getMemory().read(Space.address(address + i), 0);
     return UncontendedTiming.costOf(bytes);
   }
 
