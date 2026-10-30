@@ -44,6 +44,8 @@ public interface BytecodeGeneration {
       List<Integer> undecompiled = decompiler.undecompiledMethods();
       if (!undecompiled.isEmpty())
         System.out.println("NOT DECOMPILED (attempt " + attempt + ") " + undecompiled.stream().map(Integer::toHexString).toList() + ":\n" + decompiler.warnings());
+      if (source == null && undecompiled.isEmpty() && attempt < 5 && bytecodeGenerator.splitBiggestRoutine())
+        continue;
       if (undecompiled.isEmpty() || attempt == 5 || !undecompiled.stream().allMatch(bytecodeGenerator::splitRoutineAt)) {
         if (source == null)
           throw new IllegalStateException("Fernflower produced no source:\n" + decompiler.warnings());

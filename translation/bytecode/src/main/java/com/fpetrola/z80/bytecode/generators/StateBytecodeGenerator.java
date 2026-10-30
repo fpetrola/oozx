@@ -223,6 +223,11 @@ public class StateBytecodeGenerator {
       cut(routine, MAX_ROUTINE_BYTES).forEach(this::splitIfTooLargeForOneMethod);
   }
 
+  /** When Fernflower drops the whole class (it runs out of memory on a method): the biggest routine cut into parts. */
+  public boolean splitBiggestRoutine() {
+    return routineManager.getRoutines().stream().max(Comparator.comparingInt(StateBytecodeGenerator::size)).map(routine -> splitRoutineAt(routine.getEntryPoint())).orElse(false);
+  }
+
   /** For a second generation of the class, which keeps the plan of the first: the routine cut into parts, when it can be. */
   public boolean splitRoutineAt(int entryPoint) {
     routineManager.planned = true;
