@@ -72,7 +72,7 @@ public class RoutineBytecodeGenerator {
   private final Map<Integer, Label> handlerStarts = new HashMap<>();
   private final Map<java.lang.Integer, Label> labels = new HashMap<>();
   /** The parts of this routine and of its parent, by entry, and where each one is called, once: every other way into the part goes there. */
-  private final Map<Integer, Routine> partEntries = new HashMap<>();
+  private final Map<Integer, Routine> partEntries = new TreeMap<>();
   private final Map<Routine, Label> partCalls = new HashMap<>();
   protected final Set<java.lang.Integer> positionedLabels = new HashSet<>();
   public final Routine routine;
@@ -487,7 +487,7 @@ public class RoutineBytecodeGenerator {
       else
         mm.return_();
     } else if (partContaining(address) != null) {
-      goTo(site, partContaining(address).getEntryPoint(), address);
+      goToPart(partContaining(address), address, site, site);
     } else if (owner != null && context.routineManager.callersWhoseReturnIsTaken(routine, site != -1 ? site : context.pc.read(), stackAnalyzer()).contains(owner) && context.ancestorJumps().goesBack(routine, owner)) {
       mm.invoke("unwind", address);
       returnFromMethod();
@@ -513,6 +513,11 @@ public class RoutineBytecodeGenerator {
     ControlFlowStructuring.Region region = structuring.regions().get(part.getEntryPoint());
     if (region != null)
       region.entries().forEach(entry -> dispatchRegionEntry(part.getEntryPoint(), entry));
+    callPart(part, this::returnFromMethod);
+  }
+
+  /** Calls the part and goes on at its outcome: one of its exits, or {@code ended} when it ended the routine with a RET. */
+  private void callPart(Routine part, Runnable ended) {
     RoutineManager.Outlined outlined = context.routineManager.outlined.get(part);
     Variable outcome = mm.invoke(createLabelName(part.getEntryPoint()));
     if (context.mayUnwind(part))
@@ -526,15 +531,30 @@ public class RoutineBytecodeGenerator {
         goOn(part, goesOn);
     }
     if (outlined.reports() || exits.isEmpty())
-      returnFromMethod();
+      ended.run();
   }
 
   private void goOn(Routine part, RoutineManager.Outlined.Continuation exit) {
     Routine sibling = partContaining(exit.to());
-    if (routine.contains(exit.to()) || sibling != null)
-      goTo(part.getEntryPoint(), sibling != null ? sibling.getEntryPoint() : exit.to(), exit.to());
+    if (sibling != null)
+      goToPart(sibling, exit.to(), part.getEntryPoint(), exit.from());
+    else if (routine.contains(exit.to()))
+      goTo(part.getEntryPoint(), exit.to(), exit.to());
     else
       tailJump(exit.to(), exit.from());
+  }
+
+  /** Goes on at an address inside a sibling part: through its call block, or with a call of its own when the site leaves data of this method's that the part's RET takes, to go on with that data when the part ends. */
+  private void goToPart(Routine sibling, int address, int from, int site) {
+    if (site != -1 && !context.routineManager.ownDataLeftForOthers(site, routine, stackAnalyzer()).isEmpty()) {
+      if (sibling.getEntryPoint() != address)
+        mm.invoke("setNextAddress", address);
+      callPart(sibling, () -> {
+        leaveWithOwnData(site);
+        returnFromMethod();
+      });
+    } else
+      goTo(from, sibling.getEntryPoint(), address);
   }
 
   /** The part of this routine's family the address is in, entered through the part's call with the address carried. */

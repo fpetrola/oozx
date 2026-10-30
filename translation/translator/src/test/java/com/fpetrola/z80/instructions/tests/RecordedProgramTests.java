@@ -118,6 +118,8 @@ public class RecordedProgramTests {
       base.translateCodeVariants(block[0], block[1], 0xE000, versions);
     }
     String java = base.generateAndDecompile(image, routineManager.getRoutines(), ".", "Program", base.symbolicExecutionAdapter);
+    if (Boolean.getBoolean("translation.printJava"))
+      System.err.println("JAVA<<" + withoutTiming(java) + ">>JAVA");
     assertRunsLikeTheEmulator(BytecodeGeneration.translatedProgram("Program", read(Path.of("Program.class"))), memory);
     assertRunsLikeTheEmulator(compiled(java), memory);
     return java;
@@ -742,49 +744,74 @@ public class RecordedProgramTests {
 
            public void $7C87() {
               int var1;
-              if(!this.isNextPC(0x7C77)) {
-                 if(this.isNextPC(0x7C46)) {
-                    this.setNextAddress(0x7C46);
-                 } else if(this.isNextPC(0x7C49)) {
-                    this.setNextAddress(0x7C49);
+              if(!this.isNextPC(0x7C3E)) {
+                 if(!this.isNextPC(0x7C77)) {
+                    if(this.isNextPC(0x7C46)) {
+                       this.setNextAddress(0x7C46);
+                       var1 = this.$7C77();
+                       if(var1 != 0) {
+                          if(var1 == 1) {
+                             this.untranslated(0);
+                             return;
+                          }
+
+                          return;
+                       }
+
+                    } else if(this.isNextPC(0x7C49)) {
+                       this.setNextAddress(0x7C49);
+                       var1 = this.$7C77();
+                       if(var1 != 0) {
+                          if(var1 == 1) {
+                             this.untranslated(0);
+                             return;
+                          }
+
+                          return;
+                       }
+
+                    } else {
+                    }
                  } else {
-                    if(!this.isNextPC(0x7C3E)) {
-                    }
-
-                    var1 = this.$7C3E();
-                    if(this.unwinding()) {
-                       return;
-                    }
-
+                    var1 = this.$7C77();
                     if(var1 != 0) {
+                       if(var1 == 1) {
+                          this.untranslated(0);
+                          return;
+                       }
+
                        return;
                     }
 
-                    this.setNextAddress(0x7C46);
                  }
               }
 
               while(true) {
-                 int var2 = this.$7C77();
-                 if(var2 != 0) {
-                    if(var2 == 1) {
-                       this.untranslated(0);
-                       return;
+                 while(true) {
+                    int var2 = this.$7C3E();
+                    if(!this.unwinding()) {
+                       if(var2 != 0) {
+                          return;
+                       }
+
+                       this.setNextAddress(0x7C46);
+                       var1 = this.$7C77();
+                       if(var1 != 0) {
+                          if(var1 == 1) {
+                             this.untranslated(0);
+                             return;
+                          }
+
+                          return;
+                       }
+
+                    } else {
+                       int[] var3 = new int[]{0x7C3E};
+                       if(this.ownAddress(var3) != 31806) {
+                          return;
+                       }
                     }
-
-                    return;
                  }
-
-                 var1 = this.$7C3E();
-                 if(this.unwinding()) {
-                    return;
-                 }
-
-                 if(var1 != 0) {
-                    return;
-                 }
-
-                 this.setNextAddress(0x7C46);
               }
            }
 
@@ -892,58 +919,75 @@ public class RecordedProgramTests {
            }
 
            public void $F460() {
-              int var2;
-              if(this.isNextPC(0xF280)) {
-                 var2 = this.$F280();
-                 if(this.unwinding()) {
-                    return;
-                 }
+              int var1;
+              if(!this.isNextPC(0xF280)) {
+                 if(!this.isNextPC(0xF36E)) {
+                    if(this.isNextPC(0xF28C)) {
+                       this.setNextAddress(0xF28C);
+                       var1 = this.$F36E();
+                       if(var1 != 0) {
+                          if(var1 == 1) {
+                             this.untranslated(0);
+                             return;
+                          }
 
-                 if(var2 != 0) {
-                    return;
-                 }
+                          return;
+                       }
 
-                 this.setNextAddress(0xF28C);
-              } else if(!this.isNextPC(0xF36E)) {
-                 if(this.isNextPC(0xF28C)) {
-                    this.setNextAddress(0xF28C);
-                 } else if(this.isNextPC(0xF28F)) {
-                    this.setNextAddress(0xF28F);
+                    } else if(this.isNextPC(0xF28F)) {
+                       this.setNextAddress(0xF28F);
+                       var1 = this.$F36E();
+                       if(var1 != 0) {
+                          if(var1 == 1) {
+                             this.untranslated(0);
+                             return;
+                          }
+
+                          return;
+                       }
+
+                    } else {
+                    }
                  } else {
-                    var2 = this.$F280();
-                    if(this.unwinding()) {
+                    var1 = this.$F36E();
+                    if(var1 != 0) {
+                       if(var1 == 1) {
+                          this.untranslated(0);
+                          return;
+                       }
+
                        return;
                     }
 
-                    if(var2 != 0) {
-                       return;
-                    }
-
-                    this.setNextAddress(0xF28C);
                  }
               }
 
               while(true) {
-                 int var1 = this.$F36E();
-                 if(var1 != 0) {
-                    if(var1 == 1) {
-                       this.untranslated(0);
-                       return;
+                 while(true) {
+                    int var2 = this.$F280();
+                    if(!this.unwinding()) {
+                       if(var2 != 0) {
+                          return;
+                       }
+
+                       this.setNextAddress(0xF28C);
+                       var1 = this.$F36E();
+                       if(var1 != 0) {
+                          if(var1 == 1) {
+                             this.untranslated(0);
+                             return;
+                          }
+
+                          return;
+                       }
+
+                    } else {
+                       int[] var3 = new int[]{0xF280};
+                       if(this.ownAddress(var3) != 0xF280) {
+                          return;
+                       }
                     }
-
-                    return;
                  }
-
-                 var2 = this.$F280();
-                 if(this.unwinding()) {
-                    return;
-                 }
-
-                 if(var2 != 0) {
-                    return;
-                 }
-
-                 this.setNextAddress(0xF28C);
               }
            }
 
@@ -4107,64 +4151,47 @@ public class RecordedProgramTests {
         import com.fpetrola.z80.minizx.MiniZX;
 
         public class Program extends MiniZX {
-           public int runJumps(int var1) {
-              int var2 = var1;
-
-              while(true) {
-                 var2 = this.pagedCopy(var2);
-                 switch(var2) {
-                 case 33024:
-                    var2 = this.$8100();
-                    if(!this.unwinding()) {
-                       break;
-                    }
-
-                    return var2;
-                 case 33280:
-                    var2 = this.$8200();
-                    if(!this.unwinding()) {
-                       break;
-                    }
-
-                    return var2;
-                 case 33536:
-                    var2 = this.$8300();
-                    if(this.unwinding()) {
-                       return var2;
-                    }
-                    break;
-                 default:
-                    return var2;
-                 }
-              }
-           }
-
            public void $8000() {
               this.B(16);
-              this.runJumps(0x8300);
-              if(!this.unwinding()) {
-                 this.B(0);
-                 this.runJumps(0x8200);
-                 if(!this.unwinding()) {
-                    this.runJumps(0x8100);
-                    if(!this.unwinding()) {
-                       this.halt(0x800D);
-                       this.runJumps(0x8100);
-                       if(!this.unwinding()) {
-                          ;
+              this.setNextAddress(0x8300);
+              this.$8100();
+              this.B(0);
+              this.setNextAddress(0x8200);
+              this.$8100();
+              this.$8100();
+              this.halt(0x800D);
+              this.$8100();
+           }
+
+           public void $8100() {
+              if(this.isNextPC(0x8200)) {
+                 this.setNextAddress(0x8200);
+              } else if(this.isNextPC(0x8300)) {
+                 this.setNextAddress(0x8300);
+              }
+
+              while(true) {
+                 while(true) {
+                    if(this.isNextPC(0x8200)) {
+                       if(this.$8200() != 0) {
+                          return;
                        }
+                    } else if(!this.isNextPC(0x8300)) {
+                       this.HL(0x8300);
+                       int var1 = this.B();
+                       int var2 = this.alu("inc", var1);
+                       this.B(var2);
+                       if(this.$8200() != 0) {
+                          this.setNextAddress(0x8300);
+                          continue;
+                       }
+                    }
+
+                    if(this.$8300() != 0) {
+                       return;
                     }
                  }
               }
-           }
-
-           public int $8100() {
-              this.HL(0x8300);
-              int var1 = this.B();
-              int var2 = this.alu("inc", var1);
-              this.B(var2);
-              this.runJumps(0x8200);
-              return this.unwinding()?-1:0x8300;
            }
 
            public int $8200() {
@@ -4185,7 +4212,79 @@ public class RecordedProgramTests {
               if(this.flag(64, false)) {
                  return -1;
               } else {
-                 return 0x8100;
+                 return 0;
+              }
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void twoCalledRoutinesThatJumpToEachOtherAreOneLoopInTheMethodOfOneOfThemEnteredThroughItByTheOthersCallers() {
+    // Target: Great Escape CB23/CB2D, R-Type 95F6/9731: both are called and each jumps to the other; the loop lives in the method of the one called the most and a call to the other enters it there, with no state machine
+    String java = translate(listing("""
+        8000  CD 00 81  CALL 0x8100
+        8003  CD 00 82  CALL 0x8200
+        8006  76  HALT
+        8100  04  INC B
+        8101  78  LD A, B
+        8102  FE 08  CP A, 0x08
+        8104  C8  RET Z
+        8105  C3 00 82  JP 0x8200
+        8200  0C  INC C
+        8201  79  LD A, C
+        8202  FE 08  CP A, 0x08
+        8204  C8  RET Z
+        8205  C3 00 81  JP 0x8100
+        """));
+    Assert.assertEquals(0x0808, endValue("BC"));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              this.$8100();
+              this.setNextAddress(0x8200);
+              this.$8100();
+              this.halt(0x8006);
+              this.$8100();
+           }
+
+           public void $8100() {
+              if(this.isNextPC(0x8200)) {
+                 this.setNextAddress(0x8200);
+              }
+
+              do {
+                 if(!this.isNextPC(0x8200)) {
+                    int var1 = this.B();
+                    int var2 = this.alu("inc", var1);
+                    this.B(var2);
+                    int var3 = this.B();
+                    this.A(var3);
+                    int var4 = this.A();
+                    this.alu("cp", var4, 8);
+                    if(this.flag(64, false)) {
+                       return;
+                    }
+
+                 }
+              } while(this.$8200() == 0);
+
+           }
+
+           public int $8200() {
+              int var1 = this.C();
+              int var2 = this.alu("inc", var1);
+              this.C(var2);
+              int var3 = this.C();
+              this.A(var3);
+              int var4 = this.A();
+              this.alu("cp", var4, 8);
+              if(this.flag(64, false)) {
+                 return -1;
+              } else {
+                 return 0;
               }
            }
         }
@@ -6289,15 +6388,6 @@ public class RecordedProgramTests {
     Assert.assertEquals(Set.of(0x8013), Set.copyOf(stackAnalyzer.dataConsumedBy.get(0x8022)));
     Assert.assertEquals(Set.of(0x8013), Set.copyOf(stackAnalyzer.dataOnTopAt.get(0x8014)));
     Assert.assertEquals("8000 8010 8018 8020", routines());
-  }
-
-  @Test
-  public void twoRoutinesThatJumpToEachOtherRunThroughATrampoline() {
-    translate(
-        at(0x8000, 0x3E, 0x03, 0xCD, 0x10, 0x80, 0x3E, 0x02, 0xCD, 0x20, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
-        at(0x8010, 0x3D, 0xC8, 0xC3, 0x20, 0x80),
-        at(0x8020, 0x0C, 0xC3, 0x10, 0x80));
-    Assert.assertEquals(Set.of(0x8010, 0x8020), routineManager.routinesInJumpCycles(stackAnalyzer).stream().map(Routine::getEntryPoint).collect(Collectors.toSet()));
   }
 
   @Test

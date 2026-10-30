@@ -39,6 +39,7 @@ import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 import java.util.Collections;
@@ -269,7 +270,7 @@ public class RoutineManager {
   }
 
   /** {@code heads}: the members through which every cycle of the group passes, so the group is a loop around one of them. */
-  public record JumpCycle(List<Routine> members, List<Routine> heads, MultiValuedMap<String, Integer> entries) {}
+  public record JumpCycle(List<Routine> members, MultiValuedMap<String, Integer> entries) {}
 
   /** The groups of routines that jump to each other without a CALL in between (the ones {@link #routinesInJumpCycles} finds), each with where it is entered from outside: a CALL to a member, a jump into one, an external entry. */
   public List<JumpCycle> jumpCycleComponents(StackAnalyzer stackAnalyzer) {
@@ -288,9 +289,7 @@ public class RoutineManager {
       });
       callSites.entries().stream().filter(e -> members.contains(findRoutineAt(e.getKey())) && !members.contains(findRoutineAt(e.getValue()))).forEach(e -> entries.put("call", e.getKey()));
       externalEntries.stream().filter(entry -> members.contains(findRoutineAt(entry))).forEach(entry -> entries.put("external", entry));
-      List<Routine> sorted = members.stream().sorted(comparingInt(Routine::getEntryPoint)).toList();
-      List<Routine> heads = sorted.stream().filter(head -> !new org.jgrapht.alg.cycle.CycleDetector<>(new org.jgrapht.graph.AsSubgraph<>(graph, members.stream().filter(m -> m != head).collect(java.util.stream.Collectors.toSet()))).detectCycles()).toList();
-      return new JumpCycle(sorted, heads, entries);
+      return new JumpCycle(members.stream().sorted(comparingInt(Routine::getEntryPoint)).toList(), entries);
     }).toList();
   }
 
@@ -323,7 +322,7 @@ public class RoutineManager {
     }
   }
 
-  public final Map<Routine, Outlined> outlined = new HashMap<>();
+  public final Map<Routine, Outlined> outlined = new LinkedHashMap<>();
 
   /** Takes these addresses out of {@code parent} as a routine of its own entered at {@code entry}, which the parent calls. */
   public Routine outline(Routine parent, int entry, java.util.Set<Integer> addresses, java.util.List<Outlined.Continuation> exits, boolean leaves) {
@@ -376,7 +375,7 @@ public class RoutineManager {
     });
     Map<Routine, java.util.Set<Integer>> landings = new HashMap<>();
     edges(stackAnalyzer, false, (from, target) -> {
-      Routine to = routineGoneOnAt(target);
+      Routine to = enteredAt(from, target);
       if (to != null && targets.getOrDefault(from, java.util.Set.of()).contains(to))
         landings.computeIfAbsent(to, k -> new java.util.HashSet<>()).add(target & 0xffff);
     });
@@ -476,11 +475,17 @@ public class RoutineManager {
   private Map<Routine, java.util.Set<Routine>> flow(StackAnalyzer stackAnalyzer, boolean withCalls) {
     Map<Routine, java.util.Set<Routine>> next = new HashMap<>();
     edges(stackAnalyzer, withCalls, (from, target) -> {
-      Routine to = routineGoneOnAt(target);
+      Routine to = enteredAt(from, target);
       if (to != null && to != from && !(outlined.containsKey(from) && outlined.get(from).parent() == to) && (withCalls || !linkedByOutlining(from, to)))
         next.computeIfAbsent(from, k -> new java.util.HashSet<>()).add(to);
     });
     return next;
+  }
+
+  /** The routine that going on at the address from {@code from} enters: the head of a part of another family, since a part is entered through its head's method. */
+  private Routine enteredAt(Routine from, int target) {
+    Routine to = routineGoneOnAt(target);
+    return to != null && outlined.containsKey(to) && topParent(to) != topParent(from) ? topParent(to) : to;
   }
 
   private void edges(StackAnalyzer stackAnalyzer, boolean withCalls, java.util.function.BiConsumer<Routine, Integer> edge) {
@@ -737,12 +742,12 @@ public class RoutineManager {
     return stackAnalyzer.shiftedReturns.containsKey(site) ? Exit.DROP : Exit.DISPATCH;
   }
 
-  /** The data a site's routine pushed that a RET of another routine takes, still on the stack when the site leaves. */
+  /** The data a site's routine (or a part of it) pushed that a RET of another method takes, still on the stack when the site leaves. */
   public List<Integer> ownDataLeftForOthers(int site, Routine routine, StackAnalyzer stackAnalyzer) {
     Instruction leaving = getInstructionAt(site);
     Stream<Integer> below = stackAnalyzer.dataOnTopAt.get(site).stream();
     Stream<Integer> onTop = leaving instanceof Ret ? stackAnalyzer.getInvocationsSet(site).stream().flatMap(target -> stackAnalyzer.dataOnTopAt.get(target).stream()) : leaving instanceof Push ? Stream.concat(Stream.of(site), below) : below;
-    return onTop.distinct().filter(push -> owns(routine, push) && stackAnalyzer.dataConsumedBy.entries().stream().anyMatch(e -> e.getValue().equals(push) && !owns(routine, e.getKey()))).toList();
+    return onTop.distinct().filter(push -> owns(routine, push) && stackAnalyzer.dataConsumedBy.entries().stream().anyMatch(e -> e.getValue().equals(push) && !routine.contains(e.getKey()))).toList();
   }
 
   /** This RET sometimes takes a return that a virtual POP (one of no routine) had taken off the stack and that was pushed back: it goes where the word says, every caller it returns to having pushed its return. */

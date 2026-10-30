@@ -116,7 +116,7 @@ public class StateBytecodeGenerator {
     routineManager.planNonLocalReturns(symbolicExecutionAdapter.getStackAnalyzer(), bytecodeGenerationContext.routinesInJumpCycles());
     if (Boolean.getBoolean("translation.reportJumpCycles"))
       routineManager.jumpCycleComponents(symbolicExecutionAdapter.getStackAnalyzer()).forEach(cycle -> System.out.println("JUMP CYCLE " + cycle.members().stream().map(r -> Helper.formatAddress(r.getEntryPoint())).toList()
-          + " heads " + cycle.heads().stream().map(r -> Helper.formatAddress(r.getEntryPoint())).toList() + " entered by " + cycle.entries().keySet().stream().sorted().map(cause -> cause + " " + cycle.entries().get(cause).stream().sorted().map(Helper::formatAddress).toList()).collect(java.util.stream.Collectors.joining(", "))));
+          + " entered by " + cycle.entries().keySet().stream().sorted().map(cause -> cause + " " + cycle.entries().get(cause).stream().sorted().map(Helper::formatAddress).toList()).collect(java.util.stream.Collectors.joining(", "))));
     List<Routine> routines = routineManager.getRoutinesInDepth();
 
     RoutineBytecodeGenerator routineBytecodeGenerator1 = new RoutineBytecodeGenerator(bytecodeGenerationContext, null);
@@ -200,16 +200,13 @@ public class StateBytecodeGenerator {
     StackAnalyzer stackAnalyzer = symbolicExecutionAdapter.getStackAnalyzer();
     RoutineManager.AncestorJumps ancestorJumps = routineManager.ancestorJumps(stackAnalyzer);
     MultiValuedMap<Integer, Integer> callSites = routineManager.callSitesByTarget();
-    routineManager.jumpCycleComponents(stackAnalyzer).stream().filter(cycle -> !cycle.heads().isEmpty()).forEach(cycle -> {
-      List<Routine> called = cycle.members().stream().filter(member -> !callSites.get(member.getEntryPoint()).isEmpty()).toList();
-      boolean goesBack = cycle.members().stream().anyMatch(from -> cycle.members().stream().anyMatch(to -> ancestorJumps.goesBack(from, to)));
-      boolean stackData = cycle.members().stream().anyMatch(member -> stackAnalyzer.dataConsumedBy.entries().stream().anyMatch(e -> member.contains(e.getKey()) && cycle.members().stream().anyMatch(other -> other != member && other.contains(e.getValue()))));
-      if (goesBack || stackData || called.size() > 1 || called.size() == 1 && !cycle.heads().contains(called.get(0))) {
+    routineManager.jumpCycleComponents(stackAnalyzer).forEach(cycle -> {
+      if (cycle.members().stream().anyMatch(from -> cycle.members().stream().anyMatch(to -> ancestorJumps.goesBack(from, to)))) {
         if (Boolean.getBoolean("translation.reportRoutines"))
-          System.out.println("LOOP kept as runJumps " + cycle.members().stream().map(m -> Helper.formatAddress(m.getEntryPoint())).toList() + (goesBack ? " jumps back to an ancestor" : "") + (stackData ? " a RET takes another member's data" : "") + " called " + called.stream().map(m -> Helper.formatAddress(m.getEntryPoint())).toList());
+          System.out.println("LOOP kept as runJumps " + cycle.members().stream().map(m -> Helper.formatAddress(m.getEntryPoint())).toList() + " jumps back to an ancestor");
         return;
       }
-      Routine head = called.size() == 1 ? called.get(0) : cycle.heads().stream().max(Comparator.comparingLong((Routine member) -> cycle.entries().values().stream().filter(member::contains).count()).thenComparing(Comparator.comparingInt(Routine::getEntryPoint).reversed())).get();
+      Routine head = cycle.members().stream().max(Comparator.comparingInt((Routine member) -> callSites.get(member.getEntryPoint()).size()).thenComparingLong(member -> cycle.entries().values().stream().filter(member::contains).count()).thenComparing(Comparator.comparingInt(Routine::getEntryPoint).reversed())).get();
       cycle.members().stream().filter(member -> member != head).forEach(task -> {
         ControlFlowStructuring.Outline whole = new ControlFlowStructuring(task, routineManager, List.of(), stackAnalyzer).whole();
         routineManager.outlined.put(task, new RoutineManager.Outlined(head, whole.exits(), whole.leaves()));
