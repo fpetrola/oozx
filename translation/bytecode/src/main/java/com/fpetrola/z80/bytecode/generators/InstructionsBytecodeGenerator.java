@@ -56,7 +56,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   @Override
   public void visitPush(Push push) {
     Register target = (Register) push.getTarget();
-    if (routineByteCodeGenerator.plantedContinuation(address) == null)
+    if (routineByteCodeGenerator.plantedContinuation(address) == null || routineByteCodeGenerator.context.routineManager.takenByAnotherMethod(address, routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer()))
       methodMaker.invoke("push", routineByteCodeGenerator.getExistingVariable(target).get());
   }
 
@@ -373,6 +373,14 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
     int pcValue = routineByteCodeGenerator.context.pc.read();
     RoutineManager.RetExit exit = routineByteCodeGenerator.context.routineManager.exitOf(pcValue, stackAnalyzer);
     createIfs(ret, () -> {
+      List<Integer> familyData = routineByteCodeGenerator.context.routineManager.familyDataTakenBy(pcValue, stackAnalyzer);
+      if (!familyData.isEmpty()) {
+        Variable top = methodMaker.invoke("peek");
+        familyData.stream().flatMap(push -> stackAnalyzer.pushedValues.get(push).stream()).distinct().sorted().forEach(value -> top.ifEq(value, () -> {
+          methodMaker.invoke("pop");
+          routineByteCodeGenerator.goOnAt(value, pcValue, true);
+        }));
+      }
       switch (exit.kind()) {
         case SWITCH_STACK -> methodMaker.invoke("switchStack");
         case NON_LOCAL -> routineByteCodeGenerator.unwind(methodMaker.invoke("pop"));

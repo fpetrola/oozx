@@ -4148,35 +4148,37 @@ public class RecordedProgramTests {
                  this.setNextAddress(0x8300);
               }
 
-              while(true) {
-                 while(true) {
-                    if(this.isNextPC(0x8200)) {
-                       if(this.$8200() != 0) {
-                          return;
-                       }
-                    } else if(!this.isNextPC(0x8300)) {
-                       this.HL(0x8300);
-                       int var1 = this.B();
-                       int var2 = this.alu("inc", var1);
-                       this.B(var2);
-                       if(this.$8200() != 0) {
-                          this.setNextAddress(0x8300);
-                          continue;
-                       }
+              do {
+                 if(!this.isNextPC(0x8200)) {
+                    if(this.isNextPC(0x8300)) {
+                       continue;
                     }
 
-                    if(this.$8300() != 0) {
-                       return;
-                    }
+                    this.HL(0x8300);
+                    int var1 = this.HL();
+                    this.push(var1);
+                    int var2 = this.B();
+                    int var3 = this.alu("inc", var2);
+                    this.B(var3);
                  }
-              }
+
+                 if(this.$8200() != 0) {
+                    return;
+                 }
+              } while(this.$8300() == 0);
+
            }
 
            public int $8200() {
               int var1 = this.C();
               int var2 = this.alu("inc", var1);
               this.C(var2);
-              return -1;
+              if(this.peek() == 0x8300) {
+                 this.pop();
+                 return 0;
+              } else {
+                 return -1;
+              }
            }
 
            public int $8300() {

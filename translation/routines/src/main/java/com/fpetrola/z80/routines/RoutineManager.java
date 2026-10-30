@@ -742,12 +742,24 @@ public class RoutineManager {
     return stackAnalyzer.shiftedReturns.containsKey(site) ? Exit.DROP : Exit.DISPATCH;
   }
 
-  /** The data a site's routine (or a part of it) pushed that a RET of another method takes, still on the stack when the site leaves. */
+  /** The data a site's routine pushed that a RET of another routine takes, still on the stack when the site leaves. */
   public List<Integer> ownDataLeftForOthers(int site, Routine routine, StackAnalyzer stackAnalyzer) {
     Instruction leaving = getInstructionAt(site);
     Stream<Integer> below = stackAnalyzer.dataOnTopAt.get(site).stream();
     Stream<Integer> onTop = leaving instanceof Ret ? stackAnalyzer.getInvocationsSet(site).stream().flatMap(target -> stackAnalyzer.dataOnTopAt.get(target).stream()) : leaving instanceof Push ? Stream.concat(Stream.of(site), below) : below;
-    return onTop.distinct().filter(push -> owns(routine, push) && stackAnalyzer.dataConsumedBy.entries().stream().anyMatch(e -> e.getValue().equals(push) && !routine.contains(e.getKey()))).toList();
+    return onTop.distinct().filter(push -> owns(routine, push) && stackAnalyzer.dataConsumedBy.entries().stream().anyMatch(e -> e.getValue().equals(push) && !owns(routine, e.getKey()))).toList();
+  }
+
+  /** The data pushed in another method of this RET's family that the RET takes: it goes on at what they pushed when that is on top. */
+  public List<Integer> familyDataTakenBy(int ret, StackAnalyzer stackAnalyzer) {
+    Routine mine = findRoutineAt(ret), family = topParent(mine);
+    return stackAnalyzer.dataConsumedBy.get(ret).stream().filter(push -> !mine.contains(push) && owns(family, push)).toList();
+  }
+
+  /** Whether a RET in another method of the push's family takes it: the push stays real for that RET to find. */
+  public boolean takenByAnotherMethod(int push, StackAnalyzer stackAnalyzer) {
+    Routine mine = findRoutineAt(push);
+    return stackAnalyzer.dataConsumedBy.entries().stream().anyMatch(e -> e.getValue().equals(push) && findRoutineAt(e.getKey()) != mine && owns(topParent(mine), e.getKey()));
   }
 
   /** This RET sometimes takes a return that a virtual POP (one of no routine) had taken off the stack and that was pushed back: it goes where the word says, every caller it returns to having pushed its return. */
