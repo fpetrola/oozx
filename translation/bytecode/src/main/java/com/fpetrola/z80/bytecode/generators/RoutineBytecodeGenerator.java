@@ -247,7 +247,7 @@ public class RoutineBytecodeGenerator {
     context.dispatchedEntries.addAll(entries);
     context.routineManager.outlined.values().stream().filter(part -> part.parent() == routine).flatMap(part -> part.exits().stream().map(RoutineManager.Outlined.Continuation::to)).filter(routine::contains).forEach(this::addLabel);
     List<Integer> dispatched = Stream.concat(entries.stream(), partEntries.values().stream().filter(part -> context.routineManager.outlined.get(part).parent() == routine).flatMap(part -> entriesOf(part).stream())).toList();
-    structuring = new ControlFlowStructuring(routine, context.routineManager, Stream.concat(entries.stream(), dispatched.stream().map(address -> partEntries.values().stream().filter(part -> part.contains(address)).findFirst().map(Routine::getEntryPoint).orElse(address))).distinct().toList(), this::continuation, pc -> stackAnalyzer().getInvocationsSet(pc));
+    structuring = new ControlFlowStructuring(routine, context.routineManager, Stream.concat(entries.stream(), dispatched.stream().map(address -> partEntries.values().stream().filter(part -> part.contains(address)).findFirst().map(Routine::getEntryPoint).orElse(address))).distinct().toList(), stackAnalyzer());
     dispatched.forEach(address -> dispatchEntry(-1, address));
 
     Label label = getLabel(routine.getEntryPoint());
@@ -486,8 +486,8 @@ public class RoutineBytecodeGenerator {
         mm.return_(exit);
       else
         mm.return_();
-    } else if (partEntries.containsKey(address)) {
-      goTo(site, address);
+    } else if (partContaining(address) != null) {
+      goTo(site, partContaining(address).getEntryPoint(), address);
     } else if (owner != null && context.routineManager.callersWhoseReturnIsTaken(routine, site != -1 ? site : context.pc.read(), stackAnalyzer()).contains(owner) && context.ancestorJumps().goesBack(routine, owner)) {
       mm.invoke("unwind", address);
       returnFromMethod();
@@ -530,10 +530,16 @@ public class RoutineBytecodeGenerator {
   }
 
   private void goOn(Routine part, RoutineManager.Outlined.Continuation exit) {
-    if (routine.contains(exit.to()) || partEntries.containsKey(exit.to()))
-      goTo(part.getEntryPoint(), exit.to());
+    Routine sibling = partContaining(exit.to());
+    if (routine.contains(exit.to()) || sibling != null)
+      goTo(part.getEntryPoint(), sibling != null ? sibling.getEntryPoint() : exit.to(), exit.to());
     else
       tailJump(exit.to(), exit.from());
+  }
+
+  /** The part of this routine's family the address is in, entered through the part's call with the address carried. */
+  private Routine partContaining(int address) {
+    return partEntries.values().stream().filter(candidate -> candidate.contains(address)).findFirst().orElse(null);
   }
 
   private boolean isJumpMember(Routine candidate) {
@@ -738,7 +744,7 @@ public class RoutineBytecodeGenerator {
   }
 
   private void dispatchEntry(int from, int address) {
-    Routine part = partEntries.values().stream().filter(candidate -> candidate.contains(address)).findFirst().orElse(null);
+    Routine part = partContaining(address);
     mm.invoke("isNextPC", address).ifTrue(() -> goTo(from, part != null ? part.getEntryPoint() : address, address));
   }
 

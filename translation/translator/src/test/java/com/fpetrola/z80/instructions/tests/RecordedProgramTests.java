@@ -688,57 +688,20 @@ public class RecordedProgramTests {
         import com.fpetrola.z80.minizx.MiniZX;
 
         public class Program extends MiniZX {
-           public int runJumps(int var1) {
-              int var2 = var1;
-
-              while(true) {
-                 var2 = this.pagedCopy(var2);
-                 switch(var2) {
-                 case 31806:
-                    var2 = this.$7C3E();
-                    if(!this.unwinding()) {
-                       break;
-                    }
-
-                    return var2;
-                 case 31863:
-                    var2 = this.$7C77();
-                    if(!this.unwinding()) {
-                       break;
-                    }
-
-                    return var2;
-                 case 31879:
-                    var2 = this.$7C87();
-                    if(this.unwinding()) {
-                       return var2;
-                    }
-                    break;
-                 default:
-                    return var2;
-                 }
-              }
-           }
-
            public int $7C3E() {
-              int[] var8;
-              do {
-                 int var1 = this.A();
-                 int var2 = this.A();
-                 int var3 = this.alu("xor", var2, var1);
-                 this.A(var3);
-                 int var4 = this.A() << 8 | 254;
-                 int var5 = this.A();
-                 this.out(var4, var5);
-                 this.BC(32765);
-                 int var6 = this.BC();
-                 int var7 = this.A();
-                 this.out(var6, var7);
-                 this.SP(0xBDFF);
-                 this.unwind(0x7C49);
-                 var8 = new int[]{0x7C3E};
-              } while(this.isOwnAddress(var8));
-
+              int var1 = this.A();
+              int var2 = this.A();
+              int var3 = this.alu("xor", var2, var1);
+              this.A(var3);
+              int var4 = this.A() << 8 | 254;
+              int var5 = this.A();
+              this.out(var4, var5);
+              this.BC(32765);
+              int var6 = this.BC();
+              int var7 = this.A();
+              this.out(var6, var7);
+              this.SP(0xBDFF);
+              this.unwind(0x7C49);
               return -1;
            }
 
@@ -765,9 +728,9 @@ public class RecordedProgramTests {
                     this.BC(750);
                     int var2 = this.BC();
                     this.push(var2);
-                    this.runJumps(31879);
+                    this.$7C87();
                     if(!this.unwinding()) {
-                       return 31879;
+                       return 0;
                     }
                  }
 
@@ -777,12 +740,57 @@ public class RecordedProgramTests {
               return -1;
            }
 
-           public int $7C87() {
-              return 31806;
+           public void $7C87() {
+              int var1;
+              if(!this.isNextPC(0x7C77)) {
+                 if(this.isNextPC(0x7C46)) {
+                    this.setNextAddress(0x7C46);
+                 } else if(this.isNextPC(0x7C49)) {
+                    this.setNextAddress(0x7C49);
+                 } else {
+                    if(!this.isNextPC(0x7C3E)) {
+                    }
+
+                    var1 = this.$7C3E();
+                    if(this.unwinding()) {
+                       return;
+                    }
+
+                    if(var1 != 0) {
+                       return;
+                    }
+
+                    this.setNextAddress(0x7C46);
+                 }
+              }
+
+              while(true) {
+                 int var2 = this.$7C77();
+                 if(var2 != 0) {
+                    if(var2 == 1) {
+                       this.untranslated(0);
+                       return;
+                    }
+
+                    return;
+                 }
+
+                 var1 = this.$7C3E();
+                 if(this.unwinding()) {
+                    return;
+                 }
+
+                 if(var1 != 0) {
+                    return;
+                 }
+
+                 this.setNextAddress(0x7C46);
+              }
            }
 
            public void $9FDD() {
-              this.runJumps(31806);
+              this.setNextAddress(0x7C3E);
+              this.$7C87();
               if(!this.unwinding()) {
                  ;
               }
@@ -790,12 +798,12 @@ public class RecordedProgramTests {
 
            public void $7C49() {
               this.setNextAddress(0x7C49);
-              this.runJumps(31863);
+              this.$7C87();
            }
 
            public void $7C46() {
               this.setNextAddress(0x7C46);
-              this.runJumps(31863);
+              this.$7C87();
            }
         }
         """, withoutTiming(java));
@@ -826,58 +834,22 @@ public class RecordedProgramTests {
         import com.fpetrola.z80.minizx.MiniZX;
 
         public class Program extends MiniZX {
-           public int runJumps(int var1) {
-              int var2 = var1;
-
-              while(true) {
-                 var2 = this.pagedCopy(var2);
-                 switch(var2) {
-                 case 62080:
-                    var2 = this.$F280();
-                    if(!this.unwinding()) {
-                       break;
-                    }
-
-                    return var2;
-                 case 62318:
-                    var2 = this.$F36E();
-                    if(!this.unwinding()) {
-                       break;
-                    }
-
-                    return var2;
-                 case 62560:
-                    var2 = this.$F460();
-                    if(this.unwinding()) {
-                       return var2;
-                    }
-                    break;
-                 default:
-                    return var2;
-                 }
-              }
-           }
-
            public void $9E49() {
-              this.runJumps(0xF280);
+              this.setNextAddress(0xF280);
+              this.$F460();
               if(!this.unwinding()) {
                  ;
               }
            }
 
            public int $F280() {
-              int[] var1;
-              do {
-                 this.di();
-                 this.DE(23392);
-                 this.BC(480);
-                 this.HL(0xFD00);
-                 this.ldir(0xF28A);
-                 this.SP(0xBDFF);
-                 this.unwind(0xF28F);
-                 var1 = new int[]{0xF280};
-              } while(this.isOwnAddress(var1));
-
+              this.di();
+              this.DE(23392);
+              this.BC(480);
+              this.HL(0xFD00);
+              this.ldir(0xF28A);
+              this.SP(0xBDFF);
+              this.unwind(0xF28F);
               return -1;
            }
 
@@ -907,9 +879,9 @@ public class RecordedProgramTests {
                     this.B(3);
                     this.exx();
                     this.L(5);
-                    this.runJumps(0xF460);
+                    this.$F460();
                     if(!this.unwinding()) {
-                       return 0xF460;
+                       return 0;
                     }
                  }
 
@@ -919,18 +891,70 @@ public class RecordedProgramTests {
               return -1;
            }
 
-           public int $F460() {
-              return 0xF280;
+           public void $F460() {
+              int var2;
+              if(this.isNextPC(0xF280)) {
+                 var2 = this.$F280();
+                 if(this.unwinding()) {
+                    return;
+                 }
+
+                 if(var2 != 0) {
+                    return;
+                 }
+
+                 this.setNextAddress(0xF28C);
+              } else if(!this.isNextPC(0xF36E)) {
+                 if(this.isNextPC(0xF28C)) {
+                    this.setNextAddress(0xF28C);
+                 } else if(this.isNextPC(0xF28F)) {
+                    this.setNextAddress(0xF28F);
+                 } else {
+                    var2 = this.$F280();
+                    if(this.unwinding()) {
+                       return;
+                    }
+
+                    if(var2 != 0) {
+                       return;
+                    }
+
+                    this.setNextAddress(0xF28C);
+                 }
+              }
+
+              while(true) {
+                 int var1 = this.$F36E();
+                 if(var1 != 0) {
+                    if(var1 == 1) {
+                       this.untranslated(0);
+                       return;
+                    }
+
+                    return;
+                 }
+
+                 var2 = this.$F280();
+                 if(this.unwinding()) {
+                    return;
+                 }
+
+                 if(var2 != 0) {
+                    return;
+                 }
+
+                 this.setNextAddress(0xF28C);
+              }
            }
 
            public void $F28F() {
               this.setNextAddress(0xF28F);
-              this.runJumps(0xF36E);
+              this.$F460();
            }
 
            public void $F28C() {
               this.setNextAddress(0xF28C);
-              this.runJumps(0xF36E);
+              this.$F460();
            }
         }
         """, withoutTiming(java));
@@ -1332,7 +1356,7 @@ public class RecordedProgramTests {
         8019  E9  JP 0x0000
         8020  76  HALT
         """), at(0x8030, 0x00, 0x81, 0x00, 0x85), at(0x8100, task), at(0x8500, task)));
-    Assert.assertEquals(Set.of(), routineManager.routinesInJumpCycles(pc -> stackAnalyzer.getInvocationsSet(pc)));
+    Assert.assertEquals(Set.of(), routineManager.routinesInJumpCycles(stackAnalyzer));
   }
 
   @Test
@@ -1357,7 +1381,7 @@ public class RecordedProgramTests {
     Routine loop = routineManager.findRoutineAt(0x8020), called = routineManager.findRoutineAt(0x8100);
     Assert.assertNotEquals(loop, called);
     Assert.assertEquals("the called member is the head, a call must come back to its caller", called, routineManager.outlined.get(loop).parent());
-    Assert.assertEquals(Set.of(), routineManager.routinesInJumpCycles(pc -> stackAnalyzer.getInvocationsSet(pc)));
+    Assert.assertEquals(Set.of(), routineManager.routinesInJumpCycles(stackAnalyzer));
     Assert.assertEquals(5, endValue("B") & 0xff);
     Assert.assertEquals(5, endValue("C") & 0xff);
   }
@@ -1385,7 +1409,7 @@ public class RecordedProgramTests {
     Assert.assertEquals(routine, part.parent());
     Assert.assertEquals(Set.of(0x800D, 0x8000), part.exits().stream().map(RoutineManager.Outlined.Continuation::to).collect(Collectors.toSet()));
     Assert.assertFalse(part.leaves());
-    Assert.assertEquals(Set.of(), routineManager.routinesInJumpCycles(pc -> stackAnalyzer.getInvocationsSet(pc)));
+    Assert.assertEquals(Set.of(), routineManager.routinesInJumpCycles(stackAnalyzer));
   }
 
   @Test
@@ -6161,7 +6185,7 @@ public class RecordedProgramTests {
         at(0x8000, 0x3E, 0x03, 0xCD, 0x10, 0x80, 0x3E, 0x02, 0xCD, 0x20, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
         at(0x8010, 0x3D, 0xC8, 0xC3, 0x20, 0x80),
         at(0x8020, 0x0C, 0xC3, 0x10, 0x80));
-    Assert.assertEquals(Set.of(0x8010, 0x8020), routineManager.routinesInJumpCycles(address -> Set.copyOf(stackAnalyzer.dynamicInvocation.get(address))).stream().map(Routine::getEntryPoint).collect(Collectors.toSet()));
+    Assert.assertEquals(Set.of(0x8010, 0x8020), routineManager.routinesInJumpCycles(stackAnalyzer).stream().map(Routine::getEntryPoint).collect(Collectors.toSet()));
   }
 
   @Test
@@ -6232,7 +6256,7 @@ public class RecordedProgramTests {
         at(0x8020, 0x1E, 0x03, 0xC3, 0x11, 0x80));
     Assert.assertEquals("8000 8010 8011 8020", routines());
     Assert.assertEquals(routineManager.findRoutineAt(0x8010), routineManager.outlined.get(routineManager.findRoutineAt(0x8011)).parent());
-    Assert.assertEquals(Set.of(), routineManager.routinesInJumpCycles(address -> Set.copyOf(stackAnalyzer.dynamicInvocation.get(address))));
+    Assert.assertEquals(Set.of(), routineManager.routinesInJumpCycles(stackAnalyzer));
   }
 
   @Test
@@ -6625,7 +6649,7 @@ public class RecordedProgramTests {
     Routine routine = routineManager.findRoutineAt(START);
     Assert.assertEquals(routines(), 2, routineManager.outlined.size());
     Assert.assertTrue(routineManager.outlined.values().stream().allMatch(part -> part.parent() == routine && part.exits().size() <= 1 && !part.leaves()));
-    Assert.assertEquals(Set.of(), routineManager.routinesInJumpCycles(pc -> stackAnalyzer.getInvocationsSet(pc)));
+    Assert.assertEquals(Set.of(), routineManager.routinesInJumpCycles(stackAnalyzer));
   }
 
   @Test

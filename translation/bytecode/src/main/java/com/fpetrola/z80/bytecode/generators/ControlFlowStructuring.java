@@ -1,18 +1,13 @@
 package com.fpetrola.z80.bytecode.generators;
 
-import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.Ret;
-import com.fpetrola.z80.instructions.types.ConditionalInstruction;
-import com.fpetrola.z80.instructions.types.Instruction;
-import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.routines.RoutineManager.Outlined.Continuation;
+import com.fpetrola.z80.transformations.StackAnalyzer;
 import org.apache.commons.collections4.MultiValuedMap;
 
 import java.util.*;
-import java.util.function.IntFunction;
-import java.util.function.IntUnaryOperator;
 import java.util.stream.Stream;
 
 /**
@@ -36,8 +31,8 @@ public class ControlFlowStructuring {
   private final RoutineManager routineManager;
   private final int entry;
 
-  /** {@code continuation}: where the code goes on after the instruction at an address that falls through; {@code dynamicTargets}: where a jump through a register or a RET used as a jump goes. The parts of the routine, and those of its parent, are nodes of their own that go on where the part does. */
-  public ControlFlowStructuring(Routine routine, RoutineManager routineManager, Collection<Integer> entries, IntUnaryOperator continuation, IntFunction<Set<Integer>> dynamicTargets) {
+  /** The nodes go on where {@link RoutineManager#goesOnAt} says, and at the catch points of their calls; the parts of the routine, and those of its parent, are nodes of their own that go on where the part does. */
+  public ControlFlowStructuring(Routine routine, RoutineManager routineManager, Collection<Integer> entries, StackAnalyzer stackAnalyzer) {
     this.routineManager = routineManager;
     entry = routine.getEntryPoint();
     catchPoints = routineManager.catchPointsOfCallsIn(routine);
@@ -58,13 +53,7 @@ public class ControlFlowStructuring {
         if (part.leaves())
           leaving.add(node);
       } else {
-        Instruction instruction = routineManager.getInstructionAt(node);
-        if (RoutineManager.fallsThrough(instruction))
-          next.add(continuation.applyAsInt(node));
-        if (!(instruction instanceof Call) && RoutineManager.fixedJumpTarget(instruction) != -1)
-          next.add(RoutineManager.fixedJumpTarget(instruction));
-        if (instruction instanceof Ret || instruction instanceof ConditionalInstruction<?> jump && !(jump instanceof Call) && jump.getPositionOpcodeReference() instanceof Register)
-          next.addAll(dynamicTargets.apply(node));
+        next.addAll(routineManager.goesOnAt(node, routine, stackAnalyzer, false));
         next.addAll(catchPoints.get(node));
       }
       next.stream().filter(to -> !nodes.contains(to)).forEach(to -> outside.computeIfAbsent(node, k -> new LinkedHashSet<>()).add(to));

@@ -272,9 +272,9 @@ public class RoutineManager {
   public record JumpCycle(List<Routine> members, List<Routine> heads, MultiValuedMap<String, Integer> entries) {}
 
   /** The groups of routines that jump to each other without a CALL in between (the ones {@link #routinesInJumpCycles} finds), each with where it is entered from outside: a CALL to a member, a jump into one, an external entry. */
-  public List<JumpCycle> jumpCycleComponents(java.util.function.IntFunction<java.util.Set<Integer>> dynamicTargets) {
+  public List<JumpCycle> jumpCycleComponents(StackAnalyzer stackAnalyzer) {
     org.jgrapht.Graph<Routine, org.jgrapht.graph.DefaultEdge> graph = new org.jgrapht.graph.DefaultDirectedGraph<>(org.jgrapht.graph.DefaultEdge.class);
-    flow(dynamicTargets, false).forEach((from, targets) -> targets.forEach(to -> {
+    flow(stackAnalyzer, false).forEach((from, targets) -> targets.forEach(to -> {
       graph.addVertex(from);
       graph.addVertex(to);
       graph.addEdge(from, to);
@@ -282,7 +282,7 @@ public class RoutineManager {
     MultiValuedMap<Integer, Integer> callSites = callSitesByTarget();
     return new org.jgrapht.alg.connectivity.KosarajuStrongConnectivityInspector<>(graph).stronglyConnectedSets().stream().filter(members -> members.size() > 1).map(members -> {
       MultiValuedMap<String, Integer> entries = new HashSetValuedHashMap<>();
-      edges(dynamicTargets, false, (from, target) -> {
+      edges(stackAnalyzer, false, (from, target) -> {
         if (!members.contains(from) && members.contains(routineGoneOnAt(target)))
           entries.put("jump", target);
       });
@@ -354,8 +354,8 @@ public class RoutineManager {
     return part != null && (part.parent() == from || mine != null && mine.parent() == part.parent()) || mine != null && mine.parent() == to;
   }
 
-  public java.util.Set<Routine> routinesInJumpCycles(java.util.function.IntFunction<java.util.Set<Integer>> dynamicTargets) {
-    Map<Routine, java.util.Set<Routine>> next = flow(dynamicTargets, false);
+  public java.util.Set<Routine> routinesInJumpCycles(StackAnalyzer stackAnalyzer) {
+    Map<Routine, java.util.Set<Routine>> next = flow(stackAnalyzer, false);
     return next.keySet().stream().filter(routine -> reaches(next, routine, routine, new java.util.HashSet<>())).collect(java.util.stream.Collectors.toSet());
   }
 
@@ -366,8 +366,8 @@ public class RoutineManager {
     }
   }
 
-  public AncestorJumps ancestorJumps(java.util.function.IntFunction<java.util.Set<Integer>> dynamicTargets) {
-    Map<Routine, java.util.Set<Routine>> jumps = flow(dynamicTargets, false), all = flow(dynamicTargets, true), back = new HashMap<>();
+  public AncestorJumps ancestorJumps(StackAnalyzer stackAnalyzer) {
+    Map<Routine, java.util.Set<Routine>> jumps = flow(stackAnalyzer, false), all = flow(stackAnalyzer, true), back = new HashMap<>();
     all.forEach((from, tos) -> tos.forEach(to -> back.computeIfAbsent(to, k -> new java.util.HashSet<>()).add(from)));
     Map<Routine, java.util.Set<Routine>> targets = new HashMap<>();
     jumps.forEach((from, tos) -> {
@@ -375,7 +375,7 @@ public class RoutineManager {
       tos.stream().filter(to -> reachingFrom.contains(to) && !reaches(jumps, to, from, new java.util.HashSet<>())).forEach(to -> targets.computeIfAbsent(from, k -> new java.util.HashSet<>()).add(to));
     });
     Map<Routine, java.util.Set<Integer>> landings = new HashMap<>();
-    edges(dynamicTargets, false, (from, target) -> {
+    edges(stackAnalyzer, false, (from, target) -> {
       Routine to = routineGoneOnAt(target);
       if (to != null && targets.getOrDefault(from, java.util.Set.of()).contains(to))
         landings.computeIfAbsent(to, k -> new java.util.HashSet<>()).add(target & 0xffff);
@@ -427,7 +427,7 @@ public class RoutineManager {
   }
 
   /** Routines whose translation can leave the frames of their callers (an unwinding): they do it themselves, go on through code resolved only at run time, or call or jump to one that can. */
-  public java.util.Set<Routine> routinesThatMayUnwind(StackAnalyzer stackAnalyzer, AncestorJumps ancestorJumps, java.util.function.IntFunction<java.util.Set<Integer>> dynamicTargets) {
+  public java.util.Set<Routine> routinesThatMayUnwind(StackAnalyzer stackAnalyzer, AncestorJumps ancestorJumps) {
     java.util.Set<Routine> unwinding = new java.util.HashSet<>();
     instructions.forEach((address, instruction) -> {
       Routine owner = findRoutineAt(address);
@@ -436,7 +436,7 @@ public class RoutineManager {
     });
     routines.stream().filter(routine -> !routine.getVirtualPop().isEmpty() || ancestorJumps.targets().containsKey(routine) && takesItsCallersReturn(routine, stackAnalyzer)).forEach(unwinding::add);
     Map<Routine, java.util.Set<Routine>> back = new HashMap<>();
-    flow(dynamicTargets, true).forEach((from, tos) -> tos.forEach(to -> back.computeIfAbsent(to, k -> new java.util.HashSet<>()).add(from)));
+    flow(stackAnalyzer, true).forEach((from, tos) -> tos.forEach(to -> back.computeIfAbsent(to, k -> new java.util.HashSet<>()).add(from)));
     new ArrayList<>(unwinding).forEach(routine -> unwinding.addAll(reachable(back, routine)));
     return unwinding;
   }
@@ -473,9 +473,9 @@ public class RoutineManager {
     return seen;
   }
 
-  private Map<Routine, java.util.Set<Routine>> flow(java.util.function.IntFunction<java.util.Set<Integer>> dynamicTargets, boolean withCalls) {
+  private Map<Routine, java.util.Set<Routine>> flow(StackAnalyzer stackAnalyzer, boolean withCalls) {
     Map<Routine, java.util.Set<Routine>> next = new HashMap<>();
-    edges(dynamicTargets, withCalls, (from, target) -> {
+    edges(stackAnalyzer, withCalls, (from, target) -> {
       Routine to = routineGoneOnAt(target);
       if (to != null && to != from && !(outlined.containsKey(from) && outlined.get(from).parent() == to) && (withCalls || !linkedByOutlining(from, to)))
         next.computeIfAbsent(from, k -> new java.util.HashSet<>()).add(to);
@@ -483,23 +483,29 @@ public class RoutineManager {
     return next;
   }
 
-  private void edges(java.util.function.IntFunction<java.util.Set<Integer>> dynamicTargets, boolean withCalls, java.util.function.BiConsumer<Routine, Integer> edge) {
+  private void edges(StackAnalyzer stackAnalyzer, boolean withCalls, java.util.function.BiConsumer<Routine, Integer> edge) {
     instructions.forEach((address, instruction) -> {
       Routine from = findRoutineAt(address);
-      if (from == null)
-        return;
-      java.util.Set<Integer> targets = new java.util.HashSet<>();
-      if (instruction instanceof Ret)
-        targets.addAll(dynamicTargets.apply(address));
-      else if (instruction instanceof ConditionalInstruction<?> jump && (withCalls || !(jump instanceof Call)))
-        if (jump.getPositionOpcodeReference() instanceof com.fpetrola.z80.registers.Register)
-          targets.addAll(dynamicTargets.apply(address));
-        else
-          targets.add(jump.getJumpAddress());
-      if (fallsThrough(instruction))
-        targets.add(address + instruction.getLength());
-      targets.forEach(target -> edge.accept(outlined.containsKey(from) && topParent(from) != topParent(routineGoneOnAt(target)) ? topParent(from) : from, target));
+      if (from != null)
+        goesOnAt(address, from, stackAnalyzer, withCalls).forEach(target -> edge.accept(outlined.containsKey(from) && topParent(from) != topParent(routineGoneOnAt(target)) ? topParent(from) : from, target));
     });
+  }
+
+  /** Where the instruction at an address goes on, as its Java does: the continuation when it falls through, a fixed jump target, the recorded targets of a jump through a register or of a RET used as a jump. A CALL, and a JP through a register that is a simulated call (its continuation pushed), reach their target only {@code withCalls}. */
+  public java.util.Set<Integer> goesOnAt(int address, Routine routine, StackAnalyzer stackAnalyzer, boolean withCalls) {
+    Instruction instruction = instructions.get(address);
+    java.util.Set<Integer> targets = new java.util.LinkedHashSet<>();
+    if (fallsThrough(instruction))
+      targets.add(continuation(address, stackAnalyzer));
+    if (instruction instanceof Ret)
+      targets.addAll(stackAnalyzer.getInvocationsSet(address));
+    else if (instruction instanceof ConditionalInstruction<?> jump && (withCalls || !(jump instanceof Call)))
+      if (jump.getPositionOpcodeReference() instanceof Register) {
+        if (withCalls || exitOfJump(address, routine, stackAnalyzer) != Exit.SIMULATED_CALL)
+          targets.addAll(stackAnalyzer.getInvocationsSet(address));
+      } else
+        targets.add(jump.getJumpAddress());
+    return targets;
   }
 
   private static boolean reaches(Map<Routine, java.util.Set<Routine>> next, Routine from, Routine target, java.util.Set<Routine> visited) {

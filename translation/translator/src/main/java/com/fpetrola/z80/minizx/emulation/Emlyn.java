@@ -8046,63 +8046,62 @@ public class Emlyn extends MiniZX {
    public void $6865() {
       int[] var3;
       do {
-         if(this.isNextPC(26848)) {
-            this.setNextAddress(26848);
-         } else if(this.isNextPC(26832)) {
+         int var4;
+         if(this.isNextPC(26832)) {
             this.setNextAddress(26832);
+         } else if(this.isNextPC(26848)) {
+            this.setNextAddress(26848);
+         } else if(this.isNextPC(26834)) {
+            if(this.$68D2() != 0) {
+               return;
+            }
+
+            this.setNextAddress(26871);
          } else if(this.isNextPC(26722)) {
             this.setNextAddress(26722);
-         } else {
-            label262: {
-               if(!this.isNextPC(26834)) {
-                  if(this.isNextPC(26871)) {
-                     this.setNextAddress(26871);
-                     break label262;
+         } else if(this.isNextPC(26615)) {
+            this.setNextAddress(26615);
+         } else if(this.isNextPC(26871)) {
+            this.setNextAddress(26871);
+         } else if(this.isNextPC(26713)) {
+            this.setNextAddress(26713);
+         } else if(this.isNextPC(26873)) {
+            this.setNextAddress(26873);
+         } else if(this.isNextPC(27018)) {
+            this.setNextAddress(27018);
+         } else if(this.isNextPC(26750)) {
+            var4 = this.$687E();
+            if(var4 != 0) {
+               if(var4 == 1) {
+                  this.setNextAddress(27018);
+               } else if(var4 != 2) {
+                  if(var4 != 3) {
+                     return;
                   }
 
-                  if(this.isNextPC(26615)) {
-                     this.setNextAddress(26615);
-                     break label262;
-                  }
-
-                  if(this.isNextPC(26873)) {
-                     this.setNextAddress(26873);
-                     break label262;
-                  }
-
-                  if(this.isNextPC(26713)) {
-                     this.setNextAddress(26713);
-                     break label262;
-                  }
-
-                  if(this.isNextPC(27018)) {
-                     this.setNextAddress(27018);
-                     break label262;
-                  }
-
-                  if(!this.isNextPC(26750)) {
-                     if(!this.isNextPC(26752)) {
-                        break label262;
-                     }
-
-                     this.setNextAddress(26752);
-                  }
-
-                  int var32 = this.$687E();
-                  if(var32 != 0) {
-                     if(var32 == 1) {
-                        this.setNextAddress(27018);
-                     } else if(var32 != 2) {
-                        if(var32 != 3) {
-                           return;
-                        }
-
-                        this.setNextAddress(26832);
-                     }
-                     break label262;
-                  }
+                  this.setNextAddress(26832);
+               }
+            } else {
+               if(this.$68D2() != 0) {
+                  return;
                }
 
+               this.setNextAddress(26871);
+            }
+         } else if(this.isNextPC(26752)) {
+            this.setNextAddress(26752);
+            var4 = this.$687E();
+            if(var4 != 0) {
+               if(var4 == 1) {
+                  this.setNextAddress(27018);
+               } else if(var4 != 2) {
+                  if(var4 != 3) {
+                     return;
+                  }
+
+                  this.setNextAddress(26832);
+               }
+            } else {
                if(this.$68D2() != 0) {
                   return;
                }
@@ -8111,73 +8110,87 @@ public class Emlyn extends MiniZX {
             }
          }
 
-         label235:
+         label400:
          while(true) {
-            label233:
-            do {
-               label230: {
-                  while(true) {
-                     label254: {
-                        label226: {
-                           label225: {
-                              label255: {
-                                 if(!this.isNextPC(26848)) {
-                                    if(this.isNextPC(26873)) {
-                                       break label225;
+            int var26;
+            while(!this.isNextPC(26848)) {
+               if(!this.isNextPC(26873)) {
+                  if(this.isNextPC(26832)) {
+                     if(this.$68D0() != 0) {
+                        return;
+                     }
+
+                     if(this.$6862() != 0) {
+                        return;
+                     }
+                  } else if(!this.isNextPC(26722)) {
+                     if(this.isNextPC(26871)) {
+                        if(this.$68F7() != 0) {
+                           return;
+                        }
+
+                        if(this.$68F9() != 0) {
+                           return;
+                        }
+
+                        if(this.$68D0() != 0) {
+                           return;
+                        }
+
+                        if(this.$6862() != 0) {
+                           return;
+                        }
+                     } else {
+                        label424: {
+                           int[] var2;
+                           if(!this.isNextPC(27018)) {
+                              label419: {
+                                 if(this.isNextPC(26713)) {
+                                    if(this.$6859() != 0) {
+                                       return;
                                     }
 
-                                    if(this.isNextPC(26832)) {
-                                       break label230;
+                                    if(this.$6862() != 0) {
+                                       return;
                                     }
+                                    continue;
+                                 }
 
-                                    if(this.isNextPC(26722)) {
-                                       continue label233;
-                                    }
-
-                                    if(this.isNextPC(26871)) {
-                                       break label255;
-                                    }
-
-                                    if(this.isNextPC(27018)) {
-                                       break label254;
-                                    }
-
-                                    if(this.isNextPC(26713)) {
-                                       break;
-                                    }
-
-                                    if(this.isNextPC(26615)) {
-                                       break label226;
-                                    }
-
+                                 if(!this.isNextPC(26615)) {
                                     this.pc(26725, 1, 17);
                                     this.push(26728);
                                     int var1 = this.SP();
                                     this.$5F89();
                                     if(this.unwinding()) {
-                                       break label235;
+                                       var2 = new int[]{26752};
+                                       if(this.ownAddress(var2) != 26752) {
+                                          break label400;
+                                       }
+
+                                       this.setNextAddress(26752);
+                                       break label424;
                                     }
 
-                                    int var6 = this.SP();
-                                    if(var6 == var1) {
+                                    int var5 = this.SP();
+                                    if(var5 == var1) {
                                        this.pop();
                                     } else {
-                                       int var7 = var1 + 2 & '\uffff';
-                                       if(var6 == var7) {
+                                       int var6 = var1 + 2 & '\uffff';
+                                       if(var5 == var6) {
                                           return;
                                        }
                                     }
 
                                     this.pc(26728, 1, 17);
                                     this.push(26731);
-                                    int var8 = this.SP();
+                                    int var7 = this.SP();
                                     this.$5F79();
-                                    int var9 = this.SP();
-                                    if(var9 == var8) {
+                                    int var8 = this.SP();
+                                    if(var8 == var7) {
                                        this.pop();
                                     } else {
-                                       int var10 = var8 + 2 & '\uffff';
-                                       if(var9 == var10) {
+                                       int var9 = var7 + 2 & '\uffff';
+                                       if(var8 == var9) {
                                           return;
                                        }
                                     }
@@ -8189,192 +8202,232 @@ public class Emlyn extends MiniZX {
                                     }
 
                                     this.pc(26733, 1, 4);
-                                    int var11 = this.H();
-                                    this.A(var11);
+                                    int var10 = this.H();
+                                    this.A(var10);
                                     this.pc(26734, 1, 4);
+                                    int var11 = this.A();
                                     int var12 = this.A();
-                                    int var13 = this.A();
-                                    int var14 = this.alu("and", var13, var12);
-                                    this.A(var14);
+                                    int var13 = this.alu("and", var12, var11);
+                                    this.A(var13);
                                     this.pc(26735, 1, 7);
-                                    if(this.flag(64, false)) {
-                                       this.tstates(5);
-                                       break label226;
-                                    }
-
-                                    this.pc(26737, 1, 13);
-                                    int var15 = this.mem(27175, 26737);
-                                    this.A(var15);
-                                    this.pc(26740, 1, 4);
-                                    int var16 = this.A();
-                                    int var17 = this.A();
-                                    int var18 = this.alu("and", var17, var16);
-                                    this.A(var18);
-                                    this.pc(26741, 1, 10);
-                                    if(this.flag(64, true)) {
-                                       break label254;
-                                    }
-
-                                    this.pc(26744, 1, 4);
-                                    int var19 = this.H();
-                                    this.A(var19);
-                                    this.pc(26745, 1, 7);
-                                    int var20 = this.A();
-                                    this.alu("cp", var20, 2);
-                                    this.pc(26747, 1, 7);
                                     if(!this.flag(64, false)) {
-                                       this.pc(26749, 1, 17);
-                                       this.push(26752);
-                                       int var21 = this.SP();
-                                       this.$6836();
-                                       if(!this.unwinding()) {
-                                          int var22 = this.SP();
-                                          if(var22 == var21) {
-                                             this.pop();
-                                          } else {
-                                             int var23 = var21 + 2 & '\uffff';
-                                             if(var22 == var23) {
-                                                return;
-                                             }
-                                          }
-                                       } else {
-                                          while(true) {
-                                             int[] var26 = new int[]{26683};
-                                             if(this.ownAddress(var26) != 26683) {
-                                                int[] var27 = new int[]{26752};
-                                                if(this.ownAddress(var27) == -1) {
-                                                   break label235;
+                                       this.pc(26737, 1, 13);
+                                       int var14 = this.mem(27175, 26737);
+                                       this.A(var14);
+                                       this.pc(26740, 1, 4);
+                                       int var15 = this.A();
+                                       int var16 = this.A();
+                                       int var17 = this.alu("and", var16, var15);
+                                       this.A(var17);
+                                       this.pc(26741, 1, 10);
+                                       if(!this.flag(64, true)) {
+                                          this.pc(26744, 1, 4);
+                                          int var18 = this.H();
+                                          this.A(var18);
+                                          this.pc(26745, 1, 7);
+                                          int var19 = this.A();
+                                          this.alu("cp", var19, 2);
+                                          this.pc(26747, 1, 7);
+                                          if(this.flag(64, false)) {
+                                             this.tstates(5);
+                                             var26 = this.$68E0();
+                                             if(var26 != 0) {
+                                                if(var26 != 1) {
+                                                   return;
                                                 }
-                                                break;
+
+                                                if(this.$68F7() != 0) {
+                                                   return;
+                                                }
                                              }
 
-                                             int var28 = this.pop();
-                                             this.HL(var28);
-                                             this.$683B();
-                                             if(!this.unwinding()) {
+                                             if(this.$68F9() != 0) {
                                                 return;
                                              }
-                                          }
-                                       }
 
-                                       this.setNextAddress(26752);
-                                       this.$6865();
-                                       if(!this.unwinding()) {
-                                          return;
-                                       }
+                                             if(this.$68D0() != 0) {
+                                                return;
+                                             }
 
-                                       do {
-                                          int[] var24 = new int[]{26683};
-                                          if(this.ownAddress(var24) != 26683) {
-                                             break label235;
+                                             if(this.$6862() != 0) {
+                                                return;
+                                             }
+                                             continue;
                                           }
 
-                                          int var25 = this.pop();
-                                          this.HL(var25);
-                                          this.$683B();
-                                       } while(this.unwinding());
+                                          this.pc(26749, 1, 17);
+                                          this.push(26752);
+                                          int var20 = this.SP();
+                                          this.$6836();
+                                          if(!this.unwinding()) {
+                                             int var21 = this.SP();
+                                             if(var21 == var20) {
+                                                this.pop();
+                                             } else {
+                                                int var22 = var20 + 2 & '\uffff';
+                                                if(var21 == var22) {
+                                                   return;
+                                                }
+                                             }
 
-                                       return;
+                                             this.setNextAddress(26752);
+                                             break label424;
+                                          } else {
+                                             do {
+                                                int[] var23 = new int[]{26683};
+                                                if(this.ownAddress(var23) != 26683) {
+                                                   int[] var24 = new int[]{26752};
+                                                   if(this.ownAddress(var24) == -1) {
+                                                      var2 = new int[]{26752};
+                                                      if(this.ownAddress(var2) != 26752) {
+                                                         break label400;
+                                                      }
+
+                                                      this.setNextAddress(26752);
+                                                   } else {
+                                                      this.setNextAddress(26752);
+                                                   }
+                                                   break label424;
+                                                }
+
+                                                int var25 = this.pop();
+                                                this.HL(var25);
+                                                this.$683B();
+                                             } while(this.unwinding());
+
+                                             return;
+                                          }
+                                       }
+                                       break label419;
                                     }
 
                                     this.tstates(5);
                                  }
 
-                                 int var29 = this.$68E0();
-                                 if(var29 == 0) {
-                                    break label225;
+                                 int var28 = this.$67F7();
+                                 if(!this.unwinding()) {
+                                    if(var28 != 0) {
+                                       if(var28 == 1) {
+                                          this.$5CC0();
+                                          return;
+                                       }
+
+                                       return;
+                                    }
+
+                                    if(this.$6859() != 0) {
+                                       return;
+                                    }
+
+                                    if(this.$6862() != 0) {
+                                       return;
+                                    }
+                                    continue;
                                  }
 
-                                 if(var29 != 1) {
+                                 var2 = new int[]{26752};
+                                 if(this.ownAddress(var2) != 26752) {
+                                    break label400;
+                                 }
+
+                                 this.setNextAddress(26752);
+                                 break label424;
+                              }
+                           }
+
+                           int var27 = this.$698A();
+                           if(var27 != 0) {
+                              if(var27 != 1) {
+                                 if(var27 != 2) {
+                                    return;
+                                 }
+
+                                 if(this.$6859() != 0) {
+                                    return;
+                                 }
+
+                                 if(this.$6862() != 0) {
                                     return;
                                  }
                               }
+                              continue;
+                           }
 
-                              if(this.$68F7() != 0) {
+                           this.$683B();
+                           if(!this.unwinding()) {
+                              return;
+                           }
+
+                           var2 = new int[]{26752};
+                           if(this.ownAddress(var2) != 26752) {
+                              break label400;
+                           }
+
+                           this.setNextAddress(26752);
+                        }
+
+                        var4 = this.$687E();
+                        if(var4 != 0) {
+                           if(var4 == 1) {
+                              this.setNextAddress(27018);
+                           } else if(var4 != 2) {
+                              if(var4 != 3) {
                                  return;
                               }
+
+                              this.setNextAddress(26832);
                            }
-
-                           if(this.$68F9() != 0) {
-                              return;
-                           }
-                           break label230;
-                        }
-
-                        int var31 = this.$67F7();
-                        if(this.unwinding()) {
-                           break label235;
-                        }
-
-                        if(var31 != 0) {
-                           if(var31 == 1) {
-                              this.$5CC0();
+                        } else {
+                           if(this.$68D2() != 0) {
                               return;
                            }
 
-                           return;
+                           this.setNextAddress(26871);
                         }
-                        break;
                      }
-
-                     int var30 = this.$698A();
-                     if(var30 == 0) {
-                        this.$683B();
-                        if(!this.unwinding()) {
-                           return;
-                        }
-                        break label235;
-                     }
-
-                     if(var30 != 1) {
-                        if(var30 != 2) {
-                           return;
-                        }
-                        break;
-                     }
-                  }
-
-                  if(this.$6859() != 0) {
+                  } else if(this.$6862() != 0) {
                      return;
                   }
-                  continue;
+               } else {
+                  if(this.$68F9() != 0) {
+                     return;
+                  }
+
+                  if(this.$68D0() != 0) {
+                     return;
+                  }
+
+                  if(this.$6862() != 0) {
+                     return;
+                  }
                }
-
-               if(this.$68D0() != 0) {
-                  return;
-               }
-            } while(this.$6862() == 0);
-
-            return;
-         }
-
-         label245:
-         while(true) {
-            int[] var2 = new int[]{26752};
-            if(this.ownAddress(var2) != 26752) {
-               var3 = new int[]{26725};
-               break;
             }
 
-            this.setNextAddress(26752);
-            this.$6865();
-            if(!this.unwinding()) {
+            var26 = this.$68E0();
+            if(var26 != 0) {
+               if(var26 != 1) {
+                  return;
+               }
+
+               if(this.$68F7() != 0) {
+                  return;
+               }
+            }
+
+            if(this.$68F9() != 0) {
                return;
             }
 
-            do {
-               int[] var4 = new int[]{26683};
-               if(this.ownAddress(var4) != 26683) {
-                  continue label245;
-               }
+            if(this.$68D0() != 0) {
+               return;
+            }
 
-               int var5 = this.pop();
-               this.HL(var5);
-               this.$683B();
-            } while(this.unwinding());
-
-            return;
+            if(this.$6862() != 0) {
+               return;
+            }
          }
+
+         var3 = new int[]{26725};
       } while(this.isOwnAddress(var3));
 
    }
@@ -32548,10 +32601,10 @@ public class Emlyn extends MiniZX {
                      this.setNextAddress('\ub3c4');
                   } else if(this.isNextPC('\u94aa')) {
                      this.setNextAddress('\u94aa');
-                  } else if(this.isNextPC('\uae7b')) {
-                     this.setNextAddress('\uae7b');
                   } else if(this.isNextPC('\ubf2b')) {
                      this.setNextAddress('\ubf2b');
+                  } else if(this.isNextPC('\uae7b')) {
+                     this.setNextAddress('\uae7b');
                   } else if(this.isNextPC('\uabbc')) {
                      this.setNextAddress('\uabbc');
                   }
@@ -39700,45 +39753,45 @@ public class Emlyn extends MiniZX {
                      label949: {
                         label950: {
                            label893: {
-                              label951: {
-                                 label978: {
-                                    this.pc('\uc76b', 1, 4);
-                                    int var36 = this.A();
-                                    int var37 = this.alu("rlca", var36);
-                                    this.A(var37);
-                                    this.pc('\uc76c', 1, 4);
-                                    int var38 = this.A();
-                                    this.E(var38);
-                                    this.pc('\uc76d', 1, 7);
-                                    this.D(0);
-                                    this.pc('\uc76f', 1, 10);
-                                    this.HL('\uc778');
-                                    this.pc('\uc772', 1, 11);
-                                    int var39 = this.DE();
-                                    int var40 = this.HL();
-                                    int var41 = this.alu("add16", var40, var39);
-                                    this.HL(var41);
-                                    this.pc('\uc773', 1, 7);
-                                    int var42 = this.HL();
-                                    int var43 = this.mem(var42, '\uc773');
-                                    this.A(var43);
-                                    this.pc('\uc774', 1, 6);
-                                    int var44 = this.HL();
-                                    int var45 = this.inc16(var44);
-                                    this.HL(var45);
-                                    this.pc('\uc775', 1, 7);
-                                    int var46 = this.HL();
-                                    int var47 = this.mem(var46, '\uc775');
-                                    this.H(var47);
-                                    this.pc('\uc776', 1, 4);
-                                    int var48 = this.A();
-                                    this.L(var48);
-                                    this.pc('\uc777', 1, 4);
-                                    if(this.HL() == '\uc9c0') {
-                                       this.pc('\uc9c0', 1, 7);
-                                       this.A(221);
-                                       this.pc('\uc9c2', 1, 10);
-                                    } else {
+                              label978: {
+                                 this.pc('\uc76b', 1, 4);
+                                 int var36 = this.A();
+                                 int var37 = this.alu("rlca", var36);
+                                 this.A(var37);
+                                 this.pc('\uc76c', 1, 4);
+                                 int var38 = this.A();
+                                 this.E(var38);
+                                 this.pc('\uc76d', 1, 7);
+                                 this.D(0);
+                                 this.pc('\uc76f', 1, 10);
+                                 this.HL('\uc778');
+                                 this.pc('\uc772', 1, 11);
+                                 int var39 = this.DE();
+                                 int var40 = this.HL();
+                                 int var41 = this.alu("add16", var40, var39);
+                                 this.HL(var41);
+                                 this.pc('\uc773', 1, 7);
+                                 int var42 = this.HL();
+                                 int var43 = this.mem(var42, '\uc773');
+                                 this.A(var43);
+                                 this.pc('\uc774', 1, 6);
+                                 int var44 = this.HL();
+                                 int var45 = this.inc16(var44);
+                                 this.HL(var45);
+                                 this.pc('\uc775', 1, 7);
+                                 int var46 = this.HL();
+                                 int var47 = this.mem(var46, '\uc775');
+                                 this.H(var47);
+                                 this.pc('\uc776', 1, 4);
+                                 int var48 = this.A();
+                                 this.L(var48);
+                                 this.pc('\uc777', 1, 4);
+                                 if(this.HL() == '\uc9c0') {
+                                    this.pc('\uc9c0', 1, 7);
+                                    this.A(221);
+                                    this.pc('\uc9c2', 1, 10);
+                                 } else {
+                                    label976: {
                                        label981: {
                                           label955: {
                                              label886: {
@@ -39751,7 +39804,7 @@ public class Emlyn extends MiniZX {
                                                       if(this.HL() == '\uc841') {
                                                          this.pc('\uc841', 1, 7);
                                                          this.A(35);
-                                                         break label981;
+                                                         break label976;
                                                       }
 
                                                       if(this.HL() == '\ud6e3') {
@@ -39929,7 +39982,7 @@ public class Emlyn extends MiniZX {
                                                                this.pc('\ud29a', 1, 10);
                                                                return 9;
                                                             }
-                                                            break label951;
+                                                            break label978;
                                                          }
 
                                                          this.pc('\ud258', 1, 10);
@@ -40063,7 +40116,7 @@ public class Emlyn extends MiniZX {
                                                          this.pc('\uc9f4', 1, 7);
                                                          this.A(0);
                                                          this.pc('\uc9f6', 1, 10);
-                                                         break label981;
+                                                         break label976;
                                                       }
 
                                                       if(this.HL() != '\ucaa6') {
@@ -40076,7 +40129,7 @@ public class Emlyn extends MiniZX {
                                                                }
                                                                break label950;
                                                             }
-                                                            break label978;
+                                                            break label981;
                                                          }
 
                                                          this.pc('\uc9f9', 1, 13);
@@ -40521,7 +40574,7 @@ public class Emlyn extends MiniZX {
                                                 this.pc('\uca5d', 1, 13);
                                                 int var543 = this.A();
                                                 this.wMem('\u9299', var543, '\uca5d');
-                                                break label951;
+                                                break label978;
                                              }
 
                                              this.pc('\ucbf3', 2, 19);
@@ -40732,7 +40785,7 @@ public class Emlyn extends MiniZX {
                                              int var469 = this.IY() + -37;
                                              int var470 = this.A();
                                              this.wMem(var469, var470, '\ucc69');
-                                             break label978;
+                                             break label981;
                                           }
 
                                           this.pc('\ud6e3', 2, 19);
@@ -41578,200 +41631,201 @@ public class Emlyn extends MiniZX {
                                           this.pc('\ud7b4', 1, 10);
                                           break label987;
                                        }
-                                    }
 
-                                    this.pc('\uc843', 1, 13);
-                                    int var49 = this.A();
-                                    this.wMem('\u9275', var49, '\uc843');
-                                    this.pc('\uc846', 2, 19);
-                                    int var50 = this.IY() + -74;
-                                    int var51 = this.mem(var50, '\uc846');
-                                    this.A(var51);
-                                    this.pc('\uc849', 2, 19);
-                                    int var52 = this.IY() + 7;
-                                    int var53 = this.mem(var52, '\uc849');
-                                    int var54 = this.A();
-                                    int var55 = this.alu("or", var54, var53);
-                                    this.A(var55);
-                                    this.pc('\uc84c', 1, 7);
-                                    int var56 = this.A();
-                                    this.alu("cp", var56, 16);
-                                    this.pc('\uc84e', 1, 7);
-                                    if(!this.flag(1, false)) {
-                                       this.pc('\uc850', 2, 19);
-                                       int var57 = this.IY() + -74;
-                                       this.wMem(var57, 0, '\uc850');
-                                       this.pc('\uc854', 1, 10);
-                                       return 8;
-                                    }
-
-                                    this.tstates(5);
-                                    this.pc('\uc857', 1, 17);
-                                    this.push('\uc85a');
-                                    int var58 = this.SP();
-                                    this.$B2E0();
-                                    int var59 = this.SP();
-                                    if(var59 == var58) {
-                                       this.pop();
-                                    } else {
-                                       int var60 = var58 + 2 & '\uffff';
-                                       if(var59 == var60) {
-                                          return -1;
-                                       }
-                                    }
-
-                                    this.pc('\uc85a', 1, 13);
-                                    int var61 = this.mem('\u92a0', '\uc85a');
-                                    this.A(var61);
-                                    this.pc('\uc85d', 1, 7);
-                                    int var62 = this.A();
-                                    this.alu("cp", var62, 198);
-                                    this.pc('\uc85f', 1, 7);
-                                    if(this.flag(1, false)) {
-                                       this.tstates(5);
-                                       return 10;
-                                    }
-
-                                    this.pc('\uc861', 1, 7);
-                                    int var63 = this.A();
-                                    this.alu("cp", var63, 200);
-                                    this.pc('\uc863', 1, 7);
-                                    if(this.flag(1, true)) {
-                                       this.tstates(5);
-                                       this.pc('\uc872', 1, 7);
-                                       int var76 = this.A();
-                                       this.alu("cp", var76, 202);
-                                       this.pc('\uc874', 1, 10);
-                                       if(this.flag(1, false)) {
-                                          return 13;
-                                       }
-
-                                       this.pc('\uc877', 1, 7);
-                                       int var77 = this.A();
-                                       this.alu("cp", var77, 203);
-                                       this.pc('\uc879', 1, 7);
-                                       if(!this.flag(64, false)) {
-                                          this.pc('\uc87b', 1, 7);
-                                          int var78 = this.A();
-                                          this.alu("cp", var78, 204);
-                                          this.pc('\uc87d', 1, 7);
-                                          if(this.flag(64, true)) {
-                                             this.tstates(5);
-                                             return 19;
-                                          }
-
-                                          this.pc('\uc87f', 1, 17);
-                                          this.$D67A();
-                                          this.pc('\uc882', 1, 10);
-                                          if(this.flag(1, false)) {
-                                             return 24;
-                                          }
-
-                                          return 23;
-                                       }
-
-                                       this.tstates(5);
-                                    }
-
-                                    this.pc('\uc865', 2, 14);
-                                    this.IX('\u9362');
-                                    this.pc('\uc869', 1, 17);
-                                    this.push('\uc86c');
-                                    int var64 = this.SP();
-                                    this.$B2FE();
-                                    int var65 = this.SP();
-                                    if(var65 == var64) {
-                                       this.pop();
-                                    } else {
-                                       int var66 = var64 + 2 & '\uffff';
-                                       if(var65 == var66) {
-                                          return -1;
-                                       }
-                                    }
-
-                                    this.pc('\uc86c', 1, 17);
-                                    this.push('\uc86f');
-                                    int var67 = this.SP();
-                                    this.$C94C();
-                                    if(!this.unwinding()) {
-                                       int var68 = this.SP();
-                                       if(var68 == var67) {
+                                       this.pc('\ucc6c', 1, 7);
+                                       this.A(7);
+                                       this.pc('\ucc6e', 1, 17);
+                                       this.push('\ucc71');
+                                       int var471 = this.SP();
+                                       this.$BADC();
+                                       int var472 = this.SP();
+                                       if(var472 == var471) {
                                           this.pop();
                                        } else {
-                                          int var69 = var67 + 2 & '\uffff';
-                                          if(var68 == var69) {
+                                          int var473 = var471 + 2 & '\uffff';
+                                          if(var472 == var473) {
                                              return -1;
                                           }
                                        }
 
-                                       return 16;
-                                    }
+                                       this.pc('\ucc71', 1, 17);
+                                       this.push('\ucc74');
+                                       int var474 = this.SP();
+                                       this.$B2FE();
+                                       int var475 = this.SP();
+                                       if(var475 == var474) {
+                                          this.pop();
+                                       } else {
+                                          int var476 = var474 + 2 & '\uffff';
+                                          if(var475 == var476) {
+                                             return -1;
+                                          }
+                                       }
 
-                                    int[] var70 = new int[]{'\uc939', '\uc9af'};
-                                    int var71 = this.ownAddress(var70);
-                                    if(var71 == '\uc939') {
-                                       int var75 = this.pop();
-                                       this.HL(var75);
-                                       return 17;
-                                    }
+                                       this.pc('\ucc74', 1, 13);
+                                       int var477 = this.mem('\u932d', '\ucc74');
+                                       this.A(var477);
+                                       this.pc('\ucc77', 1, 4);
+                                       int var478 = this.A();
+                                       int var479 = this.A();
+                                       int var480 = this.alu("and", var479, var478);
+                                       this.A(var480);
+                                       this.pc('\ucc78', 1, 10);
+                                       if(this.flag(64, false)) {
+                                          return 6;
+                                       }
 
-                                    if(var71 == '\uc9af') {
-                                       int var74 = this.pop();
-                                       this.HL(var74);
-                                       return 18;
+                                       this.pc('\ucc7b', 1, 10);
+                                       break label978;
                                     }
-
-                                    int[] var72 = new int[]{'\uc86f'};
-                                    if(this.ownAddress(var72) != -1) {
-                                       return 16;
-                                    }
-                                    break label950;
                                  }
 
-                                 this.pc('\ucc6c', 1, 7);
-                                 this.A(7);
-                                 this.pc('\ucc6e', 1, 17);
-                                 this.push('\ucc71');
-                                 int var471 = this.SP();
-                                 this.$BADC();
-                                 int var472 = this.SP();
-                                 if(var472 == var471) {
+                                 this.pc('\uc843', 1, 13);
+                                 int var49 = this.A();
+                                 this.wMem('\u9275', var49, '\uc843');
+                                 this.pc('\uc846', 2, 19);
+                                 int var50 = this.IY() + -74;
+                                 int var51 = this.mem(var50, '\uc846');
+                                 this.A(var51);
+                                 this.pc('\uc849', 2, 19);
+                                 int var52 = this.IY() + 7;
+                                 int var53 = this.mem(var52, '\uc849');
+                                 int var54 = this.A();
+                                 int var55 = this.alu("or", var54, var53);
+                                 this.A(var55);
+                                 this.pc('\uc84c', 1, 7);
+                                 int var56 = this.A();
+                                 this.alu("cp", var56, 16);
+                                 this.pc('\uc84e', 1, 7);
+                                 if(!this.flag(1, false)) {
+                                    this.pc('\uc850', 2, 19);
+                                    int var57 = this.IY() + -74;
+                                    this.wMem(var57, 0, '\uc850');
+                                    this.pc('\uc854', 1, 10);
+                                    return 8;
+                                 }
+
+                                 this.tstates(5);
+                                 this.pc('\uc857', 1, 17);
+                                 this.push('\uc85a');
+                                 int var58 = this.SP();
+                                 this.$B2E0();
+                                 int var59 = this.SP();
+                                 if(var59 == var58) {
                                     this.pop();
                                  } else {
-                                    int var473 = var471 + 2 & '\uffff';
-                                    if(var472 == var473) {
+                                    int var60 = var58 + 2 & '\uffff';
+                                    if(var59 == var60) {
                                        return -1;
                                     }
                                  }
 
-                                 this.pc('\ucc71', 1, 17);
-                                 this.push('\ucc74');
-                                 int var474 = this.SP();
+                                 this.pc('\uc85a', 1, 13);
+                                 int var61 = this.mem('\u92a0', '\uc85a');
+                                 this.A(var61);
+                                 this.pc('\uc85d', 1, 7);
+                                 int var62 = this.A();
+                                 this.alu("cp", var62, 198);
+                                 this.pc('\uc85f', 1, 7);
+                                 if(this.flag(1, false)) {
+                                    this.tstates(5);
+                                    return 10;
+                                 }
+
+                                 this.pc('\uc861', 1, 7);
+                                 int var63 = this.A();
+                                 this.alu("cp", var63, 200);
+                                 this.pc('\uc863', 1, 7);
+                                 if(this.flag(1, true)) {
+                                    this.tstates(5);
+                                    this.pc('\uc872', 1, 7);
+                                    int var76 = this.A();
+                                    this.alu("cp", var76, 202);
+                                    this.pc('\uc874', 1, 10);
+                                    if(this.flag(1, false)) {
+                                       return 13;
+                                    }
+
+                                    this.pc('\uc877', 1, 7);
+                                    int var77 = this.A();
+                                    this.alu("cp", var77, 203);
+                                    this.pc('\uc879', 1, 7);
+                                    if(!this.flag(64, false)) {
+                                       this.pc('\uc87b', 1, 7);
+                                       int var78 = this.A();
+                                       this.alu("cp", var78, 204);
+                                       this.pc('\uc87d', 1, 7);
+                                       if(this.flag(64, true)) {
+                                          this.tstates(5);
+                                          return 19;
+                                       }
+
+                                       this.pc('\uc87f', 1, 17);
+                                       this.$D67A();
+                                       this.pc('\uc882', 1, 10);
+                                       if(this.flag(1, false)) {
+                                          return 24;
+                                       }
+
+                                       return 23;
+                                    }
+
+                                    this.tstates(5);
+                                 }
+
+                                 this.pc('\uc865', 2, 14);
+                                 this.IX('\u9362');
+                                 this.pc('\uc869', 1, 17);
+                                 this.push('\uc86c');
+                                 int var64 = this.SP();
                                  this.$B2FE();
-                                 int var475 = this.SP();
-                                 if(var475 == var474) {
+                                 int var65 = this.SP();
+                                 if(var65 == var64) {
                                     this.pop();
                                  } else {
-                                    int var476 = var474 + 2 & '\uffff';
-                                    if(var475 == var476) {
+                                    int var66 = var64 + 2 & '\uffff';
+                                    if(var65 == var66) {
                                        return -1;
                                     }
                                  }
 
-                                 this.pc('\ucc74', 1, 13);
-                                 int var477 = this.mem('\u932d', '\ucc74');
-                                 this.A(var477);
-                                 this.pc('\ucc77', 1, 4);
-                                 int var478 = this.A();
-                                 int var479 = this.A();
-                                 int var480 = this.alu("and", var479, var478);
-                                 this.A(var480);
-                                 this.pc('\ucc78', 1, 10);
-                                 if(this.flag(64, false)) {
-                                    return 6;
+                                 this.pc('\uc86c', 1, 17);
+                                 this.push('\uc86f');
+                                 int var67 = this.SP();
+                                 this.$C94C();
+                                 if(!this.unwinding()) {
+                                    int var68 = this.SP();
+                                    if(var68 == var67) {
+                                       this.pop();
+                                    } else {
+                                       int var69 = var67 + 2 & '\uffff';
+                                       if(var68 == var69) {
+                                          return -1;
+                                       }
+                                    }
+
+                                    return 16;
                                  }
 
-                                 this.pc('\ucc7b', 1, 10);
+                                 int[] var70 = new int[]{'\uc939', '\uc9af'};
+                                 int var71 = this.ownAddress(var70);
+                                 if(var71 == '\uc939') {
+                                    int var75 = this.pop();
+                                    this.HL(var75);
+                                    return 17;
+                                 }
+
+                                 if(var71 == '\uc9af') {
+                                    int var74 = this.pop();
+                                    this.HL(var74);
+                                    return 18;
+                                 }
+
+                                 int[] var72 = new int[]{'\uc86f'};
+                                 if(this.ownAddress(var72) != -1) {
+                                    return 16;
+                                 }
+                                 break label950;
                               }
 
                               this.pc('\uca60', 1, 13);
@@ -52089,7 +52143,1390 @@ public class Emlyn extends MiniZX {
       this.$D67A();
    }
 
-   protected int headOf(int var1) {
-      return var1 == 24490?24478:(var1 == 24504?24478:(var1 == 24558?24478:(var1 == 24696?24636:(var1 == 26615?26725:(var1 == 26713?26725:(var1 == 26722?26725:(var1 == 26750?26725:(var1 == 26832?26725:(var1 == 26834?26725:(var1 == 26848?26725:(var1 == 26871?26725:(var1 == 26873?26725:(var1 == 27018?26725:(var1 == '\u94aa'?'\uba29':(var1 == '\u9640'?'\u963e':(var1 == '\u9b23'?'\u9bea':(var1 == '\u9bbf'?'\u9bea':(var1 == '\u9bfc'?'\u9bea':(var1 == '\ua053'?'\u963e':(var1 == '\uabbc'?'\uba29':(var1 == '\uae7b'?'\uba29':(var1 == '\ub3c4'?'\uba29':(var1 == '\ub710'?'\uba29':(var1 == '\ubf2b'?'\uba29':(var1 == '\uc673'?'\uba29':(var1 == '\uccc1'?'\uba29':(var1 == '\ufe65'?'\ufe61':var1)))))))))))))))))))))))))));
+   protected boolean runTranslated(int var1) {
+      switch(this.pagedCopy(var1)) {
+      case 56:
+         this.$38();
+         return true;
+      case 654:
+         this.$28E();
+         return true;
+      case 703:
+         this.$2BF();
+         return true;
+      case 798:
+         this.$31E();
+         return true;
+      case 819:
+         this.$333();
+         return true;
+      case 3652:
+         this.$E44();
+         return true;
+      case 3720:
+         this.$E88();
+         return true;
+      case 3739:
+         this.$E9B();
+         return true;
+      case 8880:
+         this.$22B0();
+         return true;
+      case 11405:
+         this.$2C8D();
+         return true;
+      case 23637:
+         this.$5C55();
+         return true;
+      case 23645:
+         this.$5C5D();
+         return true;
+      case 23710:
+         this.$5C9E();
+         return true;
+      case 23744:
+         this.$5CC0();
+         return true;
+      case 23756:
+         this.$5CCC();
+         return true;
+      case 23760:
+         this.$5CD0();
+         return true;
+      case 23762:
+         this.$5CD2();
+         return true;
+      case 23768:
+         this.$5CD8();
+         return true;
+      case 23773:
+         this.$5CDD();
+         return true;
+      case 23797:
+         this.$5CF5();
+         return true;
+      case 23798:
+         this.$5CF6();
+         return true;
+      case 23809:
+         this.$5D01();
+         return true;
+      case 23820:
+         this.$5D0C();
+         return true;
+      case 23834:
+         this.$5D1A();
+         return true;
+      case 23838:
+         this.$5D1E();
+         return true;
+      case 23844:
+         this.$5D24();
+         return true;
+      case 23901:
+         this.$5D5D();
+         return true;
+      case 23911:
+         this.$5D67();
+         return true;
+      case 23917:
+         this.$5D6D();
+         return true;
+      case 23920:
+         this.$5D70();
+         return true;
+      case 23928:
+         this.$5D78();
+         return true;
+      case 23935:
+         this.$5D7F();
+         return true;
+      case 23943:
+         this.$5D87();
+         return true;
+      case 23946:
+         this.$5D8A();
+         return true;
+      case 23949:
+         this.$5D8D();
+         return true;
+      case 23961:
+         this.$5D99();
+         return true;
+      case 23966:
+         this.$5D9E();
+         return true;
+      case 23971:
+         this.$5DA3();
+         return true;
+      case 23976:
+         this.$5DA8();
+         return true;
+      case 23981:
+         this.$5DAD();
+         return true;
+      case 24092:
+         this.$5E1C();
+         return true;
+      case 24105:
+         this.$5E29();
+         return true;
+      case 24106:
+         this.$5E2A();
+         return true;
+      case 24111:
+         this.$5E2F();
+         return true;
+      case 24156:
+         this.$5E5C();
+         return true;
+      case 24160:
+         this.$5E60();
+         return true;
+      case 24269:
+         this.$5ECD();
+         return true;
+      case 24366:
+         this.$5F2E();
+         return true;
+      case 24370:
+         this.$5F32();
+         return true;
+      case 24375:
+         this.$5F37();
+         return true;
+      case 24378:
+         this.$5F3A();
+         return true;
+      case 24398:
+         this.$5F4E();
+         return true;
+      case 24418:
+         this.$5F62();
+         return true;
+      case 24421:
+         this.$5F65();
+         return true;
+      case 24441:
+         this.$5F79();
+         return true;
+      case 24452:
+         this.$5F84();
+         return true;
+      case 24457:
+         this.$5F89();
+         return true;
+      case 24478:
+         this.$5F9E();
+         return true;
+      case 24490:
+         this.setNextAddress(24490);
+         this.$5F9E();
+         return true;
+      case 24504:
+         this.setNextAddress(24504);
+         this.$5F9E();
+         return true;
+      case 24558:
+         this.setNextAddress(24558);
+         this.$5F9E();
+         return true;
+      case 24569:
+         this.$5FF9();
+         return true;
+      case 24575:
+         this.$5FFF();
+         return true;
+      case 24615:
+         this.$6027();
+         return true;
+      case 24625:
+         this.$6031();
+         return true;
+      case 24636:
+         this.$603C();
+         return true;
+      case 24696:
+         this.setNextAddress(24696);
+         this.$603C();
+         return true;
+      case 24714:
+         this.$608A();
+         return true;
+      case 24833:
+         this.$6101();
+         return true;
+      case 24853:
+         this.$6115();
+         return true;
+      case 24896:
+         this.$6140();
+         return true;
+      case 24942:
+         this.$616E();
+         return true;
+      case 25109:
+         this.$6215();
+         return true;
+      case 25124:
+         this.$6224();
+         return true;
+      case 25128:
+         this.$6228();
+         return true;
+      case 25133:
+         this.$622D();
+         return true;
+      case 25134:
+         this.$622E();
+         return true;
+      case 25149:
+         this.$623D();
+         return true;
+      case 25154:
+         this.$6242();
+         return true;
+      case 25155:
+         this.$6243();
+         return true;
+      case 25158:
+         this.$6246();
+         return true;
+      case 25174:
+         this.$6256();
+         return true;
+      case 25177:
+         this.$6259();
+         return true;
+      case 25186:
+         this.$6262();
+         return true;
+      case 25189:
+         this.$6265();
+         return true;
+      case 25251:
+         this.$62A3();
+         return true;
+      case 25319:
+         this.$62E7();
+         return true;
+      case 25372:
+         this.$631C();
+         return true;
+      case 25380:
+         this.$6324();
+         return true;
+      case 25386:
+         this.$632A();
+         return true;
+      case 25390:
+         this.setNextAddress(25390);
+         this.$6324();
+         return true;
+      case 25407:
+         this.$633F();
+         return true;
+      case 25421:
+         this.$634D();
+         return true;
+      case 25422:
+         this.$634E();
+         return true;
+      case 25468:
+         this.$637C();
+         return true;
+      case 25487:
+         this.$638F();
+         return true;
+      case 25529:
+         this.$63B9();
+         return true;
+      case 25532:
+         this.$63BC();
+         return true;
+      case 25535:
+         this.$63BF();
+         return true;
+      case 25538:
+         this.$63C2();
+         return true;
+      case 25545:
+         this.$63C9();
+         return true;
+      case 25564:
+         this.$63DC();
+         return true;
+      case 25570:
+         this.$63E2();
+         return true;
+      case 25598:
+         this.$63FE();
+         return true;
+      case 25610:
+         this.$640A();
+         return true;
+      case 25649:
+         this.$6431();
+         return true;
+      case 25652:
+         this.$6434();
+         return true;
+      case 25658:
+         this.$643A();
+         return true;
+      case 25664:
+         this.$6440();
+         return true;
+      case 25672:
+         this.$6448();
+         return true;
+      case 25689:
+         this.$6459();
+         return true;
+      case 25693:
+         this.$645D();
+         return true;
+      case 25716:
+         this.$6474();
+         return true;
+      case 25774:
+         this.$64AE();
+         return true;
+      case 25785:
+         this.$64B9();
+         return true;
+      case 25871:
+         this.$650F();
+         return true;
+      case 25877:
+         this.$6515();
+         return true;
+      case 25977:
+         this.$6579();
+         return true;
+      case 26005:
+         this.$6595();
+         return true;
+      case 26067:
+         this.$65D3();
+         return true;
+      case 26068:
+         this.setNextAddress(26068);
+         this.$6F24();
+         return true;
+      case 26125:
+         this.$660D();
+         return true;
+      case 26127:
+         this.$660F();
+         return true;
+      case 26133:
+         this.$6615();
+         return true;
+      case 26328:
+         this.$66D8();
+         return true;
+      case 26346:
+         this.$66EA();
+         return true;
+      case 26435:
+         this.$6743();
+         return true;
+      case 26457:
+         this.$6759();
+         return true;
+      case 26465:
+         this.$6761();
+         return true;
+      case 26471:
+         this.$6767();
+         return true;
+      case 26485:
+         this.$6775();
+         return true;
+      case 26498:
+         this.$6782();
+         return true;
+      case 26506:
+         this.$678A();
+         return true;
+      case 26509:
+         this.$678D();
+         return true;
+      case 26547:
+         this.$67B3();
+         return true;
+      case 26550:
+         this.$67B6();
+         return true;
+      case 26615:
+         this.setNextAddress(26615);
+         this.$6865();
+         return true;
+      case 26663:
+         this.$6827();
+         return true;
+      case 26668:
+         this.$682C();
+         return true;
+      case 26674:
+         this.$6832();
+         return true;
+      case 26678:
+         this.$6836();
+         return true;
+      case 26683:
+         this.$683B();
+         return true;
+      case 26685:
+         this.$683D();
+         return true;
+      case 26713:
+         this.setNextAddress(26713);
+         this.$6865();
+         return true;
+      case 26722:
+         this.setNextAddress(26722);
+         this.$6865();
+         return true;
+      case 26725:
+         this.$6865();
+         return true;
+      case 26750:
+         this.setNextAddress(26750);
+         this.$6865();
+         return true;
+      case 26752:
+         this.setNextAddress(26752);
+         this.$6865();
+         return true;
+      case 26832:
+         this.setNextAddress(26832);
+         this.$6865();
+         return true;
+      case 26834:
+         this.setNextAddress(26834);
+         this.$6865();
+         return true;
+      case 26848:
+         this.setNextAddress(26848);
+         this.$6865();
+         return true;
+      case 26871:
+         this.setNextAddress(26871);
+         this.$6865();
+         return true;
+      case 26873:
+         this.setNextAddress(26873);
+         this.$6865();
+         return true;
+      case 26896:
+         this.$6910();
+         return true;
+      case 26921:
+         this.$6929();
+         return true;
+      case 26927:
+         this.$692F();
+         return true;
+      case 26940:
+         this.$693C();
+         return true;
+      case 26997:
+         this.$6975();
+         return true;
+      case 27006:
+         this.$697E();
+         return true;
+      case 27007:
+         this.setNextAddress(27007);
+         this.$697E();
+         return true;
+      case 27010:
+         this.$6982();
+         return true;
+      case 27018:
+         this.setNextAddress(27018);
+         this.$6865();
+         return true;
+      case 27021:
+         this.setNextAddress(27021);
+         this.$6865();
+         return true;
+      case 27438:
+         this.$6B2E();
+         return true;
+      case 27640:
+         this.$6BF8();
+         return true;
+      case 27687:
+         this.$6C27();
+         return true;
+      case 27802:
+         this.$6C9A();
+         return true;
+      case 27836:
+         this.$6CBC();
+         return true;
+      case 27897:
+         this.$6CF9();
+         return true;
+      case 27913:
+         this.$6D09();
+         return true;
+      case 27932:
+         this.$6D1C();
+         return true;
+      case 27980:
+         this.$6D4C();
+         return true;
+      case 27989:
+         this.$6D55();
+         return true;
+      case 27999:
+         this.setNextAddress(27999);
+         this.$6D55();
+         return true;
+      case 28002:
+         this.setNextAddress(28002);
+         this.$6D4C();
+         return true;
+      case 28028:
+         this.$6D7C();
+         return true;
+      case 28031:
+         this.$6D7F();
+         return true;
+      case 28037:
+         this.$6D85();
+         return true;
+      case 28046:
+         this.$6D8E();
+         return true;
+      case 28054:
+         this.$6D96();
+         return true;
+      case 28092:
+         this.$6DBC();
+         return true;
+      case 28111:
+         this.$6DCF();
+         return true;
+      case 28122:
+         this.$6DDA();
+         return true;
+      case 28252:
+         this.$6E5C();
+         return true;
+      case 28381:
+         this.$6EDD();
+         return true;
+      case 28452:
+         this.$6F24();
+         return true;
+      case 28502:
+         this.$6F56();
+         return true;
+      case 28515:
+         this.$6F63();
+         return true;
+      case 28593:
+         this.$6FB1();
+         return true;
+      case 28645:
+         this.$6FE5();
+         return true;
+      case 28660:
+         this.$6FF4();
+         return true;
+      case 28664:
+         this.$6FF8();
+         return true;
+      case 28678:
+         this.$7006();
+         return true;
+      case 28684:
+         this.$700C();
+         return true;
+      case 28703:
+         this.$701F();
+         return true;
+      case 28705:
+         this.$7021();
+         return true;
+      case 28760:
+         this.$7058();
+         return true;
+      case 28795:
+         this.$707B();
+         return true;
+      case 28801:
+         this.$7081();
+         return true;
+      case 28813:
+         this.$708D();
+         return true;
+      case 28828:
+         this.$709C();
+         return true;
+      case 28851:
+         this.$70B3();
+         return true;
+      case 28866:
+         this.$70C2();
+         return true;
+      case 28880:
+         this.$70D0();
+         return true;
+      case 28886:
+         this.$70D6();
+         return true;
+      case 28908:
+         this.$70EC();
+         return true;
+      case 28995:
+         this.$7143();
+         return true;
+      case 29002:
+         this.$714A();
+         return true;
+      case 29009:
+         this.$7151();
+         return true;
+      case 29014:
+         this.$7156();
+         return true;
+      case 29044:
+         this.$7174();
+         return true;
+      case 29110:
+         this.$71B6();
+         return true;
+      case 29188:
+         this.$7204();
+         return true;
+      case 29194:
+         this.$720A();
+         return true;
+      case 29208:
+         this.$7218();
+         return true;
+      case 29213:
+         this.$721D();
+         return true;
+      case 29218:
+         this.$7222();
+         return true;
+      case 29356:
+         this.$72AC();
+         return true;
+      case 29716:
+         this.$7414();
+         return true;
+      case 32096:
+         this.$7D60();
+         return true;
+      case 32330:
+         this.$7E4A();
+         return true;
+      case 32756:
+         this.$7FF4();
+         return true;
+      case 32759:
+         this.$7FF7();
+         return true;
+      case 32762:
+         this.$7FFA();
+         return true;
+      case 37827:
+         this.setNextAddress('\u93c3');
+         this.$7FF7();
+         return true;
+      case 37835:
+         this.setNextAddress('\u93cb');
+         this.$BA29();
+         return true;
+      case 38058:
+         this.setNextAddress('\u94aa');
+         this.$BA29();
+         return true;
+      case 38196:
+         this.setNextAddress('\u9534');
+         this.$BA29();
+         return true;
+      case 38223:
+         this.$954F();
+         return true;
+      case 38362:
+         this.$95DA();
+         return true;
+      case 38388:
+         this.$95F4();
+         return true;
+      case 38397:
+         this.$95FD();
+         return true;
+      case 38403:
+         this.$9603();
+         return true;
+      case 38431:
+         this.$961F();
+         return true;
+      case 38442:
+         this.$962A();
+         return true;
+      case 38456:
+         this.$9638();
+         return true;
+      case 38462:
+         this.$963E();
+         return true;
+      case 38464:
+         this.setNextAddress('\u9640');
+         this.$963E();
+         return true;
+      case 39647:
+         this.$9ADF();
+         return true;
+      case 39667:
+         this.$9AF3();
+         return true;
+      case 39676:
+         this.setNextAddress('\u9afc');
+         this.$9AF3();
+         return true;
+      case 39679:
+         this.setNextAddress('\u9aff');
+         this.$9AF3();
+         return true;
+      case 39682:
+         this.setNextAddress('\u9b02');
+         this.$9AF3();
+         return true;
+      case 39685:
+         this.setNextAddress('\u9b05');
+         this.$9AF3();
+         return true;
+      case 39689:
+         this.setNextAddress('\u9b09');
+         this.$9AF3();
+         return true;
+      case 39692:
+         this.setNextAddress('\u9b0c');
+         this.$9AF3();
+         return true;
+      case 39708:
+         this.$9B1C();
+         return true;
+      case 39715:
+         this.setNextAddress('\u9b23');
+         this.$9BEA();
+         return true;
+      case 39871:
+         this.setNextAddress('\u9bbf');
+         this.$9BEA();
+         return true;
+      case 39900:
+         this.setNextAddress('\u9bdc');
+         this.$9BEA();
+         return true;
+      case 39907:
+         this.setNextAddress('\u9be3');
+         this.$9BEA();
+         return true;
+      case 39914:
+         this.$9BEA();
+         return true;
+      case 39918:
+         this.setNextAddress('\u9bee');
+         this.$9BEA();
+         return true;
+      case 39925:
+         this.setNextAddress('\u9bf5');
+         this.$9BEA();
+         return true;
+      case 39932:
+         this.setNextAddress('\u9bfc');
+         this.$9BEA();
+         return true;
+      case 40079:
+         this.$9C8F();
+         return true;
+      case 40087:
+         this.$9C97();
+         return true;
+      case 40537:
+         this.setNextAddress('\u9e59');
+         this.$963E();
+         return true;
+      case 41035:
+         this.setNextAddress('\ua04b');
+         this.$963E();
+         return true;
+      case 41043:
+         this.setNextAddress('\ua053');
+         this.$963E();
+         return true;
+      case 41483:
+         this.$A20B();
+         return true;
+      case 41486:
+         this.$A20E();
+         return true;
+      case 42591:
+         this.setNextAddress('\ua65f');
+         this.$963E();
+         return true;
+      case 42626:
+         this.$A682();
+         return true;
+      case 43010:
+         this.$A802();
+         return true;
+      case 43321:
+         this.$A939();
+         return true;
+      case 43362:
+         this.$A962();
+         return true;
+      case 43964:
+         this.setNextAddress('\uabbc');
+         this.$BA29();
+         return true;
+      case 44528:
+         this.$ADF0();
+         return true;
+      case 44667:
+         this.setNextAddress('\uae7b');
+         this.$BA29();
+         return true;
+      case 44858:
+         this.setNextAddress('\uaf3a');
+         this.$BA29();
+         return true;
+      case 44878:
+         this.setNextAddress('\uaf4e');
+         this.$BA29();
+         return true;
+      case 44981:
+         this.setNextAddress('\uafb5');
+         this.$BA29();
+         return true;
+      case 45034:
+         this.setNextAddress('\uafea');
+         this.$BA29();
+         return true;
+      case 45120:
+         this.setNextAddress('\ub040');
+         this.$BA29();
+         return true;
+      case 45131:
+         this.$B04B();
+         return true;
+      case 45135:
+         this.$B04F();
+         return true;
+      case 45137:
+         this.$B051();
+         return true;
+      case 45210:
+         this.$B09A();
+         return true;
+      case 45227:
+         this.$B0AB();
+         return true;
+      case 45642:
+         this.$B24A();
+         return true;
+      case 45792:
+         this.$B2E0();
+         return true;
+      case 45822:
+         this.$B2FE();
+         return true;
+      case 45852:
+         this.$B31C();
+         return true;
+      case 45915:
+         this.$B35B();
+         return true;
+      case 46020:
+         this.setNextAddress('\ub3c4');
+         this.$BA29();
+         return true;
+      case 46122:
+         this.setNextAddress('\ub42a');
+         this.$BA29();
+         return true;
+      case 46255:
+         this.setNextAddress('\ub4af');
+         this.$BA29();
+         return true;
+      case 46258:
+         this.setNextAddress('\ub4b2');
+         this.$BA29();
+         return true;
+      case 46267:
+         this.setNextAddress('\ub4bb');
+         this.$BA29();
+         return true;
+      case 46369:
+         this.setNextAddress('\ub521');
+         this.$BA29();
+         return true;
+      case 46657:
+         this.$B641();
+         return true;
+      case 46751:
+         this.$B69F();
+         return true;
+      case 46784:
+         this.$B6C0();
+         return true;
+      case 46831:
+         this.$B6EF();
+         return true;
+      case 46842:
+         this.$B6FA();
+         return true;
+      case 46864:
+         this.setNextAddress('\ub710');
+         this.$BA29();
+         return true;
+      case 47113:
+         this.$B809();
+         return true;
+      case 47657:
+         this.$BA29();
+         return true;
+      case 47689:
+         this.$BA49();
+         return true;
+      case 47765:
+         this.$BA95();
+         return true;
+      case 47822:
+         this.$BACE();
+         return true;
+      case 47836:
+         this.$BADC();
+         return true;
+      case 47850:
+         this.$BAEA();
+         return true;
+      case 47914:
+         this.$BB2A();
+         return true;
+      case 47941:
+         this.$BB45();
+         return true;
+      case 47993:
+         this.$BB79();
+         return true;
+      case 48040:
+         this.$BBA8();
+         return true;
+      case 48060:
+         this.$BBBC();
+         return true;
+      case 48302:
+         this.$BCAE();
+         return true;
+      case 48542:
+         this.$BD9E();
+         return true;
+      case 48582:
+         this.$BDC6();
+         return true;
+      case 48586:
+         this.$BDCA();
+         return true;
+      case 48595:
+         this.$BDD3();
+         return true;
+      case 48618:
+         this.setNextAddress('\ubdea');
+         this.$BDD3();
+         return true;
+      case 48624:
+         this.setNextAddress('\ubdf0');
+         this.$BDD3();
+         return true;
+      case 48633:
+         this.setNextAddress('\ubdf9');
+         this.$BDD3();
+         return true;
+      case 48642:
+         this.setNextAddress('\ube02');
+         this.$BDD3();
+         return true;
+      case 48681:
+         this.$BE29();
+         return true;
+      case 48699:
+         this.$BE3B();
+         return true;
+      case 48703:
+         this.$BE3F();
+         return true;
+      case 48909:
+         this.$BF0D();
+         return true;
+      case 48913:
+         this.$BF11();
+         return true;
+      case 48939:
+         this.setNextAddress('\ubf2b');
+         this.$BA29();
+         return true;
+      case 49301:
+         this.setNextAddress('\uc095');
+         this.$BA29();
+         return true;
+      case 49382:
+         this.$C0E6();
+         return true;
+      case 49417:
+         this.setNextAddress('\uc109');
+         this.$BA29();
+         return true;
+      case 49440:
+         this.$C120();
+         return true;
+      case 49444:
+         this.$C124();
+         return true;
+      case 49446:
+         this.$C126();
+         return true;
+      case 49494:
+         this.$C156();
+         return true;
+      case 49509:
+         this.$C165();
+         return true;
+      case 49542:
+         this.$C186();
+         return true;
+      case 49613:
+         this.$C1CD();
+         return true;
+      case 49650:
+         this.$C1F2();
+         return true;
+      case 49795:
+         this.$C283();
+         return true;
+      case 49943:
+         this.$C317();
+         return true;
+      case 50803:
+         this.setNextAddress('\uc673');
+         this.$BA29();
+         return true;
+      case 50881:
+         this.$C6C1();
+         return true;
+      case 51124:
+         this.setNextAddress('\uc7b4');
+         this.$BA29();
+         return true;
+      case 51182:
+         this.setNextAddress('\uc7ee');
+         this.$BA29();
+         return true;
+      case 51259:
+         this.setNextAddress('\uc83b');
+         this.$BA29();
+         return true;
+      case 51333:
+         this.setNextAddress('\uc885');
+         this.$BA29();
+         return true;
+      case 51473:
+         this.setNextAddress('\uc911');
+         this.$BA29();
+         return true;
+      case 51476:
+         this.setNextAddress('\uc914');
+         this.$BA29();
+         return true;
+      case 51478:
+         this.setNextAddress('\uc916');
+         this.$BA29();
+         return true;
+      case 51516:
+         this.$C93C();
+         return true;
+      case 51524:
+         this.$C944();
+         return true;
+      case 51532:
+         this.$C94C();
+         return true;
+      case 51925:
+         this.$CAD5();
+         return true;
+      case 51952:
+         this.$CAF0();
+         return true;
+      case 51973:
+         this.$CB05();
+         return true;
+      case 51976:
+         this.$CB08();
+         return true;
+      case 52366:
+         this.$CC8E();
+         return true;
+      case 52386:
+         this.$CCA2();
+         return true;
+      case 52417:
+         this.setNextAddress('\uccc1');
+         this.$BA29();
+         return true;
+      case 52501:
+         this.setNextAddress('\ucd15');
+         this.$BA29();
+         return true;
+      case 52682:
+         this.$CDCA();
+         return true;
+      case 52729:
+         this.$CDF9();
+         return true;
+      case 53171:
+         this.$CFB3();
+         return true;
+      case 53311:
+         this.$D03F();
+         return true;
+      case 53531:
+         this.$D11B();
+         return true;
+      case 53604:
+         this.$D164();
+         return true;
+      case 54190:
+         this.$D3AE();
+         return true;
+      case 54221:
+         this.$D3CD();
+         return true;
+      case 54240:
+         this.$D3E0();
+         return true;
+      case 54252:
+         this.$D3EC();
+         return true;
+      case 54275:
+         this.$D403();
+         return true;
+      case 54283:
+         this.$D40B();
+         return true;
+      case 54289:
+         this.$D411();
+         return true;
+      case 54292:
+         this.$D414();
+         return true;
+      case 54301:
+         this.$D41D();
+         return true;
+      case 54306:
+         this.$D422();
+         return true;
+      case 54315:
+         this.$D42B();
+         return true;
+      case 54379:
+         this.$D46B();
+         return true;
+      case 54701:
+         this.$D5AD();
+         return true;
+      case 54794:
+         this.$D60A();
+         return true;
+      case 54815:
+         this.$D61F();
+         return true;
+      case 54837:
+         this.$D635();
+         return true;
+      case 54841:
+         this.$D639();
+         return true;
+      case 54906:
+         this.$D67A();
+         return true;
+      case 54910:
+         this.$D67E();
+         return true;
+      case 54912:
+         this.setNextAddress('\ud680');
+         this.$D67A();
+         return true;
+      case 54968:
+         this.$D6B8();
+         return true;
+      case 56658:
+         this.$DD52();
+         return true;
+      case 56690:
+         this.$DD72();
+         return true;
+      case 56739:
+         this.$DDA3();
+         return true;
+      case 56748:
+         this.$DDAC();
+         return true;
+      case 57344:
+         this.$E000();
+         return true;
+      case 57387:
+         this.setNextAddress('\ue02b');
+         this.$E000();
+         return true;
+      case 57405:
+         this.setNextAddress('\ue03d');
+         this.$E000();
+         return true;
+      case 57439:
+         this.$E05F();
+         return true;
+      case 57482:
+         this.setNextAddress('\ue08a');
+         this.$E05F();
+         return true;
+      case 57500:
+         this.setNextAddress('\ue09c');
+         this.$E05F();
+         return true;
+      case 57534:
+         this.$E0BE();
+         return true;
+      case 57577:
+         this.$E0E9();
+         return true;
+      case 57595:
+         this.$E0FB();
+         return true;
+      case 57629:
+         this.$E11D();
+         return true;
+      case 57672:
+         this.setNextAddress('\ue148');
+         this.$E11D();
+         return true;
+      case 57690:
+         this.setNextAddress('\ue15a');
+         this.$E11D();
+         return true;
+      case 57724:
+         this.$E17C();
+         return true;
+      case 57767:
+         this.setNextAddress('\ue1a7');
+         this.$E17C();
+         return true;
+      case 57785:
+         this.setNextAddress('\ue1b9');
+         this.$E17C();
+         return true;
+      case 57819:
+         this.$E1DB();
+         return true;
+      case 57862:
+         this.$E206();
+         return true;
+      case 57880:
+         this.$E218();
+         return true;
+      case 57914:
+         this.$E23A();
+         return true;
+      case 57957:
+         this.setNextAddress('\ue265');
+         this.$E23A();
+         return true;
+      case 57975:
+         this.setNextAddress('\ue277');
+         this.$E23A();
+         return true;
+      case 58009:
+         this.$E299();
+         return true;
+      case 58052:
+         this.setNextAddress('\ue2c4');
+         this.$E299();
+         return true;
+      case 58070:
+         this.setNextAddress('\ue2d6');
+         this.$E299();
+         return true;
+      case 58112:
+         this.$E300();
+         return true;
+      case 58150:
+         this.$E326();
+         return true;
+      case 58188:
+         this.$E34C();
+         return true;
+      case 58226:
+         this.$E372();
+         return true;
+      case 58264:
+         this.$E398();
+         return true;
+      case 58302:
+         this.$E3BE();
+         return true;
+      case 58340:
+         this.$E3E4();
+         return true;
+      case 58378:
+         this.$E40A();
+         return true;
+      case 64764:
+         this.$FCFC();
+         return true;
+      case 64800:
+         this.setNextAddress('\ufd20');
+         this.$FD37();
+         return true;
+      case 64823:
+         this.$FD37();
+         return true;
+      case 65112:
+         this.$FE58();
+         return true;
+      case 65115:
+         this.setNextAddress('\ufe5b');
+         this.$FE58();
+         return true;
+      case 65121:
+         this.$FE61();
+         return true;
+      case 65125:
+         this.setNextAddress('\ufe65');
+         this.$FE61();
+         return true;
+      case 65143:
+         this.$FE77();
+         return true;
+      case 65162:
+         this.$FE8A();
+         return true;
+      case 65192:
+         this.$FEA8();
+         return true;
+      default:
+         return false;
+      }
    }
 }

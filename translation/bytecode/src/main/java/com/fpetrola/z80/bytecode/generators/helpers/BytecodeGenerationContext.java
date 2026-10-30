@@ -43,7 +43,7 @@ public class BytecodeGenerationContext {
 
   public java.util.Set<com.fpetrola.z80.routines.Routine> routinesInJumpCycles() {
     if (routinesInJumpCycles == null)
-      routinesInJumpCycles = routineManager.routinesInJumpCycles(pc -> symbolicExecutionAdapter.getStackAnalyzer().getInvocationsSet(pc));
+      routinesInJumpCycles = routineManager.routinesInJumpCycles(symbolicExecutionAdapter.getStackAnalyzer());
     return routinesInJumpCycles;
   }
 
@@ -59,7 +59,7 @@ public class BytecodeGenerationContext {
 
   public boolean mayUnwind(com.fpetrola.z80.routines.Routine routine) {
     if (routinesThatMayUnwind == null)
-      routinesThatMayUnwind = routineManager.routinesThatMayUnwind(symbolicExecutionAdapter.getStackAnalyzer(), ancestorJumps(), pc -> symbolicExecutionAdapter.getStackAnalyzer().getInvocationsSet(pc));
+      routinesThatMayUnwind = routineManager.routinesThatMayUnwind(symbolicExecutionAdapter.getStackAnalyzer(), ancestorJumps());
     return routine == null || routinesThatMayUnwind.contains(routine);
   }
 
@@ -67,7 +67,7 @@ public class BytecodeGenerationContext {
 
   public RoutineManager.AncestorJumps ancestorJumps() {
     if (ancestorJumps == null)
-      ancestorJumps = routineManager.ancestorJumps(pc -> symbolicExecutionAdapter.getStackAnalyzer().getInvocationsSet(pc));
+      ancestorJumps = routineManager.ancestorJumps(symbolicExecutionAdapter.getStackAnalyzer());
     return ancestorJumps;
   }
 
