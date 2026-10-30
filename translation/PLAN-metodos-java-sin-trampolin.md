@@ -373,6 +373,39 @@ Pendiente: nocturna 1030-all2 (lanzada a las 03:52 sobre los 20 juegos): contar 
 (solo por salto a ancestro), Skool Daze y Renegade por fuente, y regenerar el catálogo commiteado desde esa
 corrida (los fuentes de 1030-all1 ya son anteriores a estos cambios).
 
+### Fase 4, el RET toma lo que su familia le dejó (2026-10-30, segunda mitad de la noche)
+
+La nocturna 1030-all2 (plegado total) regresó cinco juegos: Head over Heels, Monty y Great Escape por bytecode,
+Rainbow Islands y Renegade 128 por fuente (Fernflower), y Skool Daze no traducía (recursión del generador).
+Causa común: al plegar, el dato que un miembro deja en la pila para el RET de otro ya no lo maneja el que
+empuja (antes: llamada anidada y `leaveWithOwnData` al volver), porque el salto a la parte hermana es un
+`goTo`. El primer intento (que el sitio llamara a la parte por su cuenta) multiplicaba las llamadas, recursaba
+cuando las salidas con datos formaban ciclo y rompía la estructura. Lo que quedó (385551485, 00dd41331,
+7c9cfa2e1, 8b6a6794c):
+
+- **El RET toma lo que encuentra.** Un RET que nunca vuelve a un llamador y toma datos de su familia va por
+  DISPATCH: saca el valor, los destinos grabados son sus salidas (índice de la parte, bloque de la hermana,
+  etiqueta propia) y lo no grabado va a `jump`. Un RET que también retorna (Head over Heels B4FC toma B24B y
+  vuelve a quien lo llama) mira con `peek` si arriba hay uno de los valores a los que la grabación lo vio ir
+  (`dataValuesTakenBy`): lo saca y sigue; si no, retorna. Un push que toma el RET de otro método queda real
+  aunque plante una continuación (`pushedForReal`); el que lo empujó lo mira en la pila al volver en vez de
+  darlo por elidido. Dos trampas: los valores grabados de un push incluyen basura (Skool Daze 6255: 0, 102…),
+  hay que cruzarlos con los destinos del RET; y excluir "retornos de alguna llamada" ocultaba manejadores que
+  además son retorno de un CALL (63D1).
+- **Aterrizajes como aristas.** La estructura ve los aterrizajes del desenrollado (`landings`, retornos
+  descartados) como destinos de todo nodo que llama, es parte o sigue fuera de la rutina en algo que puede
+  desenrollar: sin esa arista el bucle no se detectaba, el despacho de entradas lo entraba por varios lados y
+  Fernflower rechazaba la cabeza (HoH 8E32, RI E870, R128 846D). Herramienta: `irreducible.py` (scratch) lista
+  los bucles con varias entradas de un método a partir de `javap -c`.
+- **El reintento conserva el plan.** Cada intento de Fernflower creaba un generador nuevo que volvía a
+  planificar (entradas, cortes, plegado) sobre rutinas ya plegadas: en Great Escape partía 691D de su tarea y la
+  cabeza seguía con salidas viejas. `RoutineManager.planned` lo marca al partir para un reintento.
+- NPE en `addressAfter` con sitios de llamada sin instrucción (HoH, TR, GE no traducían en 1030-fix3).
+
+Corrida 1030-fix7 (8b6a6794c): Skool Daze completo por bytecode y por fuente por primera vez (133033 cuadros),
+Head over Heels y Target Renegade completos; 1030-fix6: también Emlyn, Rainbow Islands, Renegade 128, Monty y
+Great Escape. Nocturna 1030-all3 sobre los 20 lanzada a las 06:45. `runJumps`: 0 en todos los generados.
+
 ## Fase 4b. La dirección viaja como dato: parámetro de entrada y valor de retorno (pendiente, anotado el 2026-10-28)
 
 Hoy hay dos encarnaciones de la misma variable de estructuración de No More Gotos:
@@ -471,6 +504,7 @@ Hay que cargar `~/detodo/spectrum/investigacion/tools/traduccion/run/env.sh`. Su
 | 4 bucle en la cabeza (2026-10-28, corrida 1028-outline12) | Emlyn: `runJumps` 23 → 0 · Target Renegade: 31 → 9 (quedan E695/F408, 5B2C…, D780/D783/D794, ver arriba) | | 0 | Emlyn y TR completos por bytecode y por fuente | 56cc0d4a7 |
 | 4 cierre: sin reflexión, `goesOnAt`, sin regla nested (2026-10-30, corrida 1030-edges1) | Emlyn: 0 · Target Renegade: 9 → 0 | | 0 | Emlyn y TR completos por bytecode y por fuente; los 20 juegos en la nocturna 1030-all1 | 84dc865d4, 12eb15715 |
 | 4 ciclos restantes: plegado de todo ciclo salvo salto a ancestro (2026-10-30 madrugada: 3531d91d0, 9166f5d62, 2d586453e) | nocturna 1030-all2 en curso | | | batería verde (233/30/17/15) |
+| 4 el RET toma lo que su familia le dejó (2026-10-30 noche: 385551485, 00dd41331, 7c9cfa2e1, 8b6a6794c) | 0 en los 8 juegos de las corridas fix; 1030-all3 en curso | | | fix7: Skool Daze, HoH y TR completos por bytecode y fuente; fix6: Emlyn, RI, R128, Monty, GE |
 
 ## 10. Segunda parte: dejar de depender de la pila y de SP
 
