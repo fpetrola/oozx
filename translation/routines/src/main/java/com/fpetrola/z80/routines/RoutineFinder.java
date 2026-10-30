@@ -218,8 +218,10 @@ public class RoutineFinder {
 
             Routine continuationOwner = routineManager.findRoutineAt(routineManager.addressAfter(pcValue));
             Routine returnRoutine = continuationOwner != null ? continuationOwner : routineManager.findRoutineAt(lastReturnAddress.pc());
-            if (lastPc != -1)
-              currentRoutine.getVirtualPop().put(instructionBefore(pcValue), pcValue);
+            if (lastPc != -1) {
+              int before = instructionBefore(pcValue);
+              currentRoutine.getVirtualPop().put(currentRoutine.contains(before) ? before : pcValue, pcValue);
+            }
 
             afterStackReset = true;
             returnRoutine.addReturnPointDropped(lastReturnAddress.value(), routineManager.addressAfter(pcValue));

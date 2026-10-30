@@ -83,6 +83,8 @@ public class RecordedProgramTests {
     Helper.hex = false;
   }
 
+  private String image;
+
   private String translate(int[]... chunks) {
     return translateWithBlock(null, chunks);
   }
@@ -117,6 +119,7 @@ public class RecordedProgramTests {
       RemoteZ80Translator.recordBlockContents(EmulatedMiniZX.ofProgram(memory, start, stack, 1000, null), start, versions);
       base.translateCodeVariants(block[0], block[1], 0xE000, versions);
     }
+    this.image = image;
     String java = base.generateAndDecompile(image, routineManager.getRoutines(), ".", "Program", base.symbolicExecutionAdapter);
     if (Boolean.getBoolean("translation.printJava"))
       System.err.println("JAVA<<" + withoutTiming(java) + ">>JAVA");
@@ -3861,7 +3864,7 @@ public class RecordedProgramTests {
         public class Program extends MiniZX {
            public void $7C18() {
               this.SP(0xBDFF);
-              this.$7C1B();
+              this.unwind(0x7C1B);
            }
 
            public void $7C1B() {
@@ -4285,6 +4288,535 @@ public class RecordedProgramTests {
            }
         }
         """, withoutTiming(java));
+  }
+
+  @Test
+  public void aDispatchingRetOfALoopTakesTheHandlerTheHeadPushedAndGoesOnAtItAsAnExit() {
+    // Target: Skool Daze 6254/629F: the main loop plants itself (LD BC,6254; PUSH BC; here HL), pushes a character's handler (PUSH DE) and jumps to a bare RET at 629F that other code jumps to as well; the handler's own RET takes the planted 6254. Folded, the RET at 629F is a part: it must pop and go on at the handler as an exit of the loop, only among the handlers it was seen going to (the push site also pushed data: 0, 102, 124...), with the emulator for the rest; and 63D1 is also where a CALL returns, which must not hide it
+    String java = translate(listing("""
+        8000  CD 00 83  CALL 0x8300
+        8003  CD 10 83  CALL 0x8310
+        8006  CD 00 84  CALL 0x8400
+        8009  CD 00 82  CALL 0x8200
+        800C  CD FD 82  CALL 0x82FD
+        800F  CD 00 81  CALL 0x8100
+        8012  76  HALT
+        8100  04  INC B
+        8101  78  LD A, B
+        8102  FE 07  CP A, 0x07
+        8104  C8  RET Z
+        8105  21 00 81  LD HL, 0x8100
+        8108  E5  PUSH HL
+        8109  CB 40  BIT 0, B
+        810B  28 05  JR Z, 0x8112
+        810D  11 00 83  LD DE, 0x8300
+        8110  18 03  JR 0x8115
+        8112  11 10 83  LD DE, 0x8310
+        8115  CB 48  BIT 1, B
+        8117  28 03  JR Z, 0x811C
+        8119  11 34 12  LD DE, 0x1234
+        811C  D5  PUSH DE
+        811D  CB 48  BIT 1, B
+        811F  28 04  JR Z, 0x8125
+        8121  D1  POP DE
+        8122  C3 00 82  JP 0x8200
+        8125  C3 00 82  JP 0x8200
+        8200  0C  INC C
+        8201  C9  RET
+        82FD  CD 00 85  CALL 0x8500
+        8300  3A 00 90  LD A, (0x9000)
+        8303  3C  INC A
+        8304  32 00 90  LD (0x9000), A
+        8307  C9  RET
+        8310  3A 01 90  LD A, (0x9001)
+        8313  3C  INC A
+        8314  32 01 90  LD (0x9001), A
+        8317  C9  RET
+        8400  11 00 83  LD DE, 0x8300
+        8403  D5  PUSH DE
+        8404  C3 00 82  JP 0x8200
+        8500  E1  POP HL
+        8501  E5  PUSH HL
+        8502  C9  RET
+        """));
+    Assert.assertEquals(0x0708, endValue("BC"));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              this.setNextAddress(0x8300);
+              this.$8100();
+              this.setNextAddress(0x8310);
+              this.$8100();
+              this.$8400();
+              this.setNextAddress(0x8200);
+              this.$8100();
+              this.$82FD();
+              this.$8100();
+              this.halt(0x8012);
+              this.$8100();
+           }
+
+           public void $8100() {
+              if(this.isNextPC(0x8200)) {
+                 this.setNextAddress(0x8200);
+              } else if(this.isNextPC(0x8300)) {
+                 this.setNextAddress(0x8300);
+              } else if(this.isNextPC(0x8310)) {
+                 this.setNextAddress(0x8310);
+              }
+
+              label62:
+              do {
+                 do {
+                    while(true) {
+                       if(!this.isNextPC(0x8200)) {
+                          if(this.isNextPC(0x8300)) {
+                             break;
+                          }
+
+                          if(this.isNextPC(0x8310)) {
+                             continue label62;
+                          }
+
+                          int var1 = this.B();
+                          int var2 = this.alu("inc", var1);
+                          this.B(var2);
+                          int var3 = this.B();
+                          this.A(var3);
+                          int var4 = this.A();
+                          this.alu("cp", var4, 7);
+                          if(this.flag(64, false)) {
+                             return;
+                          }
+
+                          this.HL(0x8100);
+                          int var5 = this.HL();
+                          this.push(var5);
+                          int var6 = this.B();
+                          this.bit(0, var6);
+                          if(this.flag(64, false)) {
+                             this.DE(0x8310);
+                          } else {
+                             this.DE(0x8300);
+                          }
+
+                          int var7 = this.B();
+                          this.bit(1, var7);
+                          if(this.flag(64, false)) {
+                          } else {
+                             this.DE(4660);
+                          }
+
+                          int var8 = this.DE();
+                          this.push(var8);
+                          int var9 = this.B();
+                          this.bit(1, var9);
+                          if(this.flag(64, false)) {
+                          } else {
+                             int var10 = this.pop();
+                             this.DE(var10);
+                          }
+                       }
+
+                       int var11 = this.$8200();
+                       if(var11 != 0) {
+                          if(var11 == 1) {
+                             continue;
+                          }
+
+                          if(var11 != 2) {
+                             return;
+                          }
+                          continue label62;
+                       }
+                       break;
+                    }
+                 } while(this.$8300() == 0);
+
+                 return;
+              } while(this.$8310() == 0);
+
+           }
+
+           public int $8200() {
+              int var1 = this.C();
+              int var2 = this.alu("inc", var1);
+              this.C(var2);
+              int var3 = this.peek();
+              if(var3 == 0x8100) {
+                 this.pop();
+                 return 1;
+              } else if(var3 == 0x8300) {
+                 this.pop();
+                 return 0;
+              } else if(var3 == 0x8310) {
+                 this.pop();
+                 return 2;
+              } else {
+                 return -1;
+              }
+           }
+
+           public void $82FD() {
+              this.push(0x8300);
+              int var1 = this.SP();
+              this.$8500();
+              if(this.SP() == var1) {
+                 this.pop();
+              }
+
+              this.setNextAddress(0x8300);
+              this.$8100();
+           }
+
+           public int $8300() {
+              int var1 = this.mem(0x9000, 0x8300);
+              this.A(var1);
+              int var2 = this.A();
+              int var3 = this.alu("inc", var2);
+              this.A(var3);
+              int var4 = this.A();
+              this.wMem(0x9000, var4, 0x8304);
+              if(this.peek() == 0x8100) {
+                 this.pop();
+                 return 0;
+              } else {
+                 return -1;
+              }
+           }
+
+           public int $8310() {
+              int var1 = this.mem(0x9001, 0x8310);
+              this.A(var1);
+              int var2 = this.A();
+              int var3 = this.alu("inc", var2);
+              this.A(var3);
+              int var4 = this.A();
+              this.wMem(0x9001, var4, 0x8314);
+              if(this.peek() == 0x8100) {
+                 this.pop();
+                 return 0;
+              } else {
+                 return -1;
+              }
+           }
+
+           public void $8400() {
+              this.DE(0x8300);
+              int var1 = this.DE();
+              this.push(var1);
+              this.setNextAddress(0x8200);
+              this.$8100();
+              if(this.peek() == 0x8300) {
+                 int var2 = this.pop();
+                 if(var2 == 0x8100) {
+                    this.$8100();
+                    return;
+                 }
+
+                 if(var2 == 0x8300) {
+                    this.setNextAddress(0x8300);
+                    this.$8100();
+                    return;
+                 }
+
+                 if(var2 == 0x8310) {
+                    this.setNextAddress(0x8310);
+                    this.$8100();
+                    return;
+                 }
+
+                 this.jump(var2);
+                 if(this.unwinding()) {
+                    return;
+                 }
+              }
+
+           }
+
+           public void $8500() {
+              int var1 = this.pop();
+              this.HL(var1);
+              int var2 = this.HL();
+              this.push(var2);
+              this.pop();
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void aRetOfTheLoopThatAlsoReturnsToCallersTakesTheLoopsOwnDataWhenItIsOnTop() {
+    // Target: Head over Heels B22C/B4F9/B4FC: the loop pushes B24B (LD DE,B24B; PUSH DE; here HL) and jumps to a handler whose RET NZ takes it; when not taken it falls into the loop's own tail, whose RET takes B24B too, and that same RET returns to the loop's caller when the loop ran without the push. Folded, the push stays real and both RETs look at the stack
+    String java = translate(listing("""
+        8000  CD 00 82  CALL 0x8200
+        8003  CD 00 81  CALL 0x8100
+        8006  CD 00 81  CALL 0x8100
+        8009  76  HALT
+        8100  04  INC B
+        8101  21 30 81  LD HL, 0x8130
+        8104  CB 40  BIT 0, B
+        8106  28 01  JR Z, 0x8109
+        8108  E5  PUSH HL
+        8109  C3 00 82  JP 0x8200
+        810C  0C  INC C
+        810D  C9  RET
+        8130  14  INC D
+        8131  C3 00 81  JP 0x8100
+        8200  1C  INC E
+        8201  CB 48  BIT 1, B
+        8203  C0  RET NZ
+        8204  C3 0C 81  JP 0x810C
+        """));
+    Assert.assertEquals(0x0403, endValue("BC"));
+    Assert.assertEquals(0x0205, endValue("DE"));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              this.setNextAddress(0x8200);
+              this.$8100();
+              this.$8100();
+              this.$8006();
+           }
+
+           public void $8006() {
+              this.$8100();
+              this.halt(0x8009);
+              this.$8100();
+           }
+
+           public void $8100() {
+              if(this.isNextPC(0x8130)) {
+                 this.setNextAddress(0x8130);
+              } else if(this.isNextPC(0x8200)) {
+                 this.setNextAddress(0x8200);
+              }
+
+              do {
+                 if(!this.isNextPC(0x8200)) {
+                    if(this.isNextPC(0x8130)) {
+                       continue;
+                    }
+
+                    int var1 = this.B();
+                    int var2 = this.alu("inc", var1);
+                    this.B(var2);
+                    this.HL(0x8130);
+                    int var3 = this.B();
+                    this.bit(0, var3);
+                    if(this.flag(64, false)) {
+                    } else {
+                       int var4 = this.HL();
+                       this.push(var4);
+                    }
+
+                 }
+
+                 int var5 = this.$8200();
+                 if(var5 != 0 && var5 != 1) {
+                    return;
+                 }
+              } while(this.$8130() == 0);
+
+           }
+
+           public int $8130() {
+              int var1 = this.D();
+              int var2 = this.alu("inc", var1);
+              this.D(var2);
+              return 0;
+           }
+
+           public int $8200() {
+              int var1 = this.E();
+              int var2 = this.alu("inc", var1);
+              this.E(var2);
+              int var3 = this.B();
+              this.bit(1, var3);
+              if(this.flag(64, true)) {
+                 if(this.peek() == 0x8130) {
+                    this.pop();
+                    return 1;
+                 } else {
+                    return -1;
+                 }
+              } else {
+                 int var4 = this.C();
+                 int var5 = this.alu("inc", var4);
+                 this.C(var5);
+                 if(this.peek() == 0x8130) {
+                    this.pop();
+                    return 0;
+                 } else {
+                    return -1;
+                 }
+              }
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void aLoopWhoseMembersEachLeaveDataForTheNextOnesRetIsGeneratedWithoutRecursing() {
+    // Target: Skool Daze 6254: the loop's members leave data for each other's RETs in a cycle (6791 for 653C's chain, FE43 for 67BC, 629F's handlers for 6254); when the site leaving the data called the part itself, the generator followed the exits of each part into the next's call and never came back (StackOverflowError while translating)
+    String java = translate(listing("""
+        8000  CD 00 82  CALL 0x8200
+        8003  CD 00 84  CALL 0x8400
+        8006  CD 00 81  CALL 0x8100
+        8009  76  HALT
+        8100  04  INC B
+        8101  78  LD A, B
+        8102  FE 04  CP A, 0x04
+        8104  C8  RET Z
+        8105  21 00 83  LD HL, 0x8300
+        8108  E5  PUSH HL
+        8109  C3 00 82  JP 0x8200
+        8200  0C  INC C
+        8201  C9  RET
+        8300  14  INC D
+        8301  21 00 81  LD HL, 0x8100
+        8304  E5  PUSH HL
+        8305  C3 00 84  JP 0x8400
+        8400  1C  INC E
+        8401  C9  RET
+        """));
+    Assert.assertEquals(0x0404, endValue("BC"));
+    Assert.assertEquals(0x0304, endValue("DE"));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              this.setNextAddress(0x8200);
+              this.$8100();
+              this.setNextAddress(0x8400);
+              this.$8100();
+              this.$8100();
+              this.halt(0x8009);
+              this.$8100();
+           }
+
+           public void $8100() {
+              if(this.isNextPC(0x8200)) {
+                 this.setNextAddress(0x8200);
+              } else if(this.isNextPC(0x8300)) {
+                 this.setNextAddress(0x8300);
+              } else if(this.isNextPC(0x8400)) {
+                 this.setNextAddress(0x8400);
+              }
+
+              do {
+                 label38: {
+                    if(!this.isNextPC(0x8200)) {
+                       if(this.isNextPC(0x8300)) {
+                          break label38;
+                       }
+
+                       if(this.isNextPC(0x8400)) {
+                          continue;
+                       }
+
+                       int var1 = this.B();
+                       int var2 = this.alu("inc", var1);
+                       this.B(var2);
+                       int var3 = this.B();
+                       this.A(var3);
+                       int var4 = this.A();
+                       this.alu("cp", var4, 4);
+                       if(this.flag(64, false)) {
+                          return;
+                       }
+
+                       this.HL(0x8300);
+                       int var5 = this.HL();
+                       this.push(var5);
+                    }
+
+                    if(this.$8200() != 0) {
+                       return;
+                    }
+                 }
+
+                 if(this.$8300() != 0) {
+                    return;
+                 }
+              } while(this.$8400() == 0);
+
+           }
+
+           public int $8200() {
+              int var1 = this.C();
+              int var2 = this.alu("inc", var1);
+              this.C(var2);
+              if(this.peek() == 0x8300) {
+                 this.pop();
+                 return 0;
+              } else {
+                 return -1;
+              }
+           }
+
+           public int $8300() {
+              int var1 = this.D();
+              int var2 = this.alu("inc", var1);
+              this.D(var2);
+              this.HL(0x8100);
+              int var3 = this.HL();
+              this.push(var3);
+              return 0;
+           }
+
+           public int $8400() {
+              int var1 = this.E();
+              int var2 = this.alu("inc", var1);
+              this.E(var2);
+              if(this.peek() == 0x8100) {
+                 this.pop();
+                 return 0;
+              } else {
+                 return -1;
+              }
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
+  public void aSecondGenerationOfTheClassKeepsThePlanOfTheFirst() {
+    // Target: Great Escape F271/F17D: Fernflower rejected a method and the retry generated the class again with a new generator, which planned the routines again over the folded ones (entries, size, loops) and split 691D off its task; the head kept the exits of the first plan. A second generation must give the same class; the program resets the stack inside a call and lands back in the loop, like the Great Escape. Found on the way: a reset that opens its routine (8300) was keyed by the call site, so no unwind was generated and the loop nested a Java frame per turn
+    String first = translate(listing("""
+        8000  31 00 FF  LD SP, 0xFF00
+        8003  CD 10 82  CALL 0x8210
+        8006  CD 20 82  CALL 0x8220
+        8009  C3 00 81  JP 0x8100
+        8100  04  INC B
+        8101  CD 00 83  CALL 0x8300
+        8104  C9  RET
+        8120  1C  INC E
+        8121  C3 00 82  JP 0x8200
+        8200  0C  INC C
+        8201  CB 41  BIT 0, C
+        8203  28 03  JR Z, 0x8208
+        8205  C3 20 81  JP 0x8120
+        8208  C3 10 82  JP 0x8210
+        8210  14  INC D
+        8211  C3 20 82  JP 0x8220
+        8220  78  LD A, B
+        8221  FE 00  CP A, 0x00
+        8223  C8  RET Z
+        8224  FE 06  CP A, 0x06
+        8226  28 03  JR Z, 0x822B
+        8228  C3 00 81  JP 0x8100
+        822B  76  HALT
+        822C  18 FD  JR 0x822B
+        8300  31 00 FF  LD SP, 0xFF00
+        8303  C3 00 82  JP 0x8200
+        """));
+    Assert.assertEquals(withoutTiming(first), withoutTiming(base.generateAndDecompile(image, routineManager.getRoutines(), ".", "Program", base.symbolicExecutionAdapter)));
   }
 
   @Test
