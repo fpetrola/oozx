@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.bytecode.generators;
 
-import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.transformations.StackAnalyzer;
 import com.fpetrola.z80.blocks.Block;
@@ -241,7 +240,7 @@ public class StateBytecodeGenerator {
     Set<Integer> landings = ancestorJumps.landings().getOrDefault(routine, Set.of());
     entries.addAll(landings);
     Set<Routine> unwinding = routineManager.routinesThatMayUnwind(stackAnalyzer, ancestorJumps);
-    List<ControlFlowStructuring.Outline> outlines = new ControlFlowStructuring(routine, routineManager, entries, stackAnalyzer, landings, node -> routineManager.getInstructionAt(node) instanceof Call call && unwinding.contains(routineManager.findRoutineAt(call.getJumpAddress()))).outlines(keep);
+    List<ControlFlowStructuring.Outline> outlines = new ControlFlowStructuring(routine, routineManager, entries, stackAnalyzer, landings, address -> unwinding.contains(routineManager.findRoutineAt(address))).outlines(keep);
     if (Boolean.getBoolean("translation.reportRoutines"))
       System.out.println("CUT " + routine + " keep " + keep + (routineManager.outlined.containsKey(routine) ? " part" : "") + " entries " + entries.stream().map(Helper::formatAddress).toList() + " parts " + outlines.stream().map(part -> "%s->%s %d bytes%s".formatted(Helper.formatAddress(part.entry()), part.exits().stream().map(exit -> Helper.formatAddress(exit.to())).toList(), part.nodes().size(), part.leaves() ? " leaves" : "")).toList());
     boolean inAFamily = routineManager.outlined.containsKey(routine) || routineManager.outlined.values().stream().anyMatch(part -> part.parent() == routine);

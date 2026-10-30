@@ -373,8 +373,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
     int pcValue = routineByteCodeGenerator.context.pc.read();
     RoutineManager.RetExit exit = routineByteCodeGenerator.context.routineManager.exitOf(pcValue, stackAnalyzer);
     createIfs(ret, () -> {
-      Routine mine = routineByteCodeGenerator.routine;
-      Set<Integer> data = routineByteCodeGenerator.context.routineManager.dataValuesTakenBy(pcValue, stackAnalyzer, push -> !mine.contains(push) || exit.kind() == RoutineManager.Exit.RETURN);
+      Set<Integer> data = exit.kind() == RoutineManager.Exit.RETURN ? routineByteCodeGenerator.context.routineManager.dataValuesTakenBy(pcValue, stackAnalyzer) : Set.of();
       if (!data.isEmpty()) {
         Variable top = methodMaker.invoke("peek");
         data.forEach(value -> top.ifEq(value, () -> {

@@ -1,5 +1,6 @@
 package com.fpetrola.z80.bytecode.generators;
 
+import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.routines.Routine;
 import com.fpetrola.z80.routines.RoutineManager;
@@ -33,8 +34,8 @@ public class ControlFlowStructuring {
   private final RoutineManager routineManager;
   private final int entry;
 
-  /** The nodes go on where {@link RoutineManager#goesOnAt} says, and at the catch points of their calls; the parts of the routine, and those of its parent, are nodes of their own that go on where the part does; the nodes that {@code unwinds} (calls and parts an unwinding can come back through) also go on at the {@code landings}, where it comes back into the routine. */
-  public ControlFlowStructuring(Routine routine, RoutineManager routineManager, Collection<Integer> entries, StackAnalyzer stackAnalyzer, Collection<Integer> landings, Predicate<Integer> unwinds) {
+  /** The nodes go on where {@link RoutineManager#goesOnAt} says, and at the catch points of their calls; the parts of the routine, and those of its parent, are nodes of their own that go on where the part does; a node that calls, or goes on outside the routine at, an address where {@code unwindsAt} (an unwinding can come back from there) also goes on at the {@code landings}, where it comes back into the routine. */
+  public ControlFlowStructuring(Routine routine, RoutineManager routineManager, Collection<Integer> entries, StackAnalyzer stackAnalyzer, Collection<Integer> landings, Predicate<Integer> unwindsAt) {
     this.routineManager = routineManager;
     entry = routine.getEntryPoint();
     catchPoints = routineManager.catchPointsOfCallsIn(routine);
@@ -50,15 +51,18 @@ public class ControlFlowStructuring {
     for (int node : nodes) {
       Set<Integer> next = new LinkedHashSet<>();
       RoutineManager.Outlined part = parts.containsKey(node) ? routineManager.outlined.get(parts.get(node)) : null;
+      boolean unwinds;
       if (part != null) {
         part.exits().forEach(exit -> next.add(exit.to()));
         if (part.leaves())
           leaving.add(node);
+        unwinds = unwindsAt.test(node);
       } else {
         next.addAll(routineManager.goesOnAt(node, routine, stackAnalyzer, false));
         next.addAll(catchPoints.get(node));
+        unwinds = routineManager.getInstructionAt(node) instanceof Call call ? unwindsAt.test(call.getJumpAddress()) : next.stream().anyMatch(to -> !nodes.contains(nodeOf(to)) && unwindsAt.test(to));
       }
-      if (unwinds.test(node))
+      if (unwinds)
         next.addAll(landings);
       next.stream().filter(to -> !nodes.contains(to)).forEach(to -> outside.computeIfAbsent(node, k -> new LinkedHashSet<>()).add(to));
       successors.put(node, next.stream().map(this::nodeOf).filter(nodes::contains).collect(Collectors.toCollection(LinkedHashSet::new)));

@@ -537,11 +537,9 @@ public class RoutineBytecodeGenerator {
       tailJump(exit.to(), exit.from());
   }
 
-  /** Whether an unwinding can come back through this node: a part that may unwind, or a call to a routine that may. */
-  private boolean mayUnwindAt(int node) {
-    if (partEntries.containsKey(node))
-      return context.mayUnwind(partEntries.get(node));
-    return context.routineManager.getInstructionAt(node) instanceof Call call && context.mayUnwind(context.routineManager.findRoutineAt(call.getJumpAddress()));
+  /** Whether an unwinding can come back from going on at this address: the routine there may unwind. */
+  private boolean mayUnwindAt(int address) {
+    return context.mayUnwind(context.routineManager.findRoutineAt(address));
   }
 
   /** The part of this routine's family the address is in, entered through the part's call with the address carried. */
@@ -831,7 +829,7 @@ public class RoutineBytecodeGenerator {
     List<Integer> pushes = context.routineManager.ownDataLeftForOthers(site, routine, stackAnalyzer());
     for (int push : pushes) {
       Integer continuation = plantedContinuation(push);
-      if (continuation != null)
+      if (continuation != null && !context.routineManager.pushedForReal(push, stackAnalyzer()))
         goOnAt(continuation, site, pushes.size() == 1);
       else {
         Label take = mm.label(), done = mm.label();

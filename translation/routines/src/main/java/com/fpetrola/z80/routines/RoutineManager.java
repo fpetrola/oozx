@@ -752,19 +752,20 @@ public class RoutineManager {
     return onTop.distinct().filter(push -> owns(routine, push) && stackAnalyzer.dataConsumedBy.entries().stream().anyMatch(e -> e.getValue().equals(push) && !owns(routine, e.getKey()))).toList();
   }
 
-  /** The values this RET may find on top as data its family pushed for it at the {@code pushes} given (pushes real in Java, never the return of a call pushed back): it goes on at the one it finds, and returns otherwise. Data another routine pushed is that routine's to go on with when the RET returns to it. */
-  public java.util.Set<Integer> dataValuesTakenBy(int ret, StackAnalyzer stackAnalyzer, java.util.function.Predicate<Integer> pushes) {
+  /** The values a RET that also returns to callers may find on top as data its family pushed for it (pushes real in Java, values the RET was seen going to, never the return of a call pushed back): it goes on at the one it finds, and returns otherwise. Data another routine pushed is that routine's to go on with when the RET returns to it. */
+  public java.util.Set<Integer> dataValuesTakenBy(int ret, StackAnalyzer stackAnalyzer) {
     if (stackAnalyzer.shiftedReturns.containsKey(ret))
       return java.util.Set.of();
     Routine family = topParent(findRoutineAt(ret));
-    java.util.Set<Integer> returns = stackAnalyzer.poppedCallSites.keySet().stream().map(this::addressAfter).collect(java.util.stream.Collectors.toSet());
-    return stackAnalyzer.dataConsumedBy.get(ret).stream().filter(push -> owns(family, push) && pushes.test(push) && pushedForReal(push, stackAnalyzer)).flatMap(push -> stackAnalyzer.pushedValues.get(push).stream()).filter(value -> !returns.contains(value)).collect(java.util.stream.Collectors.toCollection(java.util.TreeSet::new));
+    java.util.Set<Integer> returns = stackAnalyzer.poppedCallSites.keySet().stream().filter(instructions::containsKey).map(this::addressAfter).collect(java.util.stream.Collectors.toSet());
+    java.util.Set<Integer> targets = stackAnalyzer.getInvocationsSet(ret);
+    return stackAnalyzer.dataConsumedBy.get(ret).stream().filter(push -> owns(family, push) && pushedForReal(push, stackAnalyzer)).flatMap(push -> stackAnalyzer.pushedValues.get(push).stream()).filter(value -> targets.contains(value) && !returns.contains(value)).collect(java.util.stream.Collectors.toCollection(java.util.TreeSet::new));
   }
 
-  /** A push stays real in Java unless it plants a continuation taken only within its own method; one a RET of another method of its family takes must be there for that RET to find. */
+  /** A push stays real in Java unless it plants a continuation that only a RET of its own method takes: one a RET of another method takes must be on the stack for that RET, or for the pusher once it returns, to find. */
   public boolean pushedForReal(int push, StackAnalyzer stackAnalyzer) {
     Routine mine = findRoutineAt(push);
-    return plantedContinuation(push, stackAnalyzer) == null || stackAnalyzer.dataConsumedBy.entries().stream().anyMatch(e -> e.getValue().equals(push) && findRoutineAt(e.getKey()) != mine && owns(topParent(mine), e.getKey()));
+    return plantedContinuation(push, stackAnalyzer) == null || stackAnalyzer.dataConsumedBy.entries().stream().anyMatch(e -> e.getValue().equals(push) && findRoutineAt(e.getKey()) != mine);
   }
 
   /** This RET sometimes takes a return that a virtual POP (one of no routine) had taken off the stack and that was pushed back: it goes where the word says, every caller it returns to having pushed its return. */
@@ -773,10 +774,12 @@ public class RoutineManager {
   }
 
   public RetExit exitOf(int ret, StackAnalyzer stackAnalyzer) {
-    List<Integer> ownPushes = stackAnalyzer.dataConsumedBy.get(ret).stream().filter(findRoutineAt(ret)::contains).toList();
-    Integer continuation = ownPushes.size() == 1 ? plantedContinuation(ownPushes.get(0), stackAnalyzer) : null;
+    Routine mine = findRoutineAt(ret);
+    List<Integer> ownPushes = stackAnalyzer.dataConsumedBy.get(ret).stream().filter(mine::contains).toList();
+    List<Integer> familyPushes = stackAnalyzer.dataConsumedBy.get(ret).stream().filter(push -> owns(topParent(mine), push)).toList();
+    Integer continuation = ownPushes.size() == 1 && !pushedForReal(ownPushes.get(0), stackAnalyzer) ? plantedContinuation(ownPushes.get(0), stackAnalyzer) : null;
     boolean returnsToACaller = stackAnalyzer.returnsConsumedBy.get(ret).stream().anyMatch(callSite -> callSite != -1);
-    boolean consumesData = stackAnalyzer.dataConsumedBy.containsKey(ret) ? !ownPushes.isEmpty() && !returnsToACaller : !stackAnalyzer.dynamicInvocation.get(ret).isEmpty();
+    boolean consumesData = stackAnalyzer.dataConsumedBy.containsKey(ret) ? !familyPushes.isEmpty() && !returnsToACaller : !stackAnalyzer.dynamicInvocation.get(ret).isEmpty();
     if (stackAnalyzer.stackSwitches.containsKey(ret))
       return new RetExit(Exit.SWITCH_STACK, -1);
     if (nonLocalReturns.containsKey(ret) || takesAReturnPushedBack(ret, stackAnalyzer))
