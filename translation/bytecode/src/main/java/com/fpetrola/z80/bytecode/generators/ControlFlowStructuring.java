@@ -8,6 +8,7 @@ import com.fpetrola.z80.transformations.StackAnalyzer;
 import org.apache.commons.collections4.MultiValuedMap;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -23,7 +24,7 @@ public class ControlFlowStructuring {
   public record Region(int header, Set<Integer> entries, Set<Integer> nodes) {}
 
   private final Set<Integer> nodes = new LinkedHashSet<>(), leaving = new HashSet<>();
-  private final Map<Integer, RoutineManager.Outlined> parts = new HashMap<>();
+  private final Map<Integer, Routine> parts = new TreeMap<>();
   private final List<Integer> roots = new ArrayList<>();
   /** Where each node goes on outside the routine, and where the calls in it come back to when a return unwinds to this routine. */
   private final Map<Integer, Set<Integer>> outside = new HashMap<>();
@@ -39,15 +40,15 @@ public class ControlFlowStructuring {
     RoutineManager.Outlined mine = routineManager.outlined.get(routine);
     routineManager.outlined.forEach((piece, part) -> {
       if (piece != routine && (part.parent() == routine || mine != null && part.parent() == mine.parent()))
-        parts.put(piece.getEntryPoint(), part);
+        parts.put(piece.getEntryPoint(), piece);
     });
     for (int address = routine.getStartAddress(); address <= routine.getEndAddress(); address++)
       if (routine.contains(address) && routineManager.getInstructionAt(address) != null)
         nodes.add(address);
     nodes.addAll(parts.keySet());
     for (int node : nodes) {
-      Set<Integer> next = successors.computeIfAbsent(node, k -> new LinkedHashSet<>());
-      RoutineManager.Outlined part = parts.get(node);
+      Set<Integer> next = new LinkedHashSet<>();
+      RoutineManager.Outlined part = parts.containsKey(node) ? routineManager.outlined.get(parts.get(node)) : null;
       if (part != null) {
         part.exits().forEach(exit -> next.add(exit.to()));
         if (part.leaves())
@@ -57,7 +58,7 @@ public class ControlFlowStructuring {
         next.addAll(catchPoints.get(node));
       }
       next.stream().filter(to -> !nodes.contains(to)).forEach(to -> outside.computeIfAbsent(node, k -> new LinkedHashSet<>()).add(to));
-      next.removeIf(to -> !nodes.contains(to));
+      successors.put(node, next.stream().map(this::nodeOf).filter(nodes::contains).collect(Collectors.toCollection(LinkedHashSet::new)));
     }
     roots.add(routine.getEntryPoint());
     entries.stream().filter(nodes::contains).filter(at -> at != routine.getEntryPoint()).sorted().forEach(roots::add);
@@ -99,13 +100,18 @@ public class ControlFlowStructuring {
     return exitsOf(entry, nodes);
   }
 
+  /** The node an address is at: itself, or the part it is inside. */
+  private int nodeOf(int address) {
+    return nodes.contains(address) ? address : parts.entrySet().stream().filter(part -> part.getValue().contains(address)).mapToInt(Map.Entry::getKey).findFirst().orElse(address);
+  }
+
   private Outline exitsOf(int entry, Set<Integer> region) {
     List<Continuation> exits = new ArrayList<>();
     boolean leaves = false;
     for (int node : region) {
       Set<Integer> next = successors.getOrDefault(node, Set.of());
       leaves |= next.isEmpty() || leaving.contains(node) || !parts.containsKey(node) && routineManager.getInstructionAt(node) instanceof Ret;
-      Stream.of(next, outside.getOrDefault(node, Set.of())).flatMap(Collection::stream).filter(to -> !region.contains(to)).map(to -> new Continuation(to, node)).filter(exit -> !exits.contains(exit)).forEach(exits::add);
+      Stream.of(next, outside.getOrDefault(node, Set.of())).flatMap(Collection::stream).filter(to -> !region.contains(nodeOf(to))).map(to -> new Continuation(to, node)).filter(exit -> !exits.contains(exit)).forEach(exits::add);
     }
     return new Outline(entry, region, exits, leaves);
   }
