@@ -404,7 +404,11 @@ cuando las salidas con datos formaban ciclo y rompía la estructura. Lo que qued
 
 Corrida 1030-fix7 (8b6a6794c): Skool Daze completo por bytecode y por fuente por primera vez (133033 cuadros),
 Head over Heels y Target Renegade completos; 1030-fix6: también Emlyn, Rainbow Islands, Renegade 128, Monty y
-Great Escape. Nocturna 1030-all3 sobre los 20 lanzada a las 06:45. `runJumps`: 0 en todos los generados.
+Great Escape. Nocturna 1030-all3 (8b6a6794c, 20 juegos): 19 completos por bytecode, 18 por fuente; Manic Miner
+sin fuente porque Fernflower se queda sin memoria en `$8636` (25 KB de bytecode): el reintento corta ahora la
+rutina más grande cuando Fernflower descarta la clase entera (c70c8155d), y queda completo (1030-fix8). Batman
+sigue aparte (roto desde el 10-12). `runJumps`: 0 en todos los generados. Catálogo commiteado regenerado desde
+esas corridas (f8d206ce7, da12cc6b6): los 19; Batman, DD y Jet Set Willy quedan viejos.
 
 ## Fase 4b. La dirección viaja como dato: parámetro de entrada y valor de retorno (pendiente, anotado el 2026-10-28)
 
@@ -504,7 +508,7 @@ Hay que cargar `~/detodo/spectrum/investigacion/tools/traduccion/run/env.sh`. Su
 | 4 bucle en la cabeza (2026-10-28, corrida 1028-outline12) | Emlyn: `runJumps` 23 → 0 · Target Renegade: 31 → 9 (quedan E695/F408, 5B2C…, D780/D783/D794, ver arriba) | | 0 | Emlyn y TR completos por bytecode y por fuente | 56cc0d4a7 |
 | 4 cierre: sin reflexión, `goesOnAt`, sin regla nested (2026-10-30, corrida 1030-edges1) | Emlyn: 0 · Target Renegade: 9 → 0 | | 0 | Emlyn y TR completos por bytecode y por fuente; los 20 juegos en la nocturna 1030-all1 | 84dc865d4, 12eb15715 |
 | 4 ciclos restantes: plegado de todo ciclo salvo salto a ancestro (2026-10-30 madrugada: 3531d91d0, 9166f5d62, 2d586453e) | nocturna 1030-all2 en curso | | | batería verde (233/30/17/15) |
-| 4 el RET toma lo que su familia le dejó (2026-10-30 noche: 385551485, 00dd41331, 7c9cfa2e1, 8b6a6794c) | 0 en los 8 juegos de las corridas fix; 1030-all3 en curso | | | fix7: Skool Daze, HoH y TR completos por bytecode y fuente; fix6: Emlyn, RI, R128, Monty, GE |
+| 4 el RET toma lo que su familia le dejó (2026-10-30 noche: 385551485, 00dd41331, 7c9cfa2e1, 8b6a6794c, c70c8155d; corrida 1030-all3 + fix8) | 0 en los 20 generados | | 0 | 19 de 20 completos por bytecode y por fuente (Skool Daze y Manic Miner por fuente por primera vez); Batman roto desde el 10-12; catálogo regenerado |
 
 ## 10. Segunda parte: dejar de depender de la pila y de SP
 
