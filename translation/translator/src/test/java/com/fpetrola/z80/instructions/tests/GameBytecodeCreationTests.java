@@ -208,10 +208,11 @@ public class GameBytecodeCreationTests {
   public void testTranslateEmlynToJava() {
     String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, "/home/fernando/detodo/spectrum/emlyn_r4.rzx", 0xFE65);
     List<String> recordings = Stream.of("emlyn_r3.rzx", "emlyn_r4.rzx").map(recording -> "/home/fernando/detodo/spectrum/" + recording).toList();
-    realCodeBytecodeCreationBase.exploreRecording(RemoteZ80Translator.Footprint.combine(recordings.stream().map(recording -> RemoteZ80Translator.footprint(recording, 0xFE65)).toList()), 0xFE65, 0x963E);
-    CodeVersions versions = realCodeBytecodeCreationBase.getStackAnalyzer().codeVersions;
+    RemoteZ80Translator.Footprint footprint = RemoteZ80Translator.Footprint.combine(recordings.stream().map(recording -> RemoteZ80Translator.footprint(recording, 0xFE65)).toList());
     int[][] templates = {{0x9BBF, 0x9C1D, 0xE000}, {0x9AF7, 0x9B1C, 0xE300}};
-    Stream.of(templates).forEach(template -> versions.mergeBlockRegions(template[0], template[1]));
+    Stream.of(templates).forEach(template -> footprint.versions().mergeBlockRegions(template[0], template[1]));
+    realCodeBytecodeCreationBase.exploreRecording(footprint, 0xFE65, 0x963E);
+    CodeVersions versions = realCodeBytecodeCreationBase.getStackAnalyzer().codeVersions;
     recordings.forEach(recording -> RemoteZ80Translator.recordBlockContents(EmulatedMiniZX.ofRecording(recording, -1, null), 0xFE65, versions));
     Stream.of(templates).forEach(template -> realCodeBytecodeCreationBase.translateCodeVariants(template[0], template[1], template[2], versions));
     writeTranslation("Emlyn", base64Memory);

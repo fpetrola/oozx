@@ -265,8 +265,21 @@ public class RoutineManager {
   }
 
   public int originalAddress(int address) {
-    return codeVariants.stream().filter(v -> address >= v.relocatedAt() && address <= v.relocatedAt() + v.end() - v.start())
-        .findFirst().map(v -> v.start() + address - v.relocatedAt()).orElse(address);
+    return copyAt(address).map(v -> v.start() + address - v.relocatedAt()).orElse(address);
+  }
+
+  /** The space the code at a relocated address is from, as a prefix for its method: the bank paged in there (b3_) or which recorded content of its region (c1_); none in the main image. */
+  public String spaceOf(int address) {
+    return copyAt(address).map(v -> v.bank() != -1 ? "b" + v.bank() + "_" : "c" + codeVariants.stream().filter(o -> o.bank() == -1 && o.start() == v.start()).toList().indexOf(v) + "_").orElse("");
+  }
+
+  /** The jump back to the code after the region that closes a copy: it is not an instruction of the program. */
+  public boolean synthetic(int address) {
+    return copyAt(address).map(v -> address >= v.relocated(v.end())).orElse(false);
+  }
+
+  private java.util.Optional<CodeVariant> copyAt(int address) {
+    return codeVariants.stream().filter(v -> address >= v.relocatedAt() && address < v.relocatedAt() + v.code().length).findFirst();
   }
 
   /** {@code heads}: the members through which every cycle of the group passes, so the group is a loop around one of them. */

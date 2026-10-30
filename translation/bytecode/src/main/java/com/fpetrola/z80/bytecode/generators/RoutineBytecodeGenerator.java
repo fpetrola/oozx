@@ -103,8 +103,12 @@ public class RoutineBytecodeGenerator {
     });
   }
 
-  public static String createLabelName(int label) {
-    return "$" + Helper.formatAddress(label);
+  public static String createLabelName(RoutineManager routineManager, int label) {
+    return "$" + routineManager.spaceOf(label) + Helper.formatAddress(routineManager.originalAddress(label));
+  }
+
+  private String createLabelName(int label) {
+    return createLabelName(context.routineManager, label);
   }
 
   public void generate() {
@@ -224,7 +228,8 @@ public class RoutineBytecodeGenerator {
           throwAtVirtualPop(address);
           returnFromMethod();
         } else {
-          invokePc(address);
+          if (!context.routineManager.synthetic(address))
+            invokePc(address);
           InstructionsBytecodeGenerator instructionsBytecodeGenerator = new InstructionsBytecodeGenerator(mm, RoutineBytecodeGenerator.this, address);
           instruction.accept(instructionsBytecodeGenerator);
 

@@ -108,6 +108,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
       stepUntilComplete(site);
     });
     translateBankedCode(footprint);
+    translateRewrittenRegions(stackAnalyzer.codeVersions);
     translateRomRoutines(footprint.romEntries().stream().filter(entry -> stackAnalyzer.trampolineRegister(entry) == null).mapToInt(Integer::intValue).toArray());
   }
 
@@ -116,21 +117,34 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
       symbolicExecutionAdapter.stepUntilComplete(this, this.getState(), entry, 0, 0x4000);
   }
 
+  /** Every region the program rewrites with a content of its own runs from a copy per recorded content, entered by the hash of what is there. */
+  private void translateRewrittenRegions(CodeVersions versions) {
+    versions.blockRegions().forEach(region -> {
+      int contents = versions.blockContents(region[0]).size();
+      if (contents > 1)
+        translateCodeVariants(region[0], region[1], freeAreaFor(contents * (region[1] - region[0] + 3)), versions);
+    });
+  }
+
+  /** Each copy ends with a jump to the code after the region, since it does not lie before it. */
   public void translateCodeVariants(int start, int end, int relocationBase, CodeVersions versions) {
     int variableStart = versions.blockRegions().stream().filter(region -> region[0] >= start && region[1] <= end).findFirst().orElseThrow()[0];
     List<int[]> variants = versions.blockContents(variableStart);
     OOZ80 decoder = com.fpetrola.z80.minizx.emulation.EmulatedMiniZX.createOOZ80(new com.fpetrola.z80.minizx.DefaultMiniZXIO());
-    routineManager.forgetCode(relocationBase, relocationBase + variants.size() * (end - start + 1));
+    int size = end - start, stride = size + 3;
+    routineManager.forgetCode(relocationBase, relocationBase + variants.size() * stride);
     getStackAnalyzer().codeVersions.mutant().removeIf(address -> address >= variableStart && address < variableStart + variants.get(0).length);
-    symbolicExecutionAdapter.routineExecutorHandler.forgetExecutions(relocationBase, relocationBase + variants.size() * (end - start + 1));
+    symbolicExecutionAdapter.routineExecutorHandler.forgetExecutions(relocationBase, relocationBase + variants.size() * stride);
     int[] decoderMemory = (int[]) decoder.getState().getMemory().getData();
-    int size = end - start;
     List<RoutineManager.CodeVariant> copies = new java.util.ArrayList<>();
     for (int k = 0; k < variants.size(); k++) {
       int[] variable = variants.get(k);
-      int[] code = java.util.Arrays.copyOfRange(programImage, start, end);
+      int[] code = java.util.Arrays.copyOf(java.util.Arrays.copyOfRange(programImage, start, end), stride);
       System.arraycopy(variable, 0, code, variableStart - start, variable.length);
-      int at = relocationBase + k * (size + 1);
+      code[size] = 0xC3;
+      code[size + 1] = end & 0xff;
+      code[size + 2] = end >> 8;
+      int at = relocationBase + k * stride;
       System.arraycopy(code, 0, decoderMemory, start, size);
       for (int address = start; address < end; ) {
         decoder.getState().getPc().write(address);
@@ -138,12 +152,12 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
         relocateJump(code, start, end, at, address, length);
         address += length;
       }
-      for (int i = 0; i < size; i++)
+      for (int i = 0; i < code.length; i++)
         getState().getMemory().write(at + i, code[i]);
       copies.add(new RoutineManager.CodeVariant(start, end, variableStart, variable, at, code, -1));
     }
     routineManager.codeVariants.addAll(copies);
-    getState().getMemory().protect(relocationBase, relocationBase + variants.size() * (size + 1));
+    getState().getMemory().protect(relocationBase, relocationBase + variants.size() * stride);
     java.util.Set<Integer> explored = new java.util.HashSet<>();
     for (java.util.Set<Integer> entries; !explored.containsAll(entries = routineManager.entriesInto(start, end)); )
       entries.stream().filter(explored::add).toList().forEach(entry -> copies.forEach(v -> stepUntilComplete(v.relocated(entry))));
@@ -190,7 +204,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
       if (code.get(address) || getState().getMemory().isProtected(address))
         free = address + 1;
     if (address - free < size)
-      throw new IllegalStateException("no free area of " + size + " bytes below C000 for another bank's code");
+      throw new IllegalStateException("no free area of " + size + " bytes below C000 for a copy of code");
     return free;
   }
 

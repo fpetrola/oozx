@@ -173,7 +173,7 @@ public class StateBytecodeGenerator {
       next.switch_(exit, jumpMembers, members);
       for (int i = 0; i < jumpMembers.length; i++) {
         members[i].here();
-        next.set(runJumps.invoke(RoutineBytecodeGenerator.createLabelName(jumpMembers[i])));
+        next.set(runJumps.invoke(RoutineBytecodeGenerator.createLabelName(routineManager, jumpMembers[i])));
         runJumps.invoke("unwinding").ifTrue(exit::goto_);
         loop.goto_();
       }
@@ -192,7 +192,7 @@ public class StateBytecodeGenerator {
     if (context.routinesInJumpCycles().contains(top))
       mm.invoke("runJumps", top.getEntryPoint());
     else
-      mm.invoke(RoutineBytecodeGenerator.createLabelName(top.getEntryPoint()));
+      mm.invoke(RoutineBytecodeGenerator.createLabelName(routineManager, top.getEntryPoint()));
   }
 
   /** Z80 bytes a method takes at most (-Dtranslation.methodBytes); a part's call block in a head counts as {@link #PART_BYTES} plus {@link #EXIT_BYTES} per exit. */

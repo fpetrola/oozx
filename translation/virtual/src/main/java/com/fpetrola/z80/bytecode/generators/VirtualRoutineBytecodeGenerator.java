@@ -143,7 +143,7 @@ public class VirtualRoutineBytecodeGenerator extends RoutineBytecodeGenerator {
         routineParameters.add(getExistingVariable(register));
       }
     }).toArray();
-    Variable invoke = mm.invoke(RoutineBytecodeGenerator.createLabelName(jumpLabel), array);
+    Variable invoke = mm.invoke(RoutineBytecodeGenerator.createLabelName(context.routineManager, jumpLabel), array);
     assignReturnValues(routineAt, invoke);
     return invoke;
   }

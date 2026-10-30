@@ -40,16 +40,22 @@ public class CodeVersions implements java.io.Serializable {
   private final List<int[]> blockRegions = new ArrayList<>();
   private final Map<Integer, List<int[]>> blockContents = new TreeMap<>();
   private final Set<Integer> patched = new TreeSet<>(), mutant = new HashSet<>();
+  private final Map<Integer, Integer> executedLengths = new TreeMap<>();
+  private final List<int[]> merges = new ArrayList<>();
+  private boolean dirty;
   private transient BiFunction<Integer, int[], Instruction> decoder;
 
   public void record(int address, int[] first, int[] other) {
     List<int[]> known = versions.computeIfAbsent(address, a -> new ArrayList<>(List.of(first)));
     if (known.stream().noneMatch(v -> Arrays.equals(v, other)))
       known.add(other);
+    dirty = true;
   }
 
   public void patched(Set<Integer> addresses, Map<Integer, int[]> executed) {
     patched.addAll(addresses);
+    executed.forEach((address, bytes) -> executedLengths.put(address, bytes.length));
+    dirty = true;
     executed.forEach((address, bytes) -> {
       if (IntStream.range(0, bytes.length).anyMatch(i -> patched.contains(Space.next(address, i))))
         record(address, bytes, bytes);
@@ -59,7 +65,9 @@ public class CodeVersions implements java.io.Serializable {
   public void addAll(CodeVersions other) {
     other.versions.forEach((address, known) -> known.forEach(v -> record(address, known.get(0), v)));
     patched.addAll(other.patched);
+    executedLengths.putAll(other.executedLengths);
     other.blockContents.forEach((start, contents) -> contents.forEach(content -> addBlockContent(start, content)));
+    other.merges.forEach(merge -> mergeBlockRegions(merge[0], merge[1]));
   }
 
   /** Code bytes that may hold at runtime something other than what was translated: they are read from memory or run through the emulator. */
@@ -119,7 +127,10 @@ public class CodeVersions implements java.io.Serializable {
     return blockRegions.stream().anyMatch(region -> address >= region[0] && address < region[1]);
   }
 
+  /** The regions inside the span become one (a template whose variable parts are apart); the merge is kept for every later build of the regions. */
   public void mergeBlockRegions(int start, int end) {
+    if (merges.stream().noneMatch(merge -> merge[0] == start && merge[1] == end))
+      merges.add(new int[]{start, end});
     List<int[]> inside = blockRegions.stream().filter(region -> region[0] >= start && region[1] <= end).toList();
     if (inside.size() > 1) {
       blockRegions.removeAll(inside);
@@ -143,10 +154,14 @@ public class CodeVersions implements java.io.Serializable {
       known.add(content);
   }
 
+  /** Classifies the versions; the block regions are rebuilt when versions or executed instructions were added, hold whole instructions of every content, and keep the merges asked for. */
   public void decodeWith(BiFunction<Integer, int[], Instruction> decoder) {
     this.decoder = decoder;
-    blockRegions.clear();
+    if (!dirty)
+      return;
+    dirty = false;
     versions.forEach((address, known) -> kinds.put(address, kindOf(address, known)));
+    blockRegions.clear();
     List<Integer> region = new ArrayList<>();
     int end = -1;
     for (int address : versions.keySet()) {
@@ -157,6 +172,31 @@ public class CodeVersions implements java.io.Serializable {
     }
     if (!region.isEmpty())
       blockIfAnyIs(region, end);
+    closeRegions();
+    merges.forEach(merge -> mergeBlockRegions(merge[0], merge[1]));
+  }
+
+  /** An executed instruction overlapping a region extends it to hold the whole instruction, until nothing more overlaps; regions that meet merge. */
+  private void closeRegions() {
+    for (boolean changed = true; changed; ) {
+      changed = false;
+      for (int[] region : blockRegions)
+        for (Map.Entry<Integer, Integer> executed : executedLengths.entrySet()) {
+          int from = executed.getKey(), to = from + executed.getValue();
+          if (from < region[1] && to > region[0] && (from < region[0] || to > region[1])) {
+            region[0] = Math.min(region[0], from);
+            region[1] = Math.max(region[1], to);
+            changed = true;
+          }
+        }
+      blockRegions.sort(java.util.Comparator.comparingInt(region -> region[0]));
+      for (int i = 1; i < blockRegions.size(); )
+        if (blockRegions.get(i)[0] <= blockRegions.get(i - 1)[1]) {
+          blockRegions.get(i - 1)[1] = Math.max(blockRegions.get(i - 1)[1], blockRegions.remove(i)[1]);
+          changed = true;
+        } else
+          i++;
+    }
   }
 
   private void blockIfAnyIs(List<Integer> region, int end) {

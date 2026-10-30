@@ -84,9 +84,16 @@ public class RecordedProgramTests {
   }
 
   private String image;
+  private int[] memory;
 
   private String translate(int[]... chunks) {
-    return translateWithBlock(null, chunks);
+    explore(chunks);
+    String java = base.generateAndDecompile(image, routineManager.getRoutines(), ".", "Program", base.symbolicExecutionAdapter);
+    if (Boolean.getBoolean("translation.printJava"))
+      System.err.println("JAVA<<" + withoutTiming(java) + ">>JAVA");
+    assertRunsLikeTheEmulator(BytecodeGeneration.translatedProgram("Program", read(Path.of("Program.class"))), memory);
+    assertRunsLikeTheEmulator(compiled(java), memory);
+    return java;
   }
 
   private String translateFrom(int start, int[]... chunks) {
@@ -108,29 +115,14 @@ public class RecordedProgramTests {
     return memory;
   }
 
-  private String translateWithBlock(int[] block, int[]... chunks) {
-    int[] memory = explore(chunks);
-    if (block != null) {
-      RemoteZ80Translator.recordBlockContents(EmulatedMiniZX.ofProgram(memory, start, stack, 1000, null), start, versions);
-      base.translateCodeVariants(block[0], block[1], 0xE000, versions);
-    }
-    String java = base.generateAndDecompile(image, routineManager.getRoutines(), ".", "Program", base.symbolicExecutionAdapter);
-    if (Boolean.getBoolean("translation.printJava"))
-      System.err.println("JAVA<<" + withoutTiming(java) + ">>JAVA");
-    assertRunsLikeTheEmulator(BytecodeGeneration.translatedProgram("Program", read(Path.of("Program.class"))), memory);
-    assertRunsLikeTheEmulator(compiled(java), memory);
-    return java;
-  }
-
   /** The footprint of the program and its exploration, without generating code. */
-  private int[] explore(int[]... chunks) {
-    int[] memory = memoryOf(chunks);
+  private void explore(int[]... chunks) {
+    memory = memoryOf(chunks);
     image = RemoteZ80Translator.emulateProgram(base, memory, start, stack);
     base.exploreRecording(RemoteZ80Translator.footprint(stackAnalyzer -> machine(EmulatedMiniZX.ofProgram(memory, start, stack, 1000, stackAnalyzer).interruptingEvery(interruptEvery)), start), start);
     stackAnalyzer = base.getStackAnalyzer();
     routineManager = base.getRoutineManager();
     versions = stackAnalyzer.codeVersions;
-    return memory;
   }
 
   private EmulatedMiniZX machine(EmulatedMiniZX emulator) {
@@ -5013,6 +5005,31 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aRewrittenRegionRunsFromACopyPerRecordedContentAndACallOnlyOneContentMakesReachesItsCallee() {
+    // Target: Batman CE3C-CE42: two contents in place, one with CALL CE9D; the region ran through the emulator fallback and the CALL failed with untranslated
+    String java = translate(
+        at(0x8000, 0xCD, 0x00, 0x81, 0x21, 0x00, 0x82, 0x11, 0x00, 0x81, 0x01, 0x04, 0x00, 0xED, 0xB0, 0xCD, 0x00, 0x81, 0x76, 0x18, 0xFD),
+        at(0x8100, 0x3C, 0xC9, 0x00, 0x00),
+        at(0x8200, 0xCD, 0x00, 0x83, 0xC9),
+        at(0x8300, 0x0C, 0xC9));
+    Assert.assertEquals(0x01, endValue("A"));
+    Assert.assertEquals(0x01, endValue("C"));
+    Assert.assertTrue("the copy of the second content is named after its content and address", java.contains("$c1_8100()"));
+  }
+
+  @Test
+  public void anInstructionOfAContentThatStartsInsideTheRegionAndEndsPastItExtendsTheRegion() {
+    // the differing bytes end at 8101, but the second content's CALL at 8101 runs to 8103: the region holds whole instructions of every content
+    translate(
+        at(0x8000, 0xCD, 0x00, 0x81, 0x21, 0x00, 0x82, 0x11, 0x00, 0x81, 0x01, 0x05, 0x00, 0xED, 0xB0, 0xCD, 0x00, 0x81, 0x76, 0x18, 0xFD),
+        at(0x8100, 0x3E, 0x01, 0xC9, 0x00, 0x00),
+        at(0x8200, 0x3C, 0xCD, 0x00, 0x83, 0xC9),
+        at(0x8300, 0x0C, 0xC9));
+    Assert.assertEquals(List.of(List.of(0x8100, 0x8104)), versions.blockRegions().stream().map(region -> List.of(region[0], region[1])).toList());
+    Assert.assertEquals(0x01, endValue("C"));
+  }
+
+  @Test
   public void aLoopTooBigForOneJavaMethodStaysAStateMachine() {
     // Target: Batman D537: 160 members with 458 exits among them; folded, the head's call blocks go past the 64 KB a Java method can hold (cojen: Code limit reached). Until the loop can be folded into nested heads, such a loop stays a state machine; the limit here is lowered to make this small loop too big
     System.setProperty("translation.methodBytes", "8");
@@ -5704,11 +5721,12 @@ public class RecordedProgramTests {
   @Test
   public void aBlockRewrittenWithInstructionsOfOtherLengthsRunsFromACopyPerRecordedShape() {
     // Emlyn 9AF7 line drawer and 9BBF template
-    String java = translateWithBlock(new int[]{0x8018, 0x801C},
+    String java = translate(
         at(0x8000, 0x21, 0x3C, 0x3C, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x21, 0xC6, 0x05, 0x22, 0x19, 0x80, 0xCD, 0x18, 0x80, 0x76, 0x18, 0xFD),
         at(0x8018, 0x47, 0x00, 0x00, 0xC9));
     Assert.assertEquals(CodeVersions.Kind.BLOCK, versions.kinds().get(0x8019));
-    Assert.assertEquals(List.of(0xE000, 0xE005), routineManager.codeVariants.stream().map(RoutineManager.CodeVariant::relocatedAt).sorted().toList());
+    Assert.assertEquals(List.of(0x4000, 0x4005), routineManager.codeVariants.stream().map(RoutineManager.CodeVariant::relocatedAt).sorted().toList());
+    Assert.assertTrue(java.contains("$c1_8019()"));
   }
 
   @Test
@@ -6251,10 +6269,9 @@ public class RecordedProgramTests {
   }
 
   @Test
-  public void anOutToPort7FFDRunByTheEmulatorFallbackPagesTheTranslatedProgramsMemory() {
-    // Renegade 128K: code patched by its own stores runs through the emulator fallback, and an OUT there must page the Java side too
+  public void anOutToPort7FFDInCodeTheProgramRewritesPagesTheTranslatedProgramsMemory() {
+    // Renegade 128K: code patched by its own stores (once run through the emulator fallback, now from a copy per content) has an OUT that must page the Java side too
     banked = true;
-    fallsBackToTheEmulator = true;
     ignoresMemory(0x8F00, 0x9000);
     translate(
         at(0x8000, 0x31, 0x00, 0x90, 0xCD, 0x20, 0x80, 0xCD, 0x40, 0x80, 0x3E, 0x11, 0xCD, 0x20, 0x80, 0x3A, 0x00, 0xC0, 0x76, 0x18, 0xFD),
@@ -7747,8 +7764,7 @@ public class RecordedProgramTests {
 
   @Test
   public void aPatchThatTurnsOneInstructionIntoTwoShorterOnesReachesTheSecondOne() {
-    // R-Type 73C5/73D8: BF24-BF25 alternate between LD A,02 and EX AF,AF'; LD (HL),A; the second byte is an instruction only in one mode
-    fallsBackToTheEmulator = true;
+    // R-Type 73C5/73D8: BF24-BF25 alternate between LD A,02 and EX AF,AF'; LD (HL),A; the second byte is an instruction only in one mode, run from that content's copy
     translate(
         at(0x8000, 0x21, 0x00, 0x90, 0xCD, 0x30, 0x80, 0xCD, 0x20, 0x80, 0xCD, 0x40, 0x80, 0xCD, 0x20, 0x80, 0x06, 0x01, 0x76, 0x18, 0xFD),
         at(0x8020, 0x3E, 0x02, 0xC9),
