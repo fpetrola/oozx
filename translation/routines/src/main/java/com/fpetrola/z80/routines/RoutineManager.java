@@ -545,10 +545,14 @@ public class RoutineManager {
     return !(getInstructionAt(callAddress) instanceof Call call && isCode(call.getJumpAddress()) && !routine.contains(call.getJumpAddress()));
   }
 
-  /** The addresses of the routine, other than its entry, that {@link #isEnteredFromOutside} holds for: the candidates come from one pass over what can enter it. */
-  public java.util.Set<Integer> entriesFromOutside(Routine routine) {
+  /** The addresses of the routine, other than its entry, that code outside it comes in at: {@link #isEnteredFromOutside}, a CALL or RST from outside, or a landing; what its method dispatches and what its parent forwards to it. */
+  public java.util.Set<Integer> entriesFromOutside(Routine routine, StackAnalyzer stackAnalyzer, AncestorJumps ancestorJumps) {
+    java.util.Set<Integer> landings = landingsOf(routine, stackAnalyzer, ancestorJumps);
+    MultiValuedMap<Integer, Integer> sites = callSitesByTarget();
     java.util.Set<Integer> candidates = new java.util.TreeSet<>(externalEntries);
     candidates.addAll(callers.keySet());
+    candidates.addAll(sites.keySet());
+    candidates.addAll(landings);
     candidates.addAll(jumpsAfterStackReset.keySet());
     candidates.addAll(returnPoints.values());
     candidates.addAll(siteReturnPoints.values());
@@ -558,8 +562,16 @@ public class RoutineManager {
       if (fixedJumpTarget(instruction) != -1)
         candidates.add(fixedJumpTarget(instruction));
     });
-    candidates.removeIf(address -> !routine.contains(address) || address == routine.getEntryPoint() || getInstructionAt(address) == null || !isEnteredFromOutside(routine, address));
+    candidates.removeIf(address -> !routine.contains(address) || address == routine.getEntryPoint() || getInstructionAt(address) == null
+        || !(isEnteredFromOutside(routine, address) || landings.contains(address) || Stream.concat(callers.get(address).stream(), sites.get(address).stream()).anyMatch(caller -> !routine.contains(caller))));
     return candidates;
+  }
+
+  /** Where code that left the routine's frame comes back into it: the targets of ancestor jumps to it and the returns of its calls that a non-local return goes back to. */
+  public java.util.Set<Integer> landingsOf(Routine routine, StackAnalyzer stackAnalyzer, AncestorJumps ancestorJumps) {
+    java.util.Set<Integer> landings = new java.util.HashSet<>(ancestorJumps.landings().getOrDefault(routine, java.util.Set.of()));
+    landings.addAll(returnsOfCallsInTakenByNonLocalReturns(routine, stackAnalyzer));
+    return landings;
   }
 
   /** Whether the address is in the routine or in a part of it: what a part does, its parent does. */

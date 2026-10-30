@@ -61,7 +61,10 @@ public abstract class SpectrumApplication {
 
   private int lastStackDepth;
 
+  /** Told where to go on at: the previous address must have been taken by a dispatch, or the method entered to go on at it ran from its start. */
   public void setNextAddress(int nextAddress) {
+    if (this.nextAddress != 0 && this.nextAddress != nextAddress)
+      throw new IllegalStateException("no dispatch took %04X, the address to go on at, before %04X replaced it".formatted(this.nextAddress, nextAddress));
     this.nextAddress = nextAddress;
   }
 

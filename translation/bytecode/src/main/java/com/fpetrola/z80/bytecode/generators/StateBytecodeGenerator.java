@@ -248,12 +248,10 @@ public class StateBytecodeGenerator {
   /** The parts of the routine that can be methods it calls, until at most {@code keep} bytes remain; when they are not enough, its blocks as before, since a part must not end up jumped into from a block. */
   private List<Routine> cut(Routine routine, int keep) {
     StackAnalyzer stackAnalyzer = symbolicExecutionAdapter.getStackAnalyzer();
-    Set<Integer> entries = routineManager.entriesFromOutside(routine);
-    entries.addAll(routineManager.catchPointsOfCallsIn(routine).values());
-    entries.addAll(routineManager.returnsOfCallsInTakenByNonLocalReturns(routine, stackAnalyzer));
     RoutineManager.AncestorJumps ancestorJumps = routineManager.ancestorJumps(stackAnalyzer);
+    Set<Integer> entries = routineManager.entriesFromOutside(routine, stackAnalyzer, ancestorJumps);
+    entries.addAll(routineManager.catchPointsOfCallsIn(routine).values());
     Set<Integer> landings = ancestorJumps.landings().getOrDefault(routine, Set.of());
-    entries.addAll(landings);
     Set<Routine> unwinding = routineManager.routinesThatMayUnwind(stackAnalyzer, ancestorJumps);
     List<ControlFlowStructuring.Outline> outlines = new ControlFlowStructuring(routine, routineManager, entries, stackAnalyzer, landings, address -> unwinding.contains(routineManager.findRoutineAt(address))).outlines(keep);
     if (Boolean.getBoolean("translation.reportRoutines"))

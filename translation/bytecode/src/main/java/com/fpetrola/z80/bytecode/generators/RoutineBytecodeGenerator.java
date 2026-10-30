@@ -243,7 +243,7 @@ public class RoutineBytecodeGenerator {
     generators.forEach(g -> g.scopeAdjuster().run());
     generators.forEach(g -> g.labelGenerator().run());
 
-    List<Integer> entries = new ArrayList<>(labels.keySet()).stream().filter(address -> routine.contains(address) && address != routine.getEntryPoint() && (context.routineManager.isEnteredFromOutside(routine, address) || Stream.concat(context.routineManager.callers.get(address).stream(), context.callSitesOf(address).stream()).anyMatch(caller -> !routine.contains(caller)) || landings().contains(address))).toList();
+    List<Integer> entries = context.routineManager.entriesFromOutside(routine, stackAnalyzer(), context.ancestorJumps()).stream().filter(labels::containsKey).toList();
     context.dispatchedEntries.addAll(entries);
     context.routineManager.outlined.values().stream().filter(part -> part.parent() == routine).flatMap(part -> part.exits().stream().map(RoutineManager.Outlined.Continuation::to)).filter(routine::contains).forEach(this::addLabel);
     List<Integer> dispatched = Stream.concat(entries.stream(), partEntries.values().stream().filter(part -> context.routineManager.outlined.get(part).parent() == routine).flatMap(part -> entriesOf(part).stream())).toList();
@@ -701,12 +701,9 @@ public class RoutineBytecodeGenerator {
     return entries;
   }
 
-  /** Where code that left this routine's frame comes back to it: the targets of jumps back from routines it calls, and the returns of its own calls that a RET leaving other frames goes back to. */
   private Set<Integer> landings() {
-    if (landings == null) {
-      landings = new HashSet<>(context.ancestorJumps().landings().getOrDefault(routine, Set.of()));
-      landings.addAll(context.routineManager.returnsOfCallsInTakenByNonLocalReturns(routine, stackAnalyzer()));
-    }
+    if (landings == null)
+      landings = context.routineManager.landingsOf(routine, stackAnalyzer(), context.ancestorJumps());
     return landings;
   }
 
@@ -722,23 +719,21 @@ public class RoutineBytecodeGenerator {
   /** A jump to {@code target} that carries {@code carry} as the address to go on at, when it is inside the part at the target. */
   private void goTo(int from, int target, int carry) {
     int header = structuring.headerFor(from, target);
-    if (header != -1)
-      mm.invoke("setNextAddress", carry);
     int at = header == -1 ? target : header;
-    if (partEntries.containsKey(at)) {
-      if (header == -1 && carry != target)
-        mm.invoke("setNextAddress", carry);
+    if (carry != at)
+      mm.invoke("setNextAddress", carry);
+    if (partEntries.containsKey(at))
       callPart(partEntries.get(at));
-    } else if (getLabel(at) != null)
+    else if (getLabel(at) != null)
       getLabel(at).goto_();
     else
       throw new IllegalStateException("no label for " + Helper.formatAddress(at) + " (from " + Helper.formatAddress(from) + " to " + Helper.formatAddress(target) + ", carrying " + Helper.formatAddress(carry) + ") in " + routine);
   }
 
-  /** The addresses of a part the code outside its family comes in at: its entry (a call, a jump, a RET that goes on there) and what is entered from outside inside it. */
+  /** The addresses of a part the code outside its family comes in at: its entry (a call, a jump, a RET that goes on there) and what its own method dispatches. */
   private List<Integer> entriesOf(Routine part) {
     List<Integer> entries = new ArrayList<>(List.of(part.getEntryPoint()));
-    entries.addAll(context.routineManager.entriesFromOutside(part));
+    entries.addAll(context.routineManager.entriesFromOutside(part, stackAnalyzer(), context.ancestorJumps()));
     return entries;
   }
 
