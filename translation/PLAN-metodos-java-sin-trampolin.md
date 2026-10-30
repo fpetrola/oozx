@@ -395,8 +395,9 @@ cuando las salidas con datos formaban ciclo y rompía la estructura. Lo que qued
 - **Aterrizajes como aristas.** La estructura ve los aterrizajes del desenrollado (`landings`, retornos
   descartados) como destinos de todo nodo que llama, es parte o sigue fuera de la rutina en algo que puede
   desenrollar: sin esa arista el bucle no se detectaba, el despacho de entradas lo entraba por varios lados y
-  Fernflower rechazaba la cabeza (HoH 8E32, RI E870, R128 846D). Herramienta: `irreducible.py` (scratch) lista
-  los bucles con varias entradas de un método a partir de `javap -c`.
+  Fernflower rechazaba la cabeza (HoH 8E32, RI E870, R128 846D). Herramienta:
+  `investigacion/tools/traduccion/irreducible.py` lista los bucles con varias entradas de un método, anidados
+  también, a partir de `javap -c -p`.
 - **El reintento conserva el plan.** Cada intento de Fernflower creaba un generador nuevo que volvía a
   planificar (entradas, cortes, plegado) sobre rutinas ya plegadas: en Great Escape partía 691D de su tarea y la
   cabeza seguía con salidas viejas. `RoutineManager.planned` lo marca al partir para un reintento.
