@@ -5079,6 +5079,22 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void anEntryInsideARegionOnlyEntersTheCopiesThatHaveAnInstructionThere() {
+    // Target: Batman after the trampolines (1030-batman11): copies explored from an entry that falls inside one of their instructions decoded garbage from there, and routines of copies and game code merged into 10 KB ones ({44C3:AC2E}, {9F73:C6FE}) whose cut failed
+    String java = translate(
+        at(0x8000, 0xCD, 0x00, 0x81, 0xCD, 0x10, 0x81, 0x21, 0x00, 0x82, 0x11, 0x00, 0x81, 0x01, 0x04, 0x00, 0xED, 0xB0, 0xCD, 0x00, 0x81, 0x3E, 0x00,
+            0x21, 0x10, 0x82, 0x11, 0x10, 0x81, 0x01, 0x03, 0x00, 0xED, 0xB0, 0xCD, 0x10, 0x81, 0x76, 0x18, 0xFD),
+        at(0x8100, 0x3E, 0x02, 0xC9, 0x00),
+        at(0x8110, 0x14, 0xC9, 0x00),
+        at(0x8200, 0x04, 0x3E, 0x05, 0xC9),
+        at(0x8210, 0x18, 0xEF, 0x00));
+    Assert.assertEquals(0x05, endValue("A"));
+    Assert.assertEquals("entered at 8101, after the INC B", 0x00, endValue("B"));
+    Assert.assertTrue(java.contains("$c1_8101()"));
+    Assert.assertFalse("8101 is inside the LD A,2 of the first content", java.contains("$c0_8101"));
+  }
+
+  @Test
   public void anInstructionOfAContentThatStartsInsideTheRegionAndEndsPastItExtendsTheRegion() {
     // the differing bytes end at 8101, but the second content's CALL at 8101 runs to 8103: the region holds whole instructions of every content
     translate(

@@ -224,7 +224,7 @@ public class RoutineManager {
   }
 
   /** bank: the bank whose paging selects this variant, or -1 when its bytes select it; varying: offsets of the variable bytes that are operands read from memory, left out of the hash. */
-  public record CodeVariant(int start, int end, int variableStart, int[] variableBytes, int relocatedAt, int[] code, int bank, int[] varying, int prefix) {
+  public record CodeVariant(int start, int end, int variableStart, int[] variableBytes, int relocatedAt, int[] code, int bank, int[] varying, int prefix, int[] instructions) {
     public int hash() {
       int[] masked = variableBytes.clone();
       for (int offset : varying)
@@ -238,6 +238,10 @@ public class RoutineManager {
 
     public int relocated(int address) {
       return relocatedAt + prefix + address - start;
+    }
+
+    public boolean hasInstructionAt(int address) {
+      return java.util.Arrays.binarySearch(instructions, address) >= 0;
     }
   }
 

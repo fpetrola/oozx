@@ -150,6 +150,14 @@ Programa del recubrimiento (el que la regla del arnés rechaza hoy):
   `synthetic` lo tienen en cuenta en `RoutineManager`); en Batman todos los saltos que salen (lista con
   `$S/tools/Leaving.java`) alcanzan uno de los dos lados. Test
   aRelativeJumpAtTheStartOfALongCopiedRegionReachesATrampolineBeforeTheCopy (región de 130 bytes), rojo antes.
+- **P3, entradas interiores (1030-batman11).** Con los trampolines, los saltos que salen de una región entran
+  en otra por el medio (EB8F, CE61, DB58, D2B2…) y cada copia de la región destino se exploraba desde ahí
+  aunque en su forma esa dirección cayera en medio de una instrucción: la exploración decodificaba basura, las
+  rutinas de las copias se fundieron con las del juego en rutinas de 10 KB ({44C3:AC2E}, {9F73:C6FE}) y el
+  corte de una de ellas falló (`Routine.split`, Optional vacío). Cada copia sabe dónde empiezan sus
+  instrucciones (`CodeVariant.instructions`, de la misma decodificación de `copiesOf`) y una entrada interior
+  solo explora y despacha las copias que tienen una instrucción ahí. Test
+  anEntryInsideARegionOnlyEntersTheCopiesThatHaveAnInstructionThere, rojo antes (`$c0_8101` existía).
 - **Pendiente de P3:** `unknownCodeVariant` sigue lanzando excepción ante un contenido no grabado; el respaldo
   con el emulador ahí (como `goOnFrom`) daría robustez jugando con teclas al azar. Las cuatro regiones de Batman
   sin lugar piden la clave con espacio (sin copias en RAM) o un respaldo por región, no por instrucción.

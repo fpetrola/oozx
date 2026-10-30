@@ -158,9 +158,10 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
   /** Explores every copy of a region from the entries into the region known so far; true when there were new ones. */
   private boolean exploreEntriesOf(List<RoutineManager.CodeVariant> copies) {
     RoutineManager.CodeVariant first = copies.get(0);
-    List<Integer> entries = routineManager.entriesInto(first.start(), first.end()).stream().filter(entry -> !routineManager.externalEntries.contains(first.relocated(entry))).toList();
-    entries.forEach(entry -> copies.forEach(copy -> stepUntilComplete(copy.relocated(entry))));
-    entries.forEach(entry -> copies.forEach(copy -> routineManager.externalEntries.add(copy.relocated(entry))));
+    java.util.function.Function<Integer, List<RoutineManager.CodeVariant>> entering = entry -> copies.stream().filter(copy -> copy.hasInstructionAt(entry)).toList();
+    List<Integer> entries = routineManager.entriesInto(first.start(), first.end()).stream().filter(entry -> entering.apply(entry).stream().anyMatch(copy -> !routineManager.externalEntries.contains(copy.relocated(entry)))).toList();
+    entries.forEach(entry -> entering.apply(entry).forEach(copy -> stepUntilComplete(copy.relocated(entry))));
+    entries.forEach(entry -> entering.apply(entry).forEach(copy -> routineManager.externalEntries.add(copy.relocated(entry))));
     return !entries.isEmpty();
   }
 
@@ -194,7 +195,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
       for (int j = 0; j < after.size(); j++)
         if (!bend(code, prefix, after.get(j), prefix + size + 3 + 3 * j))
           return null;
-      copies.add(new RoutineManager.CodeVariant(start, end, variableStart, shape.bytes(), at, code, -1, shape.varying(), prefix));
+      copies.add(new RoutineManager.CodeVariant(start, end, variableStart, shape.bytes(), at, code, -1, shape.varying(), prefix, instructions.stream().mapToInt(instruction -> instruction[0]).toArray()));
       at += code.length;
     }
     return copies;
@@ -242,7 +243,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
       for (int i = 0; i < code.length; i++)
         getState().getMemory().write(at + i, code[i]);
       getState().getMemory().protect(at, at + code.length);
-      RoutineManager.CodeVariant variant = new RoutineManager.CodeVariant(start, end, start, code, at, code, bank, new int[0], 0);
+      RoutineManager.CodeVariant variant = new RoutineManager.CodeVariant(start, end, start, code, at, code, bank, new int[0], 0, instructions.keySet().stream().mapToInt(Integer::intValue).sorted().toArray());
       routineManager.codeVariants.add(variant);
       banked.modified().forEach(address -> getStackAnalyzer().codeVersions.mutant().add(variant.relocated(address)));
       StackAnalyzer stackAnalyzer = getStackAnalyzer();
