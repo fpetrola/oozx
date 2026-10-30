@@ -1,5 +1,6 @@
 package com.fpetrola.z80.instructions.tests;
 
+import com.fpetrola.z80.base.ManualBytecodeGenerationTest;
 import com.fpetrola.z80.bytecode.BytecodeGeneration;
 import com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase;
 import com.fpetrola.z80.instructions.types.Instruction;
@@ -305,7 +306,7 @@ public class RecordedProgramTests {
 
   /** The translation as a reader follows it: without the clock calls every instruction makes, the memory image and the empty routines, with addresses in hex. */
   private static String withoutTiming(String java) {
-    String code = java.replaceAll("(?s)   public String getProgramBytes\\(\\) \\{.*?\\n   \\}\\n\\n", "").lines()
+    String code = ManualBytecodeGenerationTest.withoutDispatch(java).replaceAll("(?s)   public String getProgramBytes\\(\\) \\{.*?\\n   \\}\\n\\n", "").lines()
         .filter(line -> !line.contains("this.pc(") && !line.contains("this.tstates(")).collect(Collectors.joining("\n", "", "\n"))
         .replaceAll("\n   public void \\$\\w+\\(\\) \\{\n   \\}\n", "");
     code = Pattern.compile("'\\\\u([0-9a-f]{4})'").matcher(code).replaceAll(m -> "0x" + m.group(1).toUpperCase());

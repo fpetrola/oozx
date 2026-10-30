@@ -32,7 +32,7 @@ public class BytecodeGenerationContext {
   public RoutineManager routineManager;
   public boolean optimize16Convertion = false;
   public ClassMaker cm;
-  public Map<String, MethodMaker> methods;
+  public Map<Integer, MethodMaker> methods;
   /** Addresses a method's start dispatches to: each gets an entry method, for whoever reaches it by address at run time. */
   public final java.util.Set<Integer> dispatchedEntries = new java.util.TreeSet<>();
   public Register pc;

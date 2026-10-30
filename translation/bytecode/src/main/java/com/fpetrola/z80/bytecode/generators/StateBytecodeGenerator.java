@@ -143,24 +143,25 @@ public class StateBytecodeGenerator {
 
     java.util.stream.Stream.concat(routineManager.externalEntries.stream(), bytecodeGenerationContext.dispatchedEntries.stream()).distinct().forEach(entry -> {
       Routine owner = routineManager.findRoutineAt(entry);
-      if (owner != null && owner.getEntryPoint() != entry && !bytecodeGenerationContext.methods.containsKey(RoutineBytecodeGenerator.createLabelName(entry))) {
+      if (owner != null && owner.getEntryPoint() != entry && !bytecodeGenerationContext.methods.containsKey(entry)) {
         MethodMaker entryMethod = new RoutineBytecodeGenerator(bytecodeGenerationContext, owner).getMethod(entry);
-        entryMethod.invoke("setNextAddress", entry);
-        Routine top = routineManager.topParent(owner);
-        if (bytecodeGenerationContext.routinesInJumpCycles().contains(top))
-          entryMethod.invoke("runJumps", top.getEntryPoint());
-        else
-          entryMethod.invoke(RoutineBytecodeGenerator.createLabelName(top.getEntryPoint()));
+        enterThrough(entryMethod, entry, bytecodeGenerationContext);
         entryMethod.return_();
       }
     });
 
-    if (!routineManager.outlined.isEmpty()) {
-      MethodMaker headOf = classMaker.addMethod(int.class, "headOf", int.class).protected_();
-      Variable address = headOf.param(0);
-      routineManager.outlined.keySet().stream().sorted(Comparator.comparingInt(Routine::getEntryPoint)).forEach(part -> address.ifEq(part.getEntryPoint(), () -> headOf.return_(routineManager.topParent(part).getEntryPoint())));
-      headOf.return_(address);
+    MethodMaker runTranslated = classMaker.addMethod(boolean.class, "runTranslated", int.class).protected_();
+    int[] translated = bytecodeGenerationContext.methods.keySet().stream().filter(address -> routineManager.findRoutineAt(address) != null).mapToInt(Integer::intValue).sorted().toArray();
+    Label[] entries = java.util.stream.IntStream.range(0, translated.length).mapToObj(i -> runTranslated.label()).toArray(Label[]::new);
+    Label none = runTranslated.label();
+    runTranslated.invoke("pagedCopy", runTranslated.param(0)).switch_(none, translated, entries);
+    for (int i = 0; i < translated.length; i++) {
+      entries[i].here();
+      enterThrough(runTranslated, translated[i], bytecodeGenerationContext);
+      runTranslated.return_(true);
     }
+    none.here();
+    runTranslated.return_(false);
 
     if (jumpMembers.length > 0) {
       Variable next = runJumps.var(int.class).set(runJumps.param(0));
@@ -179,6 +180,17 @@ public class StateBytecodeGenerator {
     }
 
     return classMaker;
+  }
+
+  /** Entering translated code at an address: through the method of the routine that runs its loop, with the address as where to go on when it is not that method's start. */
+  private void enterThrough(MethodMaker mm, int address, BytecodeGenerationContext context) {
+    Routine top = routineManager.topParent(routineManager.findRoutineAt(address));
+    if (address != top.getEntryPoint())
+      mm.invoke("setNextAddress", address);
+    if (context.routinesInJumpCycles().contains(top))
+      mm.invoke("runJumps", top.getEntryPoint());
+    else
+      mm.invoke(RoutineBytecodeGenerator.createLabelName(top.getEntryPoint()));
   }
 
   private static final int MAX_ROUTINE_BYTES = Integer.getInteger("translation.methodBytes", 1500);

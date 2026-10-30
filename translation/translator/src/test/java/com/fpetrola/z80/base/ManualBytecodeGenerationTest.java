@@ -32,7 +32,12 @@ public abstract class ManualBytecodeGenerationTest extends TransformInstructions
   }
 
   public String generateAndDecompile() {
-    return generateAndDecompile("", getRoutineManager().getRoutines(), ".", "JetSetWilly", ((DriverConfigurator)driverConfigurator).symbolicExecutionAdapter);
+    return withoutDispatch(generateAndDecompile("", getRoutineManager().getRoutines(), ".", "JetSetWilly", ((DriverConfigurator)driverConfigurator).symbolicExecutionAdapter));
+  }
+
+  /** The translation without the dispatch by address every class generates the same way. */
+  public static String withoutDispatch(String java) {
+    return java.replaceAll("(?s)\\n   protected boolean runTranslated\\(int var1\\) \\{.*?\\n   \\}\\n", "");
   }
 
   @Override

@@ -15,6 +15,13 @@ public class SpectrumApplicationTest {
     public void $9000() {
       called++;
     }
+
+    protected boolean runTranslated(int address) {
+      if (address != 0x9000)
+        return false;
+      $9000();
+      return true;
+    }
   }
 
   private final Game game = new Game();

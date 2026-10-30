@@ -34,7 +34,6 @@ import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.minizx.sync.SyncChecker;
-import java.lang.reflect.Method;
 import java.util.*;
 
 public abstract class SpectrumApplication {
@@ -157,7 +156,7 @@ public abstract class SpectrumApplication {
       if (taken) {
         push(returnAddress);
         int pushedAt = SP;
-        invokeMethod(call.calculateJumpAddress());
+        jump(call.calculateJumpAddress());
         if (unwinding())
           ownAddress(returnAddress);
         else if (SP == pushedAt)
@@ -229,18 +228,15 @@ public abstract class SpectrumApplication {
   }
 
   public void jump(int address) {
-    invokeMethod(address);
+    if (!runTranslated(address))
+      untranslated(address);
   }
-
-  private final Map<Integer, Boolean> translatedAt = new HashMap<>();
 
   /** Rewritten code the emulator left somewhere without a method of its own (an instruction of another length than the recorded one): it goes on in the emulator up to translated code or a RET. */
   public void goOnFrom(int address) {
     for (int pc = address; pc != -1 && !unwinding(); pc(pc, 0, 0), pc = executeMutantCode(pc))
-      if (translatedAt.computeIfAbsent(pagedCopy(pc), at -> Arrays.stream(getClass().getMethods()).anyMatch(m -> m.getName().equals("$" + Integer.toHexString(at).toUpperCase())))) {
-        invokeMethod(pc);
+      if (runTranslated(pc))
         return;
-      }
   }
 
   /** Where the code at this address was translated: a class with code of other banks overrides it to send their window to its copies. */
@@ -248,36 +244,10 @@ public abstract class SpectrumApplication {
     return address;
   }
 
-  /** The routine whose method runs the loop a part belongs to: a part is entered through it, with the part as the next address. */
-  protected int headOf(int address) {
-    return address;
+  /** Runs the translated code at the address, through the method of the routine whose loop it belongs to: the translated class generates it; false when nothing was translated there. */
+  protected boolean runTranslated(int address) {
+    return false;
   }
-
-  protected void invokeMethod(int address) {
-    try {
-      Method method;
-      int translated = pagedCopy(address);
-      if (headOf(translated) != translated) {
-        nextAddress = translated;
-        translated = headOf(translated);
-      }
-      try {
-        method = getClass().getMethod("$" + Integer.toHexString(translated).toUpperCase());
-      } catch (NoSuchMethodException decimalNamed) {
-        method = getClass().getMethod("$" + translated);
-      }
-      if (method.invoke(this) instanceof Integer next && next != -1 && !unwinding())
-        getClass().getMethod("runJumps", int.class).invoke(this, next);
-    } catch (java.lang.reflect.InvocationTargetException e) {
-      if (e.getCause() instanceof RuntimeException runtime)
-        throw runtime;
-      throw new RuntimeException(e.getCause());
-    } catch (ReflectiveOperationException e) {
-      throw new IllegalStateException("no translated routine at %04X".formatted(address), e);
-    }
-  }
-
-
 
   private final Register aluTarget = new Plain8BitRegister("target");
   private final Register aluSource = new Plain8BitRegister("source");

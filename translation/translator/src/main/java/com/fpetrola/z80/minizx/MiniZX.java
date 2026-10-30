@@ -166,11 +166,11 @@ public abstract class MiniZX extends SpectrumApplication {
       int interrupted = PC;
       push(interrupted);
       int sp = SP;
-      invokeMethod(handler);
+      jump(handler);
       if (SP == sp && !unwinding() && pop() != interrupted)
         unwind(mem16(sp, -1));
     } else
-      invokeMethod(handler);
+      jump(handler);
     interrupts++;
     if (unwinding())
       throw new StackException(unwound());

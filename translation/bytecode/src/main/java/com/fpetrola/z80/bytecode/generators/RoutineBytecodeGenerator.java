@@ -353,13 +353,13 @@ public class RoutineBytecodeGenerator {
 
   public MethodMaker findOrCreateMethodAt(int address) {
     String methodName = createLabelName(address);
-    MethodMaker methodMaker = context.methods.get(methodName);
+    MethodMaker methodMaker = context.methods.get(address);
 
     if (methodMaker == null) {
       methodMaker = createMethod(address, methodName);
     }
 
-    context.methods.put(methodName, methodMaker);
+    context.methods.put(address, methodMaker);
 
     return methodMaker;
   }
@@ -546,7 +546,7 @@ public class RoutineBytecodeGenerator {
     try {
       Routine target = context.routineManager.findRoutineAt(jumpLabel);
       int entry = jumpLabel;
-      if (target != null && target.getEntryPoint() != jumpLabel && !context.methods.containsKey(labelName)) {
+      if (target != null && target.getEntryPoint() != jumpLabel && !context.methods.containsKey(jumpLabel)) {
         mm.invoke("setNextAddress", jumpLabel);
         entry = target.getEntryPoint();
         labelName = createLabelName(entry);
