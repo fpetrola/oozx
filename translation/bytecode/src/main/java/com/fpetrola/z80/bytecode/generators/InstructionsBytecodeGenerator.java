@@ -154,7 +154,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
       if (realVariable instanceof java.lang.Integer integer)
         realVariable = routineByteCodeGenerator.variables.get("A").shl(8).or(integer);
 
-      t.set(methodMaker.invoke(operation, realVariable, routineByteCodeGenerator.context.pc.read()));
+      t.set(methodMaker.invoke(operation, realVariable, originalAddress()));
     }, routineByteCodeGenerator));
   }
 
@@ -506,7 +506,11 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   }
 
   public void visitingHalt(Halt halt) {
-    methodMaker.invoke("halt", address);
+    methodMaker.invoke("halt", originalAddress());
+  }
+
+  private int originalAddress() {
+    return routineByteCodeGenerator.context.routineManager.originalAddress(address);
   }
 
   public void visitEI(EI ei) {
@@ -583,7 +587,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
 
   private void callRepeatingInstruction(RepeatingInstruction repeatingInstruction) {
     String methodName = repeatingInstruction.getClass().getSimpleName().toLowerCase();
-    methodMaker.invoke(methodName, routineByteCodeGenerator.context.routineManager.originalAddress(address));
+    methodMaker.invoke(methodName, originalAddress());
   }
 
   @Override

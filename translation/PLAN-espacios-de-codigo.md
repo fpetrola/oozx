@@ -110,8 +110,29 @@ Programa del recubrimiento (el que la regla del arnés rechaza hoy):
   explícito y Emlyn une sus plantillas antes de explorar. Dos tests que documentaban el respaldo del emulador
   (R-Type BF24, Renegade 128 con `OUT` en código parcheado) ya no lo usan. La clave con espacio queda para
   cuando a un juego no le alcance la RAM libre para las copias.
+- **P3, formas (43dd213f6).** Los contenidos de una región se agrupan por forma (mismas instrucciones en los
+  mismos lugares, operandos en cero) y hay una copia por forma, no por contenido: los bytes que varían dentro
+  de una forma son operandos que la copia lee de memoria (quedan mutantes en la copia, como los del banco 3) y
+  el despacho compara el hash con esos bytes en cero. Antes la segunda reproducción recorría todas las regiones
+  por instrucción y Batman no terminaba en la hora (e02a42557: índice de región y comparación con el último
+  contenido visto). Una región sin lugar para sus copias se queda como estaba y lo informa.
+- **Batman medido (1030-batman7).** 63 regiones; casi todas de 2 o 3 formas (CFFC-D064 pasa de 104 contenidos
+  a 2, D065-D191 de 99 a 3, DB1D-DB43 de 110 a 2). Cuatro no entran en la RAM libre bajo C000 y siguen por el
+  emulador: D7BB-D996 (475 bytes, 18380 contenidos, 5230 formas: código que el juego genera), DFC3-DFF1
+  (46 bytes, 43302 contenidos, 37018 formas: datos que alguna vez se ejecutaron), D2C2-D424 (30 formas) y
+  E72A-E80A (11). Con eso Batman se traduce entero (RUNONE ok, antes fallaba) y el lockstep se cortó en el
+  cuadro 48 dentro de la copia `$c0_EB38`: la región EB38-EB43 es la espera de cuadro (`EI; HALT; LD C,FE;
+  IN A,(C); CPL; AND 1F; LD D,A; RET NZ`) y su otro contenido es otra rutina (`AND 1; ADD A,0E; LD (IY+0),A;
+  LD C,A; JP D594`); el `HALT` de la copia informaba al runtime la dirección de la copia (`halt(0x6569)`) y
+  el estado al fin de cuadro decía PC=6569 contra EB39.
+- **P3, direcciones informadas desde una copia.** `pc()` ya pasaba por `originalAddress`; `halt`, `in`/`inC`
+  (`SyncSpectrumApplication` lo usa para sincronizar) y las instrucciones de bloque pasan por el mismo
+  `InstructionsBytecodeGenerator.originalAddress()`. El arnés deja que el Java llegue a su `halt()` antes de
+  terminar el programa en un `HALT`, así compara también lo que el `HALT` informa. Test
+  aHaltInsideACopyOfARewrittenRegionReportsItsOriginalAddress, rojo antes (PC=4008 contra 8102).
 - **Pendiente de P3:** `unknownCodeVariant` sigue lanzando excepción ante un contenido no grabado; el respaldo
-  con el emulador ahí (como `goOnFrom`) daría robustez jugando con teclas al azar.
+  con el emulador ahí (como `goOnFrom`) daría robustez jugando con teclas al azar. Las cuatro regiones de Batman
+  sin lugar piden la clave con espacio (sin copias en RAM) o un respaldo por región, no por instrucción.
 
 ## 5. Riesgos
 

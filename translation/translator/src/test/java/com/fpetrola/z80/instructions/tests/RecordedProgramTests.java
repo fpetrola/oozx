@@ -181,10 +181,11 @@ public class RecordedProgramTests {
     State z80 = emulator.ooz80.getState(), translated = EmulatedMiniZX.createOOZ80(new DefaultMiniZXIO()).getState();
     program.loadState(z80);
     int[] previous = {-1}, steps = {0}, nextInterrupt = {interruptEvery}, fetched = {0}, lastR = {z80.getRegisterR().read()};
+    boolean[] halting = {false};
     program.setInterruptionCondition(fetches -> {
       if (previous[0] >= 0) {
         emulator.ooz80.execute();
-        for (int k = 0; k < 0x10000 && z80.getPc().read() == previous[0] && program.PC != previous[0]; k++)
+        for (int k = 0; k < 0x10000 && !halting[0] && z80.getPc().read() == previous[0] && program.PC != previous[0]; k++)
           emulator.ooz80.execute();
       }
       fetched[0] += z80.getRegisterR().read() - lastR[0] & 0x7f;
@@ -203,10 +204,11 @@ public class RecordedProgramTests {
         if (nested > stacked + 8)
           throw new IllegalStateException("after $%04X: %d translated routines nested in Java for %d words on the Z80 stack: a jump became a call".formatted(previous[0], nested, stacked));
       }
-      if (z80.getMemory().getData()[z80.getPc().read()] == 0x76 || ++steps[0] == maxSteps)
+      if (halting[0] || ++steps[0] == maxSteps)
         throw new Finished();
+      halting[0] = z80.getMemory().getData()[z80.getPc().read()] == 0x76;
       previous[0] = program.PC;
-      if (interruptEvery > 0 && fetches >= nextInterrupt[0] && z80.isIff1()) {
+      if (!halting[0] && interruptEvery > 0 && fetches >= nextInterrupt[0] && z80.isIff1()) {
         nextInterrupt[0] = fetches + interruptEvery;
         emulator.ooz80.interruption();
         previous[0] = -1;
@@ -5018,6 +5020,18 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aHaltInsideACopyOfARewrittenRegionReportsItsOriginalAddress() {
+    // Target: Batman EB38-EB43, the frame wait (EI; HALT; IN A,(C)) rewritten in place: the copy's HALT reported the copy's address and the lockstep saw PC=6569 at the frame end
+    String java = translate(
+        at(0x8000, 0xCD, 0x00, 0x81, 0x21, 0x00, 0x82, 0x11, 0x00, 0x81, 0x01, 0x04, 0x00, 0xED, 0xB0, 0xC3, 0x00, 0x81),
+        at(0x8100, 0x3C, 0x06, 0x00, 0xC9),
+        at(0x8200, 0x0E, 0x01, 0x76, 0xC9));
+    Assert.assertEquals(0x01, endValue("A"));
+    Assert.assertEquals(0x01, endValue("C"));
+    Assert.assertTrue("the copy's HALT reports the address of the HALT it stands for", withoutTiming(java).contains("halt(0x8102)"));
+  }
+
+  @Test
   public void anInstructionOfAContentThatStartsInsideTheRegionAndEndsPastItExtendsTheRegion() {
     // the differing bytes end at 8101, but the second content's CALL at 8101 runs to 8103: the region holds whole instructions of every content
     translate(
@@ -6851,7 +6865,7 @@ public class RecordedProgramTests {
     translate(
         at(0x8000, 0x3E, 0x00, 0xB7, 0x28, 0x03, 0x32, 0x09, 0x80, 0xDD, 0x21, 0x00, 0x90, 0x76, 0x18, 0xFD));
     Assert.assertTrue(stackAnalyzer.codeVersions.mutant().contains(0x8009));
-    Assert.assertEquals(5, endValue("R"));
+    Assert.assertEquals(6, endValue("R"));
   }
 
   @Test
