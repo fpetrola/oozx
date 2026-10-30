@@ -258,10 +258,11 @@ Un componente no se pliega, y queda en `runJumps`, cuando no es un bucle sino ll
 - un salto entre miembros es un salto a ancestro (`goesBack`);
 - un RET de un miembro toma datos empujados por otro miembro: la continuación plantada la corre quien salta
   (`leaveWithOwnData`), y plegado ese salto es una llamada de parte que no la corre
-  (`aStackResetDropsTheReturnIntoTheExecutionThatMadeTheCall`, TR E695/F408);
-- una rutina que el ciclo llama salta de vuelta a un miembro sin que ese salto se desenrolle
-  (`callersWhoseReturnIsTaken` no lo cubre): TR 5B2C… y D780/D783/D794, con `JP (HL)`/`JP` de vuelta desde
-  rutinas llamadas. Si `runJumps` lo aplanaba, al plegar anidaría un marco por vuelta.
+  (`aStackResetDropsTheReturnIntoTheExecutionThatMadeTheCall`).
+Hubo una cuarta regla ("una rutina que el ciclo llama salta de vuelta a un miembro sin desenrollar", TR 5B2C…
+y D780/D783/D794) que se quitó el 2026-10-30: la corrida 1028-outline11, con esos dos plegados, ya pasaba
+completa por bytecode; lo que fallaba era Fernflower, resuelto después con las entradas de las partes como
+raíces de la estructura.
 
 Resultado: Emlyn sin `runJumps` (los 5 componentes plegados: FE61/FE65, 603C/6078, 9BEA, 6865 con 10 tareas,
 5F9E); Target Renegade 31 → 9 casos (pliegan la tabla DBB6 con 10 tareas, DAE9 y D8FA; quedan los tres de
@@ -269,10 +270,36 @@ arriba). Ambos completos por bytecode y por fuente (corrida 1028-outline12). Tes
 `routinesJumpingToEachOtherAroundAHeadAreALoopInTheHeadsMethodAndTheOthersItsParts`;
 `aRoutineEnteredInItsMiddleWhoseTailLoopsBackToItsHead…` afirma ahora el plegado.
 
-Pendiente de esta fase: los tres componentes de TR. El de E695/F408 pide que la parte haga lo que hoy hace
-quien salta con `leaveWithOwnData`; los otros dos, que un salto de vuelta a un miembro desde una rutina llamada
-se trate como `unwind` aunque nadie haya sacado el retorno con POP (hoy el retorno queda en la pila y lo consume
-un RET posterior).
+### Fase 4, cierre (2026-10-30): sin reflexión y sin ciclos en Target Renegade
+
+- Sin reflexión en el runtime: la clase traducida genera `runTranslated(dirección)`, un `switch` sobre todas
+  las direcciones con método que entra por el método de la rutina que lleva su bucle (`setNextAddress` cuando
+  no es su inicio; `runJumps` si todavía es miembro de ciclo); `jump`, `goOnFrom` y la ISR lo usan.
+  Reemplaza `headOf` y la búsqueda de métodos por nombre. Cuesta unas 4 líneas de fuente por método (Emlyn
+  +1400 líneas), todas al final de la clase. Los fuentes commiteados en `minizx/emulation` anteriores a esto no
+  tienen `runTranslated`: con el runtime actual fallan en su primer `jump`; hay que regenerarlos (nocturna
+  1030-all1, lanzada el 2026-10-30 a la 01:44 sobre los 20 juegos con reportes y fuentes).
+- Un solo dueño de "adónde sigue una instrucción": `RoutineManager.goesOnAt(dirección, rutina, hechos,
+  conLlamadas)`, a partir de los hechos del `StackAnalyzer` y de la misma clasificación que usa el emisor
+  (`exitOfJump`). Lo usan el grafo de saltos entre rutinas (`edges`/`flow`: ciclos, saltos a ancestros,
+  `routinesThatMayUnwind`) y la estructura de control de cada método (`ControlFlowStructuring`). Antes cada
+  uno clasificaba por tipo de instrucción y el grafo no veía los hechos: la llamada simulada de F408
+  (`PUSH continuación; JP (HL)`, que el generador ya emitía como llamada) contaba como salto y armaba el falso
+  ciclo E695/F408. Ahora es arista de llamada y el ciclo no existe. El orden de los sucesores se conserva
+  (continuación primero, después los destinos): `nestedLoopsEachEnteredInTheMiddle…` cambia de cabecera si no.
+- Dirección del desacople que pidió Fernando: los trucos (llamada simulada, reseteo de SP, retorno sacado con
+  POP, salto por RET) los reconoce el circuito SE → `AddressAction` → hechos del `StackAnalyzer` → generador,
+  y el `StackAnalyzer` ya es compartido (aprende de la grabación y de la SE). La clasificación por sitio vive
+  en `RoutineManager` (`exitOf`, `exitOfJump`, `goesOnAt`) y la consume el generador; las acciones de SE
+  deciden por eventos del mismo analizador. Queda como paso posterior que las acciones de SE consulten esa
+  misma clasificación en vez de decidir aparte.
+- Una salida de una parte hacia una entrada interior de otra parte (Renegade F280 → F28C dentro de F36E) va
+  por el bloque de llamada de la hermana con la dirección cargada (`partContaining` en `tailJump`/`goOn`), en
+  vez de `invokeTransformedMethod`, que llamaba al método cabeza de nuevo (un marco por vuelta).
+- Resultado: Target Renegade `runJumps` 9 → 0 (5B2C y D783 plegados; E695/F408 ya no es ciclo), Emlyn 0;
+  ambos completos por bytecode y por fuente (corrida 1030-edges1). Los `this.jump(dirección)` que quedan (31 en
+  TR, 26 en Emlyn) son saltos a direcciones calculadas en tiempo de ejecución, despachados por el `switch`.
+  El reporte `LOOP` muestra ahora las salidas de cada tarea con su sitio (`DB5D->[DB7D<-DB5D, …]`).
 
 ### Fase 4, diseño afinado (2026-10-28), para los ciclos que queden
 
@@ -406,7 +433,8 @@ Hay que cargar `~/detodo/spectrum/investigacion/tools/traduccion/run/env.sh`. Su
 | base | Emlyn | 67 | ? (fase 0) | 0 | r3 y r4 completos / completos / semillas 2 y 4 | d5be2f045 |
 | 0 (medido sobre los fuentes de la nocturna 1012-fall, miembros = métodos `int`; componentes = SCC de los `return dirección`) | Emlyn 60 (32,4,3,2,2) · Dizzy 23 (11,6,3,3) · DD 5 · Wally 0 · Target Renegade 46 (17,12) · Rainbow Islands 62 (12,12,10,7) · Renegade 26 (9,5) · Renegade 128 33 (8,5,4,3) · Manic Miner 9 (6,3) · Skool Daze 117 (casi todos sueltos, 258 `runJumps` desde afuera) · Head over Heels 20 · Fairlight 22 · Monty 13 · R-Type 13 · Great Escape 13 · Exolon 15 · Zynaps 6 · Equinox 2 · DD2 2 | | 0 en 1012-fall | 19/20 completos (Batman 415) | e396ab725 |
 | 3.3 corte por regiones (2026-10-28, corridas 1028-outline7..9) | Emlyn: casos de `runJumps` 60 → 23 en 5 componentes del juego (FE61/FE65, 603C/6078, 9B23…, 67F7… de 11, 5F9E…), 4 partes, traduce en 2-3 min y Fernflower descompila al primer intento · Target Renegade: 48 → 31 en 6 componentes del juego (despachador DB9D…DC1B, bucle E695/F408, 5B2C…, D780/D783/D794, DAE9…, D8FA…), 2 partes | | 0 | Emlyn y TR completos por bytecode y por fuente | pendiente de commit |
-| 4 bucle en la cabeza (2026-10-28, corrida 1028-outline12) | Emlyn: `runJumps` 23 → 0 · Target Renegade: 31 → 9 (quedan E695/F408, 5B2C…, D780/D783/D794, ver arriba) | | 0 | Emlyn y TR completos por bytecode y por fuente | pendiente de commit |
+| 4 bucle en la cabeza (2026-10-28, corrida 1028-outline12) | Emlyn: `runJumps` 23 → 0 · Target Renegade: 31 → 9 (quedan E695/F408, 5B2C…, D780/D783/D794, ver arriba) | | 0 | Emlyn y TR completos por bytecode y por fuente | 56cc0d4a7 |
+| 4 cierre: sin reflexión, `goesOnAt`, sin regla nested (2026-10-30, corrida 1030-edges1) | Emlyn: 0 · Target Renegade: 9 → 0 | | 0 | Emlyn y TR completos por bytecode y por fuente; los 20 juegos en la nocturna 1030-all1 | 84dc865d4, 12eb15715 |
 
 ## 10. Segunda parte: dejar de depender de la pila y de SP
 
