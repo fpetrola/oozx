@@ -4820,6 +4820,182 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aPartOfALoopNeverCallsItsSiblingsEvenWhenTheyLoopAmongThemselves() {
+    // Target: Batman D1F1/E366: parts of the loop D537 jump to each other without passing through the head, and a sibling reached only from the head jumps into that cycle; the structure of a part saw a loop through its siblings with an entry, dispatched it like the head does and called the siblings from inside the part (no label for D1F1). A sibling is where a part ends: an exit, never a call
+    String java = translate(listing("""
+        8000  CD 00 82  CALL 0x8200
+        8003  CD 00 83  CALL 0x8300
+        8006  CD 00 84  CALL 0x8400
+        8009  CD 00 81  CALL 0x8100
+        800C  76  HALT
+        8100  04  INC B
+        8101  78  LD A, B
+        8102  FE 06  CP A, 0x06
+        8104  C8  RET Z
+        8105  CB 40  BIT 0, B
+        8107  28 03  JR Z, 0x810C
+        8109  C3 00 82  JP 0x8200
+        810C  C3 00 84  JP 0x8400
+        8200  78  LD A, B
+        8201  B7  OR A, A
+        8202  C8  RET Z
+        8203  0C  INC C
+        8204  CB 41  BIT 0, C
+        8206  28 03  JR Z, 0x820B
+        8208  C3 00 83  JP 0x8300
+        820B  C3 00 81  JP 0x8100
+        8300  78  LD A, B
+        8301  B7  OR A, A
+        8302  C8  RET Z
+        8303  14  INC D
+        8304  C3 00 82  JP 0x8200
+        8400  78  LD A, B
+        8401  B7  OR A, A
+        8402  C8  RET Z
+        8403  1C  INC E
+        8404  C3 00 83  JP 0x8300
+        """));
+    Assert.assertEquals(0x060A, endValue("BC"));
+    Assert.assertEquals(0x0702, endValue("DE"));
+    String part = withoutTiming(java).substring(withoutTiming(java).indexOf("public int $8200()"));
+    Assert.assertFalse("a part calling a sibling", part.substring(0, part.indexOf("\n   }\n")).contains("this.$8300()"));
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public void $8000() {
+              this.setNextAddress(0x8200);
+              this.$8100();
+              this.setNextAddress(0x8300);
+              this.$8100();
+              this.setNextAddress(0x8400);
+              this.$8100();
+              this.$8100();
+              this.halt(0x800C);
+              this.$8100();
+           }
+
+           public void $8100() {
+              if(this.isNextPC(0x8200)) {
+                 this.setNextAddress(0x8200);
+              } else if(this.isNextPC(0x8300)) {
+                 this.setNextAddress(0x8300);
+              } else if(this.isNextPC(0x8400)) {
+                 this.setNextAddress(0x8400);
+              }
+
+              int var6;
+              label56:
+              do {
+                 if(!this.isNextPC(0x8200)) {
+                    if(this.isNextPC(0x8300)) {
+                       this.setNextAddress(0x8300);
+                    } else {
+                       label62: {
+                          if(!this.isNextPC(0x8400)) {
+                             int var1 = this.B();
+                             int var2 = this.alu("inc", var1);
+                             this.B(var2);
+                             int var3 = this.B();
+                             this.A(var3);
+                             int var4 = this.A();
+                             this.alu("cp", var4, 6);
+                             if(this.flag(64, false)) {
+                                return;
+                             }
+
+                             int var5 = this.B();
+                             this.bit(0, var5);
+                             if(!this.flag(64, false)) {
+                                break label62;
+                             }
+
+                          }
+
+                          if(this.$8400() != 0) {
+                             return;
+                          }
+
+                          this.setNextAddress(0x8300);
+                       }
+                    }
+                 }
+
+                 do {
+                    if(!this.isNextPC(0x8300)) {
+                       var6 = this.$8200();
+                       if(var6 != 0) {
+                          continue label56;
+                       }
+                    }
+                 } while(this.$8300() == 0);
+
+                 return;
+              } while(var6 == 1);
+
+           }
+
+           public int $8200() {
+              int var1 = this.B();
+              this.A(var1);
+              int var2 = this.A();
+              int var3 = this.A();
+              int var4 = this.alu("or", var3, var2);
+              this.A(var4);
+              if(this.flag(64, false)) {
+                 return -1;
+              } else {
+                 int var5 = this.C();
+                 int var6 = this.alu("inc", var5);
+                 this.C(var6);
+                 int var7 = this.C();
+                 this.bit(0, var7);
+                 if(this.flag(64, false)) {
+                    return 1;
+                 } else {
+                    return 0;
+                 }
+              }
+           }
+
+           public int $8300() {
+              int var1 = this.B();
+              this.A(var1);
+              int var2 = this.A();
+              int var3 = this.A();
+              int var4 = this.alu("or", var3, var2);
+              this.A(var4);
+              if(this.flag(64, false)) {
+                 return -1;
+              } else {
+                 int var5 = this.D();
+                 int var6 = this.alu("inc", var5);
+                 this.D(var6);
+                 return 0;
+              }
+           }
+
+           public int $8400() {
+              int var1 = this.B();
+              this.A(var1);
+              int var2 = this.A();
+              int var3 = this.A();
+              int var4 = this.alu("or", var3, var2);
+              this.A(var4);
+              if(this.flag(64, false)) {
+                 return -1;
+              } else {
+                 int var5 = this.E();
+                 int var6 = this.alu("inc", var5);
+                 this.E(var6);
+                 return 0;
+              }
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
   public void targetRenegadeE0D6GoesBackIntoTheMainLoopThatCaughtItInsteadOfCallingItAgain() {
     // Target: Renegade D6E4-D7A0 and E058-E3D0 as they are (the routines they call only return): E058 takes its return with POP HL at E0D5, the main loop's catch runs E0D6, and E0D6 goes back to D794; calling $D6E4 again nested one more loop on every such turn until, at frame 52976, a RET unwound the game out of its loop
     ignoresMemory(0xBF00, 0xBFC0);

@@ -149,6 +149,11 @@ public class GameBytecodeCreationTests {
   }
 
   @Test
+  public void testTranslateBombJackToJava() {
+    translateRecording("BombJack", "/home/fernando/detodo/spectrum/rzx-top/617/bombjack.rzx");
+  }
+
+  @Test
   public void testTranslateRenegadeToJava() {
     translateRecording("Renegade", "/home/fernando/detodo/spectrum/rzx-top/4082/renegade48-random.rzx");
   }
@@ -224,6 +229,7 @@ public class GameBytecodeCreationTests {
 
   private void translateRecording(String name, String recording, int... entries) {
     int start = RemoteZ80Translator.startOf(recording);
+    System.out.println("RECORDING " + recording + " starts at " + Integer.toHexString(start));
     String base64Memory = RemoteZ80Translator.emulateRecordingUntil(realCodeBytecodeCreationBase, recording, start);
     realCodeBytecodeCreationBase.exploreRecording(RemoteZ80Translator.footprint(recording, start), start, entries);
     writeTranslation(name, base64Memory);

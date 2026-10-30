@@ -729,8 +729,10 @@ public class RoutineBytecodeGenerator {
       if (header == -1 && carry != target)
         mm.invoke("setNextAddress", carry);
       callPart(partEntries.get(at));
-    } else
+    } else if (getLabel(at) != null)
       getLabel(at).goto_();
+    else
+      throw new IllegalStateException("no label for " + Helper.formatAddress(at) + " (from " + Helper.formatAddress(from) + " to " + Helper.formatAddress(target) + ", carrying " + Helper.formatAddress(carry) + ") in " + routine);
   }
 
   /** The addresses of a part the code outside its family comes in at: its entry (a call, a jump, a RET that goes on there) and what is entered from outside inside it. */
