@@ -752,14 +752,13 @@ public class RoutineManager {
     return onTop.distinct().filter(push -> owns(routine, push) && stackAnalyzer.dataConsumedBy.entries().stream().anyMatch(e -> e.getValue().equals(push) && !owns(routine, e.getKey()))).toList();
   }
 
-  /** The values a RET that also returns to callers may find on top as data its family pushed for it (pushes real in Java, values the RET was seen going to, never the return of a call pushed back): it goes on at the one it finds, and returns otherwise. Data another routine pushed is that routine's to go on with when the RET returns to it. */
+  /** The values a RET that also returns to callers may find on top as data its family pushed for it (pushes real in Java, values the RET was seen going to): it goes on at the one it finds, and returns otherwise. Data another routine pushed is that routine's to go on with when the RET returns to it. */
   public java.util.Set<Integer> dataValuesTakenBy(int ret, StackAnalyzer stackAnalyzer) {
     if (stackAnalyzer.shiftedReturns.containsKey(ret))
       return java.util.Set.of();
     Routine family = topParent(findRoutineAt(ret));
-    java.util.Set<Integer> returns = stackAnalyzer.poppedCallSites.keySet().stream().filter(instructions::containsKey).map(this::addressAfter).collect(java.util.stream.Collectors.toSet());
     java.util.Set<Integer> targets = stackAnalyzer.getInvocationsSet(ret);
-    return stackAnalyzer.dataConsumedBy.get(ret).stream().filter(push -> owns(family, push) && pushedForReal(push, stackAnalyzer)).flatMap(push -> stackAnalyzer.pushedValues.get(push).stream()).filter(value -> targets.contains(value) && !returns.contains(value)).collect(java.util.stream.Collectors.toCollection(java.util.TreeSet::new));
+    return stackAnalyzer.dataConsumedBy.get(ret).stream().filter(push -> owns(family, push) && pushedForReal(push, stackAnalyzer)).flatMap(push -> stackAnalyzer.pushedValues.get(push).stream()).filter(targets::contains).collect(java.util.stream.Collectors.toCollection(java.util.TreeSet::new));
   }
 
   /** A push stays real in Java unless it plants a continuation that only a RET of its own method takes: one a RET of another method takes must be on the stack for that RET, or for the pusher once it returns, to find. */
