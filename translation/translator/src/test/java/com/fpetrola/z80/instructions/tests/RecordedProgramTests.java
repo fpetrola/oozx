@@ -355,6 +355,10 @@ public class RecordedProgramTests {
            public void $691A() {
               int[] var1;
               do {
+                 if(this.isNextPC(0x691D)) {
+                    this.setNextAddress(0x691D);
+                 }
+
                  if(!this.isNextPC(0x691D)) {
                     this.SP(0xFFFF);
                  }
@@ -479,6 +483,10 @@ public class RecordedProgramTests {
               int[] var1;
               do {
                  if(this.isNextPC(0xEE9F)) {
+                    this.setNextAddress(0xEE9F);
+                 }
+
+                 while(this.isNextPC(0xEE9F)) {
                  }
 
                  this.$EB55();
@@ -573,6 +581,10 @@ public class RecordedProgramTests {
               int[] var5;
               do {
                  if(this.isNextPC(0x70E9)) {
+                    this.setNextAddress(0x70E9);
+                 }
+
+                 while(this.isNextPC(0x70E9)) {
                  }
 
                  int var1 = this.A();
@@ -710,30 +722,32 @@ public class RecordedProgramTests {
            public int $7C77() {
               int[] var1;
               do {
-                 label24: {
-                    label28: {
-                       if(!this.isNextPC(0x7C46)) {
-                          if(!this.isNextPC(0x7C49)) {
-                             break label28;
-                          }
-                       } else {
-                          this.SP(0xBDFF);
-                       }
+                 if(!this.isNextPC(0x7C46)) {
+                    if(this.isNextPC(0x7C49)) {
+                       this.setNextAddress(0x7C49);
+                    }
+                 } else {
+                    this.SP(0xBDFF);
+                    this.setNextAddress(0x7C49);
+                 }
 
-                       this.$9FDD();
-                       if(this.unwinding()) {
-                          break label24;
+                 while(true) {
+                    if(!this.isNextPC(0x7C49)) {
+                       this.BC(750);
+                       int var2 = this.BC();
+                       this.push(var2);
+                       this.$7C87();
+                       if(!this.unwinding()) {
+                          return 0;
                        }
-
+                       break;
                     }
 
-                    this.BC(750);
-                    int var2 = this.BC();
-                    this.push(var2);
-                    this.$7C87();
-                    if(!this.unwinding()) {
-                       return 0;
+                    this.$9FDD();
+                    if(this.unwinding()) {
+                       break;
                     }
+
                  }
 
                  var1 = new int[]{0x7C49};
@@ -872,33 +886,35 @@ public class RecordedProgramTests {
            public int $F36E() {
               int[] var1;
               do {
-                 label24: {
-                    label28: {
-                       if(!this.isNextPC(0xF28C)) {
-                          if(!this.isNextPC(0xF28F)) {
-                             break label28;
-                          }
-                       } else {
-                          this.SP(0xBDFF);
-                       }
+                 if(!this.isNextPC(0xF28C)) {
+                    if(this.isNextPC(0xF28F)) {
+                       this.setNextAddress(0xF28F);
+                    }
+                 } else {
+                    this.SP(0xBDFF);
+                    this.setNextAddress(0xF28F);
+                 }
 
-                       this.A(71);
-                       this.$9E49();
-                       if(this.unwinding()) {
-                          break label24;
+                 while(true) {
+                    if(!this.isNextPC(0xF28F)) {
+                       int var2 = this.DE();
+                       this.wMem16(0xF4F3, var2, 0xF36E);
+                       this.B(3);
+                       this.exx();
+                       this.L(5);
+                       this.$F460();
+                       if(!this.unwinding()) {
+                          return 0;
                        }
-
+                       break;
                     }
 
-                    int var2 = this.DE();
-                    this.wMem16(0xF4F3, var2, 0xF36E);
-                    this.B(3);
-                    this.exx();
-                    this.L(5);
-                    this.$F460();
-                    if(!this.unwinding()) {
-                       return 0;
+                    this.A(71);
+                    this.$9E49();
+                    if(this.unwinding()) {
+                       break;
                     }
+
                  }
 
                  var1 = new int[]{0xF28F};

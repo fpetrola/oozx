@@ -1833,6 +1833,10 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
            public void $1() {
               int[] var1;
               do {
+                 if(this.isNextPC(2)) {
+                    this.setNextAddress(2);
+                 }
+
                  if(!this.isNextPC(2)) {
                     this.SP('\\ufc00');
                  }

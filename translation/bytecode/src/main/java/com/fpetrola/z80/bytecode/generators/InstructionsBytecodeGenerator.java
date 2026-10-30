@@ -56,7 +56,7 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
   @Override
   public void visitPush(Push push) {
     Register target = (Register) push.getTarget();
-    if (routineByteCodeGenerator.plantedContinuation(address) == null || routineByteCodeGenerator.context.routineManager.takenByAnotherMethod(address, routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer()))
+    if (routineByteCodeGenerator.context.routineManager.pushedForReal(address, routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer()))
       methodMaker.invoke("push", routineByteCodeGenerator.getExistingVariable(target).get());
   }
 
@@ -373,12 +373,16 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
     int pcValue = routineByteCodeGenerator.context.pc.read();
     RoutineManager.RetExit exit = routineByteCodeGenerator.context.routineManager.exitOf(pcValue, stackAnalyzer);
     createIfs(ret, () -> {
-      List<Integer> familyData = routineByteCodeGenerator.context.routineManager.familyDataTakenBy(pcValue, stackAnalyzer);
-      if (!familyData.isEmpty()) {
+      Routine mine = routineByteCodeGenerator.routine;
+      Set<Integer> data = routineByteCodeGenerator.context.routineManager.dataValuesTakenBy(pcValue, stackAnalyzer, push -> !mine.contains(push) || exit.kind() == RoutineManager.Exit.RETURN);
+      if (!data.isEmpty()) {
         Variable top = methodMaker.invoke("peek");
-        familyData.stream().flatMap(push -> stackAnalyzer.pushedValues.get(push).stream()).distinct().sorted().forEach(value -> top.ifEq(value, () -> {
+        data.forEach(value -> top.ifEq(value, () -> {
           methodMaker.invoke("pop");
-          routineByteCodeGenerator.goOnAt(value, pcValue, true);
+          if (routineByteCodeGenerator.getLabel(value) != null)
+            routineByteCodeGenerator.goTo(pcValue, value);
+          else
+            routineByteCodeGenerator.tailJump(value, pcValue);
         }));
       }
       switch (exit.kind()) {

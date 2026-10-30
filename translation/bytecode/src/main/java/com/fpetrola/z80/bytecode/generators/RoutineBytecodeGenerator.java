@@ -247,7 +247,7 @@ public class RoutineBytecodeGenerator {
     context.dispatchedEntries.addAll(entries);
     context.routineManager.outlined.values().stream().filter(part -> part.parent() == routine).flatMap(part -> part.exits().stream().map(RoutineManager.Outlined.Continuation::to)).filter(routine::contains).forEach(this::addLabel);
     List<Integer> dispatched = Stream.concat(entries.stream(), partEntries.values().stream().filter(part -> context.routineManager.outlined.get(part).parent() == routine).flatMap(part -> entriesOf(part).stream())).toList();
-    structuring = new ControlFlowStructuring(routine, context.routineManager, Stream.concat(entries.stream(), dispatched.stream().map(address -> partEntries.values().stream().filter(part -> part.contains(address)).findFirst().map(Routine::getEntryPoint).orElse(address))).distinct().toList(), stackAnalyzer());
+    structuring = new ControlFlowStructuring(routine, context.routineManager, Stream.concat(entries.stream(), dispatched.stream().map(address -> partEntries.values().stream().filter(part -> part.contains(address)).findFirst().map(Routine::getEntryPoint).orElse(address))).distinct().toList(), stackAnalyzer(), Stream.concat(landings().stream(), routine.getReturnPointsDropped().values().stream()).toList(), this::mayUnwindAt);
     dispatched.forEach(address -> dispatchEntry(-1, address));
 
     Label label = getLabel(routine.getEntryPoint());
@@ -535,6 +535,13 @@ public class RoutineBytecodeGenerator {
       goTo(part.getEntryPoint(), sibling != null ? sibling.getEntryPoint() : exit.to(), exit.to());
     else
       tailJump(exit.to(), exit.from());
+  }
+
+  /** Whether an unwinding can come back through this node: a part that may unwind, or a call to a routine that may. */
+  private boolean mayUnwindAt(int node) {
+    if (partEntries.containsKey(node))
+      return context.mayUnwind(partEntries.get(node));
+    return context.routineManager.getInstructionAt(node) instanceof Call call && context.mayUnwind(context.routineManager.findRoutineAt(call.getJumpAddress()));
   }
 
   /** The part of this routine's family the address is in, entered through the part's call with the address carried. */
@@ -845,7 +852,7 @@ public class RoutineBytecodeGenerator {
   }
 
   /** Goes on at a target once the data left for others was taken: within the method when the target has a label, as a turn of the loop or a jump out of the routine when nothing else of the routine's is on the stack ({@code alone}), else as a call that comes back here, which is when it returns false. */
-  boolean goOnAt(int target, int site, boolean alone) {
+  private boolean goOnAt(int target, int site, boolean alone) {
     if (getLabel(target) != null)
       goTo(site, target);
     else if (alone)

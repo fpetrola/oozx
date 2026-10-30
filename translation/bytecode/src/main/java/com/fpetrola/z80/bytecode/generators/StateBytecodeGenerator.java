@@ -18,6 +18,7 @@
 
 package com.fpetrola.z80.bytecode.generators;
 
+import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.transformations.StackAnalyzer;
 import com.fpetrola.z80.blocks.Block;
@@ -109,11 +110,13 @@ public class StateBytecodeGenerator {
 //    routineManager.addRoutine(new Routine(block, 34463, true));
 ////    routine1.split(34762);
 
-    routineManager.planPoppedReturnsOfRewrittenCalls(symbolicExecutionAdapter.getStackAnalyzer());
-    routineManager.planEntries(symbolicExecutionAdapter.getStackAnalyzer());
-    new ArrayList<>(routineManager.getRoutines()).forEach(this::splitIfTooLargeForOneMethod);
-    foldJumpCyclesIntoTheirHeads();
-    routineManager.planNonLocalReturns(symbolicExecutionAdapter.getStackAnalyzer(), bytecodeGenerationContext.routinesInJumpCycles());
+    if (!routineManager.planned) {
+      routineManager.planPoppedReturnsOfRewrittenCalls(symbolicExecutionAdapter.getStackAnalyzer());
+      routineManager.planEntries(symbolicExecutionAdapter.getStackAnalyzer());
+      new ArrayList<>(routineManager.getRoutines()).forEach(this::splitIfTooLargeForOneMethod);
+      foldJumpCyclesIntoTheirHeads();
+      routineManager.planNonLocalReturns(symbolicExecutionAdapter.getStackAnalyzer(), bytecodeGenerationContext.routinesInJumpCycles());
+    }
     if (Boolean.getBoolean("translation.reportJumpCycles"))
       routineManager.jumpCycleComponents(symbolicExecutionAdapter.getStackAnalyzer()).forEach(cycle -> System.out.println("JUMP CYCLE " + cycle.members().stream().map(r -> Helper.formatAddress(r.getEntryPoint())).toList()
           + " entered by " + cycle.entries().keySet().stream().sorted().map(cause -> cause + " " + cycle.entries().get(cause).stream().sorted().map(Helper::formatAddress).toList()).collect(java.util.stream.Collectors.joining(", "))));
@@ -208,7 +211,7 @@ public class StateBytecodeGenerator {
       }
       Routine head = cycle.members().stream().max(Comparator.comparingInt((Routine member) -> callSites.get(member.getEntryPoint()).size()).thenComparingLong(member -> cycle.entries().values().stream().filter(member::contains).count()).thenComparing(Comparator.comparingInt(Routine::getEntryPoint).reversed())).get();
       cycle.members().stream().filter(member -> member != head).forEach(task -> {
-        ControlFlowStructuring.Outline whole = new ControlFlowStructuring(task, routineManager, List.of(), stackAnalyzer).whole();
+        ControlFlowStructuring.Outline whole = new ControlFlowStructuring(task, routineManager, List.of(), stackAnalyzer, Set.of(), node -> false).whole();
         routineManager.outlined.put(task, new RoutineManager.Outlined(head, whole.exits(), whole.leaves()));
       });
       if (Boolean.getBoolean("translation.reportRoutines"))
@@ -221,7 +224,9 @@ public class StateBytecodeGenerator {
       cut(routine, MAX_ROUTINE_BYTES).forEach(this::splitIfTooLargeForOneMethod);
   }
 
+  /** For a second generation of the class, which keeps the plan of the first: the routine cut into parts, when it can be. */
   public boolean splitRoutineAt(int entryPoint) {
+    routineManager.planned = true;
     Routine routine = routineManager.findRoutineAt(entryPoint);
     return routine != null && !cut(routine, size(routine) / 2).isEmpty();
   }
@@ -232,8 +237,11 @@ public class StateBytecodeGenerator {
     Set<Integer> entries = routineManager.entriesFromOutside(routine);
     entries.addAll(routineManager.catchPointsOfCallsIn(routine).values());
     entries.addAll(routineManager.returnsOfCallsInTakenByNonLocalReturns(routine, stackAnalyzer));
-    entries.addAll(routineManager.ancestorJumps(stackAnalyzer).landings().getOrDefault(routine, Set.of()));
-    List<ControlFlowStructuring.Outline> outlines = new ControlFlowStructuring(routine, routineManager, entries, stackAnalyzer).outlines(keep);
+    RoutineManager.AncestorJumps ancestorJumps = routineManager.ancestorJumps(stackAnalyzer);
+    Set<Integer> landings = ancestorJumps.landings().getOrDefault(routine, Set.of());
+    entries.addAll(landings);
+    Set<Routine> unwinding = routineManager.routinesThatMayUnwind(stackAnalyzer, ancestorJumps);
+    List<ControlFlowStructuring.Outline> outlines = new ControlFlowStructuring(routine, routineManager, entries, stackAnalyzer, landings, node -> routineManager.getInstructionAt(node) instanceof Call call && unwinding.contains(routineManager.findRoutineAt(call.getJumpAddress()))).outlines(keep);
     if (Boolean.getBoolean("translation.reportRoutines"))
       System.out.println("CUT " + routine + " keep " + keep + (routineManager.outlined.containsKey(routine) ? " part" : "") + " entries " + entries.stream().map(Helper::formatAddress).toList() + " parts " + outlines.stream().map(part -> "%s->%s %d bytes%s".formatted(Helper.formatAddress(part.entry()), part.exits().stream().map(exit -> Helper.formatAddress(exit.to())).toList(), part.nodes().size(), part.leaves() ? " leaves" : "")).toList());
     boolean inAFamily = routineManager.outlined.containsKey(routine) || routineManager.outlined.values().stream().anyMatch(part -> part.parent() == routine);

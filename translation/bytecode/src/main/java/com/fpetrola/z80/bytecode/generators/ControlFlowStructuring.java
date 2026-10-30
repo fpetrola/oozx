@@ -8,6 +8,7 @@ import com.fpetrola.z80.transformations.StackAnalyzer;
 import org.apache.commons.collections4.MultiValuedMap;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,8 +33,8 @@ public class ControlFlowStructuring {
   private final RoutineManager routineManager;
   private final int entry;
 
-  /** The nodes go on where {@link RoutineManager#goesOnAt} says, and at the catch points of their calls; the parts of the routine, and those of its parent, are nodes of their own that go on where the part does. */
-  public ControlFlowStructuring(Routine routine, RoutineManager routineManager, Collection<Integer> entries, StackAnalyzer stackAnalyzer) {
+  /** The nodes go on where {@link RoutineManager#goesOnAt} says, and at the catch points of their calls; the parts of the routine, and those of its parent, are nodes of their own that go on where the part does; the nodes that {@code unwinds} (calls and parts an unwinding can come back through) also go on at the {@code landings}, where it comes back into the routine. */
+  public ControlFlowStructuring(Routine routine, RoutineManager routineManager, Collection<Integer> entries, StackAnalyzer stackAnalyzer, Collection<Integer> landings, Predicate<Integer> unwinds) {
     this.routineManager = routineManager;
     entry = routine.getEntryPoint();
     catchPoints = routineManager.catchPointsOfCallsIn(routine);
@@ -57,6 +58,8 @@ public class ControlFlowStructuring {
         next.addAll(routineManager.goesOnAt(node, routine, stackAnalyzer, false));
         next.addAll(catchPoints.get(node));
       }
+      if (unwinds.test(node))
+        next.addAll(landings);
       next.stream().filter(to -> !nodes.contains(to)).forEach(to -> outside.computeIfAbsent(node, k -> new LinkedHashSet<>()).add(to));
       successors.put(node, next.stream().map(this::nodeOf).filter(nodes::contains).collect(Collectors.toCollection(LinkedHashSet::new)));
     }

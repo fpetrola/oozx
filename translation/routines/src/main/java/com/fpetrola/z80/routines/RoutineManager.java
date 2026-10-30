@@ -323,6 +323,8 @@ public class RoutineManager {
   }
 
   public final Map<Routine, Outlined> outlined = new LinkedHashMap<>();
+  /** Whether a generation of the class planned the routines (entries, size, loops) and a second one must keep that plan. */
+  public boolean planned;
 
   /** Takes these addresses out of {@code parent} as a routine of its own entered at {@code entry}, which the parent calls. */
   public Routine outline(Routine parent, int entry, java.util.Set<Integer> addresses, java.util.List<Outlined.Continuation> exits, boolean leaves) {
@@ -750,16 +752,19 @@ public class RoutineManager {
     return onTop.distinct().filter(push -> owns(routine, push) && stackAnalyzer.dataConsumedBy.entries().stream().anyMatch(e -> e.getValue().equals(push) && !owns(routine, e.getKey()))).toList();
   }
 
-  /** The data pushed in another method of this RET's family that the RET takes: it goes on at what they pushed when that is on top. */
-  public List<Integer> familyDataTakenBy(int ret, StackAnalyzer stackAnalyzer) {
-    Routine mine = findRoutineAt(ret), family = topParent(mine);
-    return stackAnalyzer.dataConsumedBy.get(ret).stream().filter(push -> !mine.contains(push) && owns(family, push)).toList();
+  /** The values this RET may find on top as data its family pushed for it at the {@code pushes} given (pushes real in Java, never the return of a call pushed back): it goes on at the one it finds, and returns otherwise. Data another routine pushed is that routine's to go on with when the RET returns to it. */
+  public java.util.Set<Integer> dataValuesTakenBy(int ret, StackAnalyzer stackAnalyzer, java.util.function.Predicate<Integer> pushes) {
+    if (stackAnalyzer.shiftedReturns.containsKey(ret))
+      return java.util.Set.of();
+    Routine family = topParent(findRoutineAt(ret));
+    java.util.Set<Integer> returns = stackAnalyzer.poppedCallSites.keySet().stream().map(this::addressAfter).collect(java.util.stream.Collectors.toSet());
+    return stackAnalyzer.dataConsumedBy.get(ret).stream().filter(push -> owns(family, push) && pushes.test(push) && pushedForReal(push, stackAnalyzer)).flatMap(push -> stackAnalyzer.pushedValues.get(push).stream()).filter(value -> !returns.contains(value)).collect(java.util.stream.Collectors.toCollection(java.util.TreeSet::new));
   }
 
-  /** Whether a RET in another method of the push's family takes it: the push stays real for that RET to find. */
-  public boolean takenByAnotherMethod(int push, StackAnalyzer stackAnalyzer) {
+  /** A push stays real in Java unless it plants a continuation taken only within its own method; one a RET of another method of its family takes must be there for that RET to find. */
+  public boolean pushedForReal(int push, StackAnalyzer stackAnalyzer) {
     Routine mine = findRoutineAt(push);
-    return stackAnalyzer.dataConsumedBy.entries().stream().anyMatch(e -> e.getValue().equals(push) && findRoutineAt(e.getKey()) != mine && owns(topParent(mine), e.getKey()));
+    return plantedContinuation(push, stackAnalyzer) == null || stackAnalyzer.dataConsumedBy.entries().stream().anyMatch(e -> e.getValue().equals(push) && findRoutineAt(e.getKey()) != mine && owns(topParent(mine), e.getKey()));
   }
 
   /** This RET sometimes takes a return that a virtual POP (one of no routine) had taken off the stack and that was pushed back: it goes where the word says, every caller it returns to having pushed its return. */
