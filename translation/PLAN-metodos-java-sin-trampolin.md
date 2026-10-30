@@ -489,6 +489,30 @@ que su rango no caiga en la siguiente y fabrique un ciclo.
   `$CDBD` → `runTranslated` → `goOnFrom` → …): el respaldo con el emulador no sabe saltar, solo llamar. Lo que
   sigue para Batman es la parte 11 (variantes de bloque desde la grabación) o, como mínimo, que un CALL mutante
   a código sin método propio siga en el emulador como hace `goOnFrom` en vez de fallar con `untranslated`.
+  **Resuelto con la sonda (tarde del 30): no es código que se automodifica, son dos bancos de 128K en la misma
+  ventana.** Los hechos están por dirección sin banco: en CE43 las "versiones" son `CD 82 CF` (banco de arranque,
+  un CALL) y `FD 85` (otro banco: `ADD A,IYL`, y en CE49 `FD 67`, CE4F `EE 18`, CE52 `D3 FE`, una rutina de
+  sonido), con lo que la zona CDA0-CF8E queda como regiones de bloque y corre por `executeMutantCode`. La
+  instrucción registrada en CE40 es `CALL 0628`; en el cuadro 415 el banco paginado tiene `CALL CE9D` ahí, el
+  emulador lo ejecuta, `pagedCopy` solo mapea C000-C8F8 del banco 3 a su copia y CE9D del otro banco nunca se
+  tradujo: `untranslated`. El chequeo de memoria por cuadro (`-DmemCheck`) confirma que la memoria Java es igual a
+  la del Z80 en cada fin de cuadro salvo 6384-6387 (pila de otro uso, del lado Java queda 7FFD). Es el hueco
+  anotado en la memoria de Batman desde el 10-09 ("hechos por dirección, los del banco 3 se mezclan con los del
+  0"): lo que sigue es traducir la ventana de cada banco como copia propia y tener los hechos por banco, no más
+  respaldo con el emulador.
+- **Regla del arnés que apareció al intentar un test:** `RecordedProgramTests` exige que el camino grabado no use
+  el respaldo del emulador (`assertRunsLikeTheEmulator`, "the recorded path falls back to the emulator"). Un
+  bloque reescrito en el lugar con dos contenidos grabados (LDIR de datos sobre código, el segundo contenido con
+  un CALL a una rutina que solo él llama) hoy se traduce con el respaldo, aunque la ejecución simbólica sí
+  siguió el segundo contenido (la rutina llamada existe). Las variantes de bloque de la parte 11 cubren plantillas
+  reubicadas, no reescrituras en el lugar. Programa que lo muestra, para cuando se haga:
+
+  ```
+  8000 CALL 8100 / LD HL,8200 / LD DE,8100 / LD BC,4 / LDIR / CALL 8100 / HALT / JR -3
+  8100 INC A / RET / NOP / NOP          (contenido A)
+  8200 CD 00 83 C9                      (contenido B: CALL 8300 / RET, copiado sobre 8100)
+  8300 INC C / RET
+  ```
 - **Fuentes del catálogo contra el runtime nuevo (1030-committed):** con la excepción de `setNextAddress`,
   cuatro fuentes generadas antes de 6aa5a5450 fallan porque dejaban pendiente la entrada de la parte que
   llamaban (el patrón que `goTo` ya no emite): Target Renegade (D783 antes de F427, cuadro 52976), Renegade 128
