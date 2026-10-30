@@ -122,8 +122,8 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
   private void translateRewrittenRegions(CodeVersions versions) {
     versions.blockRegions().forEach(region -> {
       List<CodeVersions.Shape> shapes = versions.shapes(region[0]);
-      List<int[]> copies = shapes.size() > 1 ? copiesOf(region[0], region[1], region[0], shapes, 0) : null;
-      int at = copies == null ? -1 : freeAreaFor(copies.stream().mapToInt(copy -> copy.length).sum());
+      List<RoutineManager.CodeVariant> copies = shapes.size() > 1 ? copiesOf(region[0], region[1], region[0], shapes, 0) : null;
+      int at = copies == null ? -1 : freeAreaFor(copies.stream().mapToInt(copy -> copy.code().length).sum());
       if (at != -1)
         translateCodeVariants(region[0], region[1], at, versions);
       else if (shapes.size() > 1 && Boolean.getBoolean("translation.reportRoutines"))
@@ -137,22 +137,19 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
   public void translateCodeVariants(int start, int end, int relocationBase, CodeVersions versions) {
     int variableStart = versions.blockRegions().stream().filter(region -> region[0] >= start && region[1] <= end).findFirst().orElseThrow()[0];
     List<CodeVersions.Shape> variants = versions.shapes(variableStart);
-    List<int[]> codes = copiesOf(start, end, variableStart, variants, relocationBase);
-    if (codes == null)
+    List<RoutineManager.CodeVariant> copies = copiesOf(start, end, variableStart, variants, relocationBase);
+    if (copies == null)
       throw new IllegalStateException("a relative jump of " + Helper.formatAddress(start) + "-" + Helper.formatAddress(end) + " cannot reach its trampoline");
-    int size = codes.stream().mapToInt(code -> code.length).sum();
+    int size = copies.stream().mapToInt(copy -> copy.code().length).sum();
     routineManager.forgetCode(relocationBase, relocationBase + size);
     getStackAnalyzer().codeVersions.mutant().removeIf(address -> address >= variableStart && address < variableStart + variants.get(0).bytes().length);
     symbolicExecutionAdapter.routineExecutorHandler.forgetExecutions(relocationBase, relocationBase + size);
-    List<RoutineManager.CodeVariant> copies = new java.util.ArrayList<>();
-    for (int k = 0, at = relocationBase; k < variants.size(); at += codes.get(k++).length) {
-      int[] code = codes.get(k);
-      for (int i = 0; i < code.length; i++)
-        getState().getMemory().write(at + i, code[i]);
-      for (int offset : variants.get(k).varying())
-        getStackAnalyzer().codeVersions.mutant().add(at + variableStart - start + offset);
-      copies.add(new RoutineManager.CodeVariant(start, end, variableStart, variants.get(k).bytes(), at, code, -1, variants.get(k).varying()));
-    }
+    copies.forEach(copy -> {
+      for (int i = 0; i < copy.code().length; i++)
+        getState().getMemory().write(copy.relocatedAt() + i, copy.code()[i]);
+      for (int offset : copy.varying())
+        getStackAnalyzer().codeVersions.mutant().add(copy.relocated(variableStart + offset));
+    });
     routineManager.codeVariants.addAll(copies);
     getState().getMemory().protect(relocationBase, relocationBase + size);
     while (exploreEntriesOf(copies)) ;
@@ -167,39 +164,50 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
     return !entries.isEmpty();
   }
 
-  /** One copy per shape: the region's bytes with the shape's, a JP to the code after the region and, for each relative jump that leaves the region, a JP to its target that the jump is bent to; null when a jump cannot reach its JP. */
-  private List<int[]> copiesOf(int start, int end, int variableStart, List<CodeVersions.Shape> shapes, int relocationBase) {
+  /** One copy per shape, placed one after another from relocationBase: the region's bytes with the shape's, a JP to the code after the region and, for each relative jump that leaves the region, a JP to its target that the jump is bent to, after the copy or, when that is out of its reach, before it; null when neither is in reach. */
+  private List<RoutineManager.CodeVariant> copiesOf(int start, int end, int variableStart, List<CodeVersions.Shape> shapes, int relocationBase) {
     OOZ80 decoder = com.fpetrola.z80.minizx.emulation.EmulatedMiniZX.createOOZ80(new com.fpetrola.z80.minizx.DefaultMiniZXIO());
     int[] decoderMemory = (int[]) decoder.getState().getMemory().getData();
     int size = end - start, at = relocationBase;
-    List<int[]> copies = new java.util.ArrayList<>();
+    List<RoutineManager.CodeVariant> copies = new java.util.ArrayList<>();
     for (CodeVersions.Shape shape : shapes) {
-      int[] code = java.util.Arrays.copyOf(java.util.Arrays.copyOfRange(programImage, start, end), size + 3);
-      System.arraycopy(shape.bytes(), 0, code, variableStart - start, shape.bytes().length);
-      jumpTo(code, size, end);
-      System.arraycopy(code, 0, decoderMemory, start, size);
-      List<int[]> leaving = new java.util.ArrayList<>();
+      int[] body = java.util.Arrays.copyOf(java.util.Arrays.copyOfRange(programImage, start, end), size + 3);
+      System.arraycopy(shape.bytes(), 0, body, variableStart - start, shape.bytes().length);
+      jumpTo(body, size, end);
+      System.arraycopy(body, 0, decoderMemory, start, size);
+      List<int[]> instructions = new java.util.ArrayList<>(), before = new java.util.ArrayList<>(), after = new java.util.ArrayList<>();
       for (int address = start; address < end; ) {
         decoder.getState().getPc().write(address);
-        int length = decoder.getInstructionFetcher().fetchNextInstruction().getLength();
-        relocateJump(code, start, end, at, address, length);
-        int target = relativeJumpTarget(code, start, address, length);
+        int length = decoder.getInstructionFetcher().fetchNextInstruction().getLength(), target = relativeJumpTarget(body, start, address, length);
+        instructions.add(new int[]{address, length});
         if (target != -1 && (target < start || target >= end))
-          leaving.add(new int[]{address - start, target});
+          (size + 3 + 3 * after.size() - (address - start + 2) <= 127 ? after : before).add(new int[]{address - start, target});
         address += length;
       }
-      code = java.util.Arrays.copyOf(code, code.length + 3 * leaving.size());
-      for (int j = 0; j < leaving.size(); j++) {
-        int trampoline = size + 3 + 3 * j, displacement = trampoline - (leaving.get(j)[0] + 2);
-        if (displacement > 127)
+      int prefix = 3 * before.size(), bodyAt = at + prefix;
+      instructions.forEach(instruction -> relocateJump(body, start, end, bodyAt, instruction[0], instruction[1]));
+      int[] code = new int[prefix + body.length + 3 * after.size()];
+      System.arraycopy(body, 0, code, prefix, body.length);
+      for (int j = 0; j < before.size(); j++)
+        if (!bend(code, prefix, before.get(j), 3 * j))
           return null;
-        code[leaving.get(j)[0] + 1] = displacement;
-        jumpTo(code, trampoline, leaving.get(j)[1]);
-      }
-      copies.add(code);
+      for (int j = 0; j < after.size(); j++)
+        if (!bend(code, prefix, after.get(j), prefix + size + 3 + 3 * j))
+          return null;
+      copies.add(new RoutineManager.CodeVariant(start, end, variableStart, shape.bytes(), at, code, -1, shape.varying(), prefix));
       at += code.length;
     }
     return copies;
+  }
+
+  /** Bends the relative jump at jump[0] of the body to a JP at trampoline towards jump[1]; false when out of its reach. */
+  private static boolean bend(int[] code, int body, int[] jump, int trampoline) {
+    int displacement = trampoline - (body + jump[0] + 2);
+    if (displacement < -128 || displacement > 127)
+      return false;
+    code[body + jump[0] + 1] = displacement & 0xff;
+    jumpTo(code, trampoline, jump[1]);
+    return true;
   }
 
   private static void jumpTo(int[] code, int offset, int target) {
@@ -234,7 +242,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
       for (int i = 0; i < code.length; i++)
         getState().getMemory().write(at + i, code[i]);
       getState().getMemory().protect(at, at + code.length);
-      RoutineManager.CodeVariant variant = new RoutineManager.CodeVariant(start, end, start, code, at, code, bank, new int[0]);
+      RoutineManager.CodeVariant variant = new RoutineManager.CodeVariant(start, end, start, code, at, code, bank, new int[0], 0);
       routineManager.codeVariants.add(variant);
       banked.modified().forEach(address -> getStackAnalyzer().codeVersions.mutant().add(variant.relocated(address)));
       StackAnalyzer stackAnalyzer = getStackAnalyzer();

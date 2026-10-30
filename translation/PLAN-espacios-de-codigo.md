@@ -141,6 +141,15 @@ Programa del recubrimiento (el que la regla del arnés rechaza hoy):
   aRelativeJumpThatLeavesACopiedRegionGoesWhereTheOriginalWent y
   aJumpFromACopyIntoARegionCopiedBeforeItEntersThatRegionsCopies, rojos antes. Pendiente: una entrada interior
   que en otra forma cae en medio de una instrucción explora basura desde ahí (la rama del despacho queda muerta).
+- **P3, trampolines antes de la copia (1030-batman10).** Con trampolines solo después del `JP` final, cinco
+  regiones de Batman de 206 a 354 bytes (CE7D-CF4B, D065-D191, D1A7-D290, D2C2-D424, DB70-DC4C) tienen un
+  salto relativo cerca del principio que sale hacia atrás (CE7D+3 → CE61, DB70+4 → DB58) y no llegaba: se
+  quedaron en su lugar y la traducción falló en el corte de `{9F73:C6FE}` (`Routine.split`, Optional vacío:
+  pendiente, el corte de una rutina con regiones mutantes en su lugar). Ahora cada salto que no alcanza los
+  trampolines de después usa uno de antes de la copia (`CodeVariant.prefix`; `relocated`, `originalAddress` y
+  `synthetic` lo tienen en cuenta en `RoutineManager`); en Batman todos los saltos que salen (lista con
+  `$S/tools/Leaving.java`) alcanzan uno de los dos lados. Test
+  aRelativeJumpAtTheStartOfALongCopiedRegionReachesATrampolineBeforeTheCopy (región de 130 bytes), rojo antes.
 - **Pendiente de P3:** `unknownCodeVariant` sigue lanzando excepción ante un contenido no grabado; el respaldo
   con el emulador ahí (como `goOnFrom`) daría robustez jugando con teclas al azar. Las cuatro regiones de Batman
   sin lugar piden la clave con espacio (sin copias en RAM) o un respaldo por región, no por instrucción.

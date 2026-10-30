@@ -5058,6 +5058,27 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aRelativeJumpAtTheStartOfALongCopiedRegionReachesATrampolineBeforeTheCopy() {
+    // Target: Batman CE7D-CF4B, D065-D191, D1A7-D290, D2C2-D424 and DB70-DC4C (206 to 354 bytes) stayed in place because a JR near their start could not reach a trampoline after the copy
+    int[] incsA = new int[130], incsC = new int[130];
+    Arrays.fill(incsA, 0x3C);
+    incsA[129] = 0xC9;
+    Arrays.fill(incsC, 0x0C);
+    incsC[0] = 0x20;
+    incsC[1] = 0xFA;
+    incsC[128] = 0x18;
+    incsC[129] = 0x02;
+    String java = translate(
+        at(0x8000, 0xCD, 0x00, 0x81, 0x21, 0x00, 0x82, 0x11, 0x00, 0x81, 0x01, 0x82, 0x00, 0xED, 0xB0, 0xAF, 0xCD, 0x00, 0x81, 0x76, 0x18, 0xFD),
+        at(0x80FC, 0x0C, 0xC9),
+        at(0x8100, incsA),
+        at(0x8184, 0x0C, 0xC9),
+        at(0x8200, incsC));
+    Assert.assertEquals(0x7F, endValue("C"));
+    Assert.assertTrue("the 130-byte region runs from copies", java.contains("$c1_8100()"));
+  }
+
+  @Test
   public void anInstructionOfAContentThatStartsInsideTheRegionAndEndsPastItExtendsTheRegion() {
     // the differing bytes end at 8101, but the second content's CALL at 8101 runs to 8103: the region holds whole instructions of every content
     translate(

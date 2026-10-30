@@ -224,7 +224,7 @@ public class RoutineManager {
   }
 
   /** bank: the bank whose paging selects this variant, or -1 when its bytes select it; varying: offsets of the variable bytes that are operands read from memory, left out of the hash. */
-  public record CodeVariant(int start, int end, int variableStart, int[] variableBytes, int relocatedAt, int[] code, int bank, int[] varying) {
+  public record CodeVariant(int start, int end, int variableStart, int[] variableBytes, int relocatedAt, int[] code, int bank, int[] varying, int prefix) {
     public int hash() {
       int[] masked = variableBytes.clone();
       for (int offset : varying)
@@ -237,7 +237,7 @@ public class RoutineManager {
     }
 
     public int relocated(int address) {
-      return relocatedAt + address - start;
+      return relocatedAt + prefix + address - start;
     }
   }
 
@@ -268,7 +268,7 @@ public class RoutineManager {
   }
 
   public int originalAddress(int address) {
-    return copyAt(address).map(v -> v.start() + address - v.relocatedAt()).orElse(address);
+    return copyAt(address).map(v -> v.start() + address - v.relocatedAt() - v.prefix()).orElse(address);
   }
 
   /** The space the code at a relocated address is from, as a prefix for its method: the bank paged in there (b3_) or which recorded content of its region (c1_); none in the main image. */
@@ -278,7 +278,7 @@ public class RoutineManager {
 
   /** The jump back to the code after the region that closes a copy: it is not an instruction of the program. */
   public boolean synthetic(int address) {
-    return copyAt(address).map(v -> address >= v.relocated(v.end())).orElse(false);
+    return copyAt(address).map(v -> address < v.relocated(v.start()) || address >= v.relocated(v.end())).orElse(false);
   }
 
   private java.util.Optional<CodeVariant> copyAt(int address) {
