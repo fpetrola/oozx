@@ -468,9 +468,13 @@ que su rango no caiga en la siguiente y fabrique un ciclo.
 - **Fernflower no termina con la clase de Batman.** Con D537 como máquina de estados, la descompilación corrió
   57 minutos hasta el timeout de la nocturna sin producir fuente (antes, 31 minutos y `parsing failure` más
   OutOfMemory). El método más grande es `runTranslated` (37 KB de bytecode), después `$DECF` (22 KB) y `$C0D6`
-  (12 KB); el muestreo de la pila la encuentra en `DomHelper.findGeneralStatement` (dominadores). Falta saber en
-  qué método (`ConsoleDecompiler -log=TRACE` sobre `work/Batman.class`) y si el plegado en cabezas anidadas lo
-  evita.
+  (12 KB); el muestreo de la pila la encuentra en `DomHelper.findGeneralStatement` (dominadores). Con
+  `ConsoleDecompiler -log=TRACE` sobre la clase de 1030-batman4: procesa 504 métodos en 24 minutos, tres fallan
+  con `parsing failure` (`$CDBD`, `$D5F1`, `$D9E3`, todos en la zona de bloques) y en `$DC4F` (6,5 KB de
+  bytecode, cada instrucción un despacho mutante con `executeMutantCode`, comparaciones, `goOnFrom` y
+  `unwinding`) se queda sin los 3 GB de heap tras 20 minutos. El reintento cortaría y volvería a empezar: horas.
+  No es el tamaño de `runTranslated` ni el ciclo D537; es el código mutante, otra razón para las variantes de
+  bloque.
 - **Bomb Jack** (`rzx-top/617/bombjack.rzx`, arranque E937, en `games.txt`): traduce sin cambios y pasa el
   lockstep por bytecode y por fuente hasta el cuadro 126859 de 127371; ahí la interrupción cae en el cuadro
   126858 dentro del bucle C462-C465 del manejador con las interrupciones deshabilitadas, el `RETI` de C46E
