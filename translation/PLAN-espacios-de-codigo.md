@@ -91,6 +91,28 @@ Programa del recubrimiento (el que la regla del arnés rechaza hoy):
 8300 INC C / RET
 ```
 
+## 4b. Avance (2026-10-30, tarde)
+
+- **P1 (a07d2f5cf).** `Space` en `routines` con `address` y `next`; los 18 pasos de dirección de código de los
+  hechos y del generador pasan por ahí (cuatro reusando `addressAfter`). Sin cambio de comportamiento.
+- **P2 (026ca31b6).** La huella graba los contenidos de cada región en la misma pasada (segunda reproducción
+  al terminar, con las regiones ya conocidas) e `install` pone el primer contenido entero. Test sobre hechos,
+  rojo antes; el arnés gana `explore()`.
+- **P3, acotado (f2cf700ce).** La clave de 32 bits atraviesa el registro PC de 16 bits del núcleo y las
+  acciones por dirección de la ejecución simbólica: es un cambio de días. Como para Batman la RAM libre alcanza
+  (regiones de pocos bytes, el banco 3 son 2,3 KB), el paso 3 se hizo sobre la reubicación existente: toda
+  región con más de un contenido grabado se traduce con `translateCodeVariants` desde una copia por contenido
+  en un hueco libre (`freeAreaFor`), entrada por `codeHash` en sus entradas; la región abarca instrucciones
+  enteras de todos los contenidos (una ejecutada que la cruza la extiende; las que se tocan se unen; las
+  regiones se reconstruyen solo cuando cambian las versiones y conservan las uniones pedidas); cada copia
+  termina con un `JP` al código que sigue a la región, que no se informa como instrucción; y los métodos llevan
+  el espacio en el nombre, `$c1_8100` y `$b3_C0D6`, por `RoutineManager.spaceOf`. El arnés perdió el bloque
+  explícito y Emlyn une sus plantillas antes de explorar. Dos tests que documentaban el respaldo del emulador
+  (R-Type BF24, Renegade 128 con `OUT` en código parcheado) ya no lo usan. La clave con espacio queda para
+  cuando a un juego no le alcance la RAM libre para las copias.
+- **Pendiente de P3:** `unknownCodeVariant` sigue lanzando excepción ante un contenido no grabado; el respaldo
+  con el emulador ahí (como `goOnFrom`) daría robustez jugando con teclas al azar.
+
 ## 5. Riesgos
 
 - Una clave con espacio que pierde el espacio en una suma: por eso un solo dueño de la aritmética, y un test
