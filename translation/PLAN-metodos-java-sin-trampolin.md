@@ -338,6 +338,41 @@ patrón planificador (H despacha por `JP (HL)` a dos tareas que vuelven con `JP 
 expectativa del Java completo como en los casos del informe; después los juegos: Emlyn (94AA), Dizzy, Manic
 Miner, y las expectativas de `renegade128At7C46` y `renegadeF28C` que hoy fijan `runJumps`.
 
+### Fase 4, ciclos restantes (2026-10-30, madrugada): plegado sin reglas de llamados ni de datos
+
+Nocturna 1030-all1 (12eb15715, 20 juegos): 17 completos por bytecode y por fuente; quedaban 16 ciclos como
+`runJumps` en 13 juegos (13 por miembros llamados, 3 por un RET que toma un dato de otro miembro) más 4 sin
+cabeza que ni se reportaban (Renegade F462, Batman ×3). Tres fallas: Skool Daze (bytecode, StackOverflowError
+en el cuadro 7091), Renegade (fuente, `$8860` sin descompilar) y Batman (roto desde el 10-12, aparte).
+
+- **Skool Daze (3531d91d0).** 6791 empuja 67BC y salta a 653C; el RET de FE51 toma el dato. El sitio entraba
+  anidado (`runJumps(653C)`) y al terminar seguía en 67BC también anidado: un marco de Java por vuelta del bucle
+  principal. Ahora `leaveWithOwnData` sigue en la continuación con `tailJump` sin sitio (el dato ya fue tomado):
+  un turno más de la máquina. Test `aMemberThatLeavesAContinuationForAnotherMembersRetGoesOnAtItAsATurnOfTheLoop`,
+  rojo por el detector de anidado del arnés (10 rutinas anidadas para 1 palabra de pila).
+- **Plegado total (9166f5d62).** Se quitan las reglas "miembro llamado que no es cabeza / varios llamados" y
+  "RET que toma un dato de otro miembro": eran exclusiones a priori, sin corrida que las motivara. Cabeza = el
+  miembro más llamado, después el más entrado, después la menor dirección; las llamadas a los demás entran por
+  ella con la dirección cargada (ya lo hacía `invokeTransformedMethod`). Hizo falta: (a) un sitio que deja un
+  dato para el RET de una parte hermana llama a la parte por su cuenta y sigue con el dato cuando la parte
+  termina (`goToPart`); `ownDataLeftForOthers` cuenta como ajeno al consumidor en otro método de la familia.
+  (b) Un salto desde fuera a una parte es arista a su cabeza (`enteredAt`): sin eso `routinesThatMayUnwind` no
+  veía al que entraba por la parte y el reseteo de pila de `aStackResetDropsTheReturn…` volvía después de la
+  llamada en vez de al bucle. (c) Orden determinista de las partes (el despacho de entradas cambiaba entre
+  corridas). `JumpCycle` sin `heads`. Queda una sola regla: salto a ancestro entre miembros.
+- **Estructura (2d586453e).** La salida de una parte a una dirección interior de una hermana (Renegade 8967 →
+  8968 dentro de 8D6D) no era arista del grafo porque el destino no es nodo: el bucle no se detectaba, el
+  despacho de entradas entraba por varios lados y Fernflower rechazaba `$8860`. `nodeOf` mapea el destino al
+  nodo de la parte; la salida conserva la dirección interior. Sin test propio: la partición de los programas
+  grabados separa esa dirección como rutina aparte (tres intentos); lo verifica la fuente de Renegade en la
+  nocturna.
+
+Neto de los tres commits: código principal +52 líneas (el arnés ganó `-Dtranslation.printJava`), tests +180.
+
+Pendiente: nocturna 1030-all2 (lanzada a las 03:52 sobre los 20 juegos): contar los `runJumps` que quedan
+(solo por salto a ancestro), Skool Daze y Renegade por fuente, y regenerar el catálogo commiteado desde esa
+corrida (los fuentes de 1030-all1 ya son anteriores a estos cambios).
+
 ## Fase 4b. La dirección viaja como dato: parámetro de entrada y valor de retorno (pendiente, anotado el 2026-10-28)
 
 Hoy hay dos encarnaciones de la misma variable de estructuración de No More Gotos:
@@ -435,6 +470,7 @@ Hay que cargar `~/detodo/spectrum/investigacion/tools/traduccion/run/env.sh`. Su
 | 3.3 corte por regiones (2026-10-28, corridas 1028-outline7..9) | Emlyn: casos de `runJumps` 60 → 23 en 5 componentes del juego (FE61/FE65, 603C/6078, 9B23…, 67F7… de 11, 5F9E…), 4 partes, traduce en 2-3 min y Fernflower descompila al primer intento · Target Renegade: 48 → 31 en 6 componentes del juego (despachador DB9D…DC1B, bucle E695/F408, 5B2C…, D780/D783/D794, DAE9…, D8FA…), 2 partes | | 0 | Emlyn y TR completos por bytecode y por fuente | pendiente de commit |
 | 4 bucle en la cabeza (2026-10-28, corrida 1028-outline12) | Emlyn: `runJumps` 23 → 0 · Target Renegade: 31 → 9 (quedan E695/F408, 5B2C…, D780/D783/D794, ver arriba) | | 0 | Emlyn y TR completos por bytecode y por fuente | 56cc0d4a7 |
 | 4 cierre: sin reflexión, `goesOnAt`, sin regla nested (2026-10-30, corrida 1030-edges1) | Emlyn: 0 · Target Renegade: 9 → 0 | | 0 | Emlyn y TR completos por bytecode y por fuente; los 20 juegos en la nocturna 1030-all1 | 84dc865d4, 12eb15715 |
+| 4 ciclos restantes: plegado de todo ciclo salvo salto a ancestro (2026-10-30 madrugada: 3531d91d0, 9166f5d62, 2d586453e) | nocturna 1030-all2 en curso | | | batería verde (233/30/17/15) |
 
 ## 10. Segunda parte: dejar de depender de la pila y de SP
 
