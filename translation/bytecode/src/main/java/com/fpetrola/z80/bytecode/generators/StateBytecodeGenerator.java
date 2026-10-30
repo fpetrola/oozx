@@ -195,7 +195,12 @@ public class StateBytecodeGenerator {
       mm.invoke(RoutineBytecodeGenerator.createLabelName(top.getEntryPoint()));
   }
 
-  private static final int MAX_ROUTINE_BYTES = Integer.getInteger("translation.methodBytes", 1500);
+  /** Z80 bytes a method takes at most (-Dtranslation.methodBytes); a part's call block in a head counts as {@link #PART_BYTES} plus {@link #EXIT_BYTES} per exit. */
+  private static int maxRoutineBytes() {
+    return Integer.getInteger("translation.methodBytes", 1500);
+  }
+
+  private static final int PART_BYTES = 4, EXIT_BYTES = 2;
 
   /** Routines that jump to each other around a head (a member every cycle passes through) are a loop in the head's method: the others become its parts, which report where they went on, so no runJumps is needed. The head is the member that is called, or else the one entered from outside the most; a cycle with a called member besides the head, or with a jump back to an ancestor frame between members, stays as it is: those are calls and returns, not turns of a loop. */
   private void foldJumpCyclesIntoTheirHeads() {
@@ -209,18 +214,23 @@ public class StateBytecodeGenerator {
         return;
       }
       Routine head = cycle.members().stream().max(Comparator.comparingInt((Routine member) -> callSites.get(member.getEntryPoint()).size()).thenComparingLong(member -> cycle.entries().values().stream().filter(member::contains).count()).thenComparing(Comparator.comparingInt(Routine::getEntryPoint).reversed())).get();
-      cycle.members().stream().filter(member -> member != head).forEach(task -> {
-        ControlFlowStructuring.Outline whole = new ControlFlowStructuring(task, routineManager, List.of(), stackAnalyzer, Set.of(), node -> false).whole();
-        routineManager.outlined.put(task, new RoutineManager.Outlined(head, whole.exits(), whole.leaves()));
-      });
+      Map<Routine, ControlFlowStructuring.Outline> wholes = new LinkedHashMap<>();
+      cycle.members().stream().filter(member -> member != head).forEach(task -> wholes.put(task, new ControlFlowStructuring(task, routineManager, List.of(), stackAnalyzer, Set.of(), node -> false).whole()));
+      int bytes = size(head) + wholes.values().stream().mapToInt(whole -> PART_BYTES + EXIT_BYTES * whole.exits().size()).sum();
+      if (bytes > maxRoutineBytes()) {
+        if (Boolean.getBoolean("translation.reportRoutines"))
+          System.out.println("LOOP kept as runJumps " + cycle.members().stream().map(m -> Helper.formatAddress(m.getEntryPoint())).toList() + " too big for one method (" + bytes + " bytes)");
+        return;
+      }
+      wholes.forEach((task, whole) -> routineManager.outlined.put(task, new RoutineManager.Outlined(head, whole.exits(), whole.leaves())));
       if (Boolean.getBoolean("translation.reportRoutines"))
         System.out.println("LOOP " + Helper.formatAddress(head.getEntryPoint()) + " tasks " + cycle.members().stream().filter(m -> m != head).map(m -> Helper.formatAddress(m.getEntryPoint()) + "->" + routineManager.outlined.get(m).exits().stream().map(exit -> Helper.formatAddress(exit.to()) + "<-" + Helper.formatAddress(exit.from())).toList()).toList());
     });
   }
 
   private void splitIfTooLargeForOneMethod(Routine routine) {
-    if (size(routine) > MAX_ROUTINE_BYTES)
-      cut(routine, MAX_ROUTINE_BYTES).forEach(this::splitIfTooLargeForOneMethod);
+    if (size(routine) > maxRoutineBytes())
+      cut(routine, maxRoutineBytes()).forEach(this::splitIfTooLargeForOneMethod);
   }
 
   /** When Fernflower drops the whole class (it runs out of memory on a method): the biggest routine cut into parts. */
