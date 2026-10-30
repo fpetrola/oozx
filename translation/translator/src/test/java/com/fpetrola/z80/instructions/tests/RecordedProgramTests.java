@@ -4081,6 +4081,118 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aMemberThatLeavesAContinuationForAnotherMembersRetGoesOnAtItAsATurnOfTheLoop() {
+    // Target: Skool Daze 66A1: routine 6791 pushes 67BC and jumps to 653C, the RET at FE51 takes it and the loop goes on at 67BC; it must go on as a turn of the loop's state machine, not nested a Java frame deeper at every turn (StackOverflowError at frame 7091)
+    String java = translate(listing("""
+        8000  06 10  LD B, 0x10
+        8002  CD 00 83  CALL 0x8300
+        8005  06 00  LD B, 0x00
+        8007  CD 00 82  CALL 0x8200
+        800A  CD 00 81  CALL 0x8100
+        800D  76  HALT
+        8100  21 00 83  LD HL, 0x8300
+        8103  E5  PUSH HL
+        8104  04  INC B
+        8105  C3 00 82  JP 0x8200
+        8200  0C  INC C
+        8201  C9  RET
+        8300  14  INC D
+        8301  78  LD A, B
+        8302  FE 10  CP A, 0x10
+        8304  C8  RET Z
+        8305  C3 00 81  JP 0x8100
+        """));
+    Assert.assertEquals(0x10, endValue("BC") >> 8);
+    Assert.assertEquals("""
+        import com.fpetrola.z80.minizx.MiniZX;
+
+        public class Program extends MiniZX {
+           public int runJumps(int var1) {
+              int var2 = var1;
+
+              while(true) {
+                 var2 = this.pagedCopy(var2);
+                 switch(var2) {
+                 case 33024:
+                    var2 = this.$8100();
+                    if(!this.unwinding()) {
+                       break;
+                    }
+
+                    return var2;
+                 case 33280:
+                    var2 = this.$8200();
+                    if(!this.unwinding()) {
+                       break;
+                    }
+
+                    return var2;
+                 case 33536:
+                    var2 = this.$8300();
+                    if(this.unwinding()) {
+                       return var2;
+                    }
+                    break;
+                 default:
+                    return var2;
+                 }
+              }
+           }
+
+           public void $8000() {
+              this.B(16);
+              this.runJumps(0x8300);
+              if(!this.unwinding()) {
+                 this.B(0);
+                 this.runJumps(0x8200);
+                 if(!this.unwinding()) {
+                    this.runJumps(0x8100);
+                    if(!this.unwinding()) {
+                       this.halt(0x800D);
+                       this.runJumps(0x8100);
+                       if(!this.unwinding()) {
+                          ;
+                       }
+                    }
+                 }
+              }
+           }
+
+           public int $8100() {
+              this.HL(0x8300);
+              int var1 = this.B();
+              int var2 = this.alu("inc", var1);
+              this.B(var2);
+              this.runJumps(0x8200);
+              return this.unwinding()?-1:0x8300;
+           }
+
+           public int $8200() {
+              int var1 = this.C();
+              int var2 = this.alu("inc", var1);
+              this.C(var2);
+              return -1;
+           }
+
+           public int $8300() {
+              int var1 = this.D();
+              int var2 = this.alu("inc", var1);
+              this.D(var2);
+              int var3 = this.B();
+              this.A(var3);
+              int var4 = this.A();
+              this.alu("cp", var4, 16);
+              if(this.flag(64, false)) {
+                 return -1;
+              } else {
+                 return 0x8100;
+              }
+           }
+        }
+        """, withoutTiming(java));
+  }
+
+  @Test
   public void targetRenegadeE0D6GoesBackIntoTheMainLoopThatCaughtItInsteadOfCallingItAgain() {
     // Target: Renegade D6E4-D7A0 and E058-E3D0 as they are (the routines they call only return): E058 takes its return with POP HL at E0D5, the main loop's catch runs E0D6, and E0D6 goes back to D794; calling $D6E4 again nested one more loop on every such turn until, at frame 52976, a RET unwound the game out of its loop
     ignoresMemory(0xBF00, 0xBFC0);

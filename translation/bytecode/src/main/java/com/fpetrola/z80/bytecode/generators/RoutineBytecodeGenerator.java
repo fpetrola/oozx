@@ -821,10 +821,11 @@ public class RoutineBytecodeGenerator {
 
   /** The data this routine pushed for a RET of another routine is taken here when the site leaves and it is on top: the site may also be reached on a path that did not push it, where the top is something else, such as the return address of this frame. */
   public void leaveWithOwnData(int site) {
-    for (int push : context.routineManager.ownDataLeftForOthers(site, routine, stackAnalyzer())) {
+    List<Integer> pushes = context.routineManager.ownDataLeftForOthers(site, routine, stackAnalyzer());
+    for (int push : pushes) {
       Integer continuation = plantedContinuation(push);
       if (continuation != null)
-        invokeTransformedMethod(continuation);
+        goOnAt(continuation, site, pushes.size() == 1);
       else {
         Label take = mm.label(), done = mm.label();
         Set<Integer> pushed = new TreeSet<>(stackAnalyzer().pushedValues.get(push));
@@ -837,10 +838,33 @@ public class RoutineBytecodeGenerator {
         Variable value = mm.invoke("pop");
         List<Integer> consumers = stackAnalyzer().dataConsumedBy.entries().stream().filter(e -> e.getValue() == push && !stackAnalyzer().shiftedReturns.containsKey(e.getKey())).map(Map.Entry::getKey).toList();
         if (!consumers.isEmpty())
-          dispatch(value, consumers.stream().flatMap(ret -> stackAnalyzer().dynamicInvocation.get(ret).stream()));
+          goOnAt(value, consumers.stream().flatMap(ret -> stackAnalyzer().dynamicInvocation.get(ret).stream()).toList(), site, pushes.size() == 1);
         done.here();
       }
     }
+  }
+
+  /** Goes on at a target once the data left for others was taken: within the method when the target has a label, as a turn of the loop or a jump out of the routine when nothing else of the routine's is on the stack ({@code alone}), else as a call that comes back here, which is when it returns false. */
+  private boolean goOnAt(int target, int site, boolean alone) {
+    if (getLabel(target) != null)
+      goTo(site, target);
+    else if (alone)
+      tailJump(target, -1);
+    else
+      jumpInto(target);
+    return alone || getLabel(target) != null;
+  }
+
+  /** The same at the recorded target a value names, in the emulator when it is none of them. */
+  private void goOnAt(Variable value, Collection<Integer> targets, int site, boolean alone) {
+    Label reached = mm.label();
+    targets.stream().distinct().sorted().forEach(target -> value.ifEq(target, () -> {
+      if (!goOnAt(target, site, alone))
+        reached.goto_();
+    }));
+    mm.invoke("jump", value);
+    afterInvoke();
+    reached.here();
   }
 
   public static class RoutineRegisterAccumulator<S> implements RoutineVisitor<List<S>> {
