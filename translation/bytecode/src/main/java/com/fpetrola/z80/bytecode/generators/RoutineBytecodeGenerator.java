@@ -202,8 +202,7 @@ public class RoutineBytecodeGenerator {
 
         List<RoutineManager.CodeVariant> variants = context.routineManager.codeVariantsAt(address);
         if (!variants.isEmpty()) {
-          Variable hash = mm.invoke("codeHash", variants.get(0).variableStart(), variants.get(0).variableBytes().length);
-          variants.forEach(v -> hash.ifEq(v.hash(), () -> tailJump(v.relocated(address), -1)));
+          variants.forEach(v -> mm.invoke("codeHash", v.variableStart(), v.variableBytes().length, addresses(Arrays.stream(v.varying()).boxed().toList())).ifEq(v.hash(), () -> tailJump(v.relocated(address), -1)));
           mm.invoke("unknownCodeVariant", address, variants.get(0).variableStart(), variants.get(0).variableBytes().length);
         }
         List<int[]> versions = codeVersions().instructionVersions(address);

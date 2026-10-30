@@ -148,6 +148,27 @@ public class CodeVersions implements java.io.Serializable {
   }
 
   /** Called at every fetch of a replay: only a fetch inside a region looks, and only a content other than the last one seen there is copied. */
+  /** The contents of a region grouped by shape: the same instructions in the same places, differing only in operand bytes, which a copy reads from memory. */
+  public record Shape(int[] bytes, int[] varying) {
+  }
+
+  public List<Shape> shapes(int regionStart) {
+    Map<List<Integer>, List<int[]>> byShape = new LinkedHashMap<>();
+    blockContents(regionStart).forEach(content -> byShape.computeIfAbsent(shapeOf(regionStart, content), k -> new ArrayList<>()).add(content));
+    return byShape.values().stream().map(contents -> new Shape(contents.get(0), IntStream.range(0, contents.get(0).length).filter(i -> contents.stream().anyMatch(c -> c[i] != contents.get(0)[i])).toArray())).toList();
+  }
+
+  private List<Integer> shapeOf(int start, int[] content) {
+    int[] shape = content.clone();
+    for (int offset = 0; offset < content.length; ) {
+      Instruction instruction = decoder.apply(start + offset, Arrays.copyOfRange(content, offset, content.length));
+      int at = offset;
+      operandOffsets(instruction).stream().filter(o -> at + o < shape.length).forEach(o -> shape[at + o] = 0);
+      offset += Math.max(1, instruction.getLength());
+    }
+    return Arrays.stream(shape).boxed().toList();
+  }
+
   public void recordBlockContent(int address, int[] memory) {
     if (regionAt == null) {
       regionAt = new int[0x10000];

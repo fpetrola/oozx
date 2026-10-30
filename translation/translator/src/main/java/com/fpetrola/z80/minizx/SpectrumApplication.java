@@ -216,7 +216,15 @@ public abstract class SpectrumApplication {
   }
 
   public int codeHash(int start, int length) {
-    return Arrays.hashCode(java.util.stream.IntStream.range(start, start + length).map(address -> mem[address & 0xffff]).toArray());
+    return codeHash(start, length, new int[0]);
+  }
+
+  /** The bytes of a region as they are now, with the operands that vary between contents of a shape left out. */
+  public int codeHash(int start, int length, int[] varying) {
+    int[] bytes = java.util.stream.IntStream.range(start, start + length).map(address -> mem[address & 0xffff]).toArray();
+    for (int offset : varying)
+      bytes[offset] = 0;
+    return Arrays.hashCode(bytes);
   }
 
   public void unknownCodeVariant(int address, int variableStart, int length) {

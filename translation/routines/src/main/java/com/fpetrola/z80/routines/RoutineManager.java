@@ -223,10 +223,13 @@ public class RoutineManager {
     return points;
   }
 
-  /** bank: the bank whose paging selects this variant, or -1 when its bytes select it. */
-  public record CodeVariant(int start, int end, int variableStart, int[] variableBytes, int relocatedAt, int[] code, int bank) {
+  /** bank: the bank whose paging selects this variant, or -1 when its bytes select it; varying: offsets of the variable bytes that are operands read from memory, left out of the hash. */
+  public record CodeVariant(int start, int end, int variableStart, int[] variableBytes, int relocatedAt, int[] code, int bank, int[] varying) {
     public int hash() {
-      return java.util.Arrays.hashCode(variableBytes);
+      int[] masked = variableBytes.clone();
+      for (int offset : varying)
+        masked[offset] = 0;
+      return java.util.Arrays.hashCode(masked);
     }
 
     public java.util.Set<Integer> entries(RoutineManager routineManager) {

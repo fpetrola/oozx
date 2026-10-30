@@ -26,6 +26,7 @@ import com.fpetrola.z80.minizx.emulation.GameData;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.se.SymbolicExecutionAdapter;
 import com.fpetrola.z80.routines.Routine;
+import com.fpetrola.z80.helpers.Helper;
 import com.fpetrola.z80.routines.RoutineManager;
 import com.fpetrola.z80.transformations.*;
 
@@ -120,25 +121,27 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
   /** Every region the program rewrites with a content of its own runs from a copy per recorded content, entered by the hash of what is there. */
   private void translateRewrittenRegions(CodeVersions versions) {
     versions.blockRegions().forEach(region -> {
-      int contents = versions.blockContents(region[0]).size();
-      if (contents > 1)
-        translateCodeVariants(region[0], region[1], freeAreaFor(contents * (region[1] - region[0] + 3)), versions);
+      int shapes = versions.shapes(region[0]).size(), at = shapes > 1 ? freeAreaFor(shapes * (region[1] - region[0] + 3)) : -1;
+      if (at != -1)
+        translateCodeVariants(region[0], region[1], at, versions);
+      else if (shapes > 1 && Boolean.getBoolean("translation.reportRoutines"))
+        System.out.println("REGION " + Helper.formatAddress(region[0]) + "-" + Helper.formatAddress(region[1]) + " with " + shapes + " shapes has no free area for its copies");
     });
   }
 
   /** Each copy ends with a jump to the code after the region, since it does not lie before it. */
   public void translateCodeVariants(int start, int end, int relocationBase, CodeVersions versions) {
     int variableStart = versions.blockRegions().stream().filter(region -> region[0] >= start && region[1] <= end).findFirst().orElseThrow()[0];
-    List<int[]> variants = versions.blockContents(variableStart);
+    List<CodeVersions.Shape> variants = versions.shapes(variableStart);
     OOZ80 decoder = com.fpetrola.z80.minizx.emulation.EmulatedMiniZX.createOOZ80(new com.fpetrola.z80.minizx.DefaultMiniZXIO());
     int size = end - start, stride = size + 3;
     routineManager.forgetCode(relocationBase, relocationBase + variants.size() * stride);
-    getStackAnalyzer().codeVersions.mutant().removeIf(address -> address >= variableStart && address < variableStart + variants.get(0).length);
+    getStackAnalyzer().codeVersions.mutant().removeIf(address -> address >= variableStart && address < variableStart + variants.get(0).bytes().length);
     symbolicExecutionAdapter.routineExecutorHandler.forgetExecutions(relocationBase, relocationBase + variants.size() * stride);
     int[] decoderMemory = (int[]) decoder.getState().getMemory().getData();
     List<RoutineManager.CodeVariant> copies = new java.util.ArrayList<>();
     for (int k = 0; k < variants.size(); k++) {
-      int[] variable = variants.get(k);
+      int[] variable = variants.get(k).bytes();
       int[] code = java.util.Arrays.copyOf(java.util.Arrays.copyOfRange(programImage, start, end), stride);
       System.arraycopy(variable, 0, code, variableStart - start, variable.length);
       code[size] = 0xC3;
@@ -154,7 +157,9 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
       }
       for (int i = 0; i < code.length; i++)
         getState().getMemory().write(at + i, code[i]);
-      copies.add(new RoutineManager.CodeVariant(start, end, variableStart, variable, at, code, -1));
+      for (int offset : variants.get(k).varying())
+        getStackAnalyzer().codeVersions.mutant().add(at + variableStart - start + offset);
+      copies.add(new RoutineManager.CodeVariant(start, end, variableStart, variable, at, code, -1, variants.get(k).varying()));
     }
     routineManager.codeVariants.addAll(copies);
     getState().getMemory().protect(relocationBase, relocationBase + variants.size() * stride);
@@ -178,12 +183,14 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
       java.util.Map<Integer, int[]> instructions = banked.instructions();
       int start = java.util.Collections.min(instructions.keySet()), end = instructions.entrySet().stream().mapToInt(e -> e.getKey() + e.getValue().length).max().getAsInt();
       int at = freeAreaFor(end - start);
+      if (at == -1)
+        throw new IllegalStateException("no free area of " + (end - start) + " bytes below C000 for another bank's code");
       int[] code = java.util.Arrays.copyOfRange(banked.contents(), start - com.fpetrola.z80.memory.MemoryBanks.WINDOW, end - com.fpetrola.z80.memory.MemoryBanks.WINDOW);
       instructions.forEach((address, bytes) -> relocateJump(code, start, end, at, address, bytes.length));
       for (int i = 0; i < code.length; i++)
         getState().getMemory().write(at + i, code[i]);
       getState().getMemory().protect(at, at + code.length);
-      RoutineManager.CodeVariant variant = new RoutineManager.CodeVariant(start, end, start, code, at, code, bank);
+      RoutineManager.CodeVariant variant = new RoutineManager.CodeVariant(start, end, start, code, at, code, bank, new int[0]);
       routineManager.codeVariants.add(variant);
       banked.modified().forEach(address -> getStackAnalyzer().codeVersions.mutant().add(variant.relocated(address)));
       StackAnalyzer stackAnalyzer = getStackAnalyzer();
@@ -197,15 +204,14 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
     });
   }
 
+  /** The first gap below C000 that holds a copy of that size, -1 when none does. */
   private int freeAreaFor(int size) {
     java.util.BitSet code = routineManager.codeAddresses();
     int free = com.fpetrola.z80.minizx.SpectrumApplication.ROM_END, address = free;
     for (; address < com.fpetrola.z80.memory.MemoryBanks.WINDOW && address - free < size; address++)
       if (code.get(address) || getState().getMemory().isProtected(address))
         free = address + 1;
-    if (address - free < size)
-      throw new IllegalStateException("no free area of " + size + " bytes below C000 for a copy of code");
-    return free;
+    return address - free < size ? -1 : free;
   }
 
   @Override

@@ -5030,6 +5030,19 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void contentsThatDifferOnlyInAnOperandAreOneShapeWhoseCopyReadsTheOperandFromMemory() {
+    // Batman D7BB-D996: a region rewritten in place holds operands the game changes all the time (18380 contents recorded); a copy per content is neither possible nor right, a copy per shape is
+    String java = translate(
+        at(0x8000, 0xCD, 0x00, 0x81, 0x3E, 0x02, 0x32, 0x01, 0x81, 0xCD, 0x00, 0x81, 0x21, 0x00, 0x82, 0x11, 0x00, 0x81, 0x01, 0x03, 0x00, 0xED, 0xB0, 0xCD, 0x00, 0x81, 0x76, 0x18, 0xFD),
+        at(0x8100, 0x3E, 0x01, 0xC9),
+        at(0x8200, 0x0C, 0x00, 0xC9));
+    Assert.assertEquals(0x02, endValue("A"));
+    Assert.assertEquals(0x01, endValue("C"));
+    Assert.assertEquals(List.of(List.of(1), List.of()), routineManager.codeVariants.stream().map(v -> Arrays.stream(v.varying()).boxed().toList()).toList());
+    Assert.assertTrue("the copy reads the operand where the game writes it", withoutTiming(java).contains("$c0_8100") && withoutTiming(java).contains("this.mem(0x8101"));
+  }
+
+  @Test
   public void aLoopTooBigForOneJavaMethodStaysAStateMachine() {
     // Target: Batman D537: 160 members with 458 exits among them; folded, the head's call blocks go past the 64 KB a Java method can hold (cojen: Code limit reached). Until the loop can be folded into nested heads, such a loop stays a state machine; the limit here is lowered to make this small loop too big
     System.setProperty("translation.methodBytes", "8");
