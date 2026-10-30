@@ -43,6 +43,8 @@ public class CodeVersions implements java.io.Serializable {
   private final Map<Integer, Integer> executedLengths = new TreeMap<>();
   private final List<int[]> merges = new ArrayList<>();
   private boolean dirty;
+  private transient int[] regionAt;
+  private transient int[][] lastSeen;
   private transient BiFunction<Integer, int[], Instruction> decoder;
 
   public void record(int address, int[] first, int[] other) {
@@ -135,6 +137,7 @@ public class CodeVersions implements java.io.Serializable {
     if (inside.size() > 1) {
       blockRegions.removeAll(inside);
       blockRegions.add(new int[]{inside.get(0)[0], inside.get(inside.size() - 1)[1]});
+      regionAt = null;
     }
   }
 
@@ -144,8 +147,21 @@ public class CodeVersions implements java.io.Serializable {
     return blockContents.getOrDefault(regionStart, List.<int[]>of()).stream().filter(content -> content.length == span).toList();
   }
 
+  /** Called at every fetch of a replay: only a fetch inside a region looks, and only a content other than the last one seen there is copied. */
   public void recordBlockContent(int address, int[] memory) {
-    blockRegions.stream().filter(region -> address >= region[0] && address < region[1]).forEach(region -> addBlockContent(region[0], Arrays.copyOfRange(memory, region[0], region[1])));
+    if (regionAt == null) {
+      regionAt = new int[0x10000];
+      Arrays.fill(regionAt, -1);
+      for (int i = 0; i < blockRegions.size(); i++)
+        for (int a = blockRegions.get(i)[0]; a < blockRegions.get(i)[1]; a++)
+          regionAt[a & 0xffff] = i;
+      lastSeen = new int[blockRegions.size()][];
+    }
+    int i = regionAt[address & 0xffff];
+    if (i < 0 || lastSeen[i] != null && Arrays.equals(memory, blockRegions.get(i)[0], blockRegions.get(i)[1], lastSeen[i], 0, lastSeen[i].length))
+      return;
+    lastSeen[i] = Arrays.copyOfRange(memory, blockRegions.get(i)[0], blockRegions.get(i)[1]);
+    addBlockContent(blockRegions.get(i)[0], lastSeen[i]);
   }
 
   private void addBlockContent(int start, int[] content) {
@@ -160,6 +176,7 @@ public class CodeVersions implements java.io.Serializable {
     if (!dirty)
       return;
     dirty = false;
+    regionAt = null;
     versions.forEach((address, known) -> kinds.put(address, kindOf(address, known)));
     blockRegions.clear();
     List<Integer> region = new ArrayList<>();
