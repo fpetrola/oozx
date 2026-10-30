@@ -130,6 +130,17 @@ Programa del recubrimiento (el que la regla del arnés rechaza hoy):
   `InstructionsBytecodeGenerator.originalAddress()`. El arnés deja que el Java llegue a su `halt()` antes de
   terminar el programa en un `HALT`, así compara también lo que el `HALT` informa. Test
   aHaltInsideACopyOfARewrittenRegionReportsItsOriginalAddress, rojo antes (PC=4008 contra 8102).
+- **P3, saltos relativos que salen de una copia (1030-batman9, cuadro 239).** Con el `HALT` arreglado Batman llega
+  al cuadro 239 y se corta en la copia de EBA3-EBAC: su `DJNZ EB8F` (EB8F está dentro de EB6B-EB98, otra región
+  reescrita) caía a su propio desplazamiento en el área libre (5B50). Cada copia lleva ahora, después de su
+  `JP` final, un `JP` por salto relativo que sale de la región, y el salto se desvía ahí (`copiesOf`, un solo
+  decodificado por forma, que también sirve para pedir el área); si el trampolín queda a más de 127 bytes la
+  región se queda en su lugar y lo informa. Y como una copia puede saltar dentro de una región copiada antes,
+  las entradas de cada región se vuelven a mirar hasta que ninguna agrega (`exploreEntriesOf`): la entrada
+  interior recibe su despacho y las copias se exploran desde ahí (`$c0_8101`). Tests
+  aRelativeJumpThatLeavesACopiedRegionGoesWhereTheOriginalWent y
+  aJumpFromACopyIntoARegionCopiedBeforeItEntersThatRegionsCopies, rojos antes. Pendiente: una entrada interior
+  que en otra forma cae en medio de una instrucción explora basura desde ahí (la rama del despacho queda muerta).
 - **Pendiente de P3:** `unknownCodeVariant` sigue lanzando excepción ante un contenido no grabado; el respaldo
   con el emulador ahí (como `goOnFrom`) daría robustez jugando con teclas al azar. Las cuatro regiones de Batman
   sin lugar piden la clave con espacio (sin copias en RAM) o un respaldo por región, no por instrucción.
