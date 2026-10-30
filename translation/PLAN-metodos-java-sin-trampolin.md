@@ -425,6 +425,58 @@ contador no puede ser el de la continuación plantada, los manejadores cuentan e
 saltada se une a la que salta (llamarla una vez desde el principal), y toda rutina termina en RET o HALT+JR para
 que su rango no caiga en la siguiente y fabrique un ciclo.
 
+### Fase 4, el día del 30: Batman, Bomb Jack y lo que no cabe en un método
+
+- **Las hermanas de una parte son sumideros (aee5f501c).** La estructura de control de una parte seguía las
+  salidas de sus hermanas, veía un bucle entre ellas y lo despachaba como hace la cabeza, llamando a las hermanas
+  desde adentro de la parte (Batman D1F1: `no label for D1F1`). Test
+  `aPartOfALoopNeverCallsItsSiblingsEvenWhenTheyLoopAmongThemselves`, rojo antes.
+- **Un ciclo que no cabe plegado queda como máquina de estados (72748ecc8).** Batman D537 tiene 160 partes y
+  458 salidas entre ellas: cojen decía `Code limit reached` al cerrar la clase. El bloque de llamada de cada parte
+  cuenta 4 bytes y cada salida 2 sobre el mismo límite del corte (`-Dtranslation.methodBytes`, 1500); Skool Daze
+  6254 (85 partes, 245 salidas) sigue plegado. Test `aLoopTooBigForOneJavaMethodStaysAStateMachine` con el
+  límite bajado. Pendiente: plegar un ciclo así en cabezas anidadas (una cabeza por región del bucle).
+- **Las entradas de una rutina tienen un solo dueño (6aa5a5450).** Con D537 como máquina de estados, Batman
+  genera la clase en 3 minutos y el bytecode se desvía en el cuadro 347, igual que desde el 10-12: DC0A → DC12
+  cuando el Z80 va a DC0C. El bloque DC00-DC30 tiene dos contenidos grabados (en el otro hay instrucciones de 3
+  bytes en DC03/DC06/DC09, un CALL en DC09 y un `LD A,FF` en DC07), así que todo el bucle de copia corre por
+  `executeMutantCode`; el DJNZ mutante de DC17 vuelve a DC08, que no tiene etiqueta en la cabeza, y `goOnFrom`
+  emula hasta encontrar una entrada traducida: DC0C, retorno del CALL en DC09 tomado por un RET no local, que la
+  parte DC00 despacha como aterrizaje y `runTranslated` tiene. La cabeza DC11 solo reenviaba a la parte lo que
+  daba `entriesFromOutside` (sin aterrizajes), no encontraba DC0C y caía en su primera instrucción DC12. Ahora
+  `RoutineManager.entriesFromOutside(routine, stackAnalyzer, ancestorJumps)` es el único cálculo (entrada desde
+  afuera, CALL o RST desde afuera, aterrizaje de salto a ancestro o de RET no local a un CALL propio), y lo usan
+  el despacho de la parte, el reenvío de la cabeza y el corte. Además `goTo` ya no deja pendiente una dirección
+  igual a donde va (quedaba sin consumir cuando el destino era la cabecera de la región o la entrada de la parte;
+  cuatro tests de la batería la dejaban pendiente) y `setNextAddress` lanza excepción si reemplaza una
+  dirección que ningún despacho tomó: la falla deja de ser silenciosa. Un guardia como llamada generada al final
+  de cada cadena de despacho se descartó: agregaba una línea a cada método y cambiaba todas las expectativas.
+  **No se reprodujo en un programa grabado** (seis variantes: salto a ancestro estático o por registro, RET no
+  local después de descartar un retorno, con y sin salto por encima de la cola, con y sin la rutina que entra
+  por `JP (HL)`): el finder parte la rutina en el aterrizaje, que pasa a ser la entrada de la parte y la cabeza
+  lo reenvía igual. Lo cubre la nocturna por bytecode de Batman (1030-batman4). Una de las variantes mostró otra
+  falla, pendiente: la continuación después de un retorno descartado que salta a una parte entra a la cabeza
+  como llamada y anida un marco por vuelta (`after $8200: 11 translated routines nested … a jump became a call`):
+
+  ```
+  8000 LD B,0 / CALL 8100 / LD B,0 / CALL 8200 / LD B,0 / CALL 8100 / LD B,5 / CALL 8300 / HALT
+  8100 INC E / JP 8200                                  (cabeza)
+  8200 INC B / LD A,B / CP 6 / RET Z / CALL 8400 / 8208 INC C / JP 8100   (parte)
+  8300 LD HL,8208 / JP (HL)
+  8400 LD A,B / CP 3 / JR Z,840B / POP HL / INC D / LD HL,8208 / JP (HL) / 840B RET
+  ```
+- **Fernflower no termina con la clase de Batman.** Con D537 como máquina de estados, la descompilación corrió
+  57 minutos hasta el timeout de la nocturna sin producir fuente (antes, 31 minutos y `parsing failure` más
+  OutOfMemory). El método más grande es `runTranslated` (37 KB de bytecode), después `$DECF` (22 KB) y `$C0D6`
+  (12 KB); el muestreo de la pila la encuentra en `DomHelper.findGeneralStatement` (dominadores). Falta saber en
+  qué método (`ConsoleDecompiler -log=TRACE` sobre `work/Batman.class`) y si el plegado en cabezas anidadas lo
+  evita.
+- **Bomb Jack** (`rzx-top/617/bombjack.rzx`, arranque E937, en `games.txt`): traduce sin cambios y pasa el
+  lockstep por bytecode y por fuente hasta el cuadro 126859 de 127371; ahí la interrupción cae en el cuadro
+  126858 dentro del bucle C462-C465 del manejador con las interrupciones deshabilitadas, el `RETI` de C46E
+  retoma en EE82 en Java y en E78A en el Z80. `MiniZX.interrupt()` no tiene noción de interrupción pendiente
+  entre cuadros. Pendiente.
+
 ## Fase 4b. La dirección viaja como dato: parámetro de entrada y valor de retorno (pendiente, anotado el 2026-10-28)
 
 Hoy hay dos encarnaciones de la misma variable de estructuración de No More Gotos:
