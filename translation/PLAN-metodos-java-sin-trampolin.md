@@ -411,6 +411,20 @@ rutina más grande cuando Fernflower descarta la clase entera (c70c8155d), y que
 sigue aparte (roto desde el 10-12). `runJumps`: 0 en todos los generados. Catálogo commiteado regenerado desde
 esas corridas (f8d206ce7, da12cc6b6): los 19; Batman, DD y Jet Set Willy quedan viejos.
 
+**Tests por tipo de falla (mañana del 30).** Lo que la nocturna encontró y la batería dejaba pasar tiene ahora
+su programa en `RecordedProgramTests`, cada uno verificado en rojo sin su arreglo: el RET despachador de una
+parte sobre el dato de la cabeza (Skool Daze 6254/629F, con basura en el mismo push y un manejador que es
+también retorno de un CALL sacado con POP), el RET del bucle que también vuelve a sus llamadores (Head over
+Heels B22C/B4FC), un ciclo de datos entre partes sin recursión del generador (Skool Daze 6791…), y una segunda
+generación igual a la primera (Great Escape F271). Este último descubrió otro: un reseteo de pila que abre su
+rutina quedaba registrado por el sitio de llamada y no generaba `unwind` (RoutineFinder). No se pudieron
+reproducir en programas grabados la estructura de HoH 8E32 (bucle cerrado solo por el aterrizaje; el reseteo
+deja el código en la rutina del que llama y la familia no se forma) ni la salida a una entrada interior
+(Renegade 8860): los cubre la nocturna por fuente. Trampas al escribir estos programas: el registro del
+contador no puede ser el de la continuación plantada, los manejadores cuentan en memoria, una rutina solo
+saltada se une a la que salta (llamarla una vez desde el principal), y toda rutina termina en RET o HALT+JR para
+que su rango no caiga en la siguiente y fabrique un ciclo.
+
 ## Fase 4b. La dirección viaja como dato: parámetro de entrada y valor de retorno (pendiente, anotado el 2026-10-28)
 
 Hoy hay dos encarnaciones de la misma variable de estructuración de No More Gotos:
