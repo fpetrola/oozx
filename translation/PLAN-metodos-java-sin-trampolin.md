@@ -477,6 +477,21 @@ que su rango no caiga en la siguiente y fabrique un ciclo.
   retoma en EE82 en Java y en E78A en el Z80. `MiniZX.interrupt()` no tiene noción de interrupción pendiente
   entre cuadros. Pendiente.
 
+- **Batman después del arreglo (1030-batman4, 6aa5a5450):** el bytecode pasa el cuadro 347 y se detiene en el
+  415 con `no translated routine at CE9D`: un CALL mutante de `$CE3C` (la rutina CE3C-CE5C es una cadena de
+  CALL reescrita por habitación) llama a CE9D, que está adentro de `{CE5D:CEC3}` y no tiene llamadores en los
+  hechos (CE8B-CEA0 es región de bloque). Toda la zona CDA0-CF8E es código de bloque que corre por
+  `executeMutantCode`, y cada vuelta que pasa por `goOnFrom` → `runTranslated` anida un marco (`$CDFA` →
+  `$CDBD` → `runTranslated` → `goOnFrom` → …): el respaldo con el emulador no sabe saltar, solo llamar. Lo que
+  sigue para Batman es la parte 11 (variantes de bloque desde la grabación) o, como mínimo, que un CALL mutante
+  a código sin método propio siga en el emulador como hace `goOnFrom` en vez de fallar con `untranslated`.
+- **Fuentes del catálogo contra el runtime nuevo (1030-committed):** con la excepción de `setNextAddress`,
+  cuatro fuentes generadas antes de 6aa5a5450 fallan porque dejaban pendiente la entrada de la parte que
+  llamaban (el patrón que `goTo` ya no emite): Target Renegade (D783 antes de F427, cuadro 52976), Renegade 128
+  (8014 antes de 9B12, 26472), Renegade (840F antes de 97A0, 1280) y Wally (EE9F antes de E315, 58489). Los
+  otros 15 pasan completos. Hay que regenerar esas cuatro de la nocturna de esta noche (receta en la memoria de
+  las fuentes commiteadas); Bomb Jack no tiene fuente en el catálogo.
+
 ## Fase 4b. La dirección viaja como dato: parámetro de entrada y valor de retorno (pendiente, anotado el 2026-10-28)
 
 Hoy hay dos encarnaciones de la misma variable de estructuración de No More Gotos:
