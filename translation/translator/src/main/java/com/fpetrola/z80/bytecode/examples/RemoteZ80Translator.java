@@ -197,6 +197,10 @@ public class RemoteZ80Translator {
             memory.protect(at, at + 1);
         }
       });
+      versions.blockRegions().forEach(region -> versions.blockContents(region[0]).stream().findFirst().ifPresent(content -> {
+        for (int i = 0; i < content.length; i++)
+          memory.write(region[0] + i & 0xffff, content[i]);
+      }));
     }
   }
 
@@ -323,6 +327,9 @@ public class RemoteZ80Translator {
     play(emulator[0]);
     stackAnalyzer.learnFromForks(forked, codeBytes.keySet());
     versions.patched(patched, codeBytes);
+    versions.decodeWith(decoder());
+    if (!versions.blockRegions().isEmpty())
+      recordBlockContents(emulatorFor.apply(null), from, versions);
     externalEntries.retainAll(codeBytes.keySet());
     int[] finalMemory = emulator[0].ooz80.getState().getMemory().getData().clone();
     MemoryBanks banks = ((MockedMemory) emulator[0].ooz80.getState().getMemory()).banks;

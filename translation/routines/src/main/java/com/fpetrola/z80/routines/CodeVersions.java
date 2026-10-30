@@ -59,6 +59,7 @@ public class CodeVersions implements java.io.Serializable {
   public void addAll(CodeVersions other) {
     other.versions.forEach((address, known) -> known.forEach(v -> record(address, known.get(0), v)));
     patched.addAll(other.patched);
+    other.blockContents.forEach((start, contents) -> contents.forEach(content -> addBlockContent(start, content)));
   }
 
   /** Code bytes that may hold at runtime something other than what was translated: they are read from memory or run through the emulator. */
@@ -126,17 +127,20 @@ public class CodeVersions implements java.io.Serializable {
     }
   }
 
+  /** The contents seen in the region starting there, first seen first; only those spanning the region as it is now. */
   public List<int[]> blockContents(int regionStart) {
-    return blockContents.getOrDefault(regionStart, List.of());
+    int span = blockRegions.stream().filter(region -> region[0] == regionStart).mapToInt(region -> region[1] - region[0]).findFirst().orElse(-1);
+    return blockContents.getOrDefault(regionStart, List.<int[]>of()).stream().filter(content -> content.length == span).toList();
   }
 
   public void recordBlockContent(int address, int[] memory) {
-    blockRegions.stream().filter(region -> address >= region[0] && address < region[1]).forEach(region -> {
-      int[] content = Arrays.copyOfRange(memory, region[0], region[1]);
-      List<int[]> known = blockContents.computeIfAbsent(region[0], start -> new ArrayList<>());
-      if (known.stream().noneMatch(c -> Arrays.equals(c, content)))
-        known.add(content);
-    });
+    blockRegions.stream().filter(region -> address >= region[0] && address < region[1]).forEach(region -> addBlockContent(region[0], Arrays.copyOfRange(memory, region[0], region[1])));
+  }
+
+  private void addBlockContent(int start, int[] content) {
+    List<int[]> known = blockContents.computeIfAbsent(start, s -> new ArrayList<>());
+    if (known.stream().noneMatch(c -> Arrays.equals(c, content)))
+      known.add(content);
   }
 
   public void decodeWith(BiFunction<Integer, int[], Instruction> decoder) {

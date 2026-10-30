@@ -109,23 +109,28 @@ public class RecordedProgramTests {
   }
 
   private String translateWithBlock(int[] block, int[]... chunks) {
-    int[] memory = memoryOf(chunks);
-    String image = RemoteZ80Translator.emulateProgram(base, memory, start, stack);
-    base.exploreRecording(RemoteZ80Translator.footprint(stackAnalyzer -> machine(EmulatedMiniZX.ofProgram(memory, start, stack, 1000, stackAnalyzer).interruptingEvery(interruptEvery)), start), start);
-    stackAnalyzer = base.getStackAnalyzer();
-    routineManager = base.getRoutineManager();
-    versions = stackAnalyzer.codeVersions;
+    int[] memory = explore(chunks);
     if (block != null) {
       RemoteZ80Translator.recordBlockContents(EmulatedMiniZX.ofProgram(memory, start, stack, 1000, null), start, versions);
       base.translateCodeVariants(block[0], block[1], 0xE000, versions);
     }
-    this.image = image;
     String java = base.generateAndDecompile(image, routineManager.getRoutines(), ".", "Program", base.symbolicExecutionAdapter);
     if (Boolean.getBoolean("translation.printJava"))
       System.err.println("JAVA<<" + withoutTiming(java) + ">>JAVA");
     assertRunsLikeTheEmulator(BytecodeGeneration.translatedProgram("Program", read(Path.of("Program.class"))), memory);
     assertRunsLikeTheEmulator(compiled(java), memory);
     return java;
+  }
+
+  /** The footprint of the program and its exploration, without generating code. */
+  private int[] explore(int[]... chunks) {
+    int[] memory = memoryOf(chunks);
+    image = RemoteZ80Translator.emulateProgram(base, memory, start, stack);
+    base.exploreRecording(RemoteZ80Translator.footprint(stackAnalyzer -> machine(EmulatedMiniZX.ofProgram(memory, start, stack, 1000, stackAnalyzer).interruptingEvery(interruptEvery)), start), start);
+    stackAnalyzer = base.getStackAnalyzer();
+    routineManager = base.getRoutineManager();
+    versions = stackAnalyzer.codeVersions;
+    return memory;
   }
 
   private EmulatedMiniZX machine(EmulatedMiniZX emulator) {
@@ -4993,6 +4998,18 @@ public class RecordedProgramTests {
            }
         }
         """, withoutTiming(java));
+  }
+
+  @Test
+  public void theContentsOfARegionTheProgramRewritesAreRecordedAndTheImageHoldsTheFirstOneWhole() {
+    // Target: Batman CE3C-CE42: the game rewrites 7 bytes, both contents were recorded as versions, but Footprint.install wrote the recorded instructions byte by byte and CE40 held CD 28 06, a CALL 0628 of neither content
+    explore(
+        at(0x8000, 0xCD, 0x00, 0x81, 0x21, 0x00, 0x82, 0x11, 0x00, 0x81, 0x01, 0x04, 0x00, 0xED, 0xB0, 0xCD, 0x00, 0x81, 0x76, 0x18, 0xFD),
+        at(0x8100, 0x3C, 0xC9, 0x00, 0x00),
+        at(0x8200, 0xCD, 0x00, 0x83, 0xC9),
+        at(0x8300, 0x0C, 0xC9));
+    Assert.assertEquals(List.of(List.of(0x3C, 0xC9, 0x00), List.of(0xCD, 0x00, 0x83)), versions.blockContents(0x8100).stream().map(content -> Arrays.stream(content).boxed().toList()).toList());
+    Assert.assertEquals("the image holds the first content whole, not a byte mix", 0x00, base.getState().getMemory().read(0x8102, 0));
   }
 
   @Test
