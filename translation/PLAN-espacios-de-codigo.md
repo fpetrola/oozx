@@ -158,6 +158,16 @@ Programa del recubrimiento (el que la regla del arnés rechaza hoy):
   instrucciones (`CodeVariant.instructions`, de la misma decodificación de `copiesOf`) y una entrada interior
   solo explora y despacha las copias que tienen una instrucción ahí. Test
   anEntryInsideARegionOnlyEntersTheCopiesThatHaveAnInstructionThere, rojo antes (`$c0_8101` existía).
+- **P3, dónde van las copias (1030-batman12).** Con eso la rutina gigante seguía ({9F73:C6FE}, en batman9
+  eran cuatro rutinas) y entre batman9 y batman12 cambiaban 877 límites de rutinas lejos de toda región. La
+  causa está en `freeAreaFor`: un hueco "libre" era todo byte que no fuera código de una rutina ni byte
+  protegido, y las copias (unos 13 KB en Batman, más que la pantalla) caían en huecos de la RAM del juego que
+  su código lee como datos (la copia de EB38 quedó en 6568): cada tamaño distinto de copias movía los huecos
+  y cambiaba los hechos (tablas de saltos leídas por la exploración). Ahora la exploración anota todo byte que
+  lee (`readByTheExploration`, un `MemoryReadListener` desde la primera exploración) y las copias van primero a
+  huecos que nadie leyó; si no alcanza, al hueco de antes y lo informa (`REGION … copies at … over bytes the
+  exploration read`). Test copiesGoWhereTheExplorationNeverRead, rojo antes (copias en 4000, que el programa
+  lee). Pendiente: el corte de `outline` falla con partes no contiguas (`Routine.split`, Optional vacío).
 - **Pendiente de P3:** `unknownCodeVariant` sigue lanzando excepción ante un contenido no grabado; el respaldo
   con el emulador ahí (como `goOnFrom`) daría robustez jugando con teclas al azar. Las cuatro regiones de Batman
   sin lugar piden la clave con espacio (sin copias en RAM) o un respaldo por región, no por instrucción.

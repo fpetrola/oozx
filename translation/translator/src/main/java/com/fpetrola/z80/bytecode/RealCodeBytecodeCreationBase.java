@@ -85,6 +85,8 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
     return routines;
   }
 
+  private final java.util.BitSet readByTheExploration = new java.util.BitSet();
+
   public void stepUntilComplete(int startAddress) {
     symbolicExecutionAdapter.stepUntilComplete(this, this.getState(), startAddress, RemoteZ80Translator.SCREEN_END, 0x10000);
   }
@@ -101,6 +103,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
     getStackAnalyzer().codeVersions.mutant().addAll(footprint.modifiedCode());
     routineManager.externalEntries.addAll(footprint.externalEntries());
     routineManager.externalEntries.add(start);
+    getState().getMemory().addMemoryReadListener((address, value, fetching) -> readByTheExploration.set(address));
     stepUntilComplete(start);
     Stream.of(IntStream.of(entries).boxed(), footprint.externalEntries().stream(), stackAnalyzer.dynamicInvocation.values().stream(), stackAnalyzer.calledThrough.values().stream(), stackAnalyzer.codeVersions.successors().stream())
         .flatMap(addresses -> addresses).forEach(this::stepUntilComplete);
@@ -124,9 +127,11 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
       List<CodeVersions.Shape> shapes = versions.shapes(region[0]);
       List<RoutineManager.CodeVariant> copies = shapes.size() > 1 ? copiesOf(region[0], region[1], region[0], shapes, 0) : null;
       int at = copies == null ? -1 : freeAreaFor(copies.stream().mapToInt(copy -> copy.code().length).sum());
-      if (at != -1)
+      if (at != -1) {
         translateCodeVariants(region[0], region[1], at, versions);
-      else if (shapes.size() > 1 && Boolean.getBoolean("translation.reportRoutines"))
+        if (Boolean.getBoolean("translation.reportRoutines"))
+          System.out.println("REGION " + Helper.formatAddress(region[0]) + "-" + Helper.formatAddress(region[1]) + " copies at " + Helper.formatAddress(at) + (readByTheExploration.get(at, at + copies.stream().mapToInt(copy -> copy.code().length).sum()).isEmpty() ? "" : " over bytes the exploration read"));
+      } else if (shapes.size() > 1 && Boolean.getBoolean("translation.reportRoutines"))
         System.out.println("REGION " + Helper.formatAddress(region[0]) + "-" + Helper.formatAddress(region[1]) + " with " + shapes.size() + " shapes stays in place: " + (copies == null ? "a relative jump cannot reach its trampoline" : "no free area for its copies"));
     });
     java.util.Collection<List<RoutineManager.CodeVariant>> regions = routineManager.codeVariants.stream().filter(v -> v.bank() == -1).collect(java.util.stream.Collectors.groupingBy(RoutineManager.CodeVariant::start)).values();
@@ -258,11 +263,17 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
   }
 
   /** The first gap below C000 that holds a copy of that size, -1 when none does. */
+  /** The first gap of {@code size} bytes below the bank window with no code, no protected byte and nothing the exploration read; failing that, one that only keeps clear of code and protected bytes. */
   private int freeAreaFor(int size) {
+    int unread = freeAreaFor(size, true);
+    return unread != -1 ? unread : freeAreaFor(size, false);
+  }
+
+  private int freeAreaFor(int size, boolean unread) {
     java.util.BitSet code = routineManager.codeAddresses();
     int free = com.fpetrola.z80.minizx.SpectrumApplication.ROM_END, address = free;
     for (; address < com.fpetrola.z80.memory.MemoryBanks.WINDOW && address - free < size; address++)
-      if (code.get(address) || getState().getMemory().isProtected(address))
+      if (code.get(address) || getState().getMemory().isProtected(address) || unread && readByTheExploration.get(address))
         free = address + 1;
     return address - free < size ? -1 : free;
   }

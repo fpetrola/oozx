@@ -5095,6 +5095,17 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void copiesGoWhereTheExplorationNeverRead() {
+    // Target: Batman: copies landed in gaps of the game's RAM that its code reads as data (the EB38 copy at 6568) and the facts changed from one run to the next with the sizes of the copies
+    translate(
+        at(0x8000, 0x3A, 0x00, 0x40, 0xCD, 0x00, 0x81, 0x21, 0x00, 0x82, 0x11, 0x00, 0x81, 0x01, 0x04, 0x00, 0xED, 0xB0, 0xCD, 0x00, 0x81, 0x76, 0x18, 0xFD),
+        at(0x8100, 0x3C, 0xC9, 0x00, 0x00),
+        at(0x8200, 0xCD, 0x00, 0x83, 0xC9),
+        at(0x8300, 0x0C, 0xC9));
+    Assert.assertTrue("4000 is read by the program, so the copies go after it", routineManager.codeVariants.stream().allMatch(copy -> copy.relocatedAt() > 0x4000));
+  }
+
+  @Test
   public void anInstructionOfAContentThatStartsInsideTheRegionAndEndsPastItExtendsTheRegion() {
     // the differing bytes end at 8101, but the second content's CALL at 8101 runs to 8103: the region holds whole instructions of every content
     translate(
