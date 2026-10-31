@@ -4824,6 +4824,48 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aCalleeThatDropsItsReturnAndJumpsToAnotherPartOfTheLoopThatCalledItGoesBackToTheLoop() {
+    // Sir Fred 8A58: called from parts of the main loop (8AD5, 8B37), it pops its return and, while a counter runs, jumps to another part of the loop (JP NZ,8206) instead of pushing it back and returning; the jump entered the loop's head as a call and nested a Java frame per turn
+    translate(listing("""
+        8000  CD 00 84  CALL 0x8400
+        8003  CD 00 84  CALL 0x8400
+        8006  CD 00 81  CALL 0x8100
+        8009  CD 00 82  CALL 0x8200
+        800C  1E 02  LD E, 0x02
+        800E  06 01  LD B, 0x01
+        8010  C3 00 84  JP 0x8400
+        8100  78  LD A, B
+        8101  B7  OR A, A
+        8102  C8  RET Z
+        8103  04  INC B
+        8104  CD 00 83  CALL 0x8300
+        8107  14  INC D
+        8108  C3 00 82  JP 0x8200
+        8200  78  LD A, B
+        8201  B7  OR A, A
+        8202  C8  RET Z
+        8203  0C  INC C
+        8204  C3 00 84  JP 0x8400
+        8300  1D  DEC E
+        8301  E1  POP HL
+        8302  C2 00 82  JP NZ, 0x8200
+        8305  E5  PUSH HL
+        8306  1E 02  LD E, 0x02
+        8308  C9  RET
+        8400  78  LD A, B
+        8401  B7  OR A, A
+        8402  C8  RET Z
+        8403  FE 06  CP A, 0x06
+        8405  28 03  JR Z, 0x840A
+        8407  C3 00 81  JP 0x8100
+        840A  76  HALT
+        840B  18 FD  JR 0x840A
+        """));
+    Assert.assertEquals(0x0605, endValue("BC"));
+    Assert.assertEquals(0x0201, endValue("DE"));
+  }
+
+  @Test
   public void aPartOfALoopNeverCallsItsSiblingsEvenWhenTheyLoopAmongThemselves() {
     // Target: Batman D1F1/E366: parts of the loop D537 jump to each other without passing through the head, and a sibling reached only from the head jumps into that cycle; the structure of a part saw a loop through its siblings with an entry, dispatched it like the head does and called the siblings from inside the part (no label for D1F1). A sibling is where a part ends: an exit, never a call
     String java = translate(listing("""

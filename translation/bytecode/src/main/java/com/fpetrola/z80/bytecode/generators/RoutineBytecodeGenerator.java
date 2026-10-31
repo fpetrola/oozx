@@ -493,7 +493,7 @@ public class RoutineBytecodeGenerator {
         mm.return_();
     } else if (partContaining(address) != null) {
       goTo(site, partContaining(address).getEntryPoint(), address);
-    } else if (owner != null && context.routineManager.callersWhoseReturnIsTaken(routine, site != -1 ? site : context.pc.read(), stackAnalyzer()).contains(owner) && context.ancestorJumps().goesBack(routine, owner)) {
+    } else if (owner != null && takesTheReturnOfACallIn(context.routineManager.topParent(owner), site) && context.ancestorJumps().goesBack(routine, context.routineManager.topParent(owner))) {
       mm.invoke("unwind", address);
       returnFromMethod();
     } else if (isJumpMember(routine) && isJumpMember(owner) && (site == -1 || context.routineManager.ownDataLeftForOthers(site, routine, stackAnalyzer()).isEmpty())) {
@@ -506,6 +506,11 @@ public class RoutineBytecodeGenerator {
         leaveWithOwnData(site);
       returnFromMethod();
     }
+  }
+
+  /** A POP of this routine took the return of a call made in that family, on its way to {@code site}: a jump there goes back to that frame. */
+  private boolean takesTheReturnOfACallIn(Routine family, int site) {
+    return context.routineManager.callersWhoseReturnIsTaken(routine, site != -1 ? site : context.pc.read(), stackAnalyzer()).stream().anyMatch(caller -> context.routineManager.topParent(caller) == family);
   }
 
   /** The call of a part and what follows its outcome, emitted at the first reference; any other reference jumps there. */
