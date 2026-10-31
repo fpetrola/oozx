@@ -355,8 +355,7 @@ public class RecordedProgramTests {
 
         public class Program extends MiniZX {
            public void $691A() {
-              int[] var1;
-              do {
+              while(true) {
                  if(this.isNextPC(0x691D)) {
                     this.setNextAddress(0x691D);
                  }
@@ -383,9 +382,14 @@ public class RecordedProgramTests {
                     return;
                  }
 
-                 var1 = new int[]{0x691A, 0x691D};
-              } while(this.isOwnAddress(var1));
-
+                 int[] var1 = new int[]{0x691A};
+                 if(this.ownAddress(var1) == -1) {
+                    int[] var2 = new int[]{0x691D};
+                    if(!this.isOwnAddress(var2)) {
+                       return;
+                    }
+                 }
+              }
            }
 
            public void $B5CE() {
@@ -5017,6 +5021,18 @@ public class RecordedProgramTests {
     Assert.assertEquals(0x01, endValue("A"));
     Assert.assertEquals(0x01, endValue("C"));
     Assert.assertTrue("the copy of the second content is named after its content and address", java.contains("$c1_8100()"));
+  }
+
+  @Test
+  public void aStackResetBackToTheHeadOfACallerLeavesNoAddressPendingForTheNextJump() {
+    // Target: Renegade 840F, Target: Renegade D783, Renegade 128 8014: an unwinding re-entered its owner at the owner's own entry, which no dispatch takes, and the next jump into a routine's middle found the entry still pending
+    translate(
+        at(0x8000, 0xCD, 0x60, 0x80, 0xCD, 0x10, 0x80, 0x76, 0x18, 0xFD),
+        at(0x800D, 0x31, 0xFE, 0xFE, 0x3C, 0xFE, 0x02, 0x28, 0x03, 0xCD, 0x30, 0x80, 0x0C, 0x04, 0xC9),
+        at(0x8030, 0xC3, 0x0D, 0x80),
+        at(0x8060, 0xC3, 0x19, 0x80));
+    Assert.assertEquals(0x02, endValue("A"));
+    Assert.assertEquals(0x0201, endValue("BC"));
   }
 
   @Test

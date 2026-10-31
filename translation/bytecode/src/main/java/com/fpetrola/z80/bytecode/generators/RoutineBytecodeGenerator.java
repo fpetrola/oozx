@@ -691,8 +691,11 @@ public class RoutineBytecodeGenerator {
       Variable own = mm.invoke("ownAddress", addresses(elsewhere()));
       elsewhere().forEach(at -> own.ifEq(at, () -> tailJump(at, -1)));
     }
-    if (!entriesBackFromUnwinding().isEmpty())
-      mm.invoke("isOwnAddress", addresses(entriesBackFromUnwinding())).ifTrue(start::goto_);
+    Set<Integer> back = entriesBackFromUnwinding();
+    if (back.remove(routine.getEntryPoint()))
+      mm.invoke("ownAddress", addresses(List.of(routine.getEntryPoint()))).ifNe(-1, start::goto_);
+    if (!back.isEmpty())
+      mm.invoke("isOwnAddress", addresses(back)).ifTrue(start::goto_);
     returnFromMethod();
   }
 

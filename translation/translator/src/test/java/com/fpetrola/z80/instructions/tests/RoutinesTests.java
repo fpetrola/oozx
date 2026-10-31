@@ -1761,7 +1761,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                  this.SP('\\uffff');
                  this.unwind(18);
                  var1 = new int[]{16};
-              } while(this.isOwnAddress(var1));
+              } while(this.ownAddress(var1) != -1);
 
            }
 
@@ -1850,7 +1850,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                  }
 
                  var1 = new int[]{1};
-              } while(this.isOwnAddress(var1));
+              } while(this.ownAddress(var1) != -1);
 
            }
 
