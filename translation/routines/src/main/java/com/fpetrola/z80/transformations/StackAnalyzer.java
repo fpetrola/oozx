@@ -62,7 +62,7 @@ public class StackAnalyzer implements java.io.Serializable {
   public final MultiValuedMap<Integer, Integer> returnsConsumedBy = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> pushedValues = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> calledThrough = new HashSetValuedHashMap<>();
-  public final Set<Integer> jumpTableSites = new HashSet<>(), recordedPops = new HashSet<>(), pushesTakenByPops = new HashSet<>(), earlierCallContinuations = new HashSet<>(), returnsPutBack = new HashSet<>();
+  public final Set<Integer> jumpTableSites = new HashSet<>(), recordedPops = new HashSet<>(), pushesTakenByPops = new HashSet<>(), returnsPutBack = new HashSet<>();
   public final Map<Integer, Integer> stackSwitches = new HashMap<>();
   private transient int[] leaving, reentered;
   private final transient Map<Integer, int[]> leftStacks = new HashMap<>();
@@ -412,7 +412,7 @@ public class StackAnalyzer implements java.io.Serializable {
   }
 
   private void jumpingUsingRet(Ret ret, int target, Entry consumedReturn) {
-    if (consumedReturn != null ? returningShifted(ret, target, consumedReturn) : returningToLearntContinuation(ret, target))
+    if (consumedReturn != null && returningShifted(ret, target, consumedReturn))
       return;
     addDynamicInvocationData(target);
     Set<Integer> targets = getInvocationsSet(pcValue);
@@ -425,20 +425,9 @@ public class StackAnalyzer implements java.io.Serializable {
     if (continuation == null || !learnContinuation(pcValue, consumedReturn.pc(), continuation))
       return false;
     if (consumedReturn.pc() == -1)
-      earlierCallContinuations.add(continuation);
+      addDynamicInvocationData(continuation);
     lastEvent = l -> l.returnShifted(instruction, pcValue, continuation, consumedReturn.pc());
     return true;
-  }
-
-  /** The RET of a call whose return was popped before the recording started goes on where the recording saw that call go on. */
-  private boolean returningToLearntContinuation(Ret ret, int target) {
-    for (int callSite : shiftedReturns.get(pcValue))
-      if (Integer.valueOf(target).equals(callContinuations.get(callSite))) {
-        earlierCallContinuations.add(target);
-        lastEvent = l -> l.returnShifted(ret, pcValue, target, callSite);
-        return true;
-      }
-    return false;
   }
 
   private boolean learnContinuation(int returnPc, int callSite, int continuation) {
@@ -605,7 +594,6 @@ public class StackAnalyzer implements java.io.Serializable {
     pushedValues.clear();
     calledThrough.clear();
     jumpTableSites.clear();
-    earlierCallContinuations.clear();
     returnsPutBack.clear();
     pushesTakenByPops.clear();
     abandoningRets.clear();
