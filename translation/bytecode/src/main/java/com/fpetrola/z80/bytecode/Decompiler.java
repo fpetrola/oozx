@@ -79,6 +79,8 @@ public class Decompiler {
     HashMap<String, Object> customProperties = new HashMap<>();
     customProperties.put("lit", "1");
     customProperties.put("asc", "1");
+    // seconds per method: past them Fernflower reports the method as not decompiled, and its routine is split (on JDK 20+ its Thread.stop throws into that same report, leaving the thread spinning until System.exit)
+    customProperties.put("mpm", "60");
 
 
 //    customProperties.put("rbr", "0");
@@ -96,7 +98,6 @@ public class Decompiler {
 ////    customProperties.put("iib", "0");
 ////    customProperties.put("iec", "1");
 ////    customProperties.put("log", IFernflowerLogger.Severity.TRACE.name());
-////    customProperties.put("mpm", "0");
 ////    customProperties.put("ind", "   ");
 ////    customProperties.put("ban", "");
 ////    customProperties.put("__unit_test_mode__", "0");
