@@ -154,6 +154,21 @@ public class GameBytecodeCreationTests {
   }
 
   @Test
+  public void testTranslateTurboEspritToJava() {
+    translateRecording("TurboEsprit", "/home/fernando/detodo/spectrum/rzx-top/5461/turbo.rzx");
+  }
+
+  @Test
+  public void testTranslateQuazatronToJava() {
+    translateRecording("Quazatron", "/home/fernando/detodo/spectrum/rzx-top/3972/quaz.rzx");
+  }
+
+  @Test
+  public void testTranslateSirFredToJava() {
+    translateRecording("SirFred", "/home/fernando/detodo/spectrum/rzx-top/4518/sirfred.rzx");
+  }
+
+  @Test
   public void testTranslateRenegadeToJava() {
     translateRecording("Renegade", "/home/fernando/detodo/spectrum/rzx-top/4082/renegade48-random.rzx");
   }
