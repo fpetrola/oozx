@@ -2155,14 +2155,15 @@ public class RecordedProgramTests {
                     return;
                  }
 
-                 if(this.SP() == var9) {
+                 int var10 = this.SP();
+                 if((var9 - var10 & 0xFFFF) < 0x8000) {
                     this.pop();
                  }
 
-                 int var10 = this.SP();
-                 this.wMem16(0xC3A0, var10, 0xC468);
-                 int var11 = this.mem16(0xC487, 0xC46C);
-                 this.SP(var11);
+                 int var11 = this.SP();
+                 this.wMem16(0xC3A0, var11, 0xC468);
+                 int var12 = this.mem16(0xC487, 0xC46C);
+                 this.SP(var12);
 
                  while(true) {
                  }
@@ -4044,7 +4045,7 @@ public class RecordedProgramTests {
                              }
                           } else {
                              int var8 = this.SP();
-                             if(var8 == var7) {
+                             if((var7 - var8 & 0xFFFF) < 0x8000) {
                                 this.pop();
                              } else {
                                 int var9 = var7 + 2 & 0xFFFF;
@@ -4466,8 +4467,14 @@ public class RecordedProgramTests {
               this.push(0x8300);
               int var1 = this.SP();
               this.$8500();
-              if(this.SP() == var1) {
+              int var2 = this.SP();
+              if((var1 - var2 & 0xFFFF) < 0x8000) {
                  this.pop();
+              } else {
+                 int var3 = var1 + 2 & 0xFFFF;
+                 if(var2 == var3) {
+                    return;
+                 }
               }
 
               this.setNextAddress(0x8300);
@@ -6588,6 +6595,16 @@ public class RecordedProgramTests {
         at(0x8000, 0xE1, 0x23, 0xE5, 0xC9),
         at(0x8100, 0x00, 0x0C, 0xCD, 0x00, 0x80, 0x00, 0x04, 0x76, 0x18, 0xFD));
     Assert.assertEquals(0x0101, endValue("BC"));
+  }
+
+  @Test
+  public void aRoutineThatLeavesDataUnderItsReturnAddressReturnsToItsCaller() {
+    // Turbo Esprit A778: the flood fill's scanner pops its return address, pushes a seed and pushes the address back (POP DE; PUSH BC; PUSH HL; PUSH DE; RET); the loop at A718 pops the seeds until the sentinel the fill pushed first
+    translate(
+        at(0x8000, 0xCD, 0x20, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8020, 0x3E, 0x80, 0xF5, 0x01, 0x07, 0x00, 0xC5, 0xC1, 0xCB, 0x78, 0xC0, 0xCD, 0x40, 0x80, 0x0C, 0xCD, 0x40, 0x80, 0xC3, 0x27, 0x80),
+        at(0x8040, 0x1E, 0x02, 0x0C, 0x79, 0xFE, 0x0C, 0x30, 0x07, 0xE1, 0x06, 0x00, 0xC5, 0xE5, 0x18, 0x00, 0x1D, 0x20, 0xF0, 0xC9));
+    Assert.assertEquals(0x80, endValue("BC") >> 8);
   }
 
   @Test

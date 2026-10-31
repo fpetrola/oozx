@@ -648,7 +648,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                        }
                     } else {
                        int var2 = this.SP();
-                       if(var2 == var1) {
+                       if((var1 - var2 & '\\uffff') < '\\u8000') {
                           this.pop();
                        } else {
                           int var3 = var1 + 2 & '\\uffff';
@@ -785,7 +785,7 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                              }
                           } else {
                              int var4 = this.SP();
-                             if(var4 == var3) {
+                             if((var3 - var4 & '\\uffff') < '\\u8000') {
                                 this.pop();
                              } else {
                                 int var5 = var3 + 2 & '\\uffff';

@@ -432,11 +432,11 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
     return true;
   }
 
-  /** After a call that pushed its return address: still there, the callee returned normally; taken without a shifted return, the callee's RET went back to our caller. */
+  /** After a call that pushed its return address: at or under where it was pushed, the callee's RET left it on top; taken without a shifted return, the callee's RET went back to our caller. */
   private void returnedFrom(Variable pushedAt, int callSite) {
     Variable sp = methodMaker.invoke("SP");
     boolean shifted = routineByteCodeGenerator.context.symbolicExecutionAdapter.getStackAnalyzer().callContinuations.containsKey(callSite);
-    sp.ifEq(pushedAt, () -> methodMaker.invoke("pop"), () -> {
+    pushedAt.sub(sp).and(0xffff).ifLt(0x8000, () -> methodMaker.invoke("pop"), () -> {
       if (!shifted)
         sp.ifEq(pushedAt.add(2).and(0xffff), routineByteCodeGenerator::returnFromMethod);
     });
