@@ -12,13 +12,13 @@ public class TargetRenegade extends MiniZX {
    }
 
    protected int pagedCopy(int var1) {
-      return this.bank() == 3 && var1 >= '\uc000' && var1 < '\uc887'?var1 + -32768:var1;
+      return this.bank() == 3 && var1 >= '\uc000' && var1 < '\uc887'?var1 + -28044:var1;
    }
 
    public void $0() {
    }
 
-   public void $4000() {
+   public void $b3_C000() {
       this.pc('\uc000', 1, 10);
       this.HL('\uc497');
       this.pc('\uc003', 1, 4);
@@ -44,7 +44,7 @@ public class TargetRenegade extends MiniZX {
 
       this.pc('\uc009', 1, 7);
       int var8 = this.HL();
-      int var9 = this.mem(var8, 16393);
+      int var9 = this.mem(var8, 21117);
       this.A(var9);
       this.pc('\uc00a', 2, 8);
       int var10 = this.E();
@@ -61,16 +61,16 @@ public class TargetRenegade extends MiniZX {
       this.A(var16);
       this.pc('\uc00f', 1, 13);
       int var17 = this.A();
-      this.wMem('\uc0a8', var17, 16399);
+      this.wMem('\uc0a8', var17, 21123);
       this.pc('\uc012', 1, 10);
    }
 
-   public void $4013() {
+   public void $b3_C013() {
       this.pc('\uc013', 1, 10);
       this.HL('\uc0a8');
       this.pc('\uc016', 1, 7);
       int var1 = this.HL();
-      int var2 = this.mem(var1, 16406);
+      int var2 = this.mem(var1, 21130);
       this.A(var2);
       this.pc('\uc017', 1, 4);
       int var3 = this.A();
@@ -90,11 +90,11 @@ public class TargetRenegade extends MiniZX {
          this.E(var8);
          this.pc('\uc01c', 1, 7);
          int var9 = this.HL();
-         int var10 = this.mem(var9, 16412);
+         int var10 = this.mem(var9, 21136);
          this.A(var10);
          this.pc('\uc01d', 1, 10);
          int var11 = this.HL();
-         this.wMem(var11, 0, 16413);
+         this.wMem(var11, 0, 21137);
          this.pc('\uc01f', 1, 10);
          this.HL('\uc487');
          this.pc('\uc022', 1, 7);
@@ -106,10 +106,10 @@ public class TargetRenegade extends MiniZX {
          int var15 = this.alu("srl", var14);
          this.A(var15);
          this.pc('\uc026', 1, 17);
-         this.$423A();
+         this.$b3_C23A();
          this.pc('\uc029', 1, 7);
          int var16 = this.HL();
-         int var17 = this.mem(var16, 16425);
+         int var17 = this.mem(var16, 21149);
          this.A(var17);
          this.pc('\uc02a', 1, 6);
          int var18 = this.HL();
@@ -117,7 +117,7 @@ public class TargetRenegade extends MiniZX {
          this.HL(var19);
          this.pc('\uc02b', 1, 7);
          int var20 = this.HL();
-         int var21 = this.mem(var20, 16427);
+         int var21 = this.mem(var20, 21151);
          this.H(var21);
          this.pc('\uc02c', 1, 4);
          int var22 = this.A();
@@ -141,12 +141,12 @@ public class TargetRenegade extends MiniZX {
          this.C(162);
          this.pc('\uc034', 1, 7);
          int var30 = this.HL();
-         int var31 = this.mem(var30, 16436);
+         int var31 = this.mem(var30, 21160);
          this.A(var31);
          this.pc('\uc035', 1, 7);
          int var32 = this.A();
          int var33 = this.BC();
-         this.wMem(var33, var32, 16437);
+         this.wMem(var33, var32, 21161);
          this.pc('\uc036', 1, 11);
          int var34 = this.BC();
          this.push(var34);
@@ -159,7 +159,7 @@ public class TargetRenegade extends MiniZX {
          this.A(var37);
          this.pc('\uc039', 1, 7);
          int var38 = this.HL();
-         int var39 = this.mem(var38, 16441);
+         int var39 = this.mem(var38, 21165);
          this.E(var39);
          this.pc('\uc03a', 1, 6);
          int var40 = this.HL();
@@ -205,7 +205,7 @@ public class TargetRenegade extends MiniZX {
                this.A(var54);
                this.pc('\uc04a', 1, 7);
                int var55 = this.HL();
-               int var56 = this.mem(var55, 16458);
+               int var56 = this.mem(var55, 21182);
                int var57 = this.A();
                int var58 = this.alu("and", var57, var56);
                this.A(var58);
@@ -232,20 +232,20 @@ public class TargetRenegade extends MiniZX {
                this.pc('\uc051', 1, 7);
                int var69 = this.A();
                int var70 = this.HL();
-               this.wMem(var70, var69, 16465);
+               this.wMem(var70, var69, 21189);
                this.pc('\uc052', 1, 4);
                int var71 = this.A();
                this.E(var71);
                this.pc('\uc053', 1, 7);
                this.C(7);
                this.pc('\uc055', 1, 17);
-               this.$46E3();
+               this.$b3_C6E3();
                this.pc('\uc058', 1, 10);
                int var72 = this.pop();
                this.HL(var72);
                this.pc('\uc059', 1, 7);
                int var73 = this.HL();
-               int var74 = this.mem(var73, 16473);
+               int var74 = this.mem(var73, 21197);
                this.E(var74);
                this.pc('\uc05a', 1, 6);
                int var75 = this.HL();
@@ -253,7 +253,7 @@ public class TargetRenegade extends MiniZX {
                this.HL(var76);
                this.pc('\uc05b', 1, 7);
                int var77 = this.HL();
-               int var78 = this.mem(var77, 16475);
+               int var78 = this.mem(var77, 21199);
                this.D(var78);
                this.pc('\uc05c', 1, 6);
                int var79 = this.HL();
@@ -286,7 +286,7 @@ public class TargetRenegade extends MiniZX {
                this.ldi();
                this.pc('\uc06e', 1, 7);
                int var86 = this.HL();
-               int var87 = this.mem(var86, 16494);
+               int var87 = this.mem(var86, 21218);
                this.A(var87);
                this.pc('\uc06f', 1, 6);
                int var88 = this.HL();
@@ -297,7 +297,7 @@ public class TargetRenegade extends MiniZX {
                this.push(var90);
                this.pc('\uc071', 1, 7);
                int var91 = this.HL();
-               int var92 = this.mem(var91, 16497);
+               int var92 = this.mem(var91, 21221);
                this.H(var92);
                this.pc('\uc072', 1, 4);
                int var93 = this.A();
@@ -316,82 +316,82 @@ public class TargetRenegade extends MiniZX {
                this.exHLDE();
                this.pc('\uc07c', 1, 10);
                int var96 = this.HL();
-               this.wMem(var96, 215, 16508);
+               this.wMem(var96, 215, 21232);
                this.pc('\uc07e', 1, 6);
                int var97 = this.HL();
                int var98 = this.inc16(var97);
                this.HL(var98);
                this.pc('\uc07f', 1, 10);
                int var99 = this.HL();
-               this.wMem(var99, 4, 16511);
+               this.wMem(var99, 4, 21235);
                this.pc('\uc081', 1, 6);
                int var100 = this.HL();
                int var101 = this.inc16(var100);
                this.HL(var101);
                this.pc('\uc082', 2, 19);
                int var102 = this.IX() + 3;
-               int var103 = this.mem(var102, 16514);
+               int var103 = this.mem(var102, 21238);
                this.A(var103);
                this.pc('\uc085', 1, 7);
                int var104 = this.A();
                int var105 = this.HL();
-               this.wMem(var105, var104, 16517);
+               this.wMem(var105, var104, 21241);
                this.pc('\uc086', 1, 6);
                int var106 = this.HL();
                int var107 = this.inc16(var106);
                this.HL(var107);
                this.pc('\uc087', 2, 19);
                int var108 = this.IX() + 10;
-               int var109 = this.mem(var108, 16519);
+               int var109 = this.mem(var108, 21243);
                this.A(var109);
                this.pc('\uc08a', 1, 7);
                int var110 = this.A();
                int var111 = this.HL();
-               this.wMem(var111, var110, 16522);
+               this.wMem(var111, var110, 21246);
                this.pc('\uc08b', 1, 6);
                int var112 = this.HL();
                int var113 = this.inc16(var112);
                this.HL(var113);
                this.pc('\uc08c', 2, 19);
                int var114 = this.IX() + 11;
-               int var115 = this.mem(var114, 16524);
+               int var115 = this.mem(var114, 21248);
                this.A(var115);
                this.pc('\uc08f', 1, 7);
                int var116 = this.A();
                int var117 = this.HL();
-               this.wMem(var117, var116, 16527);
+               this.wMem(var117, var116, 21251);
                this.pc('\uc090', 1, 6);
                int var118 = this.HL();
                int var119 = this.inc16(var118);
                this.HL(var119);
                this.pc('\uc091', 2, 19);
                int var120 = this.IX() + 15;
-               int var121 = this.mem(var120, 16529);
+               int var121 = this.mem(var120, 21253);
                this.A(var121);
                this.pc('\uc094', 1, 7);
                int var122 = this.A();
                int var123 = this.HL();
-               this.wMem(var123, var122, 16532);
+               this.wMem(var123, var122, 21256);
                this.pc('\uc095', 1, 6);
                int var124 = this.HL();
                int var125 = this.inc16(var124);
                this.HL(var125);
                this.pc('\uc096', 2, 19);
                int var126 = this.IX() + 16;
-               int var127 = this.mem(var126, 16534);
+               int var127 = this.mem(var126, 21258);
                this.A(var127);
                this.pc('\uc099', 1, 7);
                int var128 = this.A();
                int var129 = this.HL();
-               this.wMem(var129, var128, 16537);
+               this.wMem(var129, var128, 21261);
                this.pc('\uc09a', 2, 19);
                int var130 = this.IX() + 13;
-               int var131 = this.mem(var130, 16538);
+               int var131 = this.mem(var130, 21262);
                this.A(var131);
                this.pc('\uc09d', 2, 19);
                int var132 = this.IX() + 34;
                int var133 = this.A();
-               this.wMem(var132, var133, 16541);
+               this.wMem(var132, var133, 21265);
                this.pc('\uc0a0', 1, 10);
                int var134 = this.pop();
                this.HL(var134);
@@ -401,12 +401,12 @@ public class TargetRenegade extends MiniZX {
                this.HL(var136);
                this.pc('\uc0a2', 1, 7);
                int var137 = this.HL();
-               int var138 = this.mem(var137, 16546);
+               int var138 = this.mem(var137, 21270);
                this.E(var138);
                this.pc('\uc0a3', 1, 7);
                this.C(6);
                this.pc('\uc0a5', 1, 10);
-               this.$46E3();
+               this.$b3_C6E3();
                return;
             }
 
@@ -415,33 +415,33 @@ public class TargetRenegade extends MiniZX {
       }
    }
 
-   public void $40A9() {
+   public void $b3_C0A9() {
       this.pc('\uc0a9', 1, 7);
       this.A(1);
       this.pc('\uc0ab', 1, 13);
       int var1 = this.A();
-      this.wMem('\uc3a3', var1, 16555);
+      this.wMem('\uc3a3', var1, 21279);
       this.pc('\uc0ae', 1, 13);
       int var2 = this.A();
-      this.wMem('\uc5a3', var2, 16558);
+      this.wMem('\uc5a3', var2, 21282);
       this.pc('\uc0b1', 1, 13);
       int var3 = this.A();
-      this.wMem('\uc7a3', var3, 16561);
+      this.wMem('\uc7a3', var3, 21285);
       this.pc('\uc0b4', 1, 7);
       this.A(209);
       this.pc('\uc0b6', 1, 13);
       int var4 = this.A();
-      this.wMem('\uc31b', var4, 16566);
+      this.wMem('\uc31b', var4, 21290);
       this.pc('\uc0b9', 1, 13);
       int var5 = this.A();
-      this.wMem('\uc51b', var5, 16569);
+      this.wMem('\uc51b', var5, 21293);
       this.pc('\uc0bc', 1, 13);
       int var6 = this.A();
-      this.wMem('\uc71b', var6, 16572);
+      this.wMem('\uc71b', var6, 21296);
       this.pc('\uc0bf', 1, 10);
    }
 
-   public void $40D0() {
+   public void $b3_C0D0() {
       this.pc('\uc0d0', 2, 14);
       this.IX('\uc49e');
       this.pc('\uc0d4', 1, 7);
@@ -465,52 +465,52 @@ public class TargetRenegade extends MiniZX {
       this.IX(var9);
       this.pc('\uc0de', 2, 19);
       int var10 = this.IX() + 0;
-      int var11 = this.mem(var10, 16606);
+      int var11 = this.mem(var10, 21330);
       this.L(var11);
       this.pc('\uc0e1', 2, 19);
       int var12 = this.IX() + 1;
-      int var13 = this.mem(var12, 16609);
+      int var13 = this.mem(var12, 21333);
       this.H(var13);
       this.pc('\uc0e4', 1, 16);
       int var14 = this.HL();
-      this.wMem16('\uc39e', var14, 16612);
+      this.wMem16('\uc39e', var14, 21336);
       this.pc('\uc0e7', 2, 19);
       int var15 = this.IX() + 2;
-      int var16 = this.mem(var15, 16615);
+      int var16 = this.mem(var15, 21339);
       this.L(var16);
       this.pc('\uc0ea', 2, 19);
       int var17 = this.IX() + 3;
-      int var18 = this.mem(var17, 16618);
+      int var18 = this.mem(var17, 21342);
       this.H(var18);
       this.pc('\uc0ed', 1, 16);
       int var19 = this.HL();
-      this.wMem16('\uc59e', var19, 16621);
+      this.wMem16('\uc59e', var19, 21345);
       this.pc('\uc0f0', 2, 19);
       int var20 = this.IX() + 4;
-      int var21 = this.mem(var20, 16624);
+      int var21 = this.mem(var20, 21348);
       this.L(var21);
       this.pc('\uc0f3', 2, 19);
       int var22 = this.IX() + 5;
-      int var23 = this.mem(var22, 16627);
+      int var23 = this.mem(var22, 21351);
       this.H(var23);
       this.pc('\uc0f6', 1, 16);
       int var24 = this.HL();
-      this.wMem16('\uc79e', var24, 16630);
+      this.wMem16('\uc79e', var24, 21354);
       this.pc('\uc0f9', 1, 10);
       this.HL('\uc39c');
       this.pc('\uc0fc', 1, 16);
       int var25 = this.HL();
-      this.wMem16('\uc3a0', var25, 16636);
+      this.wMem16('\uc3a0', var25, 21360);
       this.pc('\uc0ff', 1, 10);
       this.HL('\uc59c');
       this.pc('\uc102', 1, 16);
       int var26 = this.HL();
-      this.wMem16('\uc5a0', var26, 16642);
+      this.wMem16('\uc5a0', var26, 21366);
       this.pc('\uc105', 1, 10);
       this.HL('\uc79c');
       this.pc('\uc108', 1, 16);
       int var27 = this.HL();
-      this.wMem16('\uc7a0', var27, 16648);
+      this.wMem16('\uc7a0', var27, 21372);
       this.pc('\uc10b', 1, 4);
       int var28 = this.A();
       int var29 = this.A();
@@ -518,53 +518,53 @@ public class TargetRenegade extends MiniZX {
       this.A(var30);
       this.pc('\uc10c', 1, 13);
       int var31 = this.A();
-      this.wMem('\uc3a3', var31, 16652);
+      this.wMem('\uc3a3', var31, 21376);
       this.pc('\uc10f', 1, 13);
       int var32 = this.A();
-      this.wMem('\uc5a3', var32, 16655);
+      this.wMem('\uc5a3', var32, 21379);
       this.pc('\uc112', 1, 13);
       int var33 = this.A();
-      this.wMem('\uc7a3', var33, 16658);
+      this.wMem('\uc7a3', var33, 21382);
       this.pc('\uc115', 1, 13);
       int var34 = this.A();
-      this.wMem('\uc39c', var34, 16661);
+      this.wMem('\uc39c', var34, 21385);
       this.pc('\uc118', 1, 13);
       int var35 = this.A();
-      this.wMem('\uc59c', var35, 16664);
+      this.wMem('\uc59c', var35, 21388);
       this.pc('\uc11b', 1, 13);
       int var36 = this.A();
-      this.wMem('\uc79c', var36, 16667);
+      this.wMem('\uc79c', var36, 21391);
       this.pc('\uc11e', 1, 13);
       int var37 = this.A();
-      this.wMem('\uc3a2', var37, 16670);
+      this.wMem('\uc3a2', var37, 21394);
       this.pc('\uc121', 1, 13);
       int var38 = this.A();
-      this.wMem('\uc5a2', var38, 16673);
+      this.wMem('\uc5a2', var38, 21397);
       this.pc('\uc124', 1, 13);
       int var39 = this.A();
-      this.wMem('\uc7a2', var39, 16676);
+      this.wMem('\uc7a2', var39, 21400);
       this.pc('\uc127', 1, 4);
       int var40 = this.A();
       int var41 = this.alu("inc", var40);
       this.A(var41);
       this.pc('\uc128', 1, 13);
       int var42 = this.A();
-      this.wMem('\uc39d', var42, 16680);
+      this.wMem('\uc39d', var42, 21404);
       this.pc('\uc12b', 1, 13);
       int var43 = this.A();
-      this.wMem('\uc59d', var43, 16683);
+      this.wMem('\uc59d', var43, 21407);
       this.pc('\uc12e', 1, 13);
       int var44 = this.A();
-      this.wMem('\uc79d', var44, 16686);
+      this.wMem('\uc79d', var44, 21410);
       this.pc('\uc131', 1, 10);
    }
 
-   public void $4132() {
+   public void $b3_C132() {
       this.pc('\uc132', 2, 14);
-      this.unwind(16692, "IX");
+      this.unwind(21416, "IX");
    }
 
-   public void $4134() {
+   public void $b3_C134() {
       this.pc('\uc134', 1, 10);
       int var1 = this.pop();
       this.BC(var1);
@@ -589,7 +589,7 @@ public class TargetRenegade extends MiniZX {
                               while(true) {
                                  this.pc('\uc138', 1, 7);
                                  int var4 = this.HL();
-                                 int var5 = this.mem(var4, 16696);
+                                 int var5 = this.mem(var4, 21420);
                                  this.A(var5);
                                  this.pc('\uc139', 1, 6);
                                  int var6 = this.HL();
@@ -613,7 +613,7 @@ public class TargetRenegade extends MiniZX {
                                        this.push(var25);
                                        this.pc('\uc220', 1, 7);
                                        int var26 = this.HL();
-                                       int var27 = this.mem(var26, 16928);
+                                       int var27 = this.mem(var26, 21652);
                                        this.A(var27);
                                        this.pc('\uc221', 1, 4);
                                        int var28 = this.A();
@@ -634,10 +634,10 @@ public class TargetRenegade extends MiniZX {
                                        this.pc('\uc226', 1, 10);
                                        this.HL('\uc23f');
                                        this.pc('\uc229', 1, 17);
-                                       this.$423A();
+                                       this.$b3_C23A();
                                        this.pc('\uc22c', 1, 7);
                                        int var34 = this.HL();
-                                       int var35 = this.mem(var34, 16940);
+                                       int var35 = this.mem(var34, 21664);
                                        this.A(var35);
                                        this.pc('\uc22d', 1, 6);
                                        int var36 = this.HL();
@@ -645,7 +645,7 @@ public class TargetRenegade extends MiniZX {
                                        this.HL(var37);
                                        this.pc('\uc22e', 1, 7);
                                        int var38 = this.HL();
-                                       int var39 = this.mem(var38, 16942);
+                                       int var39 = this.mem(var38, 21666);
                                        this.H(var39);
                                        this.pc('\uc22f', 1, 4);
                                        int var40 = this.A();
@@ -657,7 +657,7 @@ public class TargetRenegade extends MiniZX {
                                        this.pc('\uc233', 1, 7);
                                        int var41 = this.E();
                                        int var42 = this.HL();
-                                       this.wMem(var42, var41, 16947);
+                                       this.wMem(var42, var41, 21671);
                                        this.pc('\uc234', 1, 6);
                                        int var43 = this.HL();
                                        int var44 = this.inc16(var43);
@@ -665,7 +665,7 @@ public class TargetRenegade extends MiniZX {
                                        this.pc('\uc235', 1, 7);
                                        int var45 = this.D();
                                        int var46 = this.HL();
-                                       this.wMem(var46, var45, 16949);
+                                       this.wMem(var46, var45, 21673);
                                        this.pc('\uc236', 1, 4);
                                        int var47 = this.A();
                                        this.alu("scf", var47);
@@ -673,8 +673,8 @@ public class TargetRenegade extends MiniZX {
                                        this.exHLDE();
                                        this.pc('\uc238', 2, 8);
                                        if(this.IX() == '\uc867') {
-                                          this.setNextAddress(18535);
-                                          this.$47F8();
+                                          this.setNextAddress(23259);
+                                          this.$b3_C7F8();
                                           if(this.unwinding()) {
                                              return;
                                           }
@@ -683,8 +683,8 @@ public class TargetRenegade extends MiniZX {
                                        }
 
                                        if(this.IX() == '\uc667') {
-                                          this.setNextAddress(18023);
-                                          this.$45F8();
+                                          this.setNextAddress(22747);
+                                          this.$b3_C5F8();
                                           if(this.unwinding()) {
                                              return;
                                           }
@@ -693,8 +693,8 @@ public class TargetRenegade extends MiniZX {
                                        }
 
                                        if(this.IX() == '\uc468') {
-                                          this.setNextAddress(17512);
-                                          this.$43F8();
+                                          this.setNextAddress(22236);
+                                          this.$b3_C3F8();
                                           if(this.unwinding()) {
                                              return;
                                           }
@@ -721,13 +721,13 @@ public class TargetRenegade extends MiniZX {
                                        this.pc('\uc21c', 1, 7);
                                        int var23 = this.A();
                                        int var24 = this.DE();
-                                       this.wMem(var24, var23, 16924);
+                                       this.wMem(var24, var23, 21648);
                                        this.pc('\uc21d', 1, 12);
                                     }
 
                                     this.pc('\uc210', 1, 7);
                                     int var12 = this.HL();
-                                    int var13 = this.mem(var12, 16912);
+                                    int var13 = this.mem(var12, 21636);
                                     this.A(var13);
                                     this.pc('\uc211', 1, 6);
                                     int var14 = this.HL();
@@ -749,8 +749,8 @@ public class TargetRenegade extends MiniZX {
                                     this.A(var21);
                                     this.pc('\uc216', 2, 8);
                                     if(this.IX() == '\uc667') {
-                                       this.setNextAddress(18023);
-                                       this.$45F8();
+                                       this.setNextAddress(22747);
+                                       this.$b3_C5F8();
                                        if(this.unwinding()) {
                                           return;
                                        }
@@ -759,8 +759,8 @@ public class TargetRenegade extends MiniZX {
                                     }
 
                                     if(this.IX() == '\uc867') {
-                                       this.setNextAddress(18535);
-                                       this.$47F8();
+                                       this.setNextAddress(23259);
+                                       this.$b3_C7F8();
                                        if(this.unwinding()) {
                                           return;
                                        }
@@ -786,7 +786,7 @@ public class TargetRenegade extends MiniZX {
                                     this.pc('\uc144', 1, 7);
                                     int var49 = this.A();
                                     int var50 = this.DE();
-                                    this.wMem(var50, var49, 16708);
+                                    this.wMem(var50, var49, 21432);
                                     this.pc('\uc145', 1, 11);
                                     int var51 = this.HL();
                                     this.push(var51);
@@ -845,7 +845,7 @@ public class TargetRenegade extends MiniZX {
                                                 if(!this.flag(64, true)) {
                                                    this.pc('\uc1a9', 1, 7);
                                                    int var141 = this.HL();
-                                                   int var142 = this.mem(var141, 16809);
+                                                   int var142 = this.mem(var141, 21533);
                                                    this.E(var142);
                                                    this.pc('\uc1aa', 1, 6);
                                                    int var143 = this.HL();
@@ -856,7 +856,7 @@ public class TargetRenegade extends MiniZX {
                                                    this.A(var145);
                                                    this.pc('\uc1ac', 1, 7);
                                                    int var146 = this.HL();
-                                                   int var147 = this.mem(var146, 16812);
+                                                   int var147 = this.mem(var146, 21536);
                                                    this.D(var147);
                                                    this.pc('\uc1ad', 1, 6);
                                                    int var148 = this.HL();
@@ -878,12 +878,12 @@ public class TargetRenegade extends MiniZX {
                                                    while(true) {
                                                       this.pc('\uc1b5', 1, 7);
                                                       int var152 = this.HL();
-                                                      int var153 = this.mem(var152, 16821);
+                                                      int var153 = this.mem(var152, 21545);
                                                       this.A(var153);
                                                       this.pc('\uc1b6', 1, 7);
                                                       int var154 = this.A();
                                                       int var155 = this.DE();
-                                                      this.wMem(var155, var154, 16822);
+                                                      this.wMem(var155, var154, 21546);
                                                       this.pc('\uc1b7', 1, 6);
                                                       int var156 = this.HL();
                                                       int var157 = this.inc16(var156);
@@ -900,8 +900,8 @@ public class TargetRenegade extends MiniZX {
                                                          int var161 = this.pop();
                                                          this.HL(var161);
                                                          this.pc('\uc1bc', 1, 10);
-                                                         this.setNextAddress(16696);
-                                                         this.$4134();
+                                                         this.setNextAddress(21420);
+                                                         this.$b3_C134();
                                                          if(this.unwinding()) {
                                                             return;
                                                          }
@@ -929,19 +929,19 @@ public class TargetRenegade extends MiniZX {
                                                    if(!this.flag(64, true)) {
                                                       this.pc('\uc1db', 1, 7);
                                                       int var187 = this.HL();
-                                                      int var188 = this.mem(var187, 16859);
+                                                      int var188 = this.mem(var187, 21583);
                                                       this.A(var188);
                                                       this.pc('\uc1dc', 1, 7);
                                                       int var189 = this.A();
                                                       int var190 = this.DE();
-                                                      this.wMem(var190, var189, 16860);
+                                                      this.wMem(var190, var189, 21584);
                                                       this.pc('\uc1dd', 1, 6);
                                                       int var191 = this.HL();
                                                       int var192 = this.inc16(var191);
                                                       this.HL(var192);
                                                       this.pc('\uc1de', 1, 10);
-                                                      this.setNextAddress(16696);
-                                                      this.$4134();
+                                                      this.setNextAddress(21420);
+                                                      this.$b3_C134();
                                                       if(this.unwinding()) {
                                                          return;
                                                       }
@@ -1014,7 +1014,7 @@ public class TargetRenegade extends MiniZX {
                                                    } else {
                                                       this.pc('\uc1e4', 1, 7);
                                                       int var195 = this.HL();
-                                                      int var196 = this.mem(var195, 16868);
+                                                      int var196 = this.mem(var195, 21592);
                                                       this.A(var196);
                                                       this.pc('\uc1e5', 1, 6);
                                                       int var197 = this.HL();
@@ -1049,7 +1049,7 @@ public class TargetRenegade extends MiniZX {
                                                 } else {
                                                    this.pc('\uc1c2', 1, 7);
                                                    int var164 = this.HL();
-                                                   int var165 = this.mem(var164, 16834);
+                                                   int var165 = this.mem(var164, 21558);
                                                    this.E(var165);
                                                    this.pc('\uc1c3', 1, 6);
                                                    int var166 = this.HL();
@@ -1060,7 +1060,7 @@ public class TargetRenegade extends MiniZX {
                                                    this.A(var168);
                                                    this.pc('\uc1c5', 1, 7);
                                                    int var169 = this.HL();
-                                                   int var170 = this.mem(var169, 16837);
+                                                   int var170 = this.mem(var169, 21561);
                                                    this.D(var170);
                                                    this.pc('\uc1c6', 1, 6);
                                                    int var171 = this.HL();
@@ -1082,12 +1082,12 @@ public class TargetRenegade extends MiniZX {
                                                    while(true) {
                                                       this.pc('\uc1ce', 1, 7);
                                                       int var175 = this.HL();
-                                                      int var176 = this.mem(var175, 16846);
+                                                      int var176 = this.mem(var175, 21570);
                                                       this.A(var176);
                                                       this.pc('\uc1cf', 1, 7);
                                                       int var177 = this.A();
                                                       int var178 = this.DE();
-                                                      this.wMem(var178, var177, 16847);
+                                                      this.wMem(var178, var177, 21571);
                                                       this.pc('\uc1d0', 1, 6);
                                                       int var179 = this.HL();
                                                       int var180 = this.inc16(var179);
@@ -1113,7 +1113,7 @@ public class TargetRenegade extends MiniZX {
                                              } else {
                                                 this.pc('\uc191', 1, 7);
                                                 int var118 = this.HL();
-                                                int var119 = this.mem(var118, 16785);
+                                                int var119 = this.mem(var118, 21509);
                                                 this.E(var119);
                                                 this.pc('\uc192', 1, 6);
                                                 int var120 = this.HL();
@@ -1124,7 +1124,7 @@ public class TargetRenegade extends MiniZX {
                                                 this.A(var122);
                                                 this.pc('\uc194', 1, 7);
                                                 int var123 = this.HL();
-                                                int var124 = this.mem(var123, 16788);
+                                                int var124 = this.mem(var123, 21512);
                                                 this.D(var124);
                                                 this.pc('\uc195', 1, 6);
                                                 int var125 = this.HL();
@@ -1146,12 +1146,12 @@ public class TargetRenegade extends MiniZX {
                                                 while(true) {
                                                    this.pc('\uc19d', 1, 7);
                                                    int var129 = this.HL();
-                                                   int var130 = this.mem(var129, 16797);
+                                                   int var130 = this.mem(var129, 21521);
                                                    this.A(var130);
                                                    this.pc('\uc19e', 1, 7);
                                                    int var131 = this.A();
                                                    int var132 = this.DE();
-                                                   this.wMem(var132, var131, 16798);
+                                                   this.wMem(var132, var131, 21522);
                                                    this.pc('\uc19f', 1, 6);
                                                    int var133 = this.HL();
                                                    int var134 = this.inc16(var133);
@@ -1177,7 +1177,7 @@ public class TargetRenegade extends MiniZX {
                                           } else {
                                              this.pc('\uc179', 1, 7);
                                              int var95 = this.HL();
-                                             int var96 = this.mem(var95, 16761);
+                                             int var96 = this.mem(var95, 21485);
                                              this.E(var96);
                                              this.pc('\uc17a', 1, 6);
                                              int var97 = this.HL();
@@ -1188,7 +1188,7 @@ public class TargetRenegade extends MiniZX {
                                              this.A(var99);
                                              this.pc('\uc17c', 1, 7);
                                              int var100 = this.HL();
-                                             int var101 = this.mem(var100, 16764);
+                                             int var101 = this.mem(var100, 21488);
                                              this.D(var101);
                                              this.pc('\uc17d', 1, 6);
                                              int var102 = this.HL();
@@ -1210,12 +1210,12 @@ public class TargetRenegade extends MiniZX {
                                              while(true) {
                                                 this.pc('\uc185', 1, 7);
                                                 int var106 = this.HL();
-                                                int var107 = this.mem(var106, 16773);
+                                                int var107 = this.mem(var106, 21497);
                                                 this.A(var107);
                                                 this.pc('\uc186', 1, 7);
                                                 int var108 = this.A();
                                                 int var109 = this.DE();
-                                                this.wMem(var109, var108, 16774);
+                                                this.wMem(var109, var108, 21498);
                                                 this.pc('\uc187', 1, 6);
                                                 int var110 = this.HL();
                                                 int var111 = this.inc16(var110);
@@ -1241,7 +1241,7 @@ public class TargetRenegade extends MiniZX {
                                        } else {
                                           this.pc('\uc16e', 1, 7);
                                           int var85 = this.HL();
-                                          int var86 = this.mem(var85, 16750);
+                                          int var86 = this.mem(var85, 21474);
                                           this.E(var86);
                                           this.pc('\uc16f', 1, 6);
                                           int var87 = this.HL();
@@ -1252,7 +1252,7 @@ public class TargetRenegade extends MiniZX {
                                           this.A(var89);
                                           this.pc('\uc171', 1, 7);
                                           int var90 = this.HL();
-                                          int var91 = this.mem(var90, 16753);
+                                          int var91 = this.mem(var90, 21477);
                                           this.D(var91);
                                           this.pc('\uc172', 1, 4);
                                           this.exHLDE();
@@ -1278,7 +1278,7 @@ public class TargetRenegade extends MiniZX {
                                           if(!this.flag(1, true)) {
                                              this.pc('\uc161', 1, 7);
                                              int var72 = this.HL();
-                                             int var73 = this.mem(var72, 16737);
+                                             int var73 = this.mem(var72, 21461);
                                              this.E(var73);
                                              this.pc('\uc162', 1, 6);
                                              int var74 = this.HL();
@@ -1289,7 +1289,7 @@ public class TargetRenegade extends MiniZX {
                                              this.A(var76);
                                              this.pc('\uc164', 1, 7);
                                              int var77 = this.HL();
-                                             int var78 = this.mem(var77, 16740);
+                                             int var78 = this.mem(var77, 21464);
                                              this.D(var78);
                                              this.pc('\uc165', 1, 6);
                                              int var79 = this.HL();
@@ -1351,7 +1351,7 @@ public class TargetRenegade extends MiniZX {
       }
    }
 
-   public void $423A() {
+   public void $b3_C23A() {
       this.pc('\uc23a', 1, 4);
       int var1 = this.L();
       int var2 = this.A();
@@ -1372,35 +1372,35 @@ public class TargetRenegade extends MiniZX {
       }
    }
 
-   public void $43A4() {
+   public void $b3_C3A4() {
       this.pc('\uc3a4', 2, 20);
       int var1 = this.SP();
-      this.wMem16('\uc487', var1, 17316);
+      this.wMem16('\uc487', var1, 22040);
       this.pc('\uc3a8', 1, 7);
       this.H(195);
       this.pc('\uc3aa', 1, 7);
       this.L(26);
       this.pc('\uc3ac', 1, 11);
       int var2 = this.HL();
-      int var3 = this.mem(var2, 17324);
+      int var3 = this.mem(var2, 22048);
       int var4 = this.alu("dec", var3);
       int var5 = this.HL();
-      this.wMem(var5, var4, 17324);
+      this.wMem(var5, var4, 22048);
       this.pc('\uc3ad', 1, 7);
       if(this.flag(64, true)) {
          this.tstates(5);
-         this.$43F8();
+         this.$b3_C3F8();
          if(!this.unwinding()) {
             ;
          }
       } else {
          this.pc('\uc3af', 1, 13);
-         int var6 = this.mem('\uc319', 17327);
+         int var6 = this.mem('\uc319', 22051);
          this.A(var6);
          this.pc('\uc3b2', 1, 7);
          int var7 = this.A();
          int var8 = this.HL();
-         this.wMem(var8, var7, 17330);
+         this.wMem(var8, var7, 22054);
          this.pc('\uc3b3', 1, 10);
          this.SP('\uc315');
          this.pc('\uc3b6', 1, 10);
@@ -1413,37 +1413,37 @@ public class TargetRenegade extends MiniZX {
          this.L(27);
          this.pc('\uc3ba', 1, 7);
          int var11 = this.HL();
-         int var12 = this.mem(var11, 17338);
+         int var12 = this.mem(var11, 22062);
          this.L(var12);
          this.pc('\uc3bb', 1, 4);
          if(this.HL() == '\uc3d1') {
-            this.setNextAddress(17361);
-            this.$43CC();
+            this.setNextAddress(22085);
+            this.$b3_C3CC();
             if(!this.unwinding()) {
                ;
             }
          } else if(this.HL() == '\uc3f2') {
-            this.$43F2();
+            this.$b3_C3F2();
             if(!this.unwinding()) {
                ;
             }
          } else if(this.HL() == '\uc3e3') {
-            this.$43E3();
+            this.$b3_C3E3();
             if(!this.unwinding()) {
                ;
             }
          } else if(this.HL() == '\uc3d7') {
-            this.$43D7();
+            this.$b3_C3D7();
             if(!this.unwinding()) {
                ;
             }
          } else if(this.HL() == '\uc3bc') {
-            this.$43BC();
+            this.$b3_C3BC();
             if(!this.unwinding()) {
                ;
             }
          } else if(this.HL() == '\uc3cc') {
-            this.$43CC();
+            this.$b3_C3CC();
             if(!this.unwinding()) {
                ;
             }
@@ -1457,9 +1457,9 @@ public class TargetRenegade extends MiniZX {
       }
    }
 
-   public void $43BC() {
+   public void $b3_C3BC() {
       this.pc('\uc3bc', 1, 13);
-      int var1 = this.mem('\uc314', 17340);
+      int var1 = this.mem('\uc314', 22064);
       this.A(var1);
       this.pc('\uc3bf', 1, 4);
       int var2 = this.A();
@@ -1482,7 +1482,7 @@ public class TargetRenegade extends MiniZX {
       this.pc('\uc3c4', 1, 7);
       if(this.flag(1, true)) {
          this.tstates(5);
-         this.$43E3();
+         this.$b3_C3E3();
          if(!this.unwinding()) {
             ;
          }
@@ -1491,13 +1491,13 @@ public class TargetRenegade extends MiniZX {
          this.L(20);
          this.pc('\uc3c8', 1, 7);
          int var10 = this.HL();
-         int var11 = this.mem(var10, 17352);
+         int var11 = this.mem(var10, 22076);
          this.E(var11);
          this.pc('\uc3c9', 1, 7);
          this.L(227);
          this.pc('\uc3cb', 1, 4);
          if(this.HL() == '\uc3e3') {
-            this.$43E3();
+            this.$b3_C3E3();
             if(!this.unwinding()) {
                ;
             }
@@ -1511,8 +1511,8 @@ public class TargetRenegade extends MiniZX {
       }
    }
 
-   public void $43CC() {
-      if(!this.isNextPC(17361)) {
+   public void $b3_C3CC() {
+      if(!this.isNextPC(22085)) {
          this.pc('\uc3cc', 1, 4);
          int var1 = this.E();
          this.A(var1);
@@ -1527,7 +1527,7 @@ public class TargetRenegade extends MiniZX {
          this.pc('\uc3cf', 1, 7);
          if(this.flag(1, true)) {
             this.tstates(5);
-            this.$43F2();
+            this.$b3_C3F2();
             if(this.unwinding()) {
                return;
             }
@@ -1541,13 +1541,13 @@ public class TargetRenegade extends MiniZX {
       this.pc('\uc3d3', 1, 7);
       this.A(242);
       this.pc('\uc3d5', 1, 12);
-      this.$43EF();
+      this.$b3_C3EF();
       if(!this.unwinding()) {
          ;
       }
    }
 
-   public void $43D7() {
+   public void $b3_C3D7() {
       this.pc('\uc3d7', 1, 4);
       int var1 = this.E();
       this.A(var1);
@@ -1566,7 +1566,7 @@ public class TargetRenegade extends MiniZX {
       this.pc('\uc3db', 1, 7);
       if(this.flag(1, false)) {
          this.tstates(5);
-         this.$43E3();
+         this.$b3_C3E3();
          if(!this.unwinding()) {
             ;
          }
@@ -1575,21 +1575,21 @@ public class TargetRenegade extends MiniZX {
          this.L(17);
          this.pc('\uc3df', 1, 7);
          int var8 = this.HL();
-         int var9 = this.mem(var8, 17375);
+         int var9 = this.mem(var8, 22099);
          this.C(var9);
          this.pc('\uc3e0', 1, 7);
          this.L(188);
          this.pc('\uc3e2', 1, 4);
          int var10 = this.D();
          this.E(var10);
-         this.$43E3();
+         this.$b3_C3E3();
          if(!this.unwinding()) {
             ;
          }
       }
    }
 
-   public void $43E3() {
+   public void $b3_C3E3() {
       this.pc('\uc3e3', 1, 8);
       int var1 = this.B() - 1 & 255;
       this.B(var1);
@@ -1600,7 +1600,7 @@ public class TargetRenegade extends MiniZX {
          this.L(18);
          this.pc('\uc3e7', 1, 7);
          int var2 = this.HL();
-         int var3 = this.mem(var2, 17383);
+         int var3 = this.mem(var2, 22107);
          this.C(var3);
          this.pc('\uc3e8', 1, 4);
          int var4 = this.L();
@@ -1608,7 +1608,7 @@ public class TargetRenegade extends MiniZX {
          this.L(var5);
          this.pc('\uc3e9', 1, 7);
          int var6 = this.HL();
-         int var7 = this.mem(var6, 17385);
+         int var7 = this.mem(var6, 22109);
          this.B(var7);
          this.pc('\uc3ea', 1, 4);
          int var8 = this.L();
@@ -1616,7 +1616,7 @@ public class TargetRenegade extends MiniZX {
          this.L(var9);
          this.pc('\uc3eb', 1, 7);
          int var10 = this.HL();
-         int var11 = this.mem(var10, 17387);
+         int var11 = this.mem(var10, 22111);
          this.E(var11);
          this.pc('\uc3ec', 1, 7);
          this.L(204);
@@ -1625,23 +1625,23 @@ public class TargetRenegade extends MiniZX {
       this.pc('\uc3ee', 1, 4);
       int var12 = this.L();
       this.A(var12);
-      this.$43EF();
+      this.$b3_C3EF();
       if(!this.unwinding()) {
          ;
       }
    }
 
-   public void $43EF() {
+   public void $b3_C3EF() {
       this.pc('\uc3ef', 1, 13);
       int var1 = this.A();
-      this.wMem('\uc31b', var1, 17391);
-      this.$43F2();
+      this.wMem('\uc31b', var1, 22115);
+      this.$b3_C3F2();
       if(!this.unwinding()) {
          ;
       }
    }
 
-   public void $43F2() {
+   public void $b3_C3F2() {
       this.pc('\uc3f2', 1, 11);
       int var1 = this.BC();
       this.push(var1);
@@ -1649,16 +1649,16 @@ public class TargetRenegade extends MiniZX {
       int var2 = this.DE();
       this.push(var2);
       this.pc('\uc3f4', 2, 20);
-      int var3 = this.mem16('\uc487', 17396);
+      int var3 = this.mem16('\uc487', 22120);
       this.SP(var3);
-      this.$43F8();
+      this.$b3_C3F8();
       if(!this.unwinding()) {
          ;
       }
    }
 
-   public void $43F8() {
-      if(!this.isNextPC(17512)) {
+   public void $b3_C3F8() {
+      if(!this.isNextPC(22236)) {
          label83: {
             this.pc('\uc3f8', 1, 7);
             this.C(8);
@@ -1666,7 +1666,7 @@ public class TargetRenegade extends MiniZX {
             this.L(21);
             this.pc('\uc3fc', 1, 7);
             int var14 = this.HL();
-            int var15 = this.mem(var14, 17404);
+            int var15 = this.mem(var14, 22128);
             this.E(var15);
             this.pc('\uc3fd', 2, 8);
             int var16 = this.E();
@@ -1681,12 +1681,12 @@ public class TargetRenegade extends MiniZX {
             int var21 = this.alu("srl", var20);
             this.E(var21);
             this.pc('\uc403', 1, 17);
-            this.$46E3();
+            this.$b3_C6E3();
             this.pc('\uc406', 1, 7);
             this.L(12);
             this.pc('\uc408', 1, 7);
             int var22 = this.HL();
-            int var23 = this.mem(var22, 17416);
+            int var23 = this.mem(var22, 22140);
             this.A(var23);
             this.pc('\uc409', 1, 4);
             int var24 = this.A();
@@ -1699,10 +1699,10 @@ public class TargetRenegade extends MiniZX {
             } else {
                this.pc('\uc40c', 1, 11);
                int var27 = this.HL();
-               int var28 = this.mem(var27, 17420);
+               int var28 = this.mem(var27, 22144);
                int var29 = this.alu("dec", var28);
                int var30 = this.HL();
-               this.wMem(var30, var29, 17420);
+               this.wMem(var30, var29, 22144);
                this.pc('\uc40d', 1, 7);
                if(this.flag(64, true)) {
                   this.tstates(5);
@@ -1714,21 +1714,21 @@ public class TargetRenegade extends MiniZX {
             this.L(34);
             this.pc('\uc411', 1, 11);
             int var31 = this.HL();
-            int var32 = this.mem(var31, 17425);
+            int var32 = this.mem(var31, 22149);
             int var33 = this.alu("dec", var32);
             int var34 = this.HL();
-            this.wMem(var34, var33, 17425);
+            this.wMem(var34, var33, 22149);
             this.pc('\uc412', 1, 7);
             if(this.flag(64, true)) {
                this.tstates(5);
             } else {
                this.pc('\uc414', 1, 13);
-               int var35 = this.mem('\uc30d', 17428);
+               int var35 = this.mem('\uc30d', 22152);
                this.A(var35);
                this.pc('\uc417', 1, 7);
                int var36 = this.A();
                int var37 = this.HL();
-               this.wMem(var37, var36, 17431);
+               this.wMem(var37, var36, 22155);
                this.pc('\uc418', 1, 10);
                this.SP('\uc31c');
                this.pc('\uc41b', 1, 10);
@@ -1773,7 +1773,7 @@ public class TargetRenegade extends MiniZX {
                            this.pc('\uc429', 1, 7);
                            this.C(3);
                            this.pc('\uc42b', 1, 13);
-                           int var84 = this.mem('\uc30e', 17451);
+                           int var84 = this.mem('\uc30e', 22175);
                            this.A(var84);
                            this.pc('\uc42e', 1, 4);
                            int var85 = this.A();
@@ -1789,7 +1789,7 @@ public class TargetRenegade extends MiniZX {
                            this.pc('\uc431', 1, 10);
                            if(!this.flag(128, true)) {
                               this.pc('\uc434', 1, 16);
-                              int var88 = this.mem16('\uc30f', 17460);
+                              int var88 = this.mem16('\uc30f', 22184);
                               this.HL(var88);
                            }
                         }
@@ -1798,7 +1798,7 @@ public class TargetRenegade extends MiniZX {
                         this.B(195);
                         this.pc('\uc439', 1, 7);
                         int var51 = this.BC();
-                        int var52 = this.mem(var51, 17465);
+                        int var52 = this.mem(var51, 22189);
                         this.A(var52);
                         this.pc('\uc43a', 1, 11);
                         int var53 = this.AF();
@@ -1823,7 +1823,7 @@ public class TargetRenegade extends MiniZX {
                         this.C(var61);
                         this.pc('\uc441', 1, 7);
                         int var62 = this.BC();
-                        int var63 = this.mem(var62, 17473);
+                        int var63 = this.mem(var62, 22197);
                         this.A(var63);
                         this.pc('\uc442', 1, 4);
                         int var64 = this.A();
@@ -1834,7 +1834,7 @@ public class TargetRenegade extends MiniZX {
                         this.BC(var66);
                         this.pc('\uc444', 1, 7);
                         int var67 = this.BC();
-                        int var68 = this.mem(var67, 17476);
+                        int var68 = this.mem(var67, 22200);
                         this.A(var68);
                         this.pc('\uc445', 1, 4);
                         int var69 = this.D();
@@ -1867,15 +1867,15 @@ public class TargetRenegade extends MiniZX {
          this.pc('\uc44c', 1, 7);
          this.C(0);
          this.pc('\uc44e', 2, 20);
-         int var76 = this.mem16('\uc487', 17486);
+         int var76 = this.mem16('\uc487', 22210);
          this.SP(var76);
          this.pc('\uc452', 1, 16);
-         int var77 = this.mem16('\uc320', 17490);
+         int var77 = this.mem16('\uc320', 22214);
          this.HL(var77);
          this.pc('\uc455', 1, 17);
-         this.$46DB();
+         this.$b3_C6DB();
          this.pc('\uc458', 1, 13);
-         int var78 = this.mem('\uc3a3', 17496);
+         int var78 = this.mem('\uc3a3', 22220);
          this.A(var78);
          this.pc('\uc45b', 1, 4);
          int var79 = this.A();
@@ -1884,7 +1884,7 @@ public class TargetRenegade extends MiniZX {
          this.A(var81);
          this.pc('\uc45c', 1, 10);
          if(this.flag(64, true)) {
-            this.$45A8();
+            this.$b3_C5A8();
             if(this.unwinding()) {
                return;
             }
@@ -1895,19 +1895,19 @@ public class TargetRenegade extends MiniZX {
          this.pc('\uc45f', 1, 7);
          this.D(195);
          this.pc('\uc461', 2, 20);
-         int var82 = this.mem16('\uc3a0', 17505);
+         int var82 = this.mem16('\uc3a0', 22229);
          this.SP(var82);
          this.pc('\uc465', 1, 17);
-         this.$4132();
+         this.$b3_C132();
          if(this.unwinding()) {
             do {
-               int[] var83 = new int[]{16692};
-               if(this.ownAddress(var83) != 16692) {
+               int[] var83 = new int[]{21416};
+               if(this.ownAddress(var83) != 21416) {
                   return;
                }
 
                this.IX('\uc468');
-               this.$4134();
+               this.$b3_C134();
             } while(this.unwinding());
 
             return;
@@ -1916,9 +1916,9 @@ public class TargetRenegade extends MiniZX {
 
       this.pc('\uc468', 2, 20);
       int var1 = this.SP();
-      this.wMem16('\uc3a0', var1, 17512);
+      this.wMem16('\uc3a0', var1, 22236);
       this.pc('\uc46c', 2, 20);
-      int var2 = this.mem16('\uc487', 17516);
+      int var2 = this.mem16('\uc487', 22240);
       this.SP(var2);
       this.pc('\uc470', 1, 7);
       this.E(162);
@@ -1926,26 +1926,26 @@ public class TargetRenegade extends MiniZX {
       this.exHLDE();
       this.pc('\uc473', 1, 11);
       int var3 = this.HL();
-      int var4 = this.mem(var3, 17523);
+      int var4 = this.mem(var3, 22247);
       int var5 = this.alu("dec", var4);
       int var6 = this.HL();
-      this.wMem(var6, var5, 17523);
+      this.wMem(var6, var5, 22247);
       this.pc('\uc474', 1, 10);
       if(this.flag(128, true)) {
-         this.$45A8();
+         this.$b3_C5A8();
          if(!this.unwinding()) {
             ;
          }
       } else {
          this.pc('\uc477', 1, 11);
          int var7 = this.HL();
-         int var8 = this.mem(var7, 17527);
+         int var8 = this.mem(var7, 22251);
          int var9 = this.alu("inc", var8);
          int var10 = this.HL();
-         this.wMem(var10, var9, 17527);
+         this.wMem(var10, var9, 22251);
          this.pc('\uc478', 1, 10);
          if(this.flag(1, true)) {
-            this.$45A8();
+            this.$b3_C5A8();
             if(!this.unwinding()) {
                ;
             }
@@ -1960,9 +1960,9 @@ public class TargetRenegade extends MiniZX {
             this.pc('\uc47e', 1, 10);
             this.HL('\uc323');
             this.pc('\uc481', 1, 17);
-            this.$4687();
+            this.$b3_C687();
             this.pc('\uc484', 1, 10);
-            this.$45A8();
+            this.$b3_C5A8();
             if(!this.unwinding()) {
                ;
             }
@@ -1970,33 +1970,33 @@ public class TargetRenegade extends MiniZX {
       }
    }
 
-   public void $45A8() {
+   public void $b3_C5A8() {
       this.pc('\uc5a8', 1, 7);
-      int var1 = this.mem('\uc5a9', 17832);
+      int var1 = this.mem('\uc5a9', 22556);
       this.H(var1);
       this.pc('\uc5aa', 1, 7);
       this.L(26);
       this.pc('\uc5ac', 1, 11);
       int var2 = this.HL();
-      int var3 = this.mem(var2, 17836);
+      int var3 = this.mem(var2, 22560);
       int var4 = this.alu("dec", var3);
       int var5 = this.HL();
-      this.wMem(var5, var4, 17836);
+      this.wMem(var5, var4, 22560);
       this.pc('\uc5ad', 1, 7);
       if(this.flag(64, true)) {
          this.tstates(5);
-         this.$45F8();
+         this.$b3_C5F8();
          if(!this.unwinding()) {
             ;
          }
       } else {
          this.pc('\uc5af', 1, 13);
-         int var6 = this.mem('\uc519', 17839);
+         int var6 = this.mem('\uc519', 22563);
          this.A(var6);
          this.pc('\uc5b2', 1, 7);
          int var7 = this.A();
          int var8 = this.HL();
-         this.wMem(var8, var7, 17842);
+         this.wMem(var8, var7, 22566);
          this.pc('\uc5b3', 1, 10);
          this.SP('\uc515');
          this.pc('\uc5b6', 1, 10);
@@ -2009,37 +2009,37 @@ public class TargetRenegade extends MiniZX {
          this.L(27);
          this.pc('\uc5ba', 1, 7);
          int var11 = this.HL();
-         int var12 = this.mem(var11, 17850);
+         int var12 = this.mem(var11, 22574);
          this.L(var12);
          this.pc('\uc5bb', 1, 4);
          if(this.HL() == '\uc5d1') {
-            this.setNextAddress(17873);
-            this.$45CC();
+            this.setNextAddress(22597);
+            this.$b3_C5CC();
             if(!this.unwinding()) {
                ;
             }
          } else if(this.HL() == '\uc5f2') {
-            this.$45F2();
+            this.$b3_C5F2();
             if(!this.unwinding()) {
                ;
             }
          } else if(this.HL() == '\uc5e3') {
-            this.$45E3();
+            this.$b3_C5E3();
             if(!this.unwinding()) {
                ;
             }
          } else if(this.HL() == '\uc5d7') {
-            this.$45D7();
+            this.$b3_C5D7();
             if(!this.unwinding()) {
                ;
             }
          } else if(this.HL() == '\uc5cc') {
-            this.$45CC();
+            this.$b3_C5CC();
             if(!this.unwinding()) {
                ;
             }
          } else if(this.HL() == '\uc5bc') {
-            this.$45BC();
+            this.$b3_C5BC();
             if(!this.unwinding()) {
                ;
             }
@@ -2053,9 +2053,9 @@ public class TargetRenegade extends MiniZX {
       }
    }
 
-   public void $45BC() {
+   public void $b3_C5BC() {
       this.pc('\uc5bc', 1, 13);
-      int var1 = this.mem('\uc514', 17852);
+      int var1 = this.mem('\uc514', 22576);
       this.A(var1);
       this.pc('\uc5bf', 1, 4);
       int var2 = this.A();
@@ -2078,7 +2078,7 @@ public class TargetRenegade extends MiniZX {
       this.pc('\uc5c4', 1, 7);
       if(this.flag(1, true)) {
          this.tstates(5);
-         this.$45E3();
+         this.$b3_C5E3();
          if(!this.unwinding()) {
             ;
          }
@@ -2087,13 +2087,13 @@ public class TargetRenegade extends MiniZX {
          this.L(20);
          this.pc('\uc5c8', 1, 7);
          int var10 = this.HL();
-         int var11 = this.mem(var10, 17864);
+         int var11 = this.mem(var10, 22588);
          this.E(var11);
          this.pc('\uc5c9', 1, 7);
          this.L(227);
          this.pc('\uc5cb', 1, 4);
          if(this.HL() == '\uc5e3') {
-            this.$45E3();
+            this.$b3_C5E3();
             if(!this.unwinding()) {
                ;
             }
@@ -2107,8 +2107,8 @@ public class TargetRenegade extends MiniZX {
       }
    }
 
-   public void $45CC() {
-      if(!this.isNextPC(17873)) {
+   public void $b3_C5CC() {
+      if(!this.isNextPC(22597)) {
          this.pc('\uc5cc', 1, 4);
          int var1 = this.E();
          this.A(var1);
@@ -2123,7 +2123,7 @@ public class TargetRenegade extends MiniZX {
          this.pc('\uc5cf', 1, 7);
          if(this.flag(1, true)) {
             this.tstates(5);
-            this.$45F2();
+            this.$b3_C5F2();
             if(this.unwinding()) {
                return;
             }
@@ -2137,13 +2137,13 @@ public class TargetRenegade extends MiniZX {
       this.pc('\uc5d3', 1, 7);
       this.A(242);
       this.pc('\uc5d5', 1, 12);
-      this.$45EF();
+      this.$b3_C5EF();
       if(!this.unwinding()) {
          ;
       }
    }
 
-   public void $45D7() {
+   public void $b3_C5D7() {
       this.pc('\uc5d7', 1, 4);
       int var1 = this.E();
       this.A(var1);
@@ -2162,7 +2162,7 @@ public class TargetRenegade extends MiniZX {
       this.pc('\uc5db', 1, 7);
       if(this.flag(1, false)) {
          this.tstates(5);
-         this.$45E3();
+         this.$b3_C5E3();
          if(!this.unwinding()) {
             ;
          }
@@ -2171,21 +2171,21 @@ public class TargetRenegade extends MiniZX {
          this.L(17);
          this.pc('\uc5df', 1, 7);
          int var8 = this.HL();
-         int var9 = this.mem(var8, 17887);
+         int var9 = this.mem(var8, 22611);
          this.C(var9);
          this.pc('\uc5e0', 1, 7);
          this.L(188);
          this.pc('\uc5e2', 1, 4);
          int var10 = this.D();
          this.E(var10);
-         this.$45E3();
+         this.$b3_C5E3();
          if(!this.unwinding()) {
             ;
          }
       }
    }
 
-   public void $45E3() {
+   public void $b3_C5E3() {
       this.pc('\uc5e3', 1, 8);
       int var1 = this.B() - 1 & 255;
       this.B(var1);
@@ -2196,7 +2196,7 @@ public class TargetRenegade extends MiniZX {
          this.L(18);
          this.pc('\uc5e7', 1, 7);
          int var2 = this.HL();
-         int var3 = this.mem(var2, 17895);
+         int var3 = this.mem(var2, 22619);
          this.C(var3);
          this.pc('\uc5e8', 1, 4);
          int var4 = this.L();
@@ -2204,7 +2204,7 @@ public class TargetRenegade extends MiniZX {
          this.L(var5);
          this.pc('\uc5e9', 1, 7);
          int var6 = this.HL();
-         int var7 = this.mem(var6, 17897);
+         int var7 = this.mem(var6, 22621);
          this.B(var7);
          this.pc('\uc5ea', 1, 4);
          int var8 = this.L();
@@ -2212,7 +2212,7 @@ public class TargetRenegade extends MiniZX {
          this.L(var9);
          this.pc('\uc5eb', 1, 7);
          int var10 = this.HL();
-         int var11 = this.mem(var10, 17899);
+         int var11 = this.mem(var10, 22623);
          this.E(var11);
          this.pc('\uc5ec', 1, 7);
          this.L(204);
@@ -2221,23 +2221,23 @@ public class TargetRenegade extends MiniZX {
       this.pc('\uc5ee', 1, 4);
       int var12 = this.L();
       this.A(var12);
-      this.$45EF();
+      this.$b3_C5EF();
       if(!this.unwinding()) {
          ;
       }
    }
 
-   public void $45EF() {
+   public void $b3_C5EF() {
       this.pc('\uc5ef', 1, 13);
       int var1 = this.A();
-      this.wMem('\uc51b', var1, 17903);
-      this.$45F2();
+      this.wMem('\uc51b', var1, 22627);
+      this.$b3_C5F2();
       if(!this.unwinding()) {
          ;
       }
    }
 
-   public void $45F2() {
+   public void $b3_C5F2() {
       this.pc('\uc5f2', 1, 11);
       int var1 = this.BC();
       this.push(var1);
@@ -2245,16 +2245,16 @@ public class TargetRenegade extends MiniZX {
       int var2 = this.DE();
       this.push(var2);
       this.pc('\uc5f4', 2, 20);
-      int var3 = this.mem16('\uc487', 17908);
+      int var3 = this.mem16('\uc487', 22632);
       this.SP(var3);
-      this.$45F8();
+      this.$b3_C5F8();
       if(!this.unwinding()) {
          ;
       }
    }
 
-   public void $45F8() {
-      if(!this.isNextPC(18023)) {
+   public void $b3_C5F8() {
+      if(!this.isNextPC(22747)) {
          label83: {
             this.pc('\uc5f8', 1, 7);
             this.C(9);
@@ -2262,7 +2262,7 @@ public class TargetRenegade extends MiniZX {
             this.L(21);
             this.pc('\uc5fc', 1, 7);
             int var11 = this.HL();
-            int var12 = this.mem(var11, 17916);
+            int var12 = this.mem(var11, 22640);
             this.E(var12);
             this.pc('\uc5fd', 2, 8);
             int var13 = this.E();
@@ -2277,12 +2277,12 @@ public class TargetRenegade extends MiniZX {
             int var18 = this.alu("srl", var17);
             this.E(var18);
             this.pc('\uc603', 1, 17);
-            this.$46E3();
+            this.$b3_C6E3();
             this.pc('\uc606', 1, 7);
             this.L(12);
             this.pc('\uc608', 1, 7);
             int var19 = this.HL();
-            int var20 = this.mem(var19, 17928);
+            int var20 = this.mem(var19, 22652);
             this.A(var20);
             this.pc('\uc609', 1, 4);
             int var21 = this.A();
@@ -2295,10 +2295,10 @@ public class TargetRenegade extends MiniZX {
             } else {
                this.pc('\uc60c', 1, 11);
                int var24 = this.HL();
-               int var25 = this.mem(var24, 17932);
+               int var25 = this.mem(var24, 22656);
                int var26 = this.alu("dec", var25);
                int var27 = this.HL();
-               this.wMem(var27, var26, 17932);
+               this.wMem(var27, var26, 22656);
                this.pc('\uc60d', 1, 7);
                if(this.flag(64, true)) {
                   this.tstates(5);
@@ -2310,21 +2310,21 @@ public class TargetRenegade extends MiniZX {
             this.L(34);
             this.pc('\uc611', 1, 11);
             int var28 = this.HL();
-            int var29 = this.mem(var28, 17937);
+            int var29 = this.mem(var28, 22661);
             int var30 = this.alu("dec", var29);
             int var31 = this.HL();
-            this.wMem(var31, var30, 17937);
+            this.wMem(var31, var30, 22661);
             this.pc('\uc612', 1, 7);
             if(this.flag(64, true)) {
                this.tstates(5);
             } else {
                this.pc('\uc614', 1, 13);
-               int var32 = this.mem('\uc50d', 17940);
+               int var32 = this.mem('\uc50d', 22664);
                this.A(var32);
                this.pc('\uc617', 1, 7);
                int var33 = this.A();
                int var34 = this.HL();
-               this.wMem(var34, var33, 17943);
+               this.wMem(var34, var33, 22667);
                this.pc('\uc618', 1, 10);
                this.SP('\uc51c');
                this.pc('\uc61b', 1, 10);
@@ -2369,7 +2369,7 @@ public class TargetRenegade extends MiniZX {
                            this.pc('\uc629', 1, 7);
                            this.C(3);
                            this.pc('\uc62b', 1, 13);
-                           int var82 = this.mem('\uc50e', 17963);
+                           int var82 = this.mem('\uc50e', 22687);
                            this.A(var82);
                            this.pc('\uc62e', 1, 4);
                            int var83 = this.A();
@@ -2385,7 +2385,7 @@ public class TargetRenegade extends MiniZX {
                            this.pc('\uc631', 1, 10);
                            if(!this.flag(128, true)) {
                               this.pc('\uc634', 1, 16);
-                              int var86 = this.mem16('\uc50f', 17972);
+                              int var86 = this.mem16('\uc50f', 22696);
                               this.HL(var86);
                            }
                         }
@@ -2394,7 +2394,7 @@ public class TargetRenegade extends MiniZX {
                         this.B(197);
                         this.pc('\uc639', 1, 7);
                         int var48 = this.BC();
-                        int var49 = this.mem(var48, 17977);
+                        int var49 = this.mem(var48, 22701);
                         this.A(var49);
                         this.pc('\uc63a', 1, 11);
                         int var50 = this.AF();
@@ -2419,7 +2419,7 @@ public class TargetRenegade extends MiniZX {
                         this.C(var58);
                         this.pc('\uc641', 1, 7);
                         int var59 = this.BC();
-                        int var60 = this.mem(var59, 17985);
+                        int var60 = this.mem(var59, 22709);
                         this.A(var60);
                         this.pc('\uc642', 1, 4);
                         int var61 = this.A();
@@ -2430,7 +2430,7 @@ public class TargetRenegade extends MiniZX {
                         this.BC(var63);
                         this.pc('\uc644', 1, 7);
                         int var64 = this.BC();
-                        int var65 = this.mem(var64, 17988);
+                        int var65 = this.mem(var64, 22712);
                         this.A(var65);
                         this.pc('\uc645', 1, 4);
                         int var66 = this.D();
@@ -2463,18 +2463,18 @@ public class TargetRenegade extends MiniZX {
          this.pc('\uc64c', 1, 7);
          this.C(2);
          this.pc('\uc64e', 2, 20);
-         int var73 = this.mem16('\uc487', 17998);
+         int var73 = this.mem16('\uc487', 22722);
          this.SP(var73);
          this.pc('\uc652', 1, 16);
-         int var74 = this.mem16('\uc520', 18002);
+         int var74 = this.mem16('\uc520', 22726);
          this.HL(var74);
          this.pc('\uc655', 1, 17);
-         this.$46DB();
+         this.$b3_C6DB();
          this.pc('\uc658', 1, 10);
          this.DE('\uc5a3');
          this.pc('\uc65b', 1, 7);
          int var75 = this.DE();
-         int var76 = this.mem(var75, 18011);
+         int var76 = this.mem(var75, 22735);
          this.A(var76);
          this.pc('\uc65c', 1, 4);
          int var77 = this.A();
@@ -2483,7 +2483,7 @@ public class TargetRenegade extends MiniZX {
          this.A(var79);
          this.pc('\uc65d', 1, 10);
          if(this.flag(64, true)) {
-            this.$47A8();
+            this.$b3_C7A8();
             if(this.unwinding()) {
                return;
             }
@@ -2492,19 +2492,19 @@ public class TargetRenegade extends MiniZX {
          }
 
          this.pc('\uc660', 2, 20);
-         int var80 = this.mem16('\uc5a0', 18016);
+         int var80 = this.mem16('\uc5a0', 22740);
          this.SP(var80);
          this.pc('\uc664', 1, 17);
-         this.$4132();
+         this.$b3_C132();
          if(this.unwinding()) {
             do {
-               int[] var81 = new int[]{16692};
-               if(this.ownAddress(var81) != 16692) {
+               int[] var81 = new int[]{21416};
+               if(this.ownAddress(var81) != 21416) {
                   return;
                }
 
                this.IX('\uc667');
-               this.$4134();
+               this.$b3_C134();
             } while(this.unwinding());
 
             return;
@@ -2513,9 +2513,9 @@ public class TargetRenegade extends MiniZX {
 
       this.pc('\uc667', 2, 20);
       int var1 = this.SP();
-      this.wMem16('\uc5a0', var1, 18023);
+      this.wMem16('\uc5a0', var1, 22747);
       this.pc('\uc66b', 2, 20);
-      int var2 = this.mem16('\uc487', 18027);
+      int var2 = this.mem16('\uc487', 22751);
       this.SP(var2);
       this.pc('\uc66f', 1, 7);
       this.E(162);
@@ -2523,26 +2523,26 @@ public class TargetRenegade extends MiniZX {
       this.exHLDE();
       this.pc('\uc672', 1, 11);
       int var3 = this.HL();
-      int var4 = this.mem(var3, 18034);
+      int var4 = this.mem(var3, 22758);
       int var5 = this.alu("dec", var4);
       int var6 = this.HL();
-      this.wMem(var6, var5, 18034);
+      this.wMem(var6, var5, 22758);
       this.pc('\uc673', 1, 10);
       if(this.flag(128, true)) {
-         this.$47A8();
+         this.$b3_C7A8();
          if(!this.unwinding()) {
             ;
          }
       } else {
          this.pc('\uc676', 1, 11);
          int var7 = this.HL();
-         int var8 = this.mem(var7, 18038);
+         int var8 = this.mem(var7, 22762);
          int var9 = this.alu("inc", var8);
          int var10 = this.HL();
-         this.wMem(var10, var9, 18038);
+         this.wMem(var10, var9, 22762);
          this.pc('\uc677', 1, 10);
          if(this.flag(1, true)) {
-            this.$47A8();
+            this.$b3_C7A8();
             if(!this.unwinding()) {
                ;
             }
@@ -2554,9 +2554,9 @@ public class TargetRenegade extends MiniZX {
             this.pc('\uc67e', 1, 10);
             this.HL('\uc523');
             this.pc('\uc681', 1, 17);
-            this.$4687();
+            this.$b3_C687();
             this.pc('\uc684', 1, 10);
-            this.$47A8();
+            this.$b3_C7A8();
             if(!this.unwinding()) {
                ;
             }
@@ -2564,7 +2564,7 @@ public class TargetRenegade extends MiniZX {
       }
    }
 
-   public void $4687() {
+   public void $b3_C687() {
       this.pc('\uc687', 1, 4);
       int var1 = this.A();
       this.D(var1);
@@ -2605,82 +2605,82 @@ public class TargetRenegade extends MiniZX {
       this.exHLDE();
       this.pc('\uc69b', 1, 10);
       int var13 = this.HL();
-      this.wMem(var13, 215, 18075);
+      this.wMem(var13, 215, 22799);
       this.pc('\uc69d', 1, 6);
       int var14 = this.HL();
       int var15 = this.inc16(var14);
       this.HL(var15);
       this.pc('\uc69e', 1, 10);
       int var16 = this.HL();
-      this.wMem(var16, 4, 18078);
+      this.wMem(var16, 4, 22802);
       this.pc('\uc6a0', 1, 6);
       int var17 = this.HL();
       int var18 = this.inc16(var17);
       this.HL(var18);
       this.pc('\uc6a1', 2, 19);
       int var19 = this.IX() + 3;
-      int var20 = this.mem(var19, 18081);
+      int var20 = this.mem(var19, 22805);
       this.A(var20);
       this.pc('\uc6a4', 1, 7);
       int var21 = this.A();
       int var22 = this.HL();
-      this.wMem(var22, var21, 18084);
+      this.wMem(var22, var21, 22808);
       this.pc('\uc6a5', 1, 6);
       int var23 = this.HL();
       int var24 = this.inc16(var23);
       this.HL(var24);
       this.pc('\uc6a6', 2, 19);
       int var25 = this.IX() + 10;
-      int var26 = this.mem(var25, 18086);
+      int var26 = this.mem(var25, 22810);
       this.A(var26);
       this.pc('\uc6a9', 1, 7);
       int var27 = this.A();
       int var28 = this.HL();
-      this.wMem(var28, var27, 18089);
+      this.wMem(var28, var27, 22813);
       this.pc('\uc6aa', 1, 6);
       int var29 = this.HL();
       int var30 = this.inc16(var29);
       this.HL(var30);
       this.pc('\uc6ab', 2, 19);
       int var31 = this.IX() + 11;
-      int var32 = this.mem(var31, 18091);
+      int var32 = this.mem(var31, 22815);
       this.A(var32);
       this.pc('\uc6ae', 1, 7);
       int var33 = this.A();
       int var34 = this.HL();
-      this.wMem(var34, var33, 18094);
+      this.wMem(var34, var33, 22818);
       this.pc('\uc6af', 1, 6);
       int var35 = this.HL();
       int var36 = this.inc16(var35);
       this.HL(var36);
       this.pc('\uc6b0', 2, 19);
       int var37 = this.IX() + 15;
-      int var38 = this.mem(var37, 18096);
+      int var38 = this.mem(var37, 22820);
       this.A(var38);
       this.pc('\uc6b3', 1, 7);
       int var39 = this.A();
       int var40 = this.HL();
-      this.wMem(var40, var39, 18099);
+      this.wMem(var40, var39, 22823);
       this.pc('\uc6b4', 1, 6);
       int var41 = this.HL();
       int var42 = this.inc16(var41);
       this.HL(var42);
       this.pc('\uc6b5', 2, 19);
       int var43 = this.IX() + 16;
-      int var44 = this.mem(var43, 18101);
+      int var44 = this.mem(var43, 22825);
       this.A(var44);
       this.pc('\uc6b8', 1, 7);
       int var45 = this.A();
       int var46 = this.HL();
-      this.wMem(var46, var45, 18104);
+      this.wMem(var46, var45, 22828);
       this.pc('\uc6b9', 2, 19);
       int var47 = this.IX() + 13;
-      int var48 = this.mem(var47, 18105);
+      int var48 = this.mem(var47, 22829);
       this.A(var48);
       this.pc('\uc6bc', 2, 19);
       int var49 = this.IX() + 34;
       int var50 = this.A();
-      this.wMem(var49, var50, 18108);
+      this.wMem(var49, var50, 22832);
       this.pc('\uc6bf', 1, 10);
       int var51 = this.pop();
       this.BC(var51);
@@ -2715,7 +2715,7 @@ public class TargetRenegade extends MiniZX {
             this.A(var61);
             this.pc('\uc6cc', 1, 7);
             int var62 = this.HL();
-            int var63 = this.mem(var62, 18124);
+            int var63 = this.mem(var62, 22848);
             int var64 = this.A();
             int var65 = this.alu("and", var64, var63);
             this.A(var65);
@@ -2742,14 +2742,14 @@ public class TargetRenegade extends MiniZX {
             this.pc('\uc6d3', 1, 7);
             int var76 = this.A();
             int var77 = this.HL();
-            this.wMem(var77, var76, 18131);
+            this.wMem(var77, var76, 22855);
             this.pc('\uc6d4', 1, 4);
             int var78 = this.A();
             this.E(var78);
             this.pc('\uc6d5', 1, 7);
             this.C(7);
             this.pc('\uc6d7', 1, 10);
-            this.$46E3();
+            this.$b3_C6E3();
             return;
          }
 
@@ -2757,7 +2757,7 @@ public class TargetRenegade extends MiniZX {
       }
    }
 
-   public void $46DB() {
+   public void $b3_C6DB() {
       this.pc('\uc6db', 1, 4);
       int var1 = this.L();
       this.E(var1);
@@ -2765,7 +2765,7 @@ public class TargetRenegade extends MiniZX {
       int var2 = this.BC();
       this.push(var2);
       this.pc('\uc6dd', 1, 17);
-      this.$46E3();
+      this.$b3_C6E3();
       this.pc('\uc6e0', 1, 10);
       int var3 = this.pop();
       this.BC(var3);
@@ -2776,10 +2776,10 @@ public class TargetRenegade extends MiniZX {
       int var5 = this.C();
       int var6 = this.alu("inc", var5);
       this.C(var6);
-      this.$46E3();
+      this.$b3_C6E3();
    }
 
-   public void $46E3() {
+   public void $b3_C6E3() {
       this.pc('\uc6e3', 1, 4);
       int var1 = this.C();
       this.A(var1);
@@ -2798,32 +2798,32 @@ public class TargetRenegade extends MiniZX {
       this.pc('\uc6ee', 1, 10);
    }
 
-   public void $47A8() {
+   public void $b3_C7A8() {
       this.pc('\uc7a8', 1, 7);
       this.H(199);
       this.pc('\uc7aa', 1, 7);
       this.L(26);
       this.pc('\uc7ac', 1, 11);
       int var1 = this.HL();
-      int var2 = this.mem(var1, 18348);
+      int var2 = this.mem(var1, 23072);
       int var3 = this.alu("dec", var2);
       int var4 = this.HL();
-      this.wMem(var4, var3, 18348);
+      this.wMem(var4, var3, 23072);
       this.pc('\uc7ad', 1, 7);
       if(this.flag(64, true)) {
          this.tstates(5);
-         this.$47F8();
+         this.$b3_C7F8();
          if(!this.unwinding()) {
             ;
          }
       } else {
          this.pc('\uc7af', 1, 13);
-         int var5 = this.mem('\uc719', 18351);
+         int var5 = this.mem('\uc719', 23075);
          this.A(var5);
          this.pc('\uc7b2', 1, 7);
          int var6 = this.A();
          int var7 = this.HL();
-         this.wMem(var7, var6, 18354);
+         this.wMem(var7, var6, 23078);
          this.pc('\uc7b3', 1, 10);
          this.SP('\uc715');
          this.pc('\uc7b6', 1, 10);
@@ -2836,37 +2836,37 @@ public class TargetRenegade extends MiniZX {
          this.L(27);
          this.pc('\uc7ba', 1, 7);
          int var10 = this.HL();
-         int var11 = this.mem(var10, 18362);
+         int var11 = this.mem(var10, 23086);
          this.L(var11);
          this.pc('\uc7bb', 1, 4);
          if(this.HL() == '\uc7d1') {
-            this.setNextAddress(18385);
-            this.$47CC();
+            this.setNextAddress(23109);
+            this.$b3_C7CC();
             if(!this.unwinding()) {
                ;
             }
          } else if(this.HL() == '\uc7f2') {
-            this.$47F2();
+            this.$b3_C7F2();
             if(!this.unwinding()) {
                ;
             }
          } else if(this.HL() == '\uc7e3') {
-            this.$47E3();
+            this.$b3_C7E3();
             if(!this.unwinding()) {
                ;
             }
          } else if(this.HL() == '\uc7d7') {
-            this.$47D7();
+            this.$b3_C7D7();
             if(!this.unwinding()) {
                ;
             }
          } else if(this.HL() == '\uc7cc') {
-            this.$47CC();
+            this.$b3_C7CC();
             if(!this.unwinding()) {
                ;
             }
          } else if(this.HL() == '\uc7bc') {
-            this.$47BC();
+            this.$b3_C7BC();
             if(!this.unwinding()) {
                ;
             }
@@ -2880,9 +2880,9 @@ public class TargetRenegade extends MiniZX {
       }
    }
 
-   public void $47BC() {
+   public void $b3_C7BC() {
       this.pc('\uc7bc', 1, 13);
-      int var1 = this.mem('\uc714', 18364);
+      int var1 = this.mem('\uc714', 23088);
       this.A(var1);
       this.pc('\uc7bf', 1, 4);
       int var2 = this.A();
@@ -2905,7 +2905,7 @@ public class TargetRenegade extends MiniZX {
       this.pc('\uc7c4', 1, 7);
       if(this.flag(1, true)) {
          this.tstates(5);
-         this.$47E3();
+         this.$b3_C7E3();
          if(!this.unwinding()) {
             ;
          }
@@ -2914,13 +2914,13 @@ public class TargetRenegade extends MiniZX {
          this.L(20);
          this.pc('\uc7c8', 1, 7);
          int var10 = this.HL();
-         int var11 = this.mem(var10, 18376);
+         int var11 = this.mem(var10, 23100);
          this.E(var11);
          this.pc('\uc7c9', 1, 7);
          this.L(227);
          this.pc('\uc7cb', 1, 4);
          if(this.HL() == '\uc7e3') {
-            this.$47E3();
+            this.$b3_C7E3();
             if(!this.unwinding()) {
                ;
             }
@@ -2934,8 +2934,8 @@ public class TargetRenegade extends MiniZX {
       }
    }
 
-   public void $47CC() {
-      if(!this.isNextPC(18385)) {
+   public void $b3_C7CC() {
+      if(!this.isNextPC(23109)) {
          this.pc('\uc7cc', 1, 4);
          int var1 = this.E();
          this.A(var1);
@@ -2950,7 +2950,7 @@ public class TargetRenegade extends MiniZX {
          this.pc('\uc7cf', 1, 7);
          if(this.flag(1, true)) {
             this.tstates(5);
-            this.$47F2();
+            this.$b3_C7F2();
             if(this.unwinding()) {
                return;
             }
@@ -2964,13 +2964,13 @@ public class TargetRenegade extends MiniZX {
       this.pc('\uc7d3', 1, 7);
       this.A(242);
       this.pc('\uc7d5', 1, 12);
-      this.$47EF();
+      this.$b3_C7EF();
       if(!this.unwinding()) {
          ;
       }
    }
 
-   public void $47D7() {
+   public void $b3_C7D7() {
       this.pc('\uc7d7', 1, 4);
       int var1 = this.E();
       this.A(var1);
@@ -2989,7 +2989,7 @@ public class TargetRenegade extends MiniZX {
       this.pc('\uc7db', 1, 7);
       if(this.flag(1, false)) {
          this.tstates(5);
-         this.$47E3();
+         this.$b3_C7E3();
          if(!this.unwinding()) {
             ;
          }
@@ -2998,21 +2998,21 @@ public class TargetRenegade extends MiniZX {
          this.L(17);
          this.pc('\uc7df', 1, 7);
          int var8 = this.HL();
-         int var9 = this.mem(var8, 18399);
+         int var9 = this.mem(var8, 23123);
          this.C(var9);
          this.pc('\uc7e0', 1, 7);
          this.L(188);
          this.pc('\uc7e2', 1, 4);
          int var10 = this.D();
          this.E(var10);
-         this.$47E3();
+         this.$b3_C7E3();
          if(!this.unwinding()) {
             ;
          }
       }
    }
 
-   public void $47E3() {
+   public void $b3_C7E3() {
       this.pc('\uc7e3', 1, 8);
       int var1 = this.B() - 1 & 255;
       this.B(var1);
@@ -3023,7 +3023,7 @@ public class TargetRenegade extends MiniZX {
          this.L(18);
          this.pc('\uc7e7', 1, 7);
          int var2 = this.HL();
-         int var3 = this.mem(var2, 18407);
+         int var3 = this.mem(var2, 23131);
          this.C(var3);
          this.pc('\uc7e8', 1, 4);
          int var4 = this.L();
@@ -3031,7 +3031,7 @@ public class TargetRenegade extends MiniZX {
          this.L(var5);
          this.pc('\uc7e9', 1, 7);
          int var6 = this.HL();
-         int var7 = this.mem(var6, 18409);
+         int var7 = this.mem(var6, 23133);
          this.B(var7);
          this.pc('\uc7ea', 1, 4);
          int var8 = this.L();
@@ -3039,7 +3039,7 @@ public class TargetRenegade extends MiniZX {
          this.L(var9);
          this.pc('\uc7eb', 1, 7);
          int var10 = this.HL();
-         int var11 = this.mem(var10, 18411);
+         int var11 = this.mem(var10, 23135);
          this.E(var11);
          this.pc('\uc7ec', 1, 7);
          this.L(204);
@@ -3048,23 +3048,23 @@ public class TargetRenegade extends MiniZX {
       this.pc('\uc7ee', 1, 4);
       int var12 = this.L();
       this.A(var12);
-      this.$47EF();
+      this.$b3_C7EF();
       if(!this.unwinding()) {
          ;
       }
    }
 
-   public void $47EF() {
+   public void $b3_C7EF() {
       this.pc('\uc7ef', 1, 13);
       int var1 = this.A();
-      this.wMem('\uc71b', var1, 18415);
-      this.$47F2();
+      this.wMem('\uc71b', var1, 23139);
+      this.$b3_C7F2();
       if(!this.unwinding()) {
          ;
       }
    }
 
-   public void $47F2() {
+   public void $b3_C7F2() {
       this.pc('\uc7f2', 1, 11);
       int var1 = this.BC();
       this.push(var1);
@@ -3072,16 +3072,16 @@ public class TargetRenegade extends MiniZX {
       int var2 = this.DE();
       this.push(var2);
       this.pc('\uc7f4', 2, 20);
-      int var3 = this.mem16('\uc487', 18420);
+      int var3 = this.mem16('\uc487', 23144);
       this.SP(var3);
-      this.$47F8();
+      this.$b3_C7F8();
       if(!this.unwinding()) {
          ;
       }
    }
 
-   public void $47F8() {
-      if(!this.isNextPC(18535)) {
+   public void $b3_C7F8() {
+      if(!this.isNextPC(23259)) {
          label71: {
             this.pc('\uc7f8', 1, 7);
             this.C(10);
@@ -3089,7 +3089,7 @@ public class TargetRenegade extends MiniZX {
             this.L(21);
             this.pc('\uc7fc', 1, 7);
             int var11 = this.HL();
-            int var12 = this.mem(var11, 18428);
+            int var12 = this.mem(var11, 23152);
             this.E(var12);
             this.pc('\uc7fd', 2, 8);
             int var13 = this.E();
@@ -3104,12 +3104,12 @@ public class TargetRenegade extends MiniZX {
             int var18 = this.alu("srl", var17);
             this.E(var18);
             this.pc('\uc803', 1, 17);
-            this.$46E3();
+            this.$b3_C6E3();
             this.pc('\uc806', 1, 7);
             this.L(12);
             this.pc('\uc808', 1, 7);
             int var19 = this.HL();
-            int var20 = this.mem(var19, 18440);
+            int var20 = this.mem(var19, 23164);
             this.A(var20);
             this.pc('\uc809', 1, 4);
             int var21 = this.A();
@@ -3122,10 +3122,10 @@ public class TargetRenegade extends MiniZX {
             } else {
                this.pc('\uc80c', 1, 11);
                int var24 = this.HL();
-               int var25 = this.mem(var24, 18444);
+               int var25 = this.mem(var24, 23168);
                int var26 = this.alu("dec", var25);
                int var27 = this.HL();
-               this.wMem(var27, var26, 18444);
+               this.wMem(var27, var26, 23168);
                this.pc('\uc80d', 1, 7);
                if(this.flag(64, true)) {
                   this.tstates(5);
@@ -3137,21 +3137,21 @@ public class TargetRenegade extends MiniZX {
             this.L(34);
             this.pc('\uc811', 1, 11);
             int var28 = this.HL();
-            int var29 = this.mem(var28, 18449);
+            int var29 = this.mem(var28, 23173);
             int var30 = this.alu("dec", var29);
             int var31 = this.HL();
-            this.wMem(var31, var30, 18449);
+            this.wMem(var31, var30, 23173);
             this.pc('\uc812', 1, 7);
             if(this.flag(64, true)) {
                this.tstates(5);
             } else {
                this.pc('\uc814', 1, 13);
-               int var32 = this.mem('\uc70d', 18452);
+               int var32 = this.mem('\uc70d', 23176);
                this.A(var32);
                this.pc('\uc817', 1, 7);
                int var33 = this.A();
                int var34 = this.HL();
-               this.wMem(var34, var33, 18455);
+               this.wMem(var34, var33, 23179);
                this.pc('\uc818', 1, 10);
                this.SP('\uc71c');
                this.pc('\uc81b', 1, 10);
@@ -3196,7 +3196,7 @@ public class TargetRenegade extends MiniZX {
                            this.pc('\uc829', 1, 7);
                            this.C(3);
                            this.pc('\uc82b', 1, 13);
-                           int var82 = this.mem('\uc70e', 18475);
+                           int var82 = this.mem('\uc70e', 23199);
                            this.A(var82);
                            this.pc('\uc82e', 1, 4);
                            int var83 = this.A();
@@ -3212,7 +3212,7 @@ public class TargetRenegade extends MiniZX {
                            this.pc('\uc831', 1, 10);
                            if(!this.flag(128, true)) {
                               this.pc('\uc834', 1, 16);
-                              int var86 = this.mem16('\uc70f', 18484);
+                              int var86 = this.mem16('\uc70f', 23208);
                               this.HL(var86);
                            }
                         }
@@ -3221,7 +3221,7 @@ public class TargetRenegade extends MiniZX {
                         this.B(199);
                         this.pc('\uc839', 1, 7);
                         int var48 = this.BC();
-                        int var49 = this.mem(var48, 18489);
+                        int var49 = this.mem(var48, 23213);
                         this.A(var49);
                         this.pc('\uc83a', 1, 11);
                         int var50 = this.AF();
@@ -3246,7 +3246,7 @@ public class TargetRenegade extends MiniZX {
                         this.C(var58);
                         this.pc('\uc841', 1, 7);
                         int var59 = this.BC();
-                        int var60 = this.mem(var59, 18497);
+                        int var60 = this.mem(var59, 23221);
                         this.A(var60);
                         this.pc('\uc842', 1, 4);
                         int var61 = this.A();
@@ -3257,7 +3257,7 @@ public class TargetRenegade extends MiniZX {
                         this.BC(var63);
                         this.pc('\uc844', 1, 7);
                         int var64 = this.BC();
-                        int var65 = this.mem(var64, 18500);
+                        int var65 = this.mem(var64, 23224);
                         this.A(var65);
                         this.pc('\uc845', 1, 4);
                         int var66 = this.D();
@@ -3290,18 +3290,18 @@ public class TargetRenegade extends MiniZX {
          this.pc('\uc84c', 1, 7);
          this.C(4);
          this.pc('\uc84e', 2, 20);
-         int var73 = this.mem16('\uc487', 18510);
+         int var73 = this.mem16('\uc487', 23234);
          this.SP(var73);
          this.pc('\uc852', 1, 16);
-         int var74 = this.mem16('\uc720', 18514);
+         int var74 = this.mem16('\uc720', 23238);
          this.HL(var74);
          this.pc('\uc855', 1, 17);
-         this.$46DB();
+         this.$b3_C6DB();
          this.pc('\uc858', 1, 10);
          this.DE('\uc7a3');
          this.pc('\uc85b', 1, 7);
          int var75 = this.DE();
-         int var76 = this.mem(var75, 18523);
+         int var76 = this.mem(var75, 23247);
          this.A(var76);
          this.pc('\uc85c', 1, 4);
          int var77 = this.A();
@@ -3310,24 +3310,24 @@ public class TargetRenegade extends MiniZX {
          this.A(var79);
          this.pc('\uc85d', 1, 10);
          if(this.flag(64, true)) {
-            this.$4013();
+            this.$b3_C013();
             return;
          }
 
          this.pc('\uc860', 2, 20);
-         int var80 = this.mem16('\uc7a0', 18528);
+         int var80 = this.mem16('\uc7a0', 23252);
          this.SP(var80);
          this.pc('\uc864', 1, 17);
-         this.$4132();
+         this.$b3_C132();
          if(this.unwinding()) {
             do {
-               int[] var81 = new int[]{16692};
-               if(this.ownAddress(var81) != 16692) {
+               int[] var81 = new int[]{21416};
+               if(this.ownAddress(var81) != 21416) {
                   return;
                }
 
                this.IX('\uc867');
-               this.$4134();
+               this.$b3_C134();
             } while(this.unwinding());
 
             return;
@@ -3336,9 +3336,9 @@ public class TargetRenegade extends MiniZX {
 
       this.pc('\uc867', 2, 20);
       int var1 = this.SP();
-      this.wMem16('\uc7a0', var1, 18535);
+      this.wMem16('\uc7a0', var1, 23259);
       this.pc('\uc86b', 2, 20);
-      int var2 = this.mem16('\uc487', 18539);
+      int var2 = this.mem16('\uc487', 23263);
       this.SP(var2);
       this.pc('\uc86f', 1, 7);
       this.E(162);
@@ -3346,27 +3346,27 @@ public class TargetRenegade extends MiniZX {
       this.exHLDE();
       this.pc('\uc872', 1, 11);
       int var3 = this.HL();
-      int var4 = this.mem(var3, 18546);
+      int var4 = this.mem(var3, 23270);
       int var5 = this.alu("dec", var4);
       int var6 = this.HL();
-      this.wMem(var6, var5, 18546);
+      this.wMem(var6, var5, 23270);
       this.pc('\uc873', 1, 10);
       if(this.flag(128, true)) {
-         this.$4013();
+         this.$b3_C013();
       } else {
          this.pc('\uc876', 1, 11);
          int var7 = this.HL();
-         int var8 = this.mem(var7, 18550);
+         int var8 = this.mem(var7, 23274);
          int var9 = this.alu("inc", var8);
          int var10 = this.HL();
-         this.wMem(var10, var9, 18550);
+         this.wMem(var10, var9, 23274);
          this.pc('\uc877', 1, 10);
          if(this.flag(64, true)) {
-            this.$4013();
+            this.$b3_C013();
          } else {
             this.pc('\uc87a', 1, 10);
             if(this.flag(1, true)) {
-               this.$4013();
+               this.$b3_C013();
             } else {
                this.pc('\uc87d', 1, 7);
                this.A(2);
@@ -3375,7 +3375,7 @@ public class TargetRenegade extends MiniZX {
                this.pc('\uc881', 1, 10);
                this.HL('\uc723');
                this.pc('\uc884', 1, 10);
-               this.$4687();
+               this.$b3_C687();
             }
          }
       }
@@ -3391,7 +3391,7 @@ public class TargetRenegade extends MiniZX {
       int var1 = this.SP();
       this.$F98D();
       int var2 = this.SP();
-      if(var2 == var1) {
+      if((var1 - var2 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var3 = var1 + 2 & '\uffff';
@@ -3416,7 +3416,7 @@ public class TargetRenegade extends MiniZX {
       int var7 = this.SP();
       this.$F58A();
       int var8 = this.SP();
-      if(var8 == var7) {
+      if((var7 - var8 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var9 = var7 + 2 & '\uffff';
@@ -3438,7 +3438,7 @@ public class TargetRenegade extends MiniZX {
       int var14 = this.SP();
       this.$F58A();
       int var15 = this.SP();
-      if(var15 == var14) {
+      if((var14 - var15 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var16 = var14 + 2 & '\uffff';
@@ -3454,7 +3454,7 @@ public class TargetRenegade extends MiniZX {
       int var17 = this.SP();
       this.$F58A();
       int var18 = this.SP();
-      if(var18 == var17) {
+      if((var17 - var18 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var19 = var17 + 2 & '\uffff';
@@ -3476,160 +3476,173 @@ public class TargetRenegade extends MiniZX {
    }
 
    public void $5B2C() {
-      label115:
+      label141:
       while(true) {
          if(this.isNextPC(23351)) {
             this.setNextAddress(23351);
          } else if(this.isNextPC(23378)) {
             this.setNextAddress(23378);
+         } else if(this.isNextPC('\ud75d')) {
+            this.setNextAddress('\ud75d');
+         } else if(this.isNextPC('\ud760')) {
+            this.setNextAddress('\ud760');
+         } else if(this.isNextPC('\ud77c')) {
+            this.setNextAddress('\ud77c');
          } else if(this.isNextPC('\ue0d6')) {
             this.setNextAddress('\ue0d6');
+         } else if(this.isNextPC('\ue1a6')) {
+            this.setNextAddress('\ue1a6');
          } else if(this.isNextPC(23539)) {
             this.setNextAddress(23539);
          } else if(this.isNextPC(23722)) {
             this.setNextAddress(23722);
          }
 
-         label113:
+         label139:
          do {
+            label136:
             while(true) {
-               label109: {
-                  while(true) {
-                     if(!this.isNextPC(23351)) {
-                        if(!this.isNextPC(23378)) {
-                           if(!this.isNextPC('\ue0d6')) {
-                              if(!this.isNextPC(23539)) {
-                                 if(this.isNextPC(23722)) {
-                                    continue label113;
-                                 }
-
-                                 this.pc(23340, 1, 4);
-                                 int var12 = this.A();
-                                 int var13 = this.A();
-                                 int var14 = this.alu("xor", var13, var12);
-                                 this.A(var14);
-                                 this.pc(23341, 1, 11);
-                                 int var15 = this.A() << 8 | 254;
-                                 int var16 = this.A();
-                                 this.out(var15, var16);
-                                 this.pc(23343, 1, 10);
-                                 this.BC(32765);
-                                 this.pc(23346, 2, 12);
-                                 int var17 = this.BC();
-                                 int var18 = this.A();
-                                 this.out(var17, var18);
-                                 this.pc(23348, 1, 10);
-                                 this.SP('\ubfb8');
-                                 this.unwind(23351);
-                                 break label109;
-                              }
-                              break;
-                           }
-
+               label134:
+               while(true) {
+                  if(!this.isNextPC(23351)) {
+                     if(!this.isNextPC(23378)) {
+                        if(this.isNextPC('\ud75d')) {
+                           this.setNextAddress('\ud75d');
+                        } else if(this.isNextPC('\ud760')) {
+                           this.setNextAddress('\ud760');
+                        } else if(this.isNextPC('\ud77c')) {
+                           this.setNextAddress('\ud77c');
+                        } else if(this.isNextPC('\ue0d6')) {
                            this.setNextAddress('\ue0d6');
-                        }
-                     } else {
-                        this.pc(23351, 1, 17);
-                        this.$F565();
-                        this.pc(23354, 1, 10);
-                        this.HL('\uf7b0');
-                        this.pc(23357, 1, 7);
-                        this.B(12);
-
-                        while(true) {
-                           this.pc(23359, 1, 10);
-                           int var1 = this.HL();
-                           this.wMem(var1, 48, 23359);
-                           this.pc(23361, 1, 6);
-                           int var2 = this.HL();
-                           int var3 = this.inc16(var2);
-                           this.HL(var3);
-                           this.pc(23362, 1, 8);
-                           int var4 = this.B() - 1 & 255;
-                           this.B(var4);
-                           if(this.B() == 0) {
-                              this.pc(23364, 1, 7);
-                              this.B(5);
-                              this.pc(23366, 1, 10);
-                              this.HL('\uf852');
-                              this.pc(23369, 1, 17);
-                              this.$F98D();
-                              this.pc(23372, 1, 7);
-                              this.B(247);
-                              this.pc(23374, 1, 4);
-                              int var5 = this.A();
-                              int var6 = this.A();
-                              int var7 = this.alu("xor", var6, var5);
-                              this.A(var7);
-                              this.pc(23375, 1, 17);
-                              this.$5D68();
-                              if(this.unwinding()) {
-                                 break label109;
+                        } else {
+                           if(!this.isNextPC('\ue1a6')) {
+                              if(this.isNextPC(23539)) {
+                                 break label136;
                               }
+
+                              if(this.isNextPC(23722)) {
+                                 continue label139;
+                              }
+
+                              this.pc(23340, 1, 4);
+                              int var12 = this.A();
+                              int var13 = this.A();
+                              int var14 = this.alu("xor", var13, var12);
+                              this.A(var14);
+                              this.pc(23341, 1, 11);
+                              int var15 = this.A() << 8 | 254;
+                              int var16 = this.A();
+                              this.out(var15, var16);
+                              this.pc(23343, 1, 10);
+                              this.BC(32765);
+                              this.pc(23346, 2, 12);
+                              int var17 = this.BC();
+                              int var18 = this.A();
+                              this.out(var17, var18);
+                              this.pc(23348, 1, 10);
+                              this.SP('\ubfb8');
+                              this.unwind(23351);
                               break;
                            }
 
-                           this.tstates(5);
+                           this.setNextAddress('\ue1a6');
                         }
                      }
+                  } else {
+                     this.pc(23351, 1, 17);
+                     this.$F565();
+                     this.pc(23354, 1, 10);
+                     this.HL('\uf7b0');
+                     this.pc(23357, 1, 7);
+                     this.B(12);
 
-                     int var10 = this.$5B52();
-                     if(var10 != 0) {
-                        if(var10 == 1 || var10 == 2 || var10 == 3) {
-                           continue;
+                     while(true) {
+                        this.pc(23359, 1, 10);
+                        int var1 = this.HL();
+                        this.wMem(var1, 48, 23359);
+                        this.pc(23361, 1, 6);
+                        int var2 = this.HL();
+                        int var3 = this.inc16(var2);
+                        this.HL(var3);
+                        this.pc(23362, 1, 8);
+                        int var4 = this.B() - 1 & 255;
+                        this.B(var4);
+                        if(this.B() == 0) {
+                           this.pc(23364, 1, 7);
+                           this.B(5);
+                           this.pc(23366, 1, 10);
+                           this.HL('\uf852');
+                           this.pc(23369, 1, 17);
+                           this.$F98D();
+                           this.pc(23372, 1, 7);
+                           this.B(247);
+                           this.pc(23374, 1, 4);
+                           int var5 = this.A();
+                           int var6 = this.A();
+                           int var7 = this.alu("xor", var6, var5);
+                           this.A(var7);
+                           this.pc(23375, 1, 17);
+                           this.$5D68();
+                           if(this.unwinding()) {
+                              break label134;
+                           }
+                           break;
                         }
 
-                        if(var10 == 4) {
-                           this.setNextAddress('\ud780');
-                           this.$D783();
-                           if(!this.unwinding()) {
-                              return;
-                           }
-                        } else if(var10 == 5) {
-                           this.setNextAddress('\ud794');
-                           this.$D783();
-                           if(!this.unwinding()) {
-                              return;
-                           }
-                        } else if(var10 == 6) {
-                           this.$D783();
-                           if(!this.unwinding()) {
-                              return;
-                           }
-                        } else {
-                           if(var10 != 7) {
+                        this.tstates(5);
+                     }
+                  }
+
+                  int var10 = this.$5B52();
+                  if(var10 == 0) {
+                     break label136;
+                  }
+
+                  if(var10 != 1 && var10 != 2 && var10 != 3) {
+                     if(var10 == 4) {
+                        this.setNextAddress('\ud780');
+                        this.$D783();
+                        if(!this.unwinding()) {
+                           return;
+                        }
+                     } else if(var10 == 5) {
+                        this.setNextAddress('\ud794');
+                        this.$D783();
+                        if(!this.unwinding()) {
+                           return;
+                        }
+                     } else if(var10 == 6) {
+                        this.$D783();
+                        if(!this.unwinding()) {
+                           return;
+                        }
+                     } else {
+                        if(var10 != 7) {
+                           return;
+                        }
+
+                        this.$E32B();
+                        if(!this.unwinding()) {
+                           if(this.peek() != '\ud783') {
                               return;
                            }
 
-                           this.$E32B();
-                           if(!this.unwinding()) {
-                              if(this.peek() != '\ud783') {
+                           int var11 = this.pop();
+                           if(var11 == '\ud783') {
+                              this.$D783();
+                              if(!this.unwinding()) {
                                  return;
                               }
-
-                              int var11 = this.pop();
-                              if(var11 == '\ud783') {
-                                 this.$D783();
-                                 if(!this.unwinding()) {
-                                    return;
-                                 }
-                              } else {
-                                 this.jump(var11);
-                                 if(!this.unwinding()) {
-                                    return;
-                                 }
+                           } else {
+                              this.jump(var11);
+                              if(!this.unwinding()) {
+                                 return;
                               }
                            }
                         }
-                        break label109;
                      }
                      break;
                   }
-
-                  if(this.$5BF3() != 0) {
-                     return;
-                  }
-                  break;
                }
 
                int[] var8 = new int[]{23539};
@@ -3638,10 +3651,14 @@ public class TargetRenegade extends MiniZX {
                   if(!this.isOwnAddress(var9)) {
                      return;
                   }
-                  continue label115;
+                  continue label141;
                }
 
                this.setNextAddress(23539);
+            }
+
+            if(this.$5BF3() != 0) {
+               return;
             }
          } while(this.$5CAA() == 0);
 
@@ -3653,13 +3670,13 @@ public class TargetRenegade extends MiniZX {
       int[] var15;
       do {
          label497: {
-            if(this.isNextPC('\ue0d6')) {
-               this.setNextAddress('\ue0d6');
-            } else if(this.isNextPC('\ud75d')) {
+            if(this.isNextPC('\ud75d')) {
                this.setNextAddress('\ud75d');
             } else if(!this.isNextPC('\ud760')) {
                if(this.isNextPC('\ud77c')) {
                   this.setNextAddress('\ud77c');
+               } else if(this.isNextPC('\ue0d6')) {
+                  this.setNextAddress('\ue0d6');
                } else if(this.isNextPC('\ue1a6')) {
                   this.setNextAddress('\ue1a6');
                } else {
@@ -3694,7 +3711,7 @@ public class TargetRenegade extends MiniZX {
                   }
 
                   int var194 = this.SP();
-                  if(var194 == var193) {
+                  if((var193 - var194 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var195 = var193 + 2 & '\uffff';
@@ -3708,7 +3725,7 @@ public class TargetRenegade extends MiniZX {
                   int var196 = this.SP();
                   this.$F9BD();
                   int var197 = this.SP();
-                  if(var197 == var196) {
+                  if((var196 - var197 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var198 = var196 + 2 & '\uffff';
@@ -4182,7 +4199,7 @@ public class TargetRenegade extends MiniZX {
                         }
 
                         int var172 = this.SP();
-                        if(var172 == var171) {
+                        if((var171 - var172 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var173 = var171 + 2 & '\uffff';
@@ -4212,7 +4229,7 @@ public class TargetRenegade extends MiniZX {
                         }
 
                         int var177 = this.SP();
-                        if(var177 == var176) {
+                        if((var176 - var177 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var178 = var176 + 2 & '\uffff';
@@ -4234,7 +4251,7 @@ public class TargetRenegade extends MiniZX {
                         }
 
                         int var180 = this.SP();
-                        if(var180 == var179) {
+                        if((var179 - var180 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var181 = var179 + 2 & '\uffff';
@@ -4254,7 +4271,7 @@ public class TargetRenegade extends MiniZX {
                            }
                         } else {
                            int var183 = this.SP();
-                           if(var183 == var182) {
+                           if((var182 - var183 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var184 = var182 + 2 & '\uffff';
@@ -4281,7 +4298,7 @@ public class TargetRenegade extends MiniZX {
                            this.$5DD3();
                            if(!this.unwinding()) {
                               int var169 = this.SP();
-                              if(var169 == var168) {
+                              if((var168 - var169 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var170 = var168 + 2 & '\uffff';
@@ -4315,7 +4332,7 @@ public class TargetRenegade extends MiniZX {
                            }
 
                            int var150 = this.SP();
-                           if(var150 == var149) {
+                           if((var149 - var150 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var151 = var149 + 2 & '\uffff';
@@ -4352,7 +4369,7 @@ public class TargetRenegade extends MiniZX {
                               this.$E012();
                               if(!this.unwinding()) {
                                  int var160 = this.SP();
-                                 if(var160 == var159) {
+                                 if((var159 - var160 & '\uffff') < '\u8000') {
                                     this.pop();
                                  } else {
                                     int var161 = var159 + 2 & '\uffff';
@@ -4405,7 +4422,7 @@ public class TargetRenegade extends MiniZX {
                                  this.$E058();
                                  if(!this.unwinding()) {
                                     int var144 = this.SP();
-                                    if(var144 == var143) {
+                                    if((var143 - var144 & '\uffff') < '\u8000') {
                                        this.pop();
                                     } else {
                                        int var145 = var143 + 2 & '\uffff';
@@ -4442,7 +4459,7 @@ public class TargetRenegade extends MiniZX {
                                  int var4 = this.SP();
                                  this.$F69A();
                                  int var5 = this.SP();
-                                 if(var5 == var4) {
+                                 if((var4 - var5 & '\uffff') < '\u8000') {
                                     this.pop();
                                  } else {
                                     int var6 = var4 + 2 & '\uffff';
@@ -4479,7 +4496,7 @@ public class TargetRenegade extends MiniZX {
                                     }
 
                                     int var16 = this.SP();
-                                    if(var16 == var14) {
+                                    if((var14 - var16 & '\uffff') < '\u8000') {
                                        this.pop();
                                     } else {
                                        int var17 = var14 + 2 & '\uffff';
@@ -4495,7 +4512,7 @@ public class TargetRenegade extends MiniZX {
                                     int var18 = this.SP();
                                     this.$E709();
                                     int var19 = this.SP();
-                                    if(var19 == var18) {
+                                    if((var18 - var19 & '\uffff') < '\u8000') {
                                        this.pop();
                                     } else {
                                        int var20 = var18 + 2 & '\uffff';
@@ -4621,7 +4638,7 @@ public class TargetRenegade extends MiniZX {
                                     int var56 = this.SP();
                                     this.$F98D();
                                     int var57 = this.SP();
-                                    if(var57 == var56) {
+                                    if((var56 - var57 & '\uffff') < '\u8000') {
                                        this.pop();
                                     } else {
                                        int var58 = var56 + 2 & '\uffff';
@@ -4695,7 +4712,7 @@ public class TargetRenegade extends MiniZX {
                                     int var140 = this.SP();
                                     this.$F651();
                                     int var141 = this.SP();
-                                    if(var141 == var140) {
+                                    if((var140 - var141 & '\uffff') < '\u8000') {
                                        this.pop();
                                     } else {
                                        int var142 = var140 + 2 & '\uffff';
@@ -4736,7 +4753,7 @@ public class TargetRenegade extends MiniZX {
                                  }
 
                                  int var76 = this.SP();
-                                 if(var76 == var75) {
+                                 if((var75 - var76 & '\uffff') < '\u8000') {
                                     this.pop();
                                  } else {
                                     int var77 = var75 + 2 & '\uffff';
@@ -4754,7 +4771,7 @@ public class TargetRenegade extends MiniZX {
                                  }
 
                                  int var79 = this.SP();
-                                 if(var79 == var78) {
+                                 if((var78 - var79 & '\uffff') < '\u8000') {
                                     this.pop();
                                  } else {
                                     int var80 = var78 + 2 & '\uffff';
@@ -4843,7 +4860,7 @@ public class TargetRenegade extends MiniZX {
                            }
 
                            int var128 = this.SP();
-                           if(var128 == var127) {
+                           if((var127 - var128 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var129 = var127 + 2 & '\uffff';
@@ -4905,7 +4922,7 @@ public class TargetRenegade extends MiniZX {
                            int var100 = this.SP();
                            this.$E726();
                            int var101 = this.SP();
-                           if(var101 == var100) {
+                           if((var100 - var101 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var102 = var100 + 2 & '\uffff';
@@ -4939,7 +4956,7 @@ public class TargetRenegade extends MiniZX {
                            int var108 = this.SP();
                            this.$DCAA();
                            int var109 = this.SP();
-                           if(var109 == var108) {
+                           if((var108 - var109 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var110 = var108 + 2 & '\uffff';
@@ -4977,7 +4994,7 @@ public class TargetRenegade extends MiniZX {
                         int var116 = this.SP();
                         this.$F565();
                         int var117 = this.SP();
-                        if(var117 == var116) {
+                        if((var116 - var117 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var118 = var116 + 2 & '\uffff';
@@ -4991,7 +5008,7 @@ public class TargetRenegade extends MiniZX {
                         int var119 = this.SP();
                         this.$5F1B();
                         int var120 = this.SP();
-                        if(var120 == var119) {
+                        if((var119 - var120 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var121 = var119 + 2 & '\uffff';
@@ -5016,7 +5033,7 @@ public class TargetRenegade extends MiniZX {
                            }
                         } else {
                            int var124 = this.SP();
-                           if(var124 == var123) {
+                           if((var123 - var124 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var125 = var123 + 2 & '\uffff';
@@ -5054,7 +5071,7 @@ public class TargetRenegade extends MiniZX {
                         }
                      } else {
                         int var29 = this.SP();
-                        if(var29 == var28) {
+                        if((var28 - var29 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var30 = var28 + 2 & '\uffff';
@@ -5629,7 +5646,7 @@ public class TargetRenegade extends MiniZX {
          int var25 = this.SP();
          this.$FA86();
          int var26 = this.SP();
-         if(var26 == var25) {
+         if((var25 - var26 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var27 = var25 + 2 & '\uffff';
@@ -5656,7 +5673,7 @@ public class TargetRenegade extends MiniZX {
          if(this.bank() == 3) {
             this.untranslated('\uc51a');
             int var35 = this.SP();
-            if(var35 == var32) {
+            if((var32 - var35 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var36 = var32 + 2 & '\uffff';
@@ -5671,7 +5688,7 @@ public class TargetRenegade extends MiniZX {
             }
 
             int var33 = this.SP();
-            if(var33 == var32) {
+            if((var32 - var33 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var34 = var32 + 2 & '\uffff';
@@ -5711,7 +5728,7 @@ public class TargetRenegade extends MiniZX {
             }
 
             int var21 = this.SP();
-            if(var21 == var20) {
+            if((var20 - var21 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var22 = var20 + 2 & '\uffff';
@@ -5766,7 +5783,7 @@ public class TargetRenegade extends MiniZX {
             }
 
             int var11 = this.SP();
-            if(var11 == var10) {
+            if((var10 - var11 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var12 = var10 + 2 & '\uffff';
@@ -5816,7 +5833,7 @@ public class TargetRenegade extends MiniZX {
          int var7 = this.SP();
          this.$FA86();
          int var8 = this.SP();
-         if(var8 == var7) {
+         if((var7 - var8 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var9 = var7 + 2 & '\uffff';
@@ -5864,7 +5881,7 @@ public class TargetRenegade extends MiniZX {
       this.$5DEB();
       if(!this.unwinding()) {
          int var2 = this.SP();
-         if(var2 == var1) {
+         if((var1 - var2 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var3 = var1 + 2 & '\uffff';
@@ -5919,7 +5936,7 @@ public class TargetRenegade extends MiniZX {
       this.$5DC6();
       if(!this.unwinding()) {
          int var3 = this.SP();
-         if(var3 == var2) {
+         if((var2 - var3 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var4 = var2 + 2 & '\uffff';
@@ -5984,13 +6001,13 @@ public class TargetRenegade extends MiniZX {
             this.push(24062);
             int var27 = this.SP();
             if(this.bank() == 3) {
-               this.$43A4();
+               this.$b3_C3A4();
                if(this.unwinding()) {
                   return;
                }
 
                int var30 = this.SP();
-               if(var30 == var27) {
+               if((var27 - var30 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var31 = var27 + 2 & '\uffff';
@@ -6001,7 +6018,7 @@ public class TargetRenegade extends MiniZX {
             } else {
                this.untranslated('\uc3a4');
                int var28 = this.SP();
-               if(var28 == var27) {
+               if((var27 - var28 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var29 = var27 + 2 & '\uffff';
@@ -6016,9 +6033,9 @@ public class TargetRenegade extends MiniZX {
             this.push(24062);
             int var22 = this.SP();
             if(this.bank() == 3) {
-               this.$40A9();
+               this.$b3_C0A9();
                int var25 = this.SP();
-               if(var25 == var22) {
+               if((var22 - var25 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var26 = var22 + 2 & '\uffff';
@@ -6029,7 +6046,7 @@ public class TargetRenegade extends MiniZX {
             } else {
                this.untranslated('\uc0a9');
                int var23 = this.SP();
-               if(var23 == var22) {
+               if((var22 - var23 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var24 = var22 + 2 & '\uffff';
@@ -6044,9 +6061,9 @@ public class TargetRenegade extends MiniZX {
             this.push(24062);
             int var17 = this.SP();
             if(this.bank() == 3) {
-               this.$40D0();
+               this.$b3_C0D0();
                int var20 = this.SP();
-               if(var20 == var17) {
+               if((var17 - var20 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var21 = var17 + 2 & '\uffff';
@@ -6057,7 +6074,7 @@ public class TargetRenegade extends MiniZX {
             } else {
                this.untranslated('\uc0d0');
                int var18 = this.SP();
-               if(var18 == var17) {
+               if((var17 - var18 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var19 = var17 + 2 & '\uffff';
@@ -6072,9 +6089,9 @@ public class TargetRenegade extends MiniZX {
             this.push(24062);
             int var12 = this.SP();
             if(this.bank() == 3) {
-               this.$4000();
+               this.$b3_C000();
                int var15 = this.SP();
-               if(var15 == var12) {
+               if((var12 - var15 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var16 = var12 + 2 & '\uffff';
@@ -6085,7 +6102,7 @@ public class TargetRenegade extends MiniZX {
             } else {
                this.untranslated('\uc000');
                int var13 = this.SP();
-               if(var13 == var12) {
+               if((var12 - var13 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var14 = var12 + 2 & '\uffff';
@@ -6476,7 +6493,7 @@ public class TargetRenegade extends MiniZX {
             int var7 = this.SP();
             this.$5E06();
             int var8 = this.SP();
-            if(var8 == var7) {
+            if((var7 - var8 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var9 = var7 + 2 & '\uffff';
@@ -6509,7 +6526,7 @@ public class TargetRenegade extends MiniZX {
       int var1 = this.SP();
       this.$F69A();
       int var2 = this.SP();
-      if(var2 == var1) {
+      if((var1 - var2 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var3 = var1 + 2 & '\uffff';
@@ -6527,7 +6544,7 @@ public class TargetRenegade extends MiniZX {
       int var4 = this.SP();
       this.$F98D();
       int var5 = this.SP();
-      if(var5 == var4) {
+      if((var4 - var5 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var6 = var4 + 2 & '\uffff';
@@ -6551,7 +6568,7 @@ public class TargetRenegade extends MiniZX {
          int var17 = this.SP();
          this.$F998();
          int var18 = this.SP();
-         if(var18 == var17) {
+         if((var17 - var18 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var19 = var17 + 2 & '\uffff';
@@ -6609,7 +6626,7 @@ public class TargetRenegade extends MiniZX {
       int var6 = this.SP();
       this.$5B08();
       int var7 = this.SP();
-      if(var7 == var6) {
+      if((var6 - var7 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var8 = var6 + 2 & '\uffff';
@@ -6627,7 +6644,7 @@ public class TargetRenegade extends MiniZX {
       int var9 = this.SP();
       this.$F97E();
       int var10 = this.SP();
-      if(var10 == var9) {
+      if((var9 - var10 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var11 = var9 + 2 & '\uffff';
@@ -6645,7 +6662,7 @@ public class TargetRenegade extends MiniZX {
       int var12 = this.SP();
       this.$F97E();
       int var13 = this.SP();
-      if(var13 == var12) {
+      if((var12 - var13 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var14 = var12 + 2 & '\uffff';
@@ -6720,7 +6737,7 @@ public class TargetRenegade extends MiniZX {
          int var13 = this.SP();
          this.$5F69();
          int var14 = this.SP();
-         if(var14 == var13) {
+         if((var13 - var14 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var15 = var13 + 2 & '\uffff';
@@ -6923,7 +6940,7 @@ public class TargetRenegade extends MiniZX {
                      }
 
                      int var79 = this.SP();
-                     if(var79 == var77) {
+                     if((var77 - var79 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var80 = var77 + 2 & '\uffff';
@@ -7007,7 +7024,7 @@ public class TargetRenegade extends MiniZX {
                }
 
                int var27 = this.SP();
-               if(var27 == var25) {
+               if((var25 - var27 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var28 = var25 + 2 & '\uffff';
@@ -7038,7 +7055,7 @@ public class TargetRenegade extends MiniZX {
             this.$C582();
             if(!this.unwinding()) {
                int var35 = this.SP();
-               if(var35 == var34) {
+               if((var34 - var35 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var36 = var34 + 2 & '\uffff';
@@ -8125,7 +8142,7 @@ public class TargetRenegade extends MiniZX {
          }
       } else {
          int var2 = this.SP();
-         if(var2 == var1) {
+         if((var1 - var2 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var3 = var1 + 2 & '\uffff';
@@ -8159,7 +8176,7 @@ public class TargetRenegade extends MiniZX {
                      int var5 = this.SP();
                      this.$DD06();
                      int var6 = this.SP();
-                     if(var6 == var5) {
+                     if((var5 - var6 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var7 = var5 + 2 & '\uffff';
@@ -8198,7 +8215,7 @@ public class TargetRenegade extends MiniZX {
                      }
 
                      int var11 = this.SP();
-                     if(var11 == var10) {
+                     if((var10 - var11 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var12 = var10 + 2 & '\uffff';
@@ -8239,7 +8256,7 @@ public class TargetRenegade extends MiniZX {
             } else {
                if(var3 != '\ud794') {
                   int[] var4 = new int[]{'\ud783'};
-                  if(!this.isOwnAddress(var4)) {
+                  if(this.ownAddress(var4) == -1) {
                      return;
                   }
                   break;
@@ -8273,7 +8290,7 @@ public class TargetRenegade extends MiniZX {
          }
 
          int var4 = this.SP();
-         if(var4 == var3) {
+         if((var3 - var4 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var5 = var3 + 2 & '\uffff';
@@ -8315,7 +8332,7 @@ public class TargetRenegade extends MiniZX {
             int var17 = this.SP();
             this.$E578();
             int var18 = this.SP();
-            if(var18 == var17) {
+            if((var17 - var18 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var19 = var17 + 2 & '\uffff';
@@ -8333,7 +8350,7 @@ public class TargetRenegade extends MiniZX {
             }
 
             int var21 = this.SP();
-            if(var21 == var20) {
+            if((var20 - var21 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var22 = var20 + 2 & '\uffff';
@@ -8349,7 +8366,7 @@ public class TargetRenegade extends MiniZX {
             int var23 = this.SP();
             this.$E6CE();
             int var24 = this.SP();
-            if(var24 == var23) {
+            if((var23 - var24 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var25 = var23 + 2 & '\uffff';
@@ -8373,7 +8390,7 @@ public class TargetRenegade extends MiniZX {
                int var65 = this.SP();
                this.$DCC4();
                int var66 = this.SP();
-               if(var66 == var65) {
+               if((var65 - var66 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var67 = var65 + 2 & '\uffff';
@@ -8392,7 +8409,7 @@ public class TargetRenegade extends MiniZX {
             }
 
             int var31 = this.SP();
-            if(var31 == var30) {
+            if((var30 - var31 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var32 = var30 + 2 & '\uffff';
@@ -8440,7 +8457,7 @@ public class TargetRenegade extends MiniZX {
                int var47 = this.SP();
                this.$F52D();
                int var48 = this.SP();
-               if(var48 == var47) {
+               if((var47 - var48 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var49 = var47 + 2 & '\uffff';
@@ -8455,7 +8472,7 @@ public class TargetRenegade extends MiniZX {
             int var50 = this.SP();
             this.$FA86();
             int var51 = this.SP();
-            if(var51 == var50) {
+            if((var50 - var51 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var52 = var50 + 2 & '\uffff';
@@ -8471,7 +8488,7 @@ public class TargetRenegade extends MiniZX {
             int var53 = this.SP();
             this.$FA93();
             int var54 = this.SP();
-            if(var54 == var53) {
+            if((var53 - var54 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var55 = var53 + 2 & '\uffff';
@@ -8489,7 +8506,7 @@ public class TargetRenegade extends MiniZX {
             }
 
             int var57 = this.SP();
-            if(var57 == var56) {
+            if((var56 - var57 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var58 = var56 + 2 & '\uffff';
@@ -8507,7 +8524,7 @@ public class TargetRenegade extends MiniZX {
             }
 
             int var60 = this.SP();
-            if(var60 == var59) {
+            if((var59 - var60 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var61 = var59 + 2 & '\uffff';
@@ -8525,7 +8542,7 @@ public class TargetRenegade extends MiniZX {
             }
 
             int var63 = this.SP();
-            if(var63 == var62) {
+            if((var62 - var63 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var64 = var62 + 2 & '\uffff';
@@ -9607,8 +9624,12 @@ public class TargetRenegade extends MiniZX {
    }
 
    public void $D930() {
-      if(!this.isNextPC('\ud940')) {
+      label18: {
          if(!this.isNextPC('\ud938')) {
+            if(this.isNextPC('\ud940')) {
+               break label18;
+            }
+
             this.pc('\ud930', 1, 7);
             int var22 = this.DE();
             int var23 = this.mem(var22, '\ud930');
@@ -9645,48 +9666,48 @@ public class TargetRenegade extends MiniZX {
          }
 
          this.pc('\ud938', 1, 7);
-         int var5 = this.DE();
-         int var6 = this.mem(var5, '\ud938');
-         this.A(var6);
+         int var1 = this.DE();
+         int var2 = this.mem(var1, '\ud938');
+         this.A(var2);
          this.pc('\ud939', 1, 7);
-         int var7 = this.A();
-         int var8 = this.BC();
-         this.wMem(var8, var7, '\ud939');
+         int var3 = this.A();
+         int var4 = this.BC();
+         this.wMem(var4, var3, '\ud939');
          this.pc('\ud93a', 1, 6);
-         int var9 = this.BC();
-         int var10 = this.dec16(var9);
-         this.BC(var10);
+         int var5 = this.BC();
+         int var6 = this.dec16(var5);
+         this.BC(var6);
          this.pc('\ud93b', 1, 10);
-         int var11 = this.pop();
-         this.HL(var11);
+         int var7 = this.pop();
+         this.HL(var7);
          this.pc('\ud93c', 1, 4);
-         int var12 = this.L();
-         int var13 = this.A();
-         int var14 = this.alu("and", var13, var12);
-         this.A(var14);
+         int var8 = this.L();
+         int var9 = this.A();
+         int var10 = this.alu("and", var9, var8);
+         this.A(var10);
          this.pc('\ud93d', 1, 4);
-         int var15 = this.H();
-         int var16 = this.A();
-         int var17 = this.alu("or", var16, var15);
-         this.A(var17);
+         int var11 = this.H();
+         int var12 = this.A();
+         int var13 = this.alu("or", var12, var11);
+         this.A(var13);
          this.pc('\ud93e', 1, 7);
-         int var18 = this.A();
-         int var19 = this.DE();
-         this.wMem(var19, var18, '\ud93e');
+         int var14 = this.A();
+         int var15 = this.DE();
+         this.wMem(var15, var14, '\ud93e');
          this.pc('\ud93f', 1, 4);
-         int var20 = this.E();
-         int var21 = this.alu("dec", var20);
-         this.E(var21);
+         int var16 = this.E();
+         int var17 = this.alu("dec", var16);
+         this.E(var17);
       }
 
       this.pc('\ud940', 1, 7);
-      int var1 = this.DE();
-      int var2 = this.mem(var1, '\ud940');
-      this.A(var2);
+      int var18 = this.DE();
+      int var19 = this.mem(var18, '\ud940');
+      this.A(var19);
       this.pc('\ud941', 1, 7);
-      int var3 = this.A();
-      int var4 = this.BC();
-      this.wMem(var4, var3, '\ud941');
+      int var20 = this.A();
+      int var21 = this.BC();
+      this.wMem(var21, var20, '\ud941');
       this.$D942();
       if(!this.unwinding()) {
          ;
@@ -12256,42 +12277,20 @@ public class TargetRenegade extends MiniZX {
    }
 
    public int $DBB6() {
-      if(this.isNextPC('\udbc2')) {
-         this.setNextAddress('\udbc2');
-      } else if(this.isNextPC('\udbc6')) {
-         this.setNextAddress('\udbc6');
-      } else if(this.isNextPC('\udbba')) {
-         this.setNextAddress('\udbba');
-      } else if(this.isNextPC('\udbbe')) {
-         this.setNextAddress('\udbbe');
-      }
-
-      label57: {
-         label56: {
-            while(true) {
+      label34: {
+         label33: {
+            label32: {
                if(!this.isNextPC('\udbba')) {
                   if(this.isNextPC('\udbbe')) {
-                     break;
+                     break label32;
                   }
 
                   if(this.isNextPC('\udbc2')) {
-                     break label56;
+                     break label33;
                   }
 
                   if(this.isNextPC('\udbc6')) {
-                     break label57;
-                  }
-
-                  if(this.isNextPC('\udbb0')) {
-                     int var44 = this.$DBB0();
-                     if(this.unwinding()) {
-                        return -1;
-                     }
-
-                     if(var44 != 0) {
-                        return -1;
-                     }
-                     continue;
+                     break label34;
                   }
 
                   this.pc('\udbb6', 1, 7);
@@ -12328,7 +12327,6 @@ public class TargetRenegade extends MiniZX {
                int var7 = this.HL();
                int var8 = this.dec16(var7);
                this.HL(var8);
-               break;
             }
 
             this.pc('\udbbe', 1, 7);
@@ -12414,107 +12412,6 @@ public class TargetRenegade extends MiniZX {
          ;
       }
 
-      while(this.isNextPC('\udbb0')) {
-         this.setNextAddress('\udbb0');
-
-         while(true) {
-            if(!this.isNextPC('\udbb0')) {
-               int var2 = this.$DBDF();
-               if(this.unwinding()) {
-                  return -1;
-               }
-
-               if(var2 != 0) {
-                  if(var2 == 1) {
-                     return 1;
-                  }
-
-                  return -1;
-               }
-
-               int var3 = this.$DBE6();
-               if(this.unwinding()) {
-                  return -1;
-               }
-
-               if(var3 != 0) {
-                  return -1;
-               }
-
-               int var4 = this.$DBE8();
-               if(this.unwinding()) {
-                  return -1;
-               }
-
-               if(var4 != 0 && var4 != 1) {
-                  if(var4 == 2) {
-                     return 1;
-                  }
-
-                  if(var4 != 3) {
-                     return -1;
-                  }
-
-                  this.setNextAddress('\udc06');
-                  int var9 = this.$DC05();
-                  if(this.unwinding()) {
-                     return -1;
-                  }
-
-                  if(var9 != 0) {
-                     return -1;
-                  }
-               }
-
-               int var5 = this.$DC07();
-               if(this.unwinding()) {
-                  return -1;
-               }
-
-               if(var5 != 0) {
-                  if(var5 == 1) {
-                     return 1;
-                  }
-
-                  return -1;
-               }
-            }
-
-            int var6 = this.$DBB0();
-            if(this.unwinding()) {
-               return -1;
-            }
-
-            if(var6 != 0) {
-               return -1;
-            }
-
-            int var7 = this.$DBB6();
-            if(this.unwinding()) {
-               return -1;
-            }
-
-            if(var7 != 0) {
-               if(var7 == 1) {
-                  break;
-               }
-
-               if(var7 != 2) {
-                  return -1;
-               }
-
-               int var8 = this.$DBDB();
-               if(this.unwinding()) {
-                  return -1;
-               }
-
-               if(var8 != 0) {
-                  return -1;
-               }
-            }
-         }
-      }
-
       this.pc('\udbd5', 2, 8);
       int var1 = this.D();
       this.bit(4, var1);
@@ -12529,131 +12426,6 @@ public class TargetRenegade extends MiniZX {
    }
 
    public int $DBDB() {
-      while(this.isNextPC('\udbb0')) {
-         this.setNextAddress('\udbb0');
-
-         while(true) {
-            if(!this.isNextPC('\udbb0')) {
-               int var5 = this.$DBDF();
-               if(this.unwinding()) {
-                  return -1;
-               }
-
-               if(var5 != 0) {
-                  if(var5 == 1) {
-                     this.$DC1B();
-                     if(this.unwinding()) {
-                        return -1;
-                     }
-
-                     return -1;
-                  }
-
-                  return -1;
-               }
-
-               int var6 = this.$DBE6();
-               if(this.unwinding()) {
-                  return -1;
-               }
-
-               if(var6 != 0) {
-                  return -1;
-               }
-
-               int var7 = this.$DBE8();
-               if(this.unwinding()) {
-                  return -1;
-               }
-
-               if(var7 != 0 && var7 != 1) {
-                  if(var7 == 2) {
-                     this.$DC1B();
-                     if(this.unwinding()) {
-                        return -1;
-                     }
-
-                     return -1;
-                  }
-
-                  if(var7 != 3) {
-                     return -1;
-                  }
-
-                  this.setNextAddress('\udc06');
-                  int var12 = this.$DC05();
-                  if(this.unwinding()) {
-                     return -1;
-                  }
-
-                  if(var12 != 0) {
-                     return -1;
-                  }
-               }
-
-               int var8 = this.$DC07();
-               if(this.unwinding()) {
-                  return -1;
-               }
-
-               if(var8 != 0) {
-                  if(var8 == 1) {
-                     this.$DC1B();
-                     if(this.unwinding()) {
-                        return -1;
-                     }
-
-                     return -1;
-                  }
-
-                  return -1;
-               }
-            }
-
-            int var9 = this.$DBB0();
-            if(this.unwinding()) {
-               return -1;
-            }
-
-            if(var9 != 0) {
-               return -1;
-            }
-
-            int var10 = this.$DBB6();
-            if(this.unwinding()) {
-               return -1;
-            }
-
-            if(var10 != 0) {
-               if(var10 != 1) {
-                  if(var10 != 2) {
-                     return -1;
-                  }
-                  break;
-               }
-
-               this.setNextAddress('\udbd5');
-               int var11 = this.$DBD4();
-               if(this.unwinding()) {
-                  return -1;
-               }
-
-               if(var11 != 0) {
-                  if(var11 == 1) {
-                     this.$DC1B();
-                     if(this.unwinding()) {
-                        return -1;
-                     }
-
-                     return -1;
-                  }
-
-                  return -1;
-               }
-            }
-         }
-      }
-
       this.pc('\udbdb', 1, 4);
       int var1 = this.D();
       this.A(var1);
@@ -12669,138 +12441,136 @@ public class TargetRenegade extends MiniZX {
 
    public int $DBDF() {
       while(true) {
-         if(!this.isNextPC('\udbb0')) {
-            this.pc('\udbdf', 1, 4);
-            int var1 = this.D();
-            this.C(var1);
-            this.pc('\udbe0', 0, 0);
-            int var2 = this.codeHash('\udbe0', 2);
-            if(var2 == 1465) {
-               this.tstates(8);
-               this.fetched(1);
-               int var16 = this.B() - 1 & 255;
-               this.B(var16);
-               if(this.B() == 0) {
-                  break;
-               }
+         this.pc('\udbdf', 1, 4);
+         int var1 = this.D();
+         this.C(var1);
+         this.pc('\udbe0', 0, 0);
+         int var2 = this.codeHash('\udbe0', 2);
+         if(var2 == 1465) {
+            this.tstates(8);
+            this.fetched(1);
+            int var16 = this.B() - 1 & 255;
+            this.B(var16);
+            if(this.B() == 0) {
+               break;
+            }
 
-               this.tstates(5);
-               this.setNextAddress('\udbea');
-            } else if(var2 == 1467) {
-               this.tstates(8);
-               this.fetched(1);
-               int var15 = this.B() - 1 & 255;
-               this.B(var15);
-               if(this.B() == 0) {
-                  break;
-               }
+            this.tstates(5);
+            this.setNextAddress('\udbea');
+         } else if(var2 == 1467) {
+            this.tstates(8);
+            this.fetched(1);
+            int var15 = this.B() - 1 & 255;
+            this.B(var15);
+            if(this.B() == 0) {
+               break;
+            }
 
-               this.tstates(5);
-               this.setNextAddress('\udbec');
-            } else if(var2 == 1463) {
-               this.tstates(8);
-               this.fetched(1);
-               int var14 = this.B() - 1 & 255;
-               this.B(var14);
-               if(this.B() == 0) {
-                  break;
-               }
+            this.tstates(5);
+            this.setNextAddress('\udbec');
+         } else if(var2 == 1463) {
+            this.tstates(8);
+            this.fetched(1);
+            int var14 = this.B() - 1 & 255;
+            this.B(var14);
+            if(this.B() == 0) {
+               break;
+            }
 
-               this.tstates(5);
-            } else {
-               if(var2 != 1469) {
-                  if(var2 == 1461) {
-                     this.tstates(8);
-                     this.fetched(1);
-                     int var5 = this.B() - 1 & 255;
-                     this.B(var5);
-                     if(this.B() != 0) {
-                        this.tstates(5);
-                        return 0;
-                     }
-                  } else if(var2 == 1459) {
-                     this.tstates(8);
-                     this.fetched(1);
-                     int var4 = this.B() - 1 & 255;
-                     this.B(var4);
-                     if(this.B() != 0) {
-                        this.tstates(5);
-                        this.$DBE4();
-                        if(this.unwinding()) {
-                           return -1;
-                        }
-
-                        return -1;
-                     }
-                  } else {
-                     int var3 = this.executeMutantCode('\udbe0');
+            this.tstates(5);
+         } else {
+            if(var2 != 1469) {
+               if(var2 == 1461) {
+                  this.tstates(8);
+                  this.fetched(1);
+                  int var5 = this.B() - 1 & 255;
+                  this.B(var5);
+                  if(this.B() != 0) {
+                     this.tstates(5);
+                     return 0;
+                  }
+               } else if(var2 == 1459) {
+                  this.tstates(8);
+                  this.fetched(1);
+                  int var4 = this.B() - 1 & 255;
+                  this.B(var4);
+                  if(this.B() != 0) {
+                     this.tstates(5);
+                     this.$DBE4();
                      if(this.unwinding()) {
                         return -1;
                      }
 
-                     if(var3 != '\udbe2') {
-                        if(var3 != -1) {
-                           this.goOnFrom(var3);
-                           if(this.unwinding()) {
-                              return -1;
-                           }
-                        }
-
-                        return -1;
-                     }
+                     return -1;
                   }
-                  break;
-               }
+               } else {
+                  int var3 = this.executeMutantCode('\udbe0');
+                  if(this.unwinding()) {
+                     return -1;
+                  }
 
-               this.tstates(8);
-               this.fetched(1);
-               int var6 = this.B() - 1 & 255;
-               this.B(var6);
-               if(this.B() == 0) {
-                  break;
-               }
+                  if(var3 != '\udbe2') {
+                     if(var3 != -1) {
+                        this.goOnFrom(var3);
+                        if(this.unwinding()) {
+                           return -1;
+                        }
+                     }
 
-               this.tstates(5);
-               this.setNextAddress('\udbee');
+                     return -1;
+                  }
+               }
+               break;
             }
 
-            int var7 = this.$DBE8();
+            this.tstates(8);
+            this.fetched(1);
+            int var6 = this.B() - 1 & 255;
+            this.B(var6);
+            if(this.B() == 0) {
+               break;
+            }
+
+            this.tstates(5);
+            this.setNextAddress('\udbee');
+         }
+
+         int var7 = this.$DBE8();
+         if(this.unwinding()) {
+            return -1;
+         }
+
+         if(var7 != 0 && var7 != 1) {
+            if(var7 == 2) {
+               return 1;
+            }
+
+            if(var7 != 3) {
+               return -1;
+            }
+
+            this.setNextAddress('\udc06');
+            int var13 = this.$DC05();
             if(this.unwinding()) {
                return -1;
             }
 
-            if(var7 != 0 && var7 != 1) {
-               if(var7 == 2) {
-                  return 1;
-               }
-
-               if(var7 != 3) {
-                  return -1;
-               }
-
-               this.setNextAddress('\udc06');
-               int var13 = this.$DC05();
-               if(this.unwinding()) {
-                  return -1;
-               }
-
-               if(var13 != 0) {
-                  return -1;
-               }
-            }
-
-            int var8 = this.$DC07();
-            if(this.unwinding()) {
+            if(var13 != 0) {
                return -1;
             }
+         }
 
-            if(var8 != 0) {
-               if(var8 == 1) {
-                  return 1;
-               }
+         int var8 = this.$DC07();
+         if(this.unwinding()) {
+            return -1;
+         }
 
-               return -1;
+         if(var8 != 0) {
+            if(var8 == 1) {
+               return 1;
             }
+
+            return -1;
          }
 
          int var9 = this.$DBB0();
@@ -12864,170 +12634,21 @@ public class TargetRenegade extends MiniZX {
    }
 
    public int $DBE6() {
-      int var4;
-      do {
-         if(!this.isNextPC('\udbb0')) {
-            this.pc('\udbe6', 2, 16);
-            this.ldd();
-            return 0;
-         }
-
-         int var1 = this.$DBB0();
-         if(this.unwinding()) {
-            return -1;
-         }
-
-         if(var1 != 0) {
-            return -1;
-         }
-
-         int var2 = this.$DBB6();
-         if(this.unwinding()) {
-            return -1;
-         }
-
-         if(var2 != 0) {
-            if(var2 == 1) {
-               this.setNextAddress('\udbd5');
-               int var5 = this.$DBD4();
-               if(this.unwinding()) {
-                  return -1;
-               }
-
-               if(var5 != 0) {
-                  if(var5 == 1) {
-                     this.$DC1B();
-                     if(this.unwinding()) {
-                        return -1;
-                     }
-
-                     return -1;
-                  }
-
-                  return -1;
-               }
-            } else {
-               if(var2 != 2) {
-                  return -1;
-               }
-
-               int var3 = this.$DBDB();
-               if(this.unwinding()) {
-                  return -1;
-               }
-
-               if(var3 != 0) {
-                  return -1;
-               }
-            }
-         }
-
-         var4 = this.$DBDF();
-         if(this.unwinding()) {
-            return -1;
-         }
-      } while(var4 == 0);
-
-      if(var4 == 1) {
-         this.$DC1B();
-         if(this.unwinding()) {
-            return -1;
-         } else {
-            return -1;
-         }
-      } else {
-         return -1;
-      }
+      this.pc('\udbe6', 2, 16);
+      this.ldd();
+      return 0;
    }
 
    public int $DBE8() {
-      if(this.isNextPC('\udbea')) {
-         this.setNextAddress('\udbea');
-      } else if(this.isNextPC('\udbec')) {
-         this.setNextAddress('\udbec');
-      } else if(this.isNextPC('\udbee')) {
-         this.setNextAddress('\udbee');
-      }
-
-      label103: {
-         while(true) {
+      label32: {
+         label31: {
             if(!this.isNextPC('\udbea')) {
                if(this.isNextPC('\udbec')) {
-                  break;
+                  break label31;
                }
 
                if(this.isNextPC('\udbee')) {
-                  break label103;
-               }
-
-               if(this.isNextPC('\udbb0')) {
-                  int var20 = this.$DBB0();
-                  if(this.unwinding()) {
-                     return -1;
-                  }
-
-                  if(var20 != 0) {
-                     return -1;
-                  }
-
-                  int var21 = this.$DBB6();
-                  if(this.unwinding()) {
-                     return -1;
-                  }
-
-                  if(var21 != 0) {
-                     if(var21 == 1) {
-                        this.setNextAddress('\udbd5');
-                        int var25 = this.$DBD4();
-                        if(this.unwinding()) {
-                           return -1;
-                        }
-
-                        if(var25 != 0) {
-                           if(var25 == 1) {
-                              return 2;
-                           }
-
-                           return -1;
-                        }
-                     } else {
-                        if(var21 != 2) {
-                           return -1;
-                        }
-
-                        int var22 = this.$DBDB();
-                        if(this.unwinding()) {
-                           return -1;
-                        }
-
-                        if(var22 != 0) {
-                           return -1;
-                        }
-                     }
-                  }
-
-                  int var23 = this.$DBDF();
-                  if(this.unwinding()) {
-                     return -1;
-                  }
-
-                  if(var23 != 0) {
-                     if(var23 == 1) {
-                        return 2;
-                     }
-
-                     return -1;
-                  }
-
-                  int var24 = this.$DBE6();
-                  if(this.unwinding()) {
-                     return -1;
-                  }
-
-                  if(var24 != 0) {
-                     return -1;
-                  }
-                  continue;
+                  break label32;
                }
 
                this.pc('\udbe8', 2, 16);
@@ -13036,7 +12657,6 @@ public class TargetRenegade extends MiniZX {
 
             this.pc('\udbea', 2, 16);
             this.ldd();
-            break;
          }
 
          this.pc('\udbec', 2, 16);
@@ -13113,125 +12733,6 @@ public class TargetRenegade extends MiniZX {
          ;
       }
 
-      while(this.isNextPC('\udbb0')) {
-         while(true) {
-            int var2 = this.$DBB0();
-            if(this.unwinding()) {
-               return -1;
-            }
-
-            if(var2 != 0) {
-               return -1;
-            }
-
-            int var3 = this.$DBB6();
-            if(this.unwinding()) {
-               return -1;
-            }
-
-            if(var3 != 0) {
-               if(var3 == 1) {
-                  this.setNextAddress('\udbd5');
-                  int var9 = this.$DBD4();
-                  if(this.unwinding()) {
-                     return -1;
-                  }
-
-                  if(var9 != 0) {
-                     if(var9 == 1) {
-                        this.$DC1B();
-                        if(this.unwinding()) {
-                           return -1;
-                        }
-
-                        return -1;
-                     }
-
-                     return -1;
-                  }
-               } else {
-                  if(var3 != 2) {
-                     return -1;
-                  }
-
-                  int var4 = this.$DBDB();
-                  if(this.unwinding()) {
-                     return -1;
-                  }
-
-                  if(var4 != 0) {
-                     return -1;
-                  }
-               }
-            }
-
-            int var5 = this.$DBDF();
-            if(this.unwinding()) {
-               return -1;
-            }
-
-            if(var5 != 0) {
-               if(var5 == 1) {
-                  this.$DC1B();
-                  if(this.unwinding()) {
-                     return -1;
-                  }
-
-                  return -1;
-               }
-
-               return -1;
-            }
-
-            int var6 = this.$DBE6();
-            if(this.unwinding()) {
-               return -1;
-            }
-
-            if(var6 != 0) {
-               return -1;
-            }
-
-            int var7 = this.$DBE8();
-            if(this.unwinding()) {
-               return -1;
-            }
-
-            if(var7 != 0 && var7 != 1) {
-               if(var7 == 2) {
-                  this.$DC1B();
-                  if(this.unwinding()) {
-                     return -1;
-                  }
-
-                  return -1;
-               }
-
-               if(var7 != 3) {
-                  return -1;
-               }
-            } else {
-               int var8 = this.$DC07();
-               if(this.unwinding()) {
-                  return -1;
-               }
-
-               if(var8 != 0) {
-                  if(var8 == 1) {
-                     this.$DC1B();
-                     if(this.unwinding()) {
-                        return -1;
-                     }
-
-                     return -1;
-                  }
-
-                  return -1;
-               }
-            }
-         }
-      }
-
       this.pc('\udc06', 1, 4);
       int var1 = this.A();
       this.D(var1);
@@ -13239,100 +12740,6 @@ public class TargetRenegade extends MiniZX {
    }
 
    public int $DC07() {
-      while(this.isNextPC('\udbb0')) {
-         int var3 = this.$DBB0();
-         if(this.unwinding()) {
-            return -1;
-         }
-
-         if(var3 != 0) {
-            return -1;
-         }
-
-         int var4 = this.$DBB6();
-         if(this.unwinding()) {
-            return -1;
-         }
-
-         if(var4 != 0) {
-            if(var4 == 1) {
-               this.setNextAddress('\udbd5');
-               int var10 = this.$DBD4();
-               if(this.unwinding()) {
-                  return -1;
-               }
-
-               if(var10 != 0) {
-                  if(var10 == 1) {
-                     return 1;
-                  }
-
-                  return -1;
-               }
-            } else {
-               if(var4 != 2) {
-                  return -1;
-               }
-
-               int var5 = this.$DBDB();
-               if(this.unwinding()) {
-                  return -1;
-               }
-
-               if(var5 != 0) {
-                  return -1;
-               }
-            }
-         }
-
-         int var6 = this.$DBDF();
-         if(this.unwinding()) {
-            return -1;
-         }
-
-         if(var6 != 0) {
-            if(var6 == 1) {
-               return 1;
-            }
-
-            return -1;
-         }
-
-         int var7 = this.$DBE6();
-         if(this.unwinding()) {
-            return -1;
-         }
-
-         if(var7 != 0) {
-            return -1;
-         }
-
-         int var8 = this.$DBE8();
-         if(this.unwinding()) {
-            return -1;
-         }
-
-         if(var8 != 0 && var8 != 1) {
-            if(var8 == 2) {
-               return 1;
-            }
-
-            if(var8 != 3) {
-               return -1;
-            }
-
-            this.setNextAddress('\udc06');
-            int var9 = this.$DC05();
-            if(this.unwinding()) {
-               return -1;
-            }
-
-            if(var9 != 0) {
-               return -1;
-            }
-         }
-      }
-
       this.pc('\udc07', 1, 4);
       int var1 = this.D();
       this.C(var1);
@@ -13370,13 +12777,7 @@ public class TargetRenegade extends MiniZX {
    }
 
    public void $DC1B() {
-      if(this.isNextPC('\udc81')) {
-         this.setNextAddress('\udc81');
-      } else if(this.isNextPC('\udc85')) {
-         this.setNextAddress('\udc85');
-      } else if(this.isNextPC('\udc89')) {
-         this.setNextAddress('\udc89');
-      } else if(this.isNextPC('\udc4d')) {
+      if(this.isNextPC('\udc4d')) {
          this.setNextAddress('\udc4d');
       } else if(this.isNextPC('\udc4f')) {
          this.setNextAddress('\udc4f');
@@ -13394,6 +12795,12 @@ public class TargetRenegade extends MiniZX {
          this.setNextAddress('\udc79');
       } else if(this.isNextPC('\udc7d')) {
          this.setNextAddress('\udc7d');
+      } else if(this.isNextPC('\udc81')) {
+         this.setNextAddress('\udc81');
+      } else if(this.isNextPC('\udc85')) {
+         this.setNextAddress('\udc85');
+      } else if(this.isNextPC('\udc89')) {
+         this.setNextAddress('\udc89');
       } else if(this.isNextPC('\udb9d')) {
          this.setNextAddress('\udb9d');
       } else if(this.isNextPC('\udbb0')) {
@@ -13435,9 +12842,9 @@ public class TargetRenegade extends MiniZX {
       }
 
       while(true) {
-         label621:
+         label623:
          while(true) {
-            label619:
+            label621:
             while(true) {
                if(this.isNextPC('\udc4d')) {
                   this.setNextAddress('\udc4d');
@@ -13499,95 +12906,95 @@ public class TargetRenegade extends MiniZX {
                   break;
                }
 
-               label627: {
+               label629: {
                   if(!this.isNextPC('\udb9d')) {
                      if(this.isNextPC('\udbb0')) {
-                        break label627;
+                        break label629;
                      }
 
                      if(this.isNextPC('\udbb6')) {
                         this.setNextAddress('\udbb6');
-                        break label627;
+                        break label629;
                      }
 
                      if(this.isNextPC('\udbba')) {
                         this.setNextAddress('\udbba');
-                        break label627;
+                        break label629;
                      }
 
                      if(this.isNextPC('\udbbe')) {
                         this.setNextAddress('\udbbe');
-                        break label627;
+                        break label629;
                      }
 
                      if(this.isNextPC('\udbc2')) {
                         this.setNextAddress('\udbc2');
-                        break label627;
+                        break label629;
                      }
 
                      if(this.isNextPC('\udbc6')) {
                         this.setNextAddress('\udbc6');
-                        break label627;
+                        break label629;
                      }
 
                      if(this.isNextPC('\udbdf')) {
                         this.setNextAddress('\udbdf');
-                        break label627;
+                        break label629;
                      }
 
                      if(this.isNextPC('\udbe6')) {
                         this.setNextAddress('\udbe6');
-                        break label627;
+                        break label629;
                      }
 
                      if(this.isNextPC('\udbe8')) {
                         this.setNextAddress('\udbe8');
-                        break label627;
+                        break label629;
                      }
 
                      if(this.isNextPC('\udbea')) {
                         this.setNextAddress('\udbea');
-                        break label627;
+                        break label629;
                      }
 
                      if(this.isNextPC('\udbec')) {
                         this.setNextAddress('\udbec');
-                        break label627;
+                        break label629;
                      }
 
                      if(this.isNextPC('\udbee')) {
                         this.setNextAddress('\udbee');
-                        break label627;
+                        break label629;
                      }
 
                      if(this.isNextPC('\udc07')) {
                         this.setNextAddress('\udc07');
-                        break label627;
+                        break label629;
                      }
 
                      if(this.isNextPC('\udc05')) {
                         this.setNextAddress('\udc05');
-                        break label627;
+                        break label629;
                      }
 
                      if(this.isNextPC('\udc06')) {
                         this.setNextAddress('\udc06');
-                        break label627;
+                        break label629;
                      }
 
                      if(this.isNextPC('\udbd4')) {
                         this.setNextAddress('\udbd4');
-                        break label627;
+                        break label629;
                      }
 
                      if(this.isNextPC('\udbd5')) {
                         this.setNextAddress('\udbd5');
-                        break label627;
+                        break label629;
                      }
 
                      if(this.isNextPC('\udbdb')) {
                         this.setNextAddress('\udbdb');
-                        break label627;
+                        break label629;
                      }
 
                      this.pc('\udc1b', 1, 10);
@@ -13705,7 +13112,7 @@ public class TargetRenegade extends MiniZX {
                               this.pc('\udc4a', 1, 4);
                               int var53 = this.D();
                               this.C(var53);
-                              break label619;
+                              break label621;
                            }
 
                            this.tstates(5);
@@ -13725,13 +13132,13 @@ public class TargetRenegade extends MiniZX {
 
                int var4;
                do {
-                  label631: {
-                     label649: {
-                        label650: {
-                           label634: {
-                              label635: {
-                                 label636: {
-                                    label637: {
+                  label633: {
+                     label652: {
+                        label653: {
+                           label636: {
+                              label637: {
+                                 label638: {
+                                    label639: {
                                        if(!this.isNextPC('\udbb6')) {
                                           if(this.isNextPC('\udbba')) {
                                              this.setNextAddress('\udbba');
@@ -13743,56 +13150,56 @@ public class TargetRenegade extends MiniZX {
                                              this.setNextAddress('\udbc6');
                                           } else {
                                              if(this.isNextPC('\udbdf')) {
-                                                break label635;
+                                                break label637;
                                              }
 
                                              if(this.isNextPC('\udbe6')) {
-                                                break label634;
+                                                break label636;
                                              }
 
                                              if(this.isNextPC('\udbe8')) {
-                                                break label650;
+                                                break label653;
                                              }
 
                                              if(this.isNextPC('\udbea')) {
                                                 this.setNextAddress('\udbea');
-                                                break label650;
+                                                break label653;
                                              }
 
                                              if(this.isNextPC('\udbec')) {
                                                 this.setNextAddress('\udbec');
-                                                break label650;
+                                                break label653;
                                              }
 
                                              if(this.isNextPC('\udbee')) {
                                                 this.setNextAddress('\udbee');
-                                                break label650;
+                                                break label653;
                                              }
 
                                              if(this.isNextPC('\udc07')) {
-                                                break label631;
+                                                break label633;
                                              }
 
                                              if(this.isNextPC('\udc05')) {
-                                                break label649;
+                                                break label652;
                                              }
 
                                              if(this.isNextPC('\udc06')) {
                                                 this.setNextAddress('\udc06');
-                                                break label649;
+                                                break label652;
                                              }
 
                                              if(this.isNextPC('\udbd4')) {
-                                                break label637;
+                                                break label639;
                                              }
 
                                              if(this.isNextPC('\udbd5')) {
                                                 this.setNextAddress('\udbd5');
-                                                break label637;
+                                                break label639;
                                              }
 
                                              if(this.isNextPC('\udbdb')) {
-                                                break label636;
+                                                break label638;
                                              }
 
                                              int var8 = this.$DBB0();
@@ -13812,14 +13219,14 @@ public class TargetRenegade extends MiniZX {
                                        }
 
                                        if(var9 == 0) {
-                                          break label635;
+                                          break label637;
                                        }
 
                                        if(var9 != 1) {
                                           if(var9 != 2) {
                                              return;
                                           }
-                                          break label636;
+                                          break label638;
                                        }
 
                                        this.setNextAddress('\udbd5');
@@ -13834,9 +13241,9 @@ public class TargetRenegade extends MiniZX {
                                        if(var6 != 1) {
                                           return;
                                        }
-                                       continue label619;
+                                       continue label621;
                                     }
-                                    break label635;
+                                    break label637;
                                  }
 
                                  int var7 = this.$DBDB();
@@ -13858,7 +13265,7 @@ public class TargetRenegade extends MiniZX {
                                  if(var1 != 1) {
                                     return;
                                  }
-                                 continue label619;
+                                 continue label621;
                               }
                            }
 
@@ -13878,11 +13285,11 @@ public class TargetRenegade extends MiniZX {
                         }
 
                         if(var3 == 0 || var3 == 1) {
-                           break label631;
+                           break label633;
                         }
 
                         if(var3 == 2) {
-                           continue label619;
+                           continue label621;
                         }
 
                         if(var3 != 3) {
@@ -13914,60 +13321,60 @@ public class TargetRenegade extends MiniZX {
             }
 
             while(true) {
-               label483: {
-                  label482: {
-                     label481: {
-                        label480: {
-                           label479: {
-                              label640: {
-                                 label477: {
-                                    label476: {
-                                       label475: {
-                                          label474: {
-                                             label473: {
+               label485: {
+                  label484: {
+                     label483: {
+                        label482: {
+                           label481: {
+                              label642: {
+                                 label479: {
+                                    label478: {
+                                       label654: {
+                                          label475: {
+                                             label474: {
                                                 if(!this.isNextPC('\udc4d')) {
                                                    if(this.isNextPC('\udc4f')) {
-                                                      break label473;
-                                                   }
-
-                                                   if(this.isNextPC('\udc51')) {
                                                       break label474;
                                                    }
 
-                                                   if(this.isNextPC('\udc53')) {
+                                                   if(this.isNextPC('\udc51')) {
                                                       break label475;
                                                    }
 
+                                                   if(this.isNextPC('\udc53')) {
+                                                      break label654;
+                                                   }
+
                                                    if(this.isNextPC('\udc55')) {
-                                                      break label476;
+                                                      break label478;
                                                    }
 
                                                    if(this.isNextPC('\udc57')) {
-                                                      break label477;
-                                                   }
-
-                                                   if(this.isNextPC('\udc75')) {
-                                                      break label640;
-                                                   }
-
-                                                   if(this.isNextPC('\udc79')) {
                                                       break label479;
                                                    }
 
-                                                   if(this.isNextPC('\udc7d')) {
-                                                      break label480;
+                                                   if(this.isNextPC('\udc75')) {
+                                                      break label642;
                                                    }
 
-                                                   if(this.isNextPC('\udc81')) {
+                                                   if(this.isNextPC('\udc79')) {
                                                       break label481;
                                                    }
 
-                                                   if(this.isNextPC('\udc85')) {
+                                                   if(this.isNextPC('\udc7d')) {
                                                       break label482;
                                                    }
 
-                                                   if(this.isNextPC('\udc89')) {
+                                                   if(this.isNextPC('\udc81')) {
                                                       break label483;
+                                                   }
+
+                                                   if(this.isNextPC('\udc85')) {
+                                                      break label484;
+                                                   }
+
+                                                   if(this.isNextPC('\udc89')) {
+                                                      break label485;
                                                    }
 
                                                    this.pc('\udc4b', 0, 0);
@@ -13975,31 +13382,31 @@ public class TargetRenegade extends MiniZX {
                                                    if(var141 == 1713) {
                                                       this.tstates(12);
                                                       this.fetched(1);
-                                                      break label476;
+                                                      break label478;
                                                    }
 
                                                    if(var141 == 1711) {
                                                       this.tstates(12);
                                                       this.fetched(1);
-                                                      break label475;
+                                                      break label654;
                                                    }
 
                                                    if(var141 == 1709) {
                                                       this.tstates(12);
                                                       this.fetched(1);
-                                                      break label474;
+                                                      break label475;
                                                    }
 
                                                    if(var141 == 1715) {
                                                       this.tstates(12);
                                                       this.fetched(1);
-                                                      break label477;
+                                                      break label479;
                                                    }
 
                                                    if(var141 == 1707) {
                                                       this.tstates(12);
                                                       this.fetched(1);
-                                                      break label473;
+                                                      break label474;
                                                    }
 
                                                    if(var141 == 1705) {
@@ -14101,7 +13508,7 @@ public class TargetRenegade extends MiniZX {
                                        this.pc('\udc68', 1, 7);
                                        if(!this.flag(64, false)) {
                                           this.pc('\udc6a', 1, 12);
-                                          continue label621;
+                                          continue label623;
                                        }
 
                                        this.tstates(5);
@@ -14123,7 +13530,7 @@ public class TargetRenegade extends MiniZX {
                                     }
 
                                     this.tstates(5);
-                                    break label482;
+                                    break label484;
                                  }
 
                                  if(var71 == 1471) {
@@ -14136,7 +13543,7 @@ public class TargetRenegade extends MiniZX {
                                     }
 
                                     this.tstates(5);
-                                    break label481;
+                                    break label483;
                                  }
 
                                  if(var71 == 1467) {
@@ -14149,7 +13556,7 @@ public class TargetRenegade extends MiniZX {
                                     }
 
                                     this.tstates(5);
-                                    break label480;
+                                    break label482;
                                  }
 
                                  if(var71 == 1479) {
@@ -14162,7 +13569,7 @@ public class TargetRenegade extends MiniZX {
                                     }
 
                                     this.tstates(5);
-                                    break label483;
+                                    break label485;
                                  }
 
                                  if(var71 == 1463) {
@@ -14175,7 +13582,7 @@ public class TargetRenegade extends MiniZX {
                                     }
 
                                     this.tstates(5);
-                                    break label479;
+                                    break label481;
                                  }
 
                                  if(var71 == 1459) {
@@ -14352,7 +13759,7 @@ public class TargetRenegade extends MiniZX {
                      this.pc('\udc9a', 1, 7);
                      if(!this.flag(64, false)) {
                         this.pc('\udc9c', 1, 10);
-                        continue label621;
+                        continue label623;
                      }
 
                      this.tstates(5);
@@ -14367,7 +13774,7 @@ public class TargetRenegade extends MiniZX {
                this.B(var126);
                if(this.B() == 0) {
                   this.pc('\udca6', 1, 10);
-                  continue label621;
+                  continue label623;
                }
 
                this.tstates(5);
@@ -14403,7 +13810,7 @@ public class TargetRenegade extends MiniZX {
       int var8 = this.SP();
       this.$EC00();
       int var9 = this.SP();
-      if(var9 == var8) {
+      if((var8 - var9 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var10 = var8 + 2 & '\uffff';
@@ -14446,7 +13853,7 @@ public class TargetRenegade extends MiniZX {
             int var7 = this.SP();
             this.$F2BA();
             int var8 = this.SP();
-            if(var8 == var7) {
+            if((var7 - var8 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var9 = var7 + 2 & '\uffff';
@@ -14572,7 +13979,7 @@ public class TargetRenegade extends MiniZX {
          int var10 = this.SP();
          this.$DF99();
          int var11 = this.SP();
-         if(var11 == var10) {
+         if((var10 - var11 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var12 = var10 + 2 & '\uffff';
@@ -14665,7 +14072,7 @@ public class TargetRenegade extends MiniZX {
                int var34 = this.SP();
                this.$DD70();
                int var35 = this.SP();
-               if(var35 == var34) {
+               if((var34 - var35 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var36 = var34 + 2 & '\uffff';
@@ -14723,7 +14130,7 @@ public class TargetRenegade extends MiniZX {
                int var57 = this.SP();
                this.$DFD3();
                int var58 = this.SP();
-               if(var58 == var57) {
+               if((var57 - var58 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var59 = var57 + 2 & '\uffff';
@@ -14862,7 +14269,7 @@ public class TargetRenegade extends MiniZX {
             int var27 = this.SP();
             this.$DF99();
             int var28 = this.SP();
-            if(var28 == var27) {
+            if((var27 - var28 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var29 = var27 + 2 & '\uffff';
@@ -14889,7 +14296,7 @@ public class TargetRenegade extends MiniZX {
             int var35 = this.SP();
             this.$DF99();
             int var36 = this.SP();
-            if(var36 == var35) {
+            if((var35 - var36 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var37 = var35 + 2 & '\uffff';
@@ -14956,7 +14363,7 @@ public class TargetRenegade extends MiniZX {
             int var53 = this.SP();
             this.$DF99();
             int var54 = this.SP();
-            if(var54 == var53) {
+            if((var53 - var54 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var55 = var53 + 2 & '\uffff';
@@ -14983,7 +14390,7 @@ public class TargetRenegade extends MiniZX {
             int var61 = this.SP();
             this.$DF99();
             int var62 = this.SP();
-            if(var62 == var61) {
+            if((var61 - var62 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var63 = var61 + 2 & '\uffff';
@@ -15278,7 +14685,7 @@ public class TargetRenegade extends MiniZX {
                                        int var155 = this.SP();
                                        this.$EC00();
                                        int var156 = this.SP();
-                                       if(var156 == var155) {
+                                       if((var155 - var156 & '\uffff') < '\u8000') {
                                           this.pop();
                                        } else {
                                           int var157 = var155 + 2 & '\uffff';
@@ -15704,7 +15111,7 @@ public class TargetRenegade extends MiniZX {
                                     int var268 = this.SP();
                                     this.$DCF6();
                                     int var269 = this.SP();
-                                    if(var269 == var268) {
+                                    if((var268 - var269 & '\uffff') < '\u8000') {
                                        this.pop();
                                     } else {
                                        int var270 = var268 + 2 & '\uffff';
@@ -15733,7 +15140,7 @@ public class TargetRenegade extends MiniZX {
                                     int var278 = this.SP();
                                     this.$EC0D();
                                     int var279 = this.SP();
-                                    if(var279 == var278) {
+                                    if((var278 - var279 & '\uffff') < '\u8000') {
                                        this.pop();
                                     } else {
                                        int var280 = var278 + 2 & '\uffff';
@@ -16119,7 +15526,7 @@ public class TargetRenegade extends MiniZX {
             int var2 = this.SP();
             this.$E031();
             int var3 = this.SP();
-            if(var3 == var2) {
+            if((var2 - var3 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var4 = var2 + 2 & '\uffff';
@@ -16148,7 +15555,7 @@ public class TargetRenegade extends MiniZX {
                   }
                } else {
                   int var30 = this.SP();
-                  if(var30 == var29) {
+                  if((var29 - var30 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var31 = var29 + 2 & '\uffff';
@@ -16168,7 +15575,7 @@ public class TargetRenegade extends MiniZX {
             }
 
             int var7 = this.SP();
-            if(var7 == var5) {
+            if((var5 - var7 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var8 = var5 + 2 & '\uffff';
@@ -16182,7 +15589,7 @@ public class TargetRenegade extends MiniZX {
             int var9 = this.SP();
             this.$E031();
             int var10 = this.SP();
-            if(var10 == var9) {
+            if((var9 - var10 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var11 = var9 + 2 & '\uffff';
@@ -16200,7 +15607,7 @@ public class TargetRenegade extends MiniZX {
             }
 
             int var13 = this.SP();
-            if(var13 == var12) {
+            if((var12 - var13 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var14 = var12 + 2 & '\uffff';
@@ -16218,7 +15625,7 @@ public class TargetRenegade extends MiniZX {
             }
 
             int var16 = this.SP();
-            if(var16 == var15) {
+            if((var15 - var16 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var17 = var15 + 2 & '\uffff';
@@ -16236,7 +15643,7 @@ public class TargetRenegade extends MiniZX {
                int var25 = this.SP();
                this.$E001();
                int var26 = this.SP();
-               if(var26 == var25) {
+               if((var25 - var26 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var27 = var25 + 2 & '\uffff';
@@ -16251,7 +15658,7 @@ public class TargetRenegade extends MiniZX {
                int var22 = this.SP();
                this.$DFF0();
                int var23 = this.SP();
-               if(var23 == var22) {
+               if((var22 - var23 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var24 = var22 + 2 & '\uffff';
@@ -16522,7 +15929,7 @@ public class TargetRenegade extends MiniZX {
                                           int var299 = this.SP();
                                           this.$F455();
                                           int var300 = this.SP();
-                                          if(var300 == var299) {
+                                          if((var299 - var300 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var301 = var299 + 2 & '\uffff';
@@ -16554,7 +15961,7 @@ public class TargetRenegade extends MiniZX {
                                        int var275 = this.SP();
                                        this.$F3DB();
                                        int var276 = this.SP();
-                                       if(var276 == var275) {
+                                       if((var275 - var276 & '\uffff') < '\u8000') {
                                           this.pop();
                                        } else {
                                           int var277 = var275 + 2 & '\uffff';
@@ -16570,7 +15977,7 @@ public class TargetRenegade extends MiniZX {
                                        int var278 = this.SP();
                                        this.$F3DB();
                                        int var279 = this.SP();
-                                       if(var279 == var278) {
+                                       if((var278 - var279 & '\uffff') < '\u8000') {
                                           this.pop();
                                        } else {
                                           int var280 = var278 + 2 & '\uffff';
@@ -16591,7 +15998,7 @@ public class TargetRenegade extends MiniZX {
                                     int var283 = this.SP();
                                     this.$DFD3();
                                     int var284 = this.SP();
-                                    if(var284 == var283) {
+                                    if((var283 - var284 & '\uffff') < '\u8000') {
                                        this.pop();
                                     } else {
                                        int var285 = var283 + 2 & '\uffff';
@@ -16628,7 +16035,7 @@ public class TargetRenegade extends MiniZX {
                                     int var295 = this.SP();
                                     this.$DFD3();
                                     int var296 = this.SP();
-                                    if(var296 == var295) {
+                                    if((var295 - var296 & '\uffff') < '\u8000') {
                                        this.pop();
                                     } else {
                                        int var297 = var295 + 2 & '\uffff';
@@ -17179,7 +16586,7 @@ public class TargetRenegade extends MiniZX {
             int var203 = this.SP();
             this.$E726();
             int var204 = this.SP();
-            if(var204 == var203) {
+            if((var203 - var204 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var205 = var203 + 2 & '\uffff';
@@ -17222,7 +16629,7 @@ public class TargetRenegade extends MiniZX {
                   int var215 = this.SP();
                   this.$EC00();
                   int var216 = this.SP();
-                  if(var216 == var215) {
+                  if((var215 - var216 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var217 = var215 + 2 & '\uffff';
@@ -17242,7 +16649,7 @@ public class TargetRenegade extends MiniZX {
                   int var220 = this.SP();
                   this.$E609();
                   int var221 = this.SP();
-                  if(var221 == var220) {
+                  if((var220 - var221 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var222 = var220 + 2 & '\uffff';
@@ -17302,7 +16709,7 @@ public class TargetRenegade extends MiniZX {
                int var246 = this.SP();
                this.$E609();
                int var247 = this.SP();
-               if(var247 == var246) {
+               if((var246 - var247 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var248 = var246 + 2 & '\uffff';
@@ -17329,7 +16736,7 @@ public class TargetRenegade extends MiniZX {
          int var237 = this.SP();
          this.$EC00();
          int var238 = this.SP();
-         if(var238 == var237) {
+         if((var237 - var238 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var239 = var237 + 2 & '\uffff';
@@ -17441,7 +16848,7 @@ public class TargetRenegade extends MiniZX {
 
             this.tstates(5);
          }
-      } while(this.isOwnAddress(var25));
+      } while(this.ownAddress(var25) != -1);
 
    }
 
@@ -17454,7 +16861,7 @@ public class TargetRenegade extends MiniZX {
          this.$5DE8();
          if(!this.unwinding()) {
             int var3 = this.SP();
-            if(var3 == var1) {
+            if((var1 - var3 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var4 = var1 + 2 & '\uffff';
@@ -17782,7 +17189,7 @@ public class TargetRenegade extends MiniZX {
          }
 
          var2 = new int[]{'\ue355'};
-      } while(this.isOwnAddress(var2));
+      } while(this.ownAddress(var2) != -1);
 
    }
 
@@ -18022,7 +17429,7 @@ public class TargetRenegade extends MiniZX {
                int var69 = this.SP();
                this.$E5D1();
                int var70 = this.SP();
-               if(var70 == var69) {
+               if((var69 - var70 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var71 = var69 + 2 & '\uffff';
@@ -19430,7 +18837,7 @@ public class TargetRenegade extends MiniZX {
          }
 
          int var35 = this.SP();
-         if(var35 == var34) {
+         if((var34 - var35 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var36 = var34 + 2 & '\uffff';
@@ -19567,7 +18974,7 @@ public class TargetRenegade extends MiniZX {
             }
 
             int var61 = this.SP();
-            if(var61 == var60) {
+            if((var60 - var61 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var62 = var60 + 2 & '\uffff';
@@ -19585,7 +18992,7 @@ public class TargetRenegade extends MiniZX {
             }
 
             int var47 = this.SP();
-            if(var47 == var46) {
+            if((var46 - var47 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var48 = var46 + 2 & '\uffff';
@@ -19656,7 +19063,7 @@ public class TargetRenegade extends MiniZX {
             }
 
             int var17 = this.SP();
-            if(var17 == var16) {
+            if((var16 - var17 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var18 = var16 + 2 & '\uffff';
@@ -19674,7 +19081,7 @@ public class TargetRenegade extends MiniZX {
             }
 
             int var8 = this.SP();
-            if(var8 == var7) {
+            if((var7 - var8 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var9 = var7 + 2 & '\uffff';
@@ -19734,7 +19141,7 @@ public class TargetRenegade extends MiniZX {
             }
 
             int var17 = this.SP();
-            if(var17 == var16) {
+            if((var16 - var17 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var18 = var16 + 2 & '\uffff';
@@ -19752,7 +19159,7 @@ public class TargetRenegade extends MiniZX {
             }
 
             int var8 = this.SP();
-            if(var8 == var7) {
+            if((var7 - var8 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var9 = var7 + 2 & '\uffff';
@@ -19807,7 +19214,7 @@ public class TargetRenegade extends MiniZX {
          int var6 = this.SP();
          this.$F3DB();
          int var7 = this.SP();
-         if(var7 == var6) {
+         if((var6 - var7 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var8 = var6 + 2 & '\uffff';
@@ -19853,7 +19260,7 @@ public class TargetRenegade extends MiniZX {
          }
 
          var1 = new int[]{'\uea47'};
-      } while(this.isOwnAddress(var1));
+      } while(this.ownAddress(var1) != -1);
 
    }
 
@@ -20216,7 +19623,7 @@ public class TargetRenegade extends MiniZX {
                         int var123 = this.SP();
                         this.$DCF6();
                         int var124 = this.SP();
-                        if(var124 == var123) {
+                        if((var123 - var124 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var125 = var123 + 2 & '\uffff';
@@ -20273,7 +19680,7 @@ public class TargetRenegade extends MiniZX {
                                     int var200 = this.SP();
                                     this.$F455();
                                     int var201 = this.SP();
-                                    if(var201 == var200) {
+                                    if((var200 - var201 & '\uffff') < '\u8000') {
                                        this.pop();
                                     } else {
                                        int var202 = var200 + 2 & '\uffff';
@@ -20397,7 +19804,7 @@ public class TargetRenegade extends MiniZX {
                                           int var242 = this.SP();
                                           this.$E709();
                                           int var243 = this.SP();
-                                          if(var243 == var242) {
+                                          if((var242 - var243 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var244 = var242 + 2 & '\uffff';
@@ -20572,7 +19979,7 @@ public class TargetRenegade extends MiniZX {
                      int var136 = this.SP();
                      this.$F2BD();
                      int var137 = this.SP();
-                     if(var137 == var136) {
+                     if((var136 - var137 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var138 = var136 + 2 & '\uffff';
@@ -20692,7 +20099,7 @@ public class TargetRenegade extends MiniZX {
                               int var187 = this.SP();
                               this.$EC09();
                               int var188 = this.SP();
-                              if(var188 == var187) {
+                              if((var187 - var188 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var189 = var187 + 2 & '\uffff';
@@ -20706,7 +20113,7 @@ public class TargetRenegade extends MiniZX {
                               int var190 = this.SP();
                               this.$F3DB();
                               int var191 = this.SP();
-                              if(var191 == var190) {
+                              if((var190 - var191 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var192 = var190 + 2 & '\uffff';
@@ -20761,7 +20168,7 @@ public class TargetRenegade extends MiniZX {
             int var81 = this.SP();
             this.$ECEF();
             int var82 = this.SP();
-            if(var82 == var81) {
+            if((var81 - var82 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var83 = var81 + 2 & '\uffff';
@@ -20873,7 +20280,7 @@ public class TargetRenegade extends MiniZX {
       int var84 = this.SP();
       this.$ECE6();
       int var85 = this.SP();
-      if(var85 == var84) {
+      if((var84 - var85 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var86 = var84 + 2 & '\uffff';
@@ -20900,7 +20307,7 @@ public class TargetRenegade extends MiniZX {
       int var1 = this.SP();
       this.$EC1B();
       int var2 = this.SP();
-      if(var2 == var1) {
+      if((var1 - var2 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var3 = var1 + 2 & '\uffff';
@@ -21038,7 +20445,7 @@ public class TargetRenegade extends MiniZX {
       int var1 = this.SP();
       this.$EC1B();
       int var2 = this.SP();
-      if(var2 == var1) {
+      if((var1 - var2 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var3 = var1 + 2 & '\uffff';
@@ -22482,7 +21889,7 @@ public class TargetRenegade extends MiniZX {
       int var141 = this.SP();
       this.$E770();
       int var142 = this.SP();
-      if(var142 == var141) {
+      if((var141 - var142 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var143 = var141 + 2 & '\uffff';
@@ -22549,7 +21956,7 @@ public class TargetRenegade extends MiniZX {
          this.$F408();
          if(!this.unwinding()) {
             int var7 = this.SP();
-            if(var7 == var6) {
+            if((var6 - var7 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var8 = var6 + 2 & '\uffff';
@@ -22723,44 +22130,44 @@ public class TargetRenegade extends MiniZX {
 
    public void $F408() {
       while(true) {
-         label947: {
-            label948: {
-               label869: {
-                  label890: {
+         label946: {
+            label947: {
+               label890: {
+                  label868: {
                      label867: {
-                        if(this.isNextPC('\uec14')) {
-                           this.setNextAddress('\uec14');
-                        } else if(!this.isNextPC('\uf418')) {
-                           if(this.isNextPC('\uef2c')) {
-                              break label948;
+                        if(this.isNextPC('\ue650')) {
+                           this.setNextAddress('\ue650');
+                        } else {
+                           if(this.isNextPC('\ue6b2')) {
+                              break label868;
                            }
 
-                           if(this.isNextPC('\ue650')) {
-                              this.setNextAddress('\ue650');
-                           } else if(this.isNextPC('\uec56')) {
-                              this.setNextAddress('\uec56');
-                           } else if(this.isNextPC('\ue96f')) {
+                           if(this.isNextPC('\ue96f')) {
                               this.setNextAddress('\ue96f');
-                           } else if(this.isNextPC('\uec81')) {
-                              this.setNextAddress('\uec81');
                            } else if(this.isNextPC('\ue9a5')) {
                               this.setNextAddress('\ue9a5');
+                           } else if(this.isNextPC('\uec14')) {
+                              this.setNextAddress('\uec14');
+                           } else if(this.isNextPC('\uec56')) {
+                              this.setNextAddress('\uec56');
+                           } else if(this.isNextPC('\uec81')) {
+                              this.setNextAddress('\uec81');
+                           } else if(this.isNextPC('\uecb9')) {
+                              this.setNextAddress('\uecb9');
                            } else {
-                              if(this.isNextPC('\uf1ab')) {
-                                 break label890;
+                              if(this.isNextPC('\uef2c')) {
+                                 break label947;
                               }
 
-                              if(this.isNextPC('\ue6b2')) {
+                              if(this.isNextPC('\uf1ab')) {
                                  break label867;
                               }
 
-                              if(this.isNextPC('\uecb9')) {
-                                 this.setNextAddress('\uecb9');
-                              } else {
-                                 if(this.isNextPC('\uf1c0')) {
-                                    break label869;
-                                 }
+                              if(this.isNextPC('\uf1c0')) {
+                                 break label890;
+                              }
 
+                              if(!this.isNextPC('\uf418')) {
                                  if(this.isNextPC('\ueab6')) {
                                     this.setNextAddress('\ueab6');
                                  } else if(this.isNextPC('\uf427')) {
@@ -22823,11 +22230,11 @@ public class TargetRenegade extends MiniZX {
                                              }
 
                                              if(this.isNextPC('\ue650')) {
-                                                break label860;
+                                                break label858;
                                              }
 
                                              if(this.isNextPC('\ue9a5')) {
-                                                break label858;
+                                                break label862;
                                              }
 
                                              if(this.isNextPC('\uec56')) {
@@ -22841,7 +22248,7 @@ public class TargetRenegade extends MiniZX {
                                              }
 
                                              if(this.isNextPC('\uecb9')) {
-                                                break label862;
+                                                break label860;
                                              }
 
                                              if(this.isNextPC('\ue96f')) {
@@ -22850,24 +22257,24 @@ public class TargetRenegade extends MiniZX {
                                              }
 
                                              this.pc('\uf418', 1, 7);
-                                             int var196 = this.HL();
-                                             int var197 = this.mem(var196, '\uf418');
-                                             this.E(var197);
+                                             int var206 = this.HL();
+                                             int var207 = this.mem(var206, '\uf418');
+                                             this.E(var207);
                                              this.pc('\uf419', 1, 6);
-                                             int var198 = this.HL();
-                                             int var199 = this.inc16(var198);
-                                             this.HL(var199);
+                                             int var208 = this.HL();
+                                             int var209 = this.inc16(var208);
+                                             this.HL(var209);
                                              this.pc('\uf41a', 1, 7);
-                                             int var200 = this.HL();
-                                             int var201 = this.mem(var200, '\uf41a');
-                                             this.D(var201);
+                                             int var210 = this.HL();
+                                             int var211 = this.mem(var210, '\uf41a');
+                                             this.D(var211);
                                              this.pc('\uf41b', 1, 6);
-                                             int var202 = this.HL();
-                                             int var203 = this.inc16(var202);
-                                             this.HL(var203);
+                                             int var212 = this.HL();
+                                             int var213 = this.inc16(var212);
+                                             this.HL(var213);
                                              this.pc('\uf41c', 2, 8);
-                                             int var204 = this.D();
-                                             this.bit(7, var204);
+                                             int var214 = this.D();
+                                             this.bit(7, var214);
                                              this.pc('\uf41e', 1, 7);
                                              if(this.flag(64, false)) {
                                                 this.tstates(5);
@@ -22876,8 +22283,8 @@ public class TargetRenegade extends MiniZX {
                                              }
 
                                              this.pc('\uf420', 2, 8);
-                                             int var205 = this.D();
-                                             this.bit(6, var205);
+                                             int var215 = this.D();
+                                             this.bit(6, var215);
                                              this.pc('\uf422', 1, 7);
                                              if(this.flag(64, true)) {
                                                 this.tstates(5);
@@ -22906,7 +22313,7 @@ public class TargetRenegade extends MiniZX {
                                                       if(!this.unwinding()) {
                                                          return;
                                                       }
-                                                      break label947;
+                                                      break label946;
                                                    }
                                                 }
 
@@ -22924,7 +22331,7 @@ public class TargetRenegade extends MiniZX {
                                                       if(!this.unwinding()) {
                                                          return;
                                                       }
-                                                      break label947;
+                                                      break label946;
                                                    }
                                                 }
 
@@ -22942,7 +22349,7 @@ public class TargetRenegade extends MiniZX {
                                                       if(!this.unwinding()) {
                                                          return;
                                                       }
-                                                      break label947;
+                                                      break label946;
                                                    }
                                                 }
 
@@ -22950,7 +22357,7 @@ public class TargetRenegade extends MiniZX {
                                                    int var236 = this.SP();
                                                    this.$E695();
                                                    if(this.unwinding()) {
-                                                      break label947;
+                                                      break label946;
                                                    }
 
                                                    if(this.SP() == var236) {
@@ -22964,7 +22371,7 @@ public class TargetRenegade extends MiniZX {
                                                       if(!this.unwinding()) {
                                                          return;
                                                       }
-                                                      break label947;
+                                                      break label946;
                                                    }
                                                 }
 
@@ -22982,7 +22389,7 @@ public class TargetRenegade extends MiniZX {
                                                       if(!this.unwinding()) {
                                                          return;
                                                       }
-                                                      break label947;
+                                                      break label946;
                                                    }
                                                 }
 
@@ -23000,7 +22407,7 @@ public class TargetRenegade extends MiniZX {
                                                       if(!this.unwinding()) {
                                                          return;
                                                       }
-                                                      break label947;
+                                                      break label946;
                                                    }
                                                 }
 
@@ -23018,7 +22425,7 @@ public class TargetRenegade extends MiniZX {
                                                       if(!this.unwinding()) {
                                                          return;
                                                       }
-                                                      break label947;
+                                                      break label946;
                                                    }
                                                 }
 
@@ -23036,7 +22443,7 @@ public class TargetRenegade extends MiniZX {
                                                       if(!this.unwinding()) {
                                                          return;
                                                       }
-                                                      break label947;
+                                                      break label946;
                                                    }
                                                 }
 
@@ -23044,7 +22451,7 @@ public class TargetRenegade extends MiniZX {
                                                    int var226 = this.SP();
                                                    this.$EF3D();
                                                    if(this.unwinding()) {
-                                                      break label947;
+                                                      break label946;
                                                    }
 
                                                    if(this.SP() == var226) {
@@ -23058,7 +22465,7 @@ public class TargetRenegade extends MiniZX {
                                                       if(!this.unwinding()) {
                                                          return;
                                                       }
-                                                      break label947;
+                                                      break label946;
                                                    }
                                                 }
 
@@ -23076,7 +22483,7 @@ public class TargetRenegade extends MiniZX {
                                                       if(!this.unwinding()) {
                                                          return;
                                                       }
-                                                      break label947;
+                                                      break label946;
                                                    }
                                                 }
 
@@ -23094,7 +22501,7 @@ public class TargetRenegade extends MiniZX {
                                                       if(!this.unwinding()) {
                                                          return;
                                                       }
-                                                      break label947;
+                                                      break label946;
                                                    }
                                                 }
 
@@ -23112,7 +22519,7 @@ public class TargetRenegade extends MiniZX {
                                                       if(!this.unwinding()) {
                                                          return;
                                                       }
-                                                      break label947;
+                                                      break label946;
                                                    }
                                                 }
 
@@ -23120,342 +22527,342 @@ public class TargetRenegade extends MiniZX {
                                              }
 
                                              this.pc('\uf424', 2, 8);
-                                             int var206 = this.D() | 64;
-                                             this.D(var206);
+                                             int var216 = this.D() | 64;
+                                             this.D(var216);
                                              this.pc('\uf426', 1, 4);
                                              this.exHLDE();
                                           }
 
-                                          int var207 = this.$F427();
+                                          int var217 = this.$F427();
                                           if(this.unwinding()) {
-                                             break label947;
+                                             break label946;
                                           }
 
-                                          if(var207 == 0) {
+                                          if(var217 == 0) {
                                              break;
                                           }
 
-                                          if(var207 == 1) {
-                                             break label860;
+                                          if(var217 == 1) {
+                                             break label858;
                                           }
 
-                                          if(var207 == 2) {
+                                          if(var217 == 2) {
                                              this.setNextAddress('\uec56');
                                              break;
                                           } else {
-                                             if(var207 == 3) {
-                                                break label858;
+                                             if(var217 == 3) {
+                                                break label862;
                                              }
 
-                                             if(var207 == 4) {
-                                                break label890;
+                                             if(var217 == 4) {
+                                                break label866;
                                              }
 
-                                             if(var207 == 5) {
-                                                break label948;
+                                             if(var217 == 5) {
+                                                break label947;
                                              }
 
-                                             if(var207 == 6) {
+                                             if(var217 == 6) {
                                                 this.setNextAddress('\ue96f');
                                                 break;
                                              } else {
-                                                if(var207 == 7) {
-                                                   break label866;
+                                                if(var217 == 7) {
+                                                   break label868;
                                                 }
 
-                                                if(var207 == 8) {
+                                                if(var217 == 8) {
                                                    this.setNextAddress('\ueab6');
                                                    break;
                                                 } else {
-                                                   if(var207 == 9) {
-                                                      break label862;
+                                                   if(var217 == 9) {
+                                                      break label860;
                                                    }
 
-                                                   if(var207 == 10) {
+                                                   if(var217 == 10) {
                                                       this.$E709();
                                                       return;
                                                    }
 
-                                                   if(var207 == 11) {
+                                                   if(var217 == 11) {
                                                       this.$EB8E();
                                                       return;
                                                    }
 
-                                                   if(var207 == 12) {
+                                                   if(var217 == 12) {
                                                       this.$EBDD();
                                                       return;
                                                    }
 
-                                                   if(var207 == 13) {
+                                                   if(var217 == 13) {
                                                       this.$E93F();
                                                       return;
                                                    }
 
-                                                   if(var207 == 14) {
+                                                   if(var217 == 14) {
                                                       this.pc('\uef01', 1, 10);
                                                       this.HL('\ueee0');
                                                       this.pc('\uef04', 1, 10);
                                                    } else {
-                                                      if(var207 == 15) {
-                                                         break label948;
+                                                      if(var217 == 15) {
+                                                         break label947;
                                                       }
 
-                                                      if(var207 == 16) {
-                                                         break label866;
+                                                      if(var217 == 16) {
+                                                         break label868;
                                                       }
 
-                                                      if(var207 == 17) {
+                                                      if(var217 == 17) {
                                                          this.untranslated('\uef2b');
                                                          return;
                                                       }
 
-                                                      if(var207 == 18) {
-                                                         break label948;
+                                                      if(var217 == 18) {
+                                                         break label947;
                                                       }
 
-                                                      if(var207 == 19) {
-                                                         break label866;
+                                                      if(var217 == 19) {
+                                                         break label868;
                                                       }
 
-                                                      if(var207 == 20) {
+                                                      if(var217 == 20) {
                                                          this.untranslated('\uef2b');
                                                          return;
                                                       }
 
-                                                      if(var207 == 21) {
+                                                      if(var217 == 21) {
                                                          this.pc('\uef13', 1, 10);
                                                          this.HL('\ueec4');
                                                          this.pc('\uef16', 1, 10);
                                                       } else {
-                                                         if(var207 == 22) {
-                                                            break label948;
+                                                         if(var217 == 22) {
+                                                            break label947;
                                                          }
 
-                                                         if(var207 == 23) {
-                                                            break label866;
+                                                         if(var217 == 23) {
+                                                            break label868;
                                                          }
 
-                                                         if(var207 == 24) {
+                                                         if(var217 == 24) {
                                                             this.untranslated('\uef2b');
                                                             return;
                                                          }
 
-                                                         if(var207 == 25) {
+                                                         if(var217 == 25) {
                                                             this.pc('\uef1c', 1, 10);
                                                             this.HL('\ueeb8');
                                                             this.pc('\uef1f', 1, 10);
                                                          } else {
-                                                            if(var207 == 26) {
-                                                               break label948;
+                                                            if(var217 == 26) {
+                                                               break label947;
                                                             }
 
-                                                            if(var207 == 27) {
-                                                               break label866;
+                                                            if(var217 == 27) {
+                                                               break label868;
                                                             }
 
-                                                            if(var207 == 28) {
+                                                            if(var217 == 28) {
                                                                this.untranslated('\uef2b');
                                                                return;
                                                             }
 
-                                                            if(var207 == 29) {
+                                                            if(var217 == 29) {
                                                                this.$EC09();
                                                                return;
                                                             }
 
-                                                            if(var207 == 30) {
-                                                               break label948;
+                                                            if(var217 == 30) {
+                                                               break label947;
                                                             }
 
-                                                            if(var207 != 31) {
-                                                               if(var207 == 32) {
+                                                            if(var217 != 31) {
+                                                               if(var217 == 32) {
                                                                   this.$EC00();
                                                                   return;
                                                                }
 
-                                                               if(var207 == 33) {
+                                                               if(var217 == 33) {
                                                                   this.$EC00();
                                                                   return;
                                                                }
 
-                                                               if(var207 != 34) {
-                                                                  if(var207 == 35) {
-                                                                     break label948;
+                                                               if(var217 != 34) {
+                                                                  if(var217 == 35) {
+                                                                     break label947;
                                                                   }
 
-                                                                  if(var207 == 36) {
+                                                                  if(var217 == 36) {
                                                                      this.$EC09();
                                                                      return;
                                                                   }
 
-                                                                  if(var207 == 37 || var207 == 38) {
-                                                                     break label948;
+                                                                  if(var217 == 37 || var217 == 38) {
+                                                                     break label947;
                                                                   }
 
-                                                                  if(var207 == 39) {
+                                                                  if(var217 == 39) {
                                                                      this.$F434();
                                                                      return;
                                                                   }
 
-                                                                  if(var207 == 40) {
+                                                                  if(var217 == 40) {
                                                                      this.$E709();
                                                                      return;
                                                                   }
 
-                                                                  if(var207 == 41) {
+                                                                  if(var217 == 41) {
                                                                      this.$E93F();
                                                                      return;
                                                                   }
 
-                                                                  if(var207 == 42) {
+                                                                  if(var217 == 42) {
                                                                      this.setNextAddress('\uec14');
                                                                      break;
-                                                                  } else if(var207 == 43) {
+                                                                  } else if(var217 == 43) {
                                                                      this.setNextAddress('\uec14');
                                                                      break;
                                                                   } else {
-                                                                     if(var207 == 44) {
-                                                                        break label948;
+                                                                     if(var217 == 44) {
+                                                                        break label947;
                                                                      }
 
-                                                                     if(var207 == 45) {
-                                                                        break label866;
+                                                                     if(var217 == 45) {
+                                                                        break label868;
                                                                      }
 
-                                                                     if(var207 == 46) {
+                                                                     if(var217 == 46) {
                                                                         this.untranslated('\uef2b');
                                                                         return;
                                                                      }
 
-                                                                     if(var207 == 47) {
-                                                                        break label869;
+                                                                     if(var217 == 47) {
+                                                                        break label890;
                                                                      }
 
-                                                                     if(var207 == 48) {
+                                                                     if(var217 == 48) {
                                                                         this.$F434();
                                                                         return;
                                                                      }
 
-                                                                     if(var207 == 49) {
+                                                                     if(var217 == 49) {
                                                                         this.$E770();
                                                                         return;
                                                                      }
 
-                                                                     if(var207 == 50) {
+                                                                     if(var217 == 50) {
                                                                         this.$E742();
                                                                         return;
                                                                      }
 
-                                                                     if(var207 == 51) {
+                                                                     if(var217 == 51) {
                                                                         this.$EC0D();
                                                                         return;
                                                                      }
 
-                                                                     if(var207 == 52) {
+                                                                     if(var217 == 52) {
                                                                         this.setNextAddress('\uec14');
                                                                         break;
                                                                      } else {
-                                                                        if(var207 == 53) {
-                                                                           break label948;
+                                                                        if(var217 == 53) {
+                                                                           break label947;
                                                                         }
 
-                                                                        if(var207 == 54) {
+                                                                        if(var217 == 54) {
                                                                            this.$EC0D();
                                                                            return;
                                                                         }
 
-                                                                        if(var207 == 55) {
+                                                                        if(var217 == 55) {
                                                                            this.setNextAddress('\uec14');
                                                                            break;
                                                                         }
 
-                                                                        if(var207 == 56) {
-                                                                           break label948;
+                                                                        if(var217 == 56) {
+                                                                           break label947;
                                                                         }
 
-                                                                        if(var207 != 57) {
-                                                                           if(var207 == 58) {
+                                                                        if(var217 != 57) {
+                                                                           if(var217 == 58) {
                                                                               this.$EC09();
                                                                               return;
                                                                            }
 
-                                                                           if(var207 == 59) {
+                                                                           if(var217 == 59) {
                                                                               this.$EC09();
                                                                               return;
                                                                            }
 
-                                                                           if(var207 != 60 && var207 != 61) {
-                                                                              if(var207 == 62) {
-                                                                                 break label866;
+                                                                           if(var217 != 60 && var217 != 61) {
+                                                                              if(var217 == 62) {
+                                                                                 break label868;
                                                                               }
 
-                                                                              if(var207 == 63) {
+                                                                              if(var217 == 63) {
                                                                                  this.$EA47();
                                                                                  if(!this.unwinding()) {
                                                                                     return;
                                                                                  }
-                                                                                 break label947;
+                                                                                 break label946;
                                                                               }
 
-                                                                              if(var207 == 64) {
+                                                                              if(var217 == 64) {
                                                                                  this.$E709();
                                                                                  return;
                                                                               }
 
-                                                                              if(var207 == 65) {
+                                                                              if(var217 == 65) {
                                                                                  this.untranslated('\uef2b');
                                                                                  return;
                                                                               }
 
-                                                                              if(var207 == 66) {
+                                                                              if(var217 == 66) {
                                                                                  this.$E709();
                                                                                  return;
                                                                               }
 
-                                                                              if(var207 == 67) {
+                                                                              if(var217 == 67) {
                                                                                  this.$E93F();
                                                                                  return;
                                                                               }
 
-                                                                              if(var207 == 68) {
+                                                                              if(var217 == 68) {
                                                                                  this.$EC09();
                                                                                  return;
                                                                               }
 
-                                                                              if(var207 != 69) {
-                                                                                 if(var207 == 70) {
-                                                                                    break label866;
+                                                                              if(var217 != 69) {
+                                                                                 if(var217 == 70) {
+                                                                                    break label868;
                                                                                  }
 
-                                                                                 if(var207 == 71) {
+                                                                                 if(var217 == 71) {
                                                                                     this.untranslated('\uef2b');
                                                                                     return;
                                                                                  }
 
-                                                                                 if(var207 == 72) {
+                                                                                 if(var217 == 72) {
                                                                                     this.$EC00();
                                                                                     return;
                                                                                  }
 
-                                                                                 if(var207 == 73) {
-                                                                                    break label948;
+                                                                                 if(var217 == 73) {
+                                                                                    break label947;
                                                                                  }
 
-                                                                                 if(var207 != 74 && var207 != 75 && var207 != 76) {
-                                                                                    if(var207 != 77) {
-                                                                                       if(var207 == 78) {
+                                                                                 if(var217 != 74 && var217 != 75 && var217 != 76) {
+                                                                                    if(var217 != 77) {
+                                                                                       if(var217 == 78) {
                                                                                           this.$EC00();
                                                                                           return;
                                                                                        }
 
-                                                                                       if(var207 == 79) {
+                                                                                       if(var217 == 79) {
                                                                                           this.$EC0D();
                                                                                           return;
                                                                                        }
 
                                                                                        return;
                                                                                     }
-                                                                                    break label948;
+                                                                                    break label947;
                                                                                  }
                                                                               }
                                                                            }
@@ -23483,22 +22890,22 @@ public class TargetRenegade extends MiniZX {
                                                 this.setNextAddress('\ue96f');
                                              } else {
                                                 this.pc('\uec81', 2, 19);
-                                                int var171 = this.IY() + 0;
-                                                int var172 = this.mem(var171, '\uec81');
-                                                this.A(var172);
+                                                int var181 = this.IY() + 0;
+                                                int var182 = this.mem(var181, '\uec81');
+                                                this.A(var182);
                                                 this.pc('\uec84', 1, 7);
-                                                int var173 = this.A();
-                                                this.alu("cp", var173, 128);
+                                                int var183 = this.A();
+                                                this.alu("cp", var183, 128);
                                                 this.pc('\uec86', 1, 7);
                                                 if(this.flag(1, false)) {
                                                    this.tstates(5);
                                                    this.pc('\ueca1', 1, 4);
-                                                   int var187 = this.A();
-                                                   int var188 = this.alu("inc", var187);
-                                                   this.A(var188);
+                                                   int var197 = this.A();
+                                                   int var198 = this.alu("inc", var197);
+                                                   this.A(var198);
                                                    this.pc('\ueca2', 1, 7);
-                                                   int var189 = this.A();
-                                                   this.alu("cp", var189, 27);
+                                                   int var199 = this.A();
+                                                   this.alu("cp", var199, 27);
                                                    this.pc('\ueca4', 1, 7);
                                                    if(this.flag(64, false)) {
                                                       this.tstates(5);
@@ -23507,14 +22914,14 @@ public class TargetRenegade extends MiniZX {
 
                                                    this.pc('\ueca6', 1, 17);
                                                    this.push('\ueca9');
-                                                   int var190 = this.SP();
+                                                   int var200 = this.SP();
                                                    this.$ECE6();
-                                                   int var191 = this.SP();
-                                                   if(var191 == var190) {
+                                                   int var201 = this.SP();
+                                                   if((var200 - var201 & '\uffff') < '\u8000') {
                                                       this.pop();
                                                    } else {
-                                                      int var192 = var190 + 2 & '\uffff';
-                                                      if(var191 == var192) {
+                                                      int var202 = var200 + 2 & '\uffff';
+                                                      if(var201 == var202) {
                                                          return;
                                                       }
                                                    }
@@ -23523,10 +22930,10 @@ public class TargetRenegade extends MiniZX {
                                                    if(this.flag(1, true)) {
                                                       this.tstates(5);
                                                       this.pc('\uecb1', 2, 23);
-                                                      int var193 = this.IY() + 2;
-                                                      int var194 = this.mem(var193, '\uecb1');
-                                                      int var195 = this.alu("inc", var194);
-                                                      this.wMem(var193, var195, '\uecb1');
+                                                      int var203 = this.IY() + 2;
+                                                      int var204 = this.mem(var203, '\uecb1');
+                                                      int var205 = this.alu("inc", var204);
+                                                      this.wMem(var203, var205, '\uecb1');
                                                       this.pc('\uecb4', 1, 7);
                                                       this.A(26);
                                                       break;
@@ -23538,26 +22945,26 @@ public class TargetRenegade extends MiniZX {
                                                 } else {
                                                    label832: {
                                                       this.pc('\uec88', 1, 4);
-                                                      int var174 = this.A();
-                                                      int var175 = this.alu("inc", var174);
-                                                      this.A(var175);
+                                                      int var184 = this.A();
+                                                      int var185 = this.alu("inc", var184);
+                                                      this.A(var185);
                                                       this.pc('\uec89', 1, 7);
-                                                      int var176 = this.A();
-                                                      this.alu("cp", var176, 155);
+                                                      int var186 = this.A();
+                                                      this.alu("cp", var186, 155);
                                                       this.pc('\uec8b', 1, 7);
                                                       if(this.flag(64, false)) {
                                                          this.tstates(5);
                                                       } else {
                                                          this.pc('\uec8d', 1, 17);
                                                          this.push('\uec90');
-                                                         int var177 = this.SP();
+                                                         int var187 = this.SP();
                                                          this.$ECEF();
-                                                         int var178 = this.SP();
-                                                         if(var178 == var177) {
+                                                         int var188 = this.SP();
+                                                         if((var187 - var188 & '\uffff') < '\u8000') {
                                                             this.pop();
                                                          } else {
-                                                            int var179 = var177 + 2 & '\uffff';
-                                                            if(var178 == var179) {
+                                                            int var189 = var187 + 2 & '\uffff';
+                                                            if(var188 == var189) {
                                                                return;
                                                             }
                                                          }
@@ -23574,16 +22981,16 @@ public class TargetRenegade extends MiniZX {
                                                          this.pc('\uec98', 1, 7);
                                                          this.A(154);
                                                          this.pc('\uec9a', 2, 23);
-                                                         int var180 = this.IY() + 2;
-                                                         int var181 = this.mem(var180, '\uec9a');
-                                                         int var182 = this.alu("dec", var181);
-                                                         this.wMem(var180, var182, '\uec9a');
+                                                         int var190 = this.IY() + 2;
+                                                         int var191 = this.mem(var190, '\uec9a');
+                                                         int var192 = this.alu("dec", var191);
+                                                         this.wMem(var190, var192, '\uec9a');
                                                       }
 
                                                       this.pc('\uec9d', 1, 7);
-                                                      int var183 = this.A();
-                                                      int var184 = this.alu("or", var183, 128);
-                                                      this.A(var184);
+                                                      int var193 = this.A();
+                                                      int var194 = this.alu("or", var193, 128);
+                                                      this.A(var194);
                                                       this.pc('\uec9f', 1, 12);
                                                       break;
                                                    }
@@ -23606,16 +23013,16 @@ public class TargetRenegade extends MiniZX {
                                                          }
 
                                                          this.pc('\uec14', 2, 19);
-                                                         int var91 = this.IY() + 8;
-                                                         int var92 = this.L();
-                                                         this.wMem(var91, var92, '\uec14');
+                                                         int var124 = this.IY() + 8;
+                                                         int var125 = this.L();
+                                                         this.wMem(var124, var125, '\uec14');
                                                          this.pc('\uec17', 2, 19);
-                                                         int var93 = this.IY() + 9;
-                                                         int var94 = this.H();
-                                                         this.wMem(var93, var94, '\uec17');
+                                                         int var126 = this.IY() + 9;
+                                                         int var127 = this.H();
+                                                         this.wMem(var126, var127, '\uec17');
                                                          this.pc('\uec1a', 1, 4);
                                                          if(this.HL() == '\ue650') {
-                                                            break label860;
+                                                            break label858;
                                                          }
 
                                                          if(this.HL() == '\uec81') {
@@ -23623,17 +23030,17 @@ public class TargetRenegade extends MiniZX {
                                                          }
 
                                                          if(this.HL() == '\ue9a5') {
-                                                            break label858;
+                                                            break label862;
                                                          }
 
                                                          if(this.HL() != '\uec56') {
                                                             if(this.HL() != '\ueab6') {
                                                                if(this.HL() == '\uecb9') {
-                                                                  break label862;
+                                                                  break label860;
                                                                }
 
                                                                if(this.HL() == '\uf1ab') {
-                                                                  break label890;
+                                                                  break label866;
                                                                }
 
                                                                if(this.HL() == '\uebdd') {
@@ -23647,12 +23054,12 @@ public class TargetRenegade extends MiniZX {
                                                                }
 
                                                                if(this.HL() != '\ue96f') {
-                                                                  int var170 = this.HL();
-                                                                  this.jump(var170);
+                                                                  int var180 = this.HL();
+                                                                  this.jump(var180);
                                                                   if(!this.unwinding()) {
                                                                      return;
                                                                   }
-                                                                  break label947;
+                                                                  break label946;
                                                                }
                                                                break label804;
                                                             }
@@ -23661,26 +23068,26 @@ public class TargetRenegade extends MiniZX {
                                                       }
 
                                                       this.pc('\uec56', 2, 19);
-                                                      int var1 = this.IY() + 15;
-                                                      int var2 = this.mem(var1, '\uec56');
-                                                      this.A(var2);
+                                                      int var43 = this.IY() + 15;
+                                                      int var44 = this.mem(var43, '\uec56');
+                                                      this.A(var44);
                                                       this.pc('\uec59', 1, 7);
-                                                      int var3 = this.A();
-                                                      int var4 = this.alu("and", var3, 31);
-                                                      this.A(var4);
+                                                      int var45 = this.A();
+                                                      int var46 = this.alu("and", var45, 31);
+                                                      this.A(var46);
                                                       this.pc('\uec5b', 1, 7);
-                                                      int var5 = this.A();
-                                                      this.alu("cp", var5, 24);
+                                                      int var47 = this.A();
+                                                      this.alu("cp", var47, 24);
                                                       this.pc('\uec5d', 1, 10);
                                                       if(this.flag(1, false)) {
-                                                         break label948;
+                                                         break label947;
                                                       }
 
                                                       this.pc('\uec60', 2, 23);
-                                                      int var14 = this.IY() + 7;
-                                                      int var15 = this.mem(var14, '\uec60');
-                                                      int var16 = this.alu("dec", var15);
-                                                      this.wMem(var14, var16, '\uec60');
+                                                      int var48 = this.IY() + 7;
+                                                      int var49 = this.mem(var48, '\uec60');
+                                                      int var50 = this.alu("dec", var49);
+                                                      this.wMem(var48, var50, '\uec60');
                                                       this.pc('\uec63', 1, 5);
                                                       if(this.flag(64, true)) {
                                                          this.tstates(6);
@@ -23693,38 +23100,38 @@ public class TargetRenegade extends MiniZX {
                                                       break;
                                                    }
 
-                                                   int var128 = this.$EAB6();
+                                                   int var161 = this.$EAB6();
                                                    if(this.unwinding()) {
-                                                      break label947;
+                                                      break label946;
                                                    }
 
-                                                   if(var128 == 0) {
+                                                   if(var161 == 0) {
                                                       this.$E709();
                                                       return;
                                                    }
 
-                                                   if(var128 != 1 && var128 != 2) {
-                                                      if(var128 == 3) {
+                                                   if(var161 != 1 && var161 != 2) {
+                                                      if(var161 == 3) {
                                                          this.$E770();
                                                          return;
                                                       }
 
-                                                      if(var128 == 4) {
+                                                      if(var161 == 4) {
                                                          this.$E742();
                                                          return;
                                                       }
 
-                                                      if(var128 == 5) {
+                                                      if(var161 == 5) {
                                                          break;
                                                       }
 
-                                                      if(var128 == 6) {
+                                                      if(var161 == 6) {
                                                          continue label858;
                                                       }
 
-                                                      if(var128 != 7) {
-                                                         if(var128 != 8 && var128 != 9 && var128 != 10 && var128 != 11 && var128 != 12 && var128 != 13 && var128 != 14 && var128 != 15) {
-                                                            if(var128 == 16) {
+                                                      if(var161 != 7) {
+                                                         if(var161 != 8 && var161 != 9 && var161 != 10 && var161 != 11 && var161 != 12 && var161 != 13 && var161 != 14 && var161 != 15) {
+                                                            if(var161 == 16) {
                                                                this.$E770();
                                                                return;
                                                             }
@@ -23739,49 +23146,49 @@ public class TargetRenegade extends MiniZX {
                                                 this.pc('\uec6c', 1, 7);
                                                 this.A(248);
                                                 this.pc('\uec6e', 2, 19);
-                                                int var17 = this.IY() + 4;
-                                                int var18 = this.A();
-                                                this.wMem(var17, var18, '\uec6e');
+                                                int var51 = this.IY() + 4;
+                                                int var52 = this.A();
+                                                this.wMem(var51, var52, '\uec6e');
                                                 this.pc('\uec71', 2, 19);
-                                                int var19 = this.IY() + 17;
-                                                int var20 = this.A();
-                                                this.wMem(var19, var20, '\uec71');
+                                                int var53 = this.IY() + 17;
+                                                int var54 = this.A();
+                                                this.wMem(var53, var54, '\uec71');
                                                 this.pc('\uec74', 2, 19);
-                                                int var21 = this.IY() + 0;
-                                                int var22 = this.mem(var21, '\uec74');
-                                                this.A(var22);
+                                                int var55 = this.IY() + 0;
+                                                int var56 = this.mem(var55, '\uec74');
+                                                this.A(var56);
                                                 this.pc('\uec77', 1, 7);
-                                                int var23 = this.A();
-                                                int var24 = this.alu("and", var23, 128);
-                                                this.A(var24);
+                                                int var57 = this.A();
+                                                int var58 = this.alu("and", var57, 128);
+                                                this.A(var58);
                                                 this.pc('\uec79', 1, 7);
-                                                int var25 = this.A();
-                                                int var26 = this.alu("or", var25, 26);
-                                                this.A(var26);
+                                                int var59 = this.A();
+                                                int var60 = this.alu("or", var59, 26);
+                                                this.A(var60);
                                                 this.pc('\uec7b', 2, 19);
-                                                int var27 = this.IY() + 0;
-                                                int var28 = this.A();
-                                                this.wMem(var27, var28, '\uec7b');
+                                                int var61 = this.IY() + 0;
+                                                int var62 = this.A();
+                                                this.wMem(var61, var62, '\uec7b');
                                                 this.pc('\uec7e', 1, 10);
                                              }
 
                                              this.pc('\ue96f', 2, 19);
-                                             int var29 = this.IY() + 0;
-                                             int var30 = this.mem(var29, '\ue96f');
-                                             this.A(var30);
+                                             int var63 = this.IY() + 0;
+                                             int var64 = this.mem(var63, '\ue96f');
+                                             this.A(var64);
                                              this.pc('\ue972', 1, 7);
-                                             int var31 = this.A();
-                                             this.alu("cp", var31, 128);
+                                             int var65 = this.A();
+                                             this.alu("cp", var65, 128);
                                              this.pc('\ue974', 1, 7);
                                              if(this.flag(1, true)) {
                                                 this.tstates(5);
                                                 this.pc('\ue98d', 1, 4);
-                                                int var82 = this.A();
-                                                int var83 = this.alu("inc", var82);
-                                                this.A(var83);
+                                                int var115 = this.A();
+                                                int var116 = this.alu("inc", var115);
+                                                this.A(var116);
                                                 this.pc('\ue98e', 1, 7);
-                                                int var84 = this.A();
-                                                this.alu("cp", var84, 143);
+                                                int var117 = this.A();
+                                                this.alu("cp", var117, 143);
                                                 this.pc('\ue990', 1, 7);
                                                 if(this.flag(64, false)) {
                                                    this.tstates(5);
@@ -23790,14 +23197,14 @@ public class TargetRenegade extends MiniZX {
 
                                                 this.pc('\ue992', 1, 17);
                                                 this.push('\ue995');
-                                                int var85 = this.SP();
+                                                int var118 = this.SP();
                                                 this.$ECE6();
-                                                int var86 = this.SP();
-                                                if(var86 == var85) {
+                                                int var119 = this.SP();
+                                                if((var118 - var119 & '\uffff') < '\u8000') {
                                                    this.pop();
                                                 } else {
-                                                   int var87 = var85 + 2 & '\uffff';
-                                                   if(var86 == var87) {
+                                                   int var120 = var118 + 2 & '\uffff';
+                                                   if(var119 == var120) {
                                                       return;
                                                    }
                                                 }
@@ -23806,10 +23213,10 @@ public class TargetRenegade extends MiniZX {
                                                 if(this.flag(1, true)) {
                                                    this.tstates(5);
                                                    this.pc('\ue99d', 2, 23);
-                                                   int var88 = this.IY() + 2;
-                                                   int var89 = this.mem(var88, '\ue99d');
-                                                   int var90 = this.alu("inc", var89);
-                                                   this.wMem(var88, var90, '\ue99d');
+                                                   int var121 = this.IY() + 2;
+                                                   int var122 = this.mem(var121, '\ue99d');
+                                                   int var123 = this.alu("inc", var122);
+                                                   this.wMem(var121, var123, '\ue99d');
                                                    this.pc('\ue9a0', 1, 7);
                                                    this.A(144);
                                                    break;
@@ -23820,26 +23227,26 @@ public class TargetRenegade extends MiniZX {
                                                 this.pc('\ue99a', 1, 10);
                                              } else {
                                                 this.pc('\ue976', 1, 4);
-                                                int var32 = this.A();
-                                                int var33 = this.alu("inc", var32);
-                                                this.A(var33);
+                                                int var66 = this.A();
+                                                int var67 = this.alu("inc", var66);
+                                                this.A(var67);
                                                 this.pc('\ue977', 1, 7);
-                                                int var34 = this.A();
-                                                this.alu("cp", var34, 15);
+                                                int var68 = this.A();
+                                                this.alu("cp", var68, 15);
                                                 this.pc('\ue979', 1, 7);
                                                 if(this.flag(64, false)) {
                                                    this.tstates(5);
                                                 } else {
                                                    this.pc('\ue97b', 1, 17);
                                                    this.push('\ue97e');
-                                                   int var35 = this.SP();
+                                                   int var69 = this.SP();
                                                    this.$ECEF();
-                                                   int var36 = this.SP();
-                                                   if(var36 == var35) {
+                                                   int var70 = this.SP();
+                                                   if((var69 - var70 & '\uffff') < '\u8000') {
                                                       this.pop();
                                                    } else {
-                                                      int var37 = var35 + 2 & '\uffff';
-                                                      if(var36 == var37) {
+                                                      int var71 = var69 + 2 & '\uffff';
+                                                      if(var70 == var71) {
                                                          return;
                                                       }
                                                    }
@@ -23856,10 +23263,10 @@ public class TargetRenegade extends MiniZX {
                                                    this.pc('\ue986', 1, 7);
                                                    this.A(16);
                                                    this.pc('\ue988', 2, 23);
-                                                   int var38 = this.IY() + 2;
-                                                   int var39 = this.mem(var38, '\ue988');
-                                                   int var40 = this.alu("dec", var39);
-                                                   this.wMem(var38, var40, '\ue988');
+                                                   int var72 = this.IY() + 2;
+                                                   int var73 = this.mem(var72, '\ue988');
+                                                   int var74 = this.alu("dec", var73);
+                                                   this.wMem(var72, var74, '\ue988');
                                                 }
 
                                                 this.pc('\ue98b', 1, 12);
@@ -23868,441 +23275,442 @@ public class TargetRenegade extends MiniZX {
                                           }
 
                                           this.pc('\ue9a2', 2, 19);
-                                          int var41 = this.IY() + 0;
-                                          int var42 = this.A();
-                                          this.wMem(var41, var42, '\ue9a2');
-                                          break label858;
+                                          int var75 = this.IY() + 0;
+                                          int var76 = this.A();
+                                          this.wMem(var75, var76, '\ue9a2');
+                                          break label862;
                                        }
 
                                        this.pc('\uecb6', 2, 19);
-                                       int var185 = this.IY() + 0;
-                                       int var186 = this.A();
-                                       this.wMem(var185, var186, '\uecb6');
-                                       break label862;
+                                       int var195 = this.IY() + 0;
+                                       int var196 = this.A();
+                                       this.wMem(var195, var196, '\uecb6');
+                                       break label860;
                                     }
 
-                                    this.pc('\ue9a5', 2, 23);
-                                    int var43 = this.IY() + 17;
-                                    int var44 = this.mem(var43, '\ue9a5');
-                                    int var45 = this.alu("inc", var44);
-                                    this.wMem(var43, var45, '\ue9a5');
-                                    this.pc('\ue9a8', 2, 23);
-                                    int var46 = this.IY() + 17;
-                                    int var47 = this.mem(var46, '\ue9a8');
-                                    int var48 = this.alu("inc", var47);
-                                    this.wMem(var46, var48, '\ue9a8');
-                                    this.pc('\ue9ab', 2, 19);
-                                    int var49 = this.IY() + 4;
-                                    int var50 = this.mem(var49, '\ue9ab');
-                                    this.A(var50);
-                                    this.pc('\ue9ae', 2, 19);
-                                    int var51 = this.IY() + 17;
-                                    int var52 = this.mem(var51, '\ue9ae');
-                                    int var53 = this.A();
-                                    int var54 = this.alu("add", var53, var52);
-                                    this.A(var54);
-                                    this.pc('\ue9b1', 2, 19);
-                                    int var55 = this.IY() + 4;
-                                    int var56 = this.A();
-                                    this.wMem(var55, var56, '\ue9b1');
-                                    this.pc('\ue9b4', 1, 5);
-                                    if(this.flag(128, false)) {
+                                    this.pc('\ue650', 1, 7);
+                                    this.H(210);
+                                    this.pc('\ue652', 2, 19);
+                                    int var128 = this.IY() + 18;
+                                    int var129 = this.mem(var128, '\ue652');
+                                    this.L(var129);
+                                    this.pc('\ue655', 1, 7);
+                                    int var130 = this.HL();
+                                    int var131 = this.mem(var130, '\ue655');
+                                    this.A(var131);
+                                    this.pc('\ue656', 2, 19);
+                                    int var132 = this.IY() + 3;
+                                    int var133 = this.mem(var132, '\ue656');
+                                    int var134 = this.A();
+                                    int var135 = this.alu("sub", var134, var133);
+                                    this.A(var135);
+                                    this.pc('\ue659', 1, 7);
+                                    if(this.flag(64, false)) {
+                                       this.tstates(5);
+                                    } else {
+                                       this.pc('\ue65b', 1, 4);
+                                       int var136 = this.A();
+                                       int var137 = this.A();
+                                       int var138 = this.alu("sbc", var137, var136);
+                                       this.A(var138);
+                                       this.pc('\ue65c', 1, 7);
+                                       int var139 = this.A();
+                                       int var140 = this.alu("add", var139, 2);
+                                       this.A(var140);
+                                       this.pc('\ue65e', 1, 4);
+                                       int var141 = this.A();
+                                       int var142 = this.A();
+                                       int var143 = this.alu("add", var142, var141);
+                                       this.A(var143);
+                                       this.pc('\ue65f', 1, 4);
+                                       int var144 = this.A();
+                                       int var145 = this.A();
+                                       int var146 = this.alu("add", var145, var144);
+                                       this.A(var146);
+                                    }
+
+                                    this.pc('\ue660', 2, 23);
+                                    int var147 = this.IY() + 0;
+                                    int var148 = this.mem(var147, '\ue660') & -129;
+                                    this.wMem(var147, var148, '\ue660');
+                                    this.pc('\ue664', 2, 19);
+                                    int var149 = this.IY() + 15;
+                                    int var150 = this.A();
+                                    this.wMem(var149, var150, '\ue664');
+                                    this.pc('\ue667', 1, 17);
+                                    this.push('\ue66a');
+                                    int var151 = this.SP();
+                                    this.$EBDD();
+                                    int var152 = this.SP();
+                                    if((var151 - var152 & '\uffff') < '\u8000') {
+                                       this.pop();
+                                    } else {
+                                       int var153 = var151 + 2 & '\uffff';
+                                       if(var152 == var153) {
+                                          return;
+                                       }
+                                    }
+
+                                    this.pc('\ue66a', 1, 10);
+                                    this.HL('\ue650');
+                                    this.pc('\ue66d', 2, 19);
+                                    int var154 = this.IY() + 2;
+                                    int var155 = this.mem(var154, '\ue66d');
+                                    this.A(var155);
+                                    this.pc('\ue670', 1, 4);
+                                    int var156 = this.A();
+                                    int var157 = this.alu("dec", var156);
+                                    this.A(var157);
+                                    this.pc('\ue671', 1, 10);
+                                    if(this.flag(64, true)) {
+                                       this.$EC09();
+                                       return;
+                                    }
+
+                                    this.pc('\ue674', 2, 23);
+                                    int var158 = this.IY() + 17;
+                                    int var159 = this.mem(var158, '\ue674');
+                                    int var160 = this.alu("dec", var159);
+                                    this.wMem(var158, var160, '\ue674');
+                                    this.pc('\ue677', 1, 10);
+                                    this.HL('\ue683');
+                                    this.pc('\ue67a', 1, 10);
+                                    if(!this.flag(64, true)) {
+                                       this.pc('\ue67d', 1, 10);
+                                       this.HL('\ueab6');
+                                       this.pc('\ue680', 1, 10);
+                                       this.$EC09();
+                                       return;
+                                    }
+                                 }
+
+                                 this.pc('\uecb9', 2, 23);
+                                 int var162 = this.IY() + 17;
+                                 int var163 = this.mem(var162, '\uecb9');
+                                 int var164 = this.alu("inc", var163);
+                                 this.wMem(var162, var164, '\uecb9');
+                                 this.pc('\uecbc', 2, 19);
+                                 int var165 = this.IY() + 4;
+                                 int var166 = this.mem(var165, '\uecbc');
+                                 this.A(var166);
+                                 this.pc('\uecbf', 2, 19);
+                                 int var167 = this.IY() + 17;
+                                 int var168 = this.mem(var167, '\uecbf');
+                                 int var169 = this.A();
+                                 int var170 = this.alu("add", var169, var168);
+                                 this.A(var170);
+                                 this.pc('\uecc2', 2, 19);
+                                 int var171 = this.IY() + 4;
+                                 int var172 = this.A();
+                                 this.wMem(var171, var172, '\uecc2');
+                                 this.pc('\uecc5', 1, 10);
+                                 this.HL('\uea61');
+                                 this.pc('\uecc8', 1, 10);
+                                 if(!this.flag(128, true)) {
+                                    this.pc('\ueccb', 1, 7);
+                                    int var173 = this.A();
+                                    this.alu("cp", var173, 240);
+                                    this.pc('\ueccd', 1, 5);
+                                    if(this.flag(1, true)) {
                                        this.tstates(6);
                                        return;
                                     }
 
-                                    this.pc('\ue9b5', 2, 19);
-                                    int var57 = this.IY() + 18;
-                                    this.wMem(var57, 0, '\ue9b5');
-                                    this.pc('\ue9b9', 2, 19);
-                                    int var58 = this.IY() + 4;
-                                    this.wMem(var58, 0, '\ue9b9');
-                                    this.pc('\ue9bd', 2, 19);
-                                    int var59 = this.IY() + 14;
-                                    int var60 = this.mem(var59, '\ue9bd');
-                                    this.A(var60);
-                                    this.pc('\ue9c0', 1, 10);
-                                    this.HL('\uea5f');
-                                    this.pc('\ue9c3', 1, 4);
-                                    int var61 = this.A();
-                                    int var62 = this.A();
-                                    int var63 = this.alu("or", var62, var61);
-                                    this.A(var63);
-                                    this.pc('\ue9c4', 1, 10);
-                                    if(!this.flag(128, true)) {
-                                       this.pc('\ue9c7', 2, 19);
-                                       int var64 = this.IY() + 0;
-                                       int var65 = this.mem(var64, '\ue9c7');
-                                       this.A(var65);
-                                       this.pc('\ue9ca', 1, 7);
-                                       int var66 = this.A();
-                                       int var67 = this.alu("and", var66, 128);
-                                       this.A(var67);
-                                       this.pc('\ue9cc', 1, 7);
-                                       int var68 = this.A();
-                                       int var69 = this.alu("add", var68, 17);
-                                       this.A(var69);
-                                       this.pc('\ue9ce', 2, 19);
-                                       int var70 = this.IY() + 0;
-                                       int var71 = this.A();
-                                       this.wMem(var70, var71, '\ue9ce');
-                                       this.pc('\ue9d1', 2, 19);
-                                       int var72 = this.IY() + 7;
-                                       this.wMem(var72, 56, '\ue9d1');
-                                       this.pc('\ue9d5', 1, 10);
-                                       this.HL('\ud5f2');
-                                       this.pc('\ue9d8', 1, 17);
-                                       this.push('\ue9db');
-                                       int var73 = this.SP();
-                                       this.$F44B();
-                                       if(this.unwinding()) {
-                                          break label947;
+                                    this.pc('\uecce', 1, 10);
+                                    this.DE(259);
+                                    this.pc('\uecd1', 1, 7);
+                                    this.A(96);
+                                    this.pc('\uecd3', 1, 10);
+                                    this.HL('\ua000');
+                                    this.pc('\uecd6', 1, 17);
+                                    this.push('\uecd9');
+                                    int var174 = this.SP();
+                                    this.$F2BD();
+                                    int var175 = this.SP();
+                                    if((var174 - var175 & '\uffff') < '\u8000') {
+                                       this.pop();
+                                    } else {
+                                       int var176 = var174 + 2 & '\uffff';
+                                       if(var175 == var176) {
+                                          return;
                                        }
+                                    }
 
-                                       int var75 = this.SP();
-                                       if(var75 == var73) {
-                                          this.pop();
-                                       } else {
-                                          int var76 = var73 + 2 & '\uffff';
-                                          if(var75 == var76) {
-                                             return;
-                                          }
-                                       }
-
-                                       this.pc('\ue9db', 2, 8);
-                                       int var77 = this.IYL();
-                                       this.A(var77);
-                                       this.pc('\ue9dd', 1, 7);
-                                       int var78 = this.A();
-                                       this.alu("cp", var78, 54);
-                                       this.pc('\ue9df', 1, 7);
-                                       this.E(1);
-                                       this.pc('\ue9e1', 1, 10);
-                                       if(this.flag(1, false)) {
-                                          this.tstates(7);
-                                          this.push('\ue9e4');
-                                          int var79 = this.SP();
-                                          this.$5DDE();
-                                          if(this.unwinding()) {
-                                             break label947;
-                                          }
-
-                                          int var80 = this.SP();
-                                          if(var80 == var79) {
-                                             this.pop();
-                                          } else {
-                                             int var81 = var79 + 2 & '\uffff';
-                                             if(var80 == var81) {
-                                                return;
-                                             }
-                                          }
-                                       }
-
-                                       this.pc('\ue9e4', 1, 10);
-                                       this.HL('\ue9ea');
-                                       this.pc('\ue9e7', 1, 10);
-                                       this.$EC0D();
+                                    this.pc('\uecd9', 1, 5);
+                                    if(this.flag(1, false)) {
+                                       this.tstates(6);
                                        return;
                                     }
-                                 }
 
-                                 this.pc('\ue650', 1, 7);
-                                 this.H(210);
-                                 this.pc('\ue652', 2, 19);
-                                 int var95 = this.IY() + 18;
-                                 int var96 = this.mem(var95, '\ue652');
-                                 this.L(var96);
-                                 this.pc('\ue655', 1, 7);
-                                 int var97 = this.HL();
-                                 int var98 = this.mem(var97, '\ue655');
-                                 this.A(var98);
-                                 this.pc('\ue656', 2, 19);
-                                 int var99 = this.IY() + 3;
-                                 int var100 = this.mem(var99, '\ue656');
-                                 int var101 = this.A();
-                                 int var102 = this.alu("sub", var101, var100);
-                                 this.A(var102);
-                                 this.pc('\ue659', 1, 7);
-                                 if(this.flag(64, false)) {
-                                    this.tstates(5);
-                                 } else {
-                                    this.pc('\ue65b', 1, 4);
-                                    int var103 = this.A();
-                                    int var104 = this.A();
-                                    int var105 = this.alu("sbc", var104, var103);
-                                    this.A(var105);
-                                    this.pc('\ue65c', 1, 7);
-                                    int var106 = this.A();
-                                    int var107 = this.alu("add", var106, 2);
-                                    this.A(var107);
-                                    this.pc('\ue65e', 1, 4);
-                                    int var108 = this.A();
-                                    int var109 = this.A();
-                                    int var110 = this.alu("add", var109, var108);
-                                    this.A(var110);
-                                    this.pc('\ue65f', 1, 4);
-                                    int var111 = this.A();
-                                    int var112 = this.A();
-                                    int var113 = this.alu("add", var112, var111);
-                                    this.A(var113);
-                                 }
-
-                                 this.pc('\ue660', 2, 23);
-                                 int var114 = this.IY() + 0;
-                                 int var115 = this.mem(var114, '\ue660') & -129;
-                                 this.wMem(var114, var115, '\ue660');
-                                 this.pc('\ue664', 2, 19);
-                                 int var116 = this.IY() + 15;
-                                 int var117 = this.A();
-                                 this.wMem(var116, var117, '\ue664');
-                                 this.pc('\ue667', 1, 17);
-                                 this.push('\ue66a');
-                                 int var118 = this.SP();
-                                 this.$EBDD();
-                                 int var119 = this.SP();
-                                 if(var119 == var118) {
-                                    this.pop();
-                                 } else {
-                                    int var120 = var118 + 2 & '\uffff';
-                                    if(var119 == var120) {
-                                       return;
+                                    this.pc('\uecda', 1, 10);
+                                    this.DE(5);
+                                    this.pc('\uecdd', 1, 17);
+                                    this.push('\uece0');
+                                    int var177 = this.SP();
+                                    this.$F651();
+                                    int var178 = this.SP();
+                                    if((var177 - var178 & '\uffff') < '\u8000') {
+                                       this.pop();
+                                    } else {
+                                       int var179 = var177 + 2 & '\uffff';
+                                       if(var178 == var179) {
+                                          return;
+                                       }
                                     }
-                                 }
 
-                                 this.pc('\ue66a', 1, 10);
-                                 this.HL('\ue650');
-                                 this.pc('\ue66d', 2, 19);
-                                 int var121 = this.IY() + 2;
-                                 int var122 = this.mem(var121, '\ue66d');
-                                 this.A(var122);
-                                 this.pc('\ue670', 1, 4);
-                                 int var123 = this.A();
-                                 int var124 = this.alu("dec", var123);
-                                 this.A(var124);
-                                 this.pc('\ue671', 1, 10);
-                                 if(this.flag(64, true)) {
-                                    this.$EC09();
-                                    return;
-                                 }
-
-                                 this.pc('\ue674', 2, 23);
-                                 int var125 = this.IY() + 17;
-                                 int var126 = this.mem(var125, '\ue674');
-                                 int var127 = this.alu("dec", var126);
-                                 this.wMem(var125, var127, '\ue674');
-                                 this.pc('\ue677', 1, 10);
-                                 this.HL('\ue683');
-                                 this.pc('\ue67a', 1, 10);
-                                 if(!this.flag(64, true)) {
-                                    this.pc('\ue67d', 1, 10);
-                                    this.HL('\ueab6');
-                                    this.pc('\ue680', 1, 10);
-                                    this.$EC09();
+                                    this.pc('\uece0', 1, 10);
+                                    this.HL('\ud531');
+                                    this.pc('\uece3', 1, 10);
+                                    this.$F455();
                                     return;
                                  }
                               }
 
-                              this.pc('\uecb9', 2, 23);
-                              int var129 = this.IY() + 17;
-                              int var130 = this.mem(var129, '\uecb9');
-                              int var131 = this.alu("inc", var130);
-                              this.wMem(var129, var131, '\uecb9');
-                              this.pc('\uecbc', 2, 19);
-                              int var132 = this.IY() + 4;
-                              int var133 = this.mem(var132, '\uecbc');
-                              this.A(var133);
-                              this.pc('\uecbf', 2, 19);
-                              int var134 = this.IY() + 17;
-                              int var135 = this.mem(var134, '\uecbf');
-                              int var136 = this.A();
-                              int var137 = this.alu("add", var136, var135);
-                              this.A(var137);
-                              this.pc('\uecc2', 2, 19);
-                              int var138 = this.IY() + 4;
-                              int var139 = this.A();
-                              this.wMem(var138, var139, '\uecc2');
-                              this.pc('\uecc5', 1, 10);
-                              this.HL('\uea61');
-                              this.pc('\uecc8', 1, 10);
+                              this.pc('\ue9a5', 2, 23);
+                              int var77 = this.IY() + 17;
+                              int var78 = this.mem(var77, '\ue9a5');
+                              int var79 = this.alu("inc", var78);
+                              this.wMem(var77, var79, '\ue9a5');
+                              this.pc('\ue9a8', 2, 23);
+                              int var80 = this.IY() + 17;
+                              int var81 = this.mem(var80, '\ue9a8');
+                              int var82 = this.alu("inc", var81);
+                              this.wMem(var80, var82, '\ue9a8');
+                              this.pc('\ue9ab', 2, 19);
+                              int var83 = this.IY() + 4;
+                              int var84 = this.mem(var83, '\ue9ab');
+                              this.A(var84);
+                              this.pc('\ue9ae', 2, 19);
+                              int var85 = this.IY() + 17;
+                              int var86 = this.mem(var85, '\ue9ae');
+                              int var87 = this.A();
+                              int var88 = this.alu("add", var87, var86);
+                              this.A(var88);
+                              this.pc('\ue9b1', 2, 19);
+                              int var89 = this.IY() + 4;
+                              int var90 = this.A();
+                              this.wMem(var89, var90, '\ue9b1');
+                              this.pc('\ue9b4', 1, 5);
+                              if(this.flag(128, false)) {
+                                 this.tstates(6);
+                                 return;
+                              }
+
+                              this.pc('\ue9b5', 2, 19);
+                              int var91 = this.IY() + 18;
+                              this.wMem(var91, 0, '\ue9b5');
+                              this.pc('\ue9b9', 2, 19);
+                              int var92 = this.IY() + 4;
+                              this.wMem(var92, 0, '\ue9b9');
+                              this.pc('\ue9bd', 2, 19);
+                              int var93 = this.IY() + 14;
+                              int var94 = this.mem(var93, '\ue9bd');
+                              this.A(var94);
+                              this.pc('\ue9c0', 1, 10);
+                              this.HL('\uea5f');
+                              this.pc('\ue9c3', 1, 4);
+                              int var95 = this.A();
+                              int var96 = this.A();
+                              int var97 = this.alu("or", var96, var95);
+                              this.A(var97);
+                              this.pc('\ue9c4', 1, 10);
                            } while(this.flag(128, true));
 
-                           this.pc('\ueccb', 1, 7);
-                           int var140 = this.A();
-                           this.alu("cp", var140, 240);
-                           this.pc('\ueccd', 1, 5);
-                           if(this.flag(1, true)) {
-                              this.tstates(6);
-                              return;
+                           this.pc('\ue9c7', 2, 19);
+                           int var98 = this.IY() + 0;
+                           int var99 = this.mem(var98, '\ue9c7');
+                           this.A(var99);
+                           this.pc('\ue9ca', 1, 7);
+                           int var100 = this.A();
+                           int var101 = this.alu("and", var100, 128);
+                           this.A(var101);
+                           this.pc('\ue9cc', 1, 7);
+                           int var102 = this.A();
+                           int var103 = this.alu("add", var102, 17);
+                           this.A(var103);
+                           this.pc('\ue9ce', 2, 19);
+                           int var104 = this.IY() + 0;
+                           int var105 = this.A();
+                           this.wMem(var104, var105, '\ue9ce');
+                           this.pc('\ue9d1', 2, 19);
+                           int var106 = this.IY() + 7;
+                           this.wMem(var106, 56, '\ue9d1');
+                           this.pc('\ue9d5', 1, 10);
+                           this.HL('\ud5f2');
+                           this.pc('\ue9d8', 1, 17);
+                           this.push('\ue9db');
+                           int var107 = this.SP();
+                           this.$F44B();
+                           if(this.unwinding()) {
+                              break label946;
                            }
 
-                           this.pc('\uecce', 1, 10);
-                           this.DE(259);
-                           this.pc('\uecd1', 1, 7);
-                           this.A(96);
-                           this.pc('\uecd3', 1, 10);
-                           this.HL('\ua000');
-                           this.pc('\uecd6', 1, 17);
-                           this.push('\uecd9');
-                           int var141 = this.SP();
-                           this.$F2BD();
-                           int var142 = this.SP();
-                           if(var142 == var141) {
+                           int var108 = this.SP();
+                           if((var107 - var108 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
-                              int var143 = var141 + 2 & '\uffff';
-                              if(var142 == var143) {
+                              int var109 = var107 + 2 & '\uffff';
+                              if(var108 == var109) {
                                  return;
                               }
                            }
 
-                           this.pc('\uecd9', 1, 5);
+                           this.pc('\ue9db', 2, 8);
+                           int var110 = this.IYL();
+                           this.A(var110);
+                           this.pc('\ue9dd', 1, 7);
+                           int var111 = this.A();
+                           this.alu("cp", var111, 54);
+                           this.pc('\ue9df', 1, 7);
+                           this.E(1);
+                           this.pc('\ue9e1', 1, 10);
                            if(this.flag(1, false)) {
-                              this.tstates(6);
-                              return;
-                           }
+                              this.tstates(7);
+                              this.push('\ue9e4');
+                              int var112 = this.SP();
+                              this.$5DDE();
+                              if(this.unwinding()) {
+                                 break label946;
+                              }
 
-                           this.pc('\uecda', 1, 10);
-                           this.DE(5);
-                           this.pc('\uecdd', 1, 17);
-                           this.push('\uece0');
-                           int var144 = this.SP();
-                           this.$F651();
-                           int var145 = this.SP();
-                           if(var145 == var144) {
-                              this.pop();
-                           } else {
-                              int var146 = var144 + 2 & '\uffff';
-                              if(var145 == var146) {
-                                 return;
+                              int var113 = this.SP();
+                              if((var112 - var113 & '\uffff') < '\u8000') {
+                                 this.pop();
+                              } else {
+                                 int var114 = var112 + 2 & '\uffff';
+                                 if(var113 == var114) {
+                                    return;
+                                 }
                               }
                            }
 
-                           this.pc('\uece0', 1, 10);
-                           this.HL('\ud531');
-                           this.pc('\uece3', 1, 10);
-                           this.$F455();
+                           this.pc('\ue9e4', 1, 10);
+                           this.HL('\ue9ea');
+                           this.pc('\ue9e7', 1, 10);
+                           this.$EC0D();
                            return;
                         }
                      }
 
-                     this.pc('\ue6b2', 2, 19);
-                     int var208 = this.IY() + 15;
-                     this.wMem(var208, 0, '\ue6b2');
-                     this.pc('\ue6b6', 1, 17);
-                     this.push('\ue6b9');
-                     int var209 = this.SP();
-                     this.$EB8E();
-                     int var210 = this.SP();
-                     if(var210 == var209) {
-                        this.pop();
+                     this.pc('\uf1ab', 1, 7);
+                     this.H(210);
+                     this.pc('\uf1ad', 2, 19);
+                     int var20 = this.IY() + 19;
+                     int var21 = this.mem(var20, '\uf1ad');
+                     this.L(var21);
+                     this.pc('\uf1b0', 1, 7);
+                     int var22 = this.HL();
+                     int var23 = this.mem(var22, '\uf1b0');
+                     this.A(var23);
+                     this.pc('\uf1b1', 1, 7);
+                     int var24 = this.A();
+                     int var25 = this.alu("and", var24, 127);
+                     this.A(var25);
+                     this.pc('\uf1b3', 1, 7);
+                     int var26 = this.A();
+                     int var27 = this.alu("sub", var26, 35);
+                     this.A(var27);
+                     this.pc('\uf1b5', 1, 7);
+                     int var28 = this.A();
+                     this.alu("cp", var28, 3);
+                     this.pc('\uf1b7', 1, 7);
+                     if(this.flag(1, true)) {
+                        this.tstates(5);
                      } else {
-                        int var211 = var209 + 2 & '\uffff';
-                        if(var210 == var211) {
+                        this.pc('\uf1b9', 2, 19);
+                        int var29 = this.IY() + 12;
+                        int var30 = this.mem(var29, '\uf1b9');
+                        this.A(var30);
+                        this.pc('\uf1bc', 2, 19);
+                        int var31 = this.IY() + 13;
+                        int var32 = this.mem(var31, '\uf1bc');
+                        int var33 = this.A();
+                        this.alu("cp", var33, var32);
+                        this.pc('\uf1bf', 1, 5);
+                        if(this.flag(64, true)) {
+                           this.tstates(6);
                            return;
                         }
                      }
-
-                     this.pc('\ue6b9', 2, 19);
-                     int var212 = this.IY() + 2;
-                     int var213 = this.mem(var212, '\ue6b9');
-                     this.A(var213);
-                     this.pc('\ue6bc', 1, 7);
-                     int var214 = this.A();
-                     this.alu("cp", var214, 254);
-                     this.pc('\ue6be', 1, 10);
-                     this.HL('\ue6b2');
-                     this.pc('\ue6c1', 1, 10);
-                     if(this.flag(128, true)) {
-                        this.$EC09();
-                        if(this.peek() != '\uf42f') {
-                           return;
-                        }
-
-                        int var217 = this.pop();
-                        this.jump(var217);
-                        if(!this.unwinding()) {
-                           return;
-                        }
-                     } else {
-                        this.pc('\ue6c4', 1, 10);
-                        this.HL('\ue631');
-                        this.pc('\ue6c7', 2, 19);
-                        int var215 = this.IY() + 7;
-                        this.wMem(var215, 112, '\ue6c7');
-                        this.pc('\ue6cb', 1, 10);
-                        this.$EC0D();
-                        if(this.peek() != '\uf42f') {
-                           break;
-                        }
-
-                        int var216 = this.pop();
-                        this.jump(var216);
-                        if(!this.unwinding()) {
-                           break;
-                        }
-                     }
-                     break label947;
+                     break label890;
                   }
 
-                  this.pc('\uf1ab', 1, 7);
-                  this.H(210);
-                  this.pc('\uf1ad', 2, 19);
-                  int var147 = this.IY() + 19;
-                  int var148 = this.mem(var147, '\uf1ad');
-                  this.L(var148);
-                  this.pc('\uf1b0', 1, 7);
-                  int var149 = this.HL();
-                  int var150 = this.mem(var149, '\uf1b0');
-                  this.A(var150);
-                  this.pc('\uf1b1', 1, 7);
-                  int var151 = this.A();
-                  int var152 = this.alu("and", var151, 127);
-                  this.A(var152);
-                  this.pc('\uf1b3', 1, 7);
-                  int var153 = this.A();
-                  int var154 = this.alu("sub", var153, 35);
-                  this.A(var154);
-                  this.pc('\uf1b5', 1, 7);
-                  int var155 = this.A();
-                  this.alu("cp", var155, 3);
-                  this.pc('\uf1b7', 1, 7);
-                  if(this.flag(1, true)) {
-                     this.tstates(5);
+                  this.pc('\ue6b2', 2, 19);
+                  int var1 = this.IY() + 15;
+                  this.wMem(var1, 0, '\ue6b2');
+                  this.pc('\ue6b6', 1, 17);
+                  this.push('\ue6b9');
+                  int var2 = this.SP();
+                  this.$EB8E();
+                  int var3 = this.SP();
+                  if((var2 - var3 & '\uffff') < '\u8000') {
+                     this.pop();
                   } else {
-                     this.pc('\uf1b9', 2, 19);
-                     int var156 = this.IY() + 12;
-                     int var157 = this.mem(var156, '\uf1b9');
-                     this.A(var157);
-                     this.pc('\uf1bc', 2, 19);
-                     int var158 = this.IY() + 13;
-                     int var159 = this.mem(var158, '\uf1bc');
-                     int var160 = this.A();
-                     this.alu("cp", var160, var159);
-                     this.pc('\uf1bf', 1, 5);
-                     if(this.flag(64, true)) {
-                        this.tstates(6);
+                     int var4 = var2 + 2 & '\uffff';
+                     if(var3 == var4) {
                         return;
                      }
                   }
+
+                  this.pc('\ue6b9', 2, 19);
+                  int var5 = this.IY() + 2;
+                  int var6 = this.mem(var5, '\ue6b9');
+                  this.A(var6);
+                  this.pc('\ue6bc', 1, 7);
+                  int var7 = this.A();
+                  this.alu("cp", var7, 254);
+                  this.pc('\ue6be', 1, 10);
+                  this.HL('\ue6b2');
+                  this.pc('\ue6c1', 1, 10);
+                  if(this.flag(128, true)) {
+                     this.$EC09();
+                     if(this.peek() != '\uf42f') {
+                        return;
+                     }
+
+                     int var11 = this.pop();
+                     this.jump(var11);
+                     if(!this.unwinding()) {
+                        return;
+                     }
+                  } else {
+                     this.pc('\ue6c4', 1, 10);
+                     this.HL('\ue631');
+                     this.pc('\ue6c7', 2, 19);
+                     int var8 = this.IY() + 7;
+                     this.wMem(var8, 112, '\ue6c7');
+                     this.pc('\ue6cb', 1, 10);
+                     this.$EC0D();
+                     if(this.peek() != '\uf42f') {
+                        break;
+                     }
+
+                     int var9 = this.pop();
+                     this.jump(var9);
+                     if(!this.unwinding()) {
+                        break;
+                     }
+                  }
+                  break label946;
                }
 
                this.pc('\uf1c0', 1, 4);
-               int var161 = this.A();
-               int var162 = this.A();
-               int var163 = this.alu("xor", var162, var161);
-               this.A(var163);
+               int var34 = this.A();
+               int var35 = this.A();
+               int var36 = this.alu("xor", var35, var34);
+               this.A(var36);
                this.pc('\uf1c1', 2, 19);
-               int var164 = this.IY() + 18;
-               int var165 = this.A();
-               this.wMem(var164, var165, '\uf1c1');
+               int var37 = this.IY() + 18;
+               int var38 = this.A();
+               this.wMem(var37, var38, '\uf1c1');
                this.pc('\uf1c4', 2, 19);
-               int var166 = this.IY() + 19;
-               int var167 = this.A();
-               this.wMem(var166, var167, '\uf1c4');
+               int var39 = this.IY() + 19;
+               int var40 = this.A();
+               this.wMem(var39, var40, '\uf1c4');
                this.pc('\uf1c7', 2, 23);
-               int var168 = this.IY() + 10;
-               int var169 = this.mem(var168, '\uf1c7') & -129;
-               this.wMem(var168, var169, '\uf1c7');
+               int var41 = this.IY() + 10;
+               int var42 = this.mem(var41, '\uf1c7') & -129;
+               this.wMem(var41, var42, '\uf1c7');
                this.pc('\uf1cb', 1, 10);
                this.HL('\ueab6');
                this.pc('\uf1ce', 1, 10);
@@ -24311,29 +23719,29 @@ public class TargetRenegade extends MiniZX {
             }
 
             this.pc('\uef2c', 2, 19);
-            int var6 = this.IY() + 0;
-            int var7 = this.mem(var6, '\uef2c');
-            this.A(var7);
+            int var12 = this.IY() + 0;
+            int var13 = this.mem(var12, '\uef2c');
+            this.A(var13);
             this.pc('\uef2f', 1, 7);
-            int var8 = this.A();
-            int var9 = this.alu("and", var8, 128);
-            this.A(var9);
+            int var14 = this.A();
+            int var15 = this.alu("and", var14, 128);
+            this.A(var15);
             this.pc('\uef31', 2, 19);
-            int var10 = this.IY() + 0;
-            int var11 = this.A();
-            this.wMem(var10, var11, '\uef31');
+            int var16 = this.IY() + 0;
+            int var17 = this.A();
+            this.wMem(var16, var17, '\uef31');
             this.pc('\uef34', 2, 19);
-            int var12 = this.IY() + 8;
-            this.wMem(var12, 182, '\uef34');
+            int var18 = this.IY() + 8;
+            this.wMem(var18, 182, '\uef34');
             this.pc('\uef38', 2, 19);
-            int var13 = this.IY() + 9;
-            this.wMem(var13, 234, '\uef38');
+            int var19 = this.IY() + 9;
+            this.wMem(var19, 234, '\uef38');
             this.pc('\uef3c', 1, 10);
             return;
          }
 
-         int[] var74 = new int[]{'\ue6b2'};
-         if(!this.isOwnAddress(var74)) {
+         int[] var10 = new int[]{'\ue6b2'};
+         if(!this.isOwnAddress(var10)) {
             return;
          }
       }
@@ -24441,7 +23849,7 @@ public class TargetRenegade extends MiniZX {
                         int var37 = this.SP();
                         this.$E609();
                         int var38 = this.SP();
-                        if(var38 == var37) {
+                        if((var37 - var38 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var39 = var37 + 2 & '\uffff';
@@ -24517,7 +23925,7 @@ public class TargetRenegade extends MiniZX {
                            int var66 = this.SP();
                            this.$E742();
                            int var67 = this.SP();
-                           if(var67 == var66) {
+                           if((var66 - var67 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var68 = var66 + 2 & '\uffff';
@@ -24537,7 +23945,7 @@ public class TargetRenegade extends MiniZX {
                      int var69 = this.SP();
                      this.$F455();
                      int var70 = this.SP();
-                     if(var70 == var69) {
+                     if((var69 - var70 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var71 = var69 + 2 & '\uffff';
@@ -24815,7 +24223,7 @@ public class TargetRenegade extends MiniZX {
                         int var191 = this.SP();
                         this.$F2BA();
                         int var192 = this.SP();
-                        if(var192 == var191) {
+                        if((var191 - var192 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var193 = var191 + 2 & '\uffff';
@@ -24833,7 +24241,7 @@ public class TargetRenegade extends MiniZX {
                            int var196 = this.SP();
                            this.$F455();
                            int var197 = this.SP();
-                           if(var197 == var196) {
+                           if((var196 - var197 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var198 = var196 + 2 & '\uffff';
@@ -25043,7 +24451,7 @@ public class TargetRenegade extends MiniZX {
                         this.$EF22();
                         if(!this.unwinding()) {
                            int var270 = this.SP();
-                           if(var270 == var269) {
+                           if((var269 - var270 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var271 = var269 + 2 & '\uffff';
@@ -25105,7 +24513,7 @@ public class TargetRenegade extends MiniZX {
                            }
                         } else {
                            int var276 = this.SP();
-                           if(var276 == var275) {
+                           if((var275 - var276 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var277 = var275 + 2 & '\uffff';
@@ -25124,7 +24532,7 @@ public class TargetRenegade extends MiniZX {
                         int var281 = this.SP();
                         this.$F3DB();
                         int var282 = this.SP();
-                        if(var282 == var281) {
+                        if((var281 - var282 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var283 = var281 + 2 & '\uffff';
@@ -25471,7 +24879,7 @@ public class TargetRenegade extends MiniZX {
                         int var376 = this.SP();
                         this.$F455();
                         int var377 = this.SP();
-                        if(var377 == var376) {
+                        if((var376 - var377 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var378 = var376 + 2 & '\uffff';
@@ -25487,7 +24895,7 @@ public class TargetRenegade extends MiniZX {
                         int var379 = this.SP();
                         this.$F651();
                         int var380 = this.SP();
-                        if(var380 == var379) {
+                        if((var379 - var380 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var381 = var379 + 2 & '\uffff';
@@ -25590,7 +24998,7 @@ public class TargetRenegade extends MiniZX {
                            int var422 = this.SP();
                            this.$F2BA();
                            int var423 = this.SP();
-                           if(var423 == var422) {
+                           if((var422 - var423 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var424 = var422 + 2 & '\uffff';
@@ -25608,7 +25016,7 @@ public class TargetRenegade extends MiniZX {
                               int var460 = this.SP();
                               this.$F455();
                               int var461 = this.SP();
-                              if(var461 == var460) {
+                              if((var460 - var461 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var462 = var460 + 2 & '\uffff';
@@ -25781,7 +25189,7 @@ public class TargetRenegade extends MiniZX {
                         this.$5DD3();
                         if(!this.unwinding()) {
                            int var477 = this.SP();
-                           if(var477 == var476) {
+                           if((var476 - var477 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var478 = var476 + 2 & '\uffff';
@@ -25883,7 +25291,7 @@ public class TargetRenegade extends MiniZX {
                            int var505 = this.SP();
                            this.$F99F();
                            int var506 = this.SP();
-                           if(var506 == var505) {
+                           if((var505 - var506 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var507 = var505 + 2 & '\uffff';
@@ -25897,7 +25305,7 @@ public class TargetRenegade extends MiniZX {
                            int var508 = this.SP();
                            this.$F69A();
                            int var509 = this.SP();
-                           if(var509 == var508) {
+                           if((var508 - var509 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var510 = var508 + 2 & '\uffff';
@@ -25914,7 +25322,7 @@ public class TargetRenegade extends MiniZX {
                            this.$F44B();
                            if(!this.unwinding()) {
                               int var512 = this.SP();
-                              if(var512 == var511) {
+                              if((var511 - var512 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var513 = var511 + 2 & '\uffff';
@@ -26022,7 +25430,7 @@ public class TargetRenegade extends MiniZX {
                               int var596 = this.SP();
                               this.$E770();
                               int var597 = this.SP();
-                              if(var597 == var596) {
+                              if((var596 - var597 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var598 = var596 + 2 & '\uffff';
@@ -26036,7 +25444,7 @@ public class TargetRenegade extends MiniZX {
                               int var549 = this.SP();
                               this.$E742();
                               int var550 = this.SP();
-                              if(var550 == var549) {
+                              if((var549 - var550 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var551 = var549 + 2 & '\uffff';
@@ -26231,7 +25639,7 @@ public class TargetRenegade extends MiniZX {
                         int var603 = this.SP();
                         this.$E609();
                         int var604 = this.SP();
-                        if(var604 == var603) {
+                        if((var603 - var604 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var605 = var603 + 2 & '\uffff';
@@ -26356,7 +25764,7 @@ public class TargetRenegade extends MiniZX {
                               int var639 = this.SP();
                               this.$E5D1();
                               int var640 = this.SP();
-                              if(var640 == var639) {
+                              if((var639 - var640 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var641 = var639 + 2 & '\uffff';
@@ -26383,7 +25791,7 @@ public class TargetRenegade extends MiniZX {
                               int var644 = this.SP();
                               this.$EFF2();
                               int var645 = this.SP();
-                              if(var645 == var644) {
+                              if((var644 - var645 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var646 = var644 + 2 & '\uffff';
@@ -26435,7 +25843,7 @@ public class TargetRenegade extends MiniZX {
                            this.$EF22();
                            if(!this.unwinding()) {
                               int var618 = this.SP();
-                              if(var618 == var617) {
+                              if((var617 - var618 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var619 = var617 + 2 & '\uffff';
@@ -26528,7 +25936,7 @@ public class TargetRenegade extends MiniZX {
                         int var140 = this.SP();
                         this.$EF4F();
                         int var141 = this.SP();
-                        if(var141 == var140) {
+                        if((var140 - var141 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var142 = var140 + 2 & '\uffff';
@@ -26544,7 +25952,7 @@ public class TargetRenegade extends MiniZX {
                   int var137 = this.SP();
                   this.$F3DB();
                   int var138 = this.SP();
-                  if(var138 == var137) {
+                  if((var137 - var138 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var139 = var137 + 2 & '\uffff';
@@ -26567,7 +25975,7 @@ public class TargetRenegade extends MiniZX {
                this.$EF22();
                if(!this.unwinding()) {
                   int var2 = this.SP();
-                  if(var2 == var1) {
+                  if((var1 - var2 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var3 = var1 + 2 & '\uffff';
@@ -27590,7 +26998,7 @@ public class TargetRenegade extends MiniZX {
          int var18 = this.SP();
          this.$F58A();
          int var19 = this.SP();
-         if(var19 == var18) {
+         if((var18 - var19 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var20 = var18 + 2 & '\uffff';
@@ -27632,7 +27040,7 @@ public class TargetRenegade extends MiniZX {
             int var29 = this.SP();
             this.$F58A();
             int var30 = this.SP();
-            if(var30 == var29) {
+            if((var29 - var30 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var31 = var29 + 2 & '\uffff';
@@ -27852,7 +27260,7 @@ public class TargetRenegade extends MiniZX {
          int var16 = this.SP();
          this.$F58A();
          int var17 = this.SP();
-         if(var17 == var16) {
+         if((var16 - var17 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var18 = var16 + 2 & '\uffff';
@@ -28002,7 +27410,7 @@ public class TargetRenegade extends MiniZX {
       int var12 = this.SP();
       this.$5F70();
       int var13 = this.SP();
-      if(var13 == var12) {
+      if((var12 - var13 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var14 = var12 + 2 & '\uffff';
@@ -28056,7 +27464,7 @@ public class TargetRenegade extends MiniZX {
       int var29 = this.SP();
       this.$F6DB();
       int var30 = this.SP();
-      if(var30 == var29) {
+      if((var29 - var30 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var31 = var29 + 2 & '\uffff';
@@ -28129,7 +27537,7 @@ public class TargetRenegade extends MiniZX {
          int var8 = this.SP();
          this.$5F69();
          int var9 = this.SP();
-         if(var9 == var8) {
+         if((var8 - var9 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var10 = var8 + 2 & '\uffff';
@@ -28184,7 +27592,7 @@ public class TargetRenegade extends MiniZX {
          int var8 = this.SP();
          this.$F58A();
          int var9 = this.SP();
-         if(var9 == var8) {
+         if((var8 - var9 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var10 = var8 + 2 & '\uffff';
@@ -28212,7 +27620,7 @@ public class TargetRenegade extends MiniZX {
          int var1 = this.SP();
          this.$F998();
          int var2 = this.SP();
-         if(var2 == var1) {
+         if((var1 - var2 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var3 = var1 + 2 & '\uffff';
@@ -28291,7 +27699,7 @@ public class TargetRenegade extends MiniZX {
             int var13 = this.SP();
             this.$F533();
             int var14 = this.SP();
-            if(var14 == var13) {
+            if((var13 - var14 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var15 = var13 + 2 & '\uffff';
@@ -28760,34 +28168,34 @@ public class TargetRenegade extends MiniZX {
       this.pc('\ufa99', 1, 10);
    }
 
-   public void $43D1() {
-      this.setNextAddress(17361);
-      this.$43CC();
+   public void $b3_C3D1() {
+      this.setNextAddress(22085);
+      this.$b3_C3CC();
    }
 
-   public void $4468() {
-      this.setNextAddress(17512);
-      this.$43F8();
+   public void $b3_C468() {
+      this.setNextAddress(22236);
+      this.$b3_C3F8();
    }
 
-   public void $45D1() {
-      this.setNextAddress(17873);
-      this.$45CC();
+   public void $b3_C5D1() {
+      this.setNextAddress(22597);
+      this.$b3_C5CC();
    }
 
-   public void $4667() {
-      this.setNextAddress(18023);
-      this.$45F8();
+   public void $b3_C667() {
+      this.setNextAddress(22747);
+      this.$b3_C5F8();
    }
 
-   public void $47D1() {
-      this.setNextAddress(18385);
-      this.$47CC();
+   public void $b3_C7D1() {
+      this.setNextAddress(23109);
+      this.$b3_C7CC();
    }
 
-   public void $4867() {
-      this.setNextAddress(18535);
-      this.$47F8();
+   public void $b3_C867() {
+      this.setNextAddress(23259);
+      this.$b3_C7F8();
    }
 
    public void $5B37() {
@@ -28995,9 +28403,9 @@ public class TargetRenegade extends MiniZX {
       this.$DC1B();
    }
 
-   public void $4138() {
-      this.setNextAddress(16696);
-      this.$4134();
+   public void $b3_C138() {
+      this.setNextAddress(21420);
+      this.$b3_C134();
    }
 
    public void $5D80() {
@@ -29137,135 +28545,135 @@ public class TargetRenegade extends MiniZX {
 
    protected boolean runTranslated(int var1) {
       switch(this.pagedCopy(var1)) {
-      case 16384:
-         this.$4000();
+      case 21108:
+         this.$b3_C000();
          return true;
-      case 16403:
-         this.$4013();
+      case 21127:
+         this.$b3_C013();
          return true;
-      case 16553:
-         this.$40A9();
+      case 21277:
+         this.$b3_C0A9();
          return true;
-      case 16592:
-         this.$40D0();
+      case 21316:
+         this.$b3_C0D0();
          return true;
-      case 16690:
-         this.$4132();
+      case 21414:
+         this.$b3_C132();
          return true;
-      case 16692:
-         this.$4134();
+      case 21416:
+         this.$b3_C134();
          return true;
-      case 16696:
-         this.setNextAddress(16696);
-         this.$4134();
+      case 21420:
+         this.setNextAddress(21420);
+         this.$b3_C134();
          return true;
-      case 16954:
-         this.$423A();
+      case 21678:
+         this.$b3_C23A();
          return true;
-      case 17316:
-         this.$43A4();
+      case 22040:
+         this.$b3_C3A4();
          return true;
-      case 17340:
-         this.$43BC();
+      case 22064:
+         this.$b3_C3BC();
          return true;
-      case 17356:
-         this.$43CC();
+      case 22080:
+         this.$b3_C3CC();
          return true;
-      case 17361:
-         this.setNextAddress(17361);
-         this.$43CC();
+      case 22085:
+         this.setNextAddress(22085);
+         this.$b3_C3CC();
          return true;
-      case 17367:
-         this.$43D7();
+      case 22091:
+         this.$b3_C3D7();
          return true;
-      case 17379:
-         this.$43E3();
+      case 22103:
+         this.$b3_C3E3();
          return true;
-      case 17391:
-         this.$43EF();
+      case 22115:
+         this.$b3_C3EF();
          return true;
-      case 17394:
-         this.$43F2();
+      case 22118:
+         this.$b3_C3F2();
          return true;
-      case 17400:
-         this.$43F8();
+      case 22124:
+         this.$b3_C3F8();
          return true;
-      case 17512:
-         this.setNextAddress(17512);
-         this.$43F8();
+      case 22236:
+         this.setNextAddress(22236);
+         this.$b3_C3F8();
          return true;
-      case 17832:
-         this.$45A8();
+      case 22556:
+         this.$b3_C5A8();
          return true;
-      case 17852:
-         this.$45BC();
+      case 22576:
+         this.$b3_C5BC();
          return true;
-      case 17868:
-         this.$45CC();
+      case 22592:
+         this.$b3_C5CC();
          return true;
-      case 17873:
-         this.setNextAddress(17873);
-         this.$45CC();
+      case 22597:
+         this.setNextAddress(22597);
+         this.$b3_C5CC();
          return true;
-      case 17879:
-         this.$45D7();
+      case 22603:
+         this.$b3_C5D7();
          return true;
-      case 17891:
-         this.$45E3();
+      case 22615:
+         this.$b3_C5E3();
          return true;
-      case 17903:
-         this.$45EF();
+      case 22627:
+         this.$b3_C5EF();
          return true;
-      case 17906:
-         this.$45F2();
+      case 22630:
+         this.$b3_C5F2();
          return true;
-      case 17912:
-         this.$45F8();
+      case 22636:
+         this.$b3_C5F8();
          return true;
-      case 18023:
-         this.setNextAddress(18023);
-         this.$45F8();
+      case 22747:
+         this.setNextAddress(22747);
+         this.$b3_C5F8();
          return true;
-      case 18055:
-         this.$4687();
+      case 22779:
+         this.$b3_C687();
          return true;
-      case 18139:
-         this.$46DB();
+      case 22863:
+         this.$b3_C6DB();
          return true;
-      case 18147:
-         this.$46E3();
+      case 22871:
+         this.$b3_C6E3();
          return true;
-      case 18344:
-         this.$47A8();
+      case 23068:
+         this.$b3_C7A8();
          return true;
-      case 18364:
-         this.$47BC();
+      case 23088:
+         this.$b3_C7BC();
          return true;
-      case 18380:
-         this.$47CC();
+      case 23104:
+         this.$b3_C7CC();
          return true;
-      case 18385:
-         this.setNextAddress(18385);
-         this.$47CC();
+      case 23109:
+         this.setNextAddress(23109);
+         this.$b3_C7CC();
          return true;
-      case 18391:
-         this.$47D7();
+      case 23115:
+         this.$b3_C7D7();
          return true;
-      case 18403:
-         this.$47E3();
+      case 23127:
+         this.$b3_C7E3();
          return true;
-      case 18415:
-         this.$47EF();
+      case 23139:
+         this.$b3_C7EF();
          return true;
-      case 18418:
-         this.$47F2();
+      case 23142:
+         this.$b3_C7F2();
          return true;
-      case 18424:
-         this.$47F8();
+      case 23148:
+         this.$b3_C7F8();
          return true;
-      case 18535:
-         this.setNextAddress(18535);
-         this.$47F8();
+      case 23259:
+         this.setNextAddress(23259);
+         this.$b3_C7F8();
          return true;
       case 23304:
          this.$5B08();

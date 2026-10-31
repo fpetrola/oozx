@@ -72,7 +72,7 @@ public class Wally extends MiniZX {
          int var1 = this.SP();
          this.$B8ED();
          int var2 = this.SP();
-         if(var2 == var1) {
+         if((var1 - var2 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var3 = var1 + 2 & '\uffff';
@@ -86,7 +86,7 @@ public class Wally extends MiniZX {
          int var4 = this.SP();
          this.$B471();
          int var5 = this.SP();
-         if(var5 == var4) {
+         if((var4 - var5 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var6 = var4 + 2 & '\uffff';
@@ -106,7 +106,7 @@ public class Wally extends MiniZX {
                int var7 = this.SP();
                this.$B8C4();
                int var8 = this.SP();
-               if(var8 == var7) {
+               if((var7 - var8 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var9 = var7 + 2 & '\uffff';
@@ -163,7 +163,7 @@ public class Wally extends MiniZX {
                int var29 = this.SP();
                this.$B8C4();
                int var30 = this.SP();
-               if(var30 == var29) {
+               if((var29 - var30 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var31 = var29 + 2 & '\uffff';
@@ -183,7 +183,7 @@ public class Wally extends MiniZX {
                   int var33 = this.SP();
                   this.$B482();
                   int var34 = this.SP();
-                  if(var34 == var33) {
+                  if((var33 - var34 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var35 = var33 + 2 & '\uffff';
@@ -294,7 +294,7 @@ public class Wally extends MiniZX {
                      int var42 = this.SP();
                      this.$B2DC();
                      int var43 = this.SP();
-                     if(var43 == var42) {
+                     if((var42 - var43 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var44 = var42 + 2 & '\uffff';
@@ -355,7 +355,7 @@ public class Wally extends MiniZX {
       this.$B952();
       if(!this.unwinding()) {
          int var2 = this.SP();
-         if(var2 == var1) {
+         if((var1 - var2 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var3 = var1 + 2 & '\uffff';
@@ -376,7 +376,7 @@ public class Wally extends MiniZX {
             int var5 = this.SP();
             this.$EEA2();
             int var6 = this.SP();
-            if(var6 == var5) {
+            if((var5 - var6 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var7 = var5 + 2 & '\uffff';
@@ -394,7 +394,7 @@ public class Wally extends MiniZX {
             }
 
             int var9 = this.SP();
-            if(var9 == var8) {
+            if((var8 - var9 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var10 = var8 + 2 & '\uffff';
@@ -412,7 +412,7 @@ public class Wally extends MiniZX {
             }
 
             int var12 = this.SP();
-            if(var12 == var11) {
+            if((var11 - var12 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var13 = var11 + 2 & '\uffff';
@@ -426,7 +426,7 @@ public class Wally extends MiniZX {
             int var14 = this.SP();
             this.$B9FB();
             int var15 = this.SP();
-            if(var15 == var14) {
+            if((var14 - var15 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var16 = var14 + 2 & '\uffff';
@@ -481,7 +481,7 @@ public class Wally extends MiniZX {
             this.$80E5();
             if(!this.unwinding()) {
                int var3 = this.SP();
-               if(var3 == var1) {
+               if((var1 - var3 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var4 = var1 + 2 & '\uffff';
@@ -495,7 +495,7 @@ public class Wally extends MiniZX {
                int var5 = this.SP();
                this.$BAD8();
                int var6 = this.SP();
-               if(var6 == var5) {
+               if((var5 - var6 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var7 = var5 + 2 & '\uffff';
@@ -510,7 +510,7 @@ public class Wally extends MiniZX {
                this.$E3FD();
                if(!this.unwinding()) {
                   int var9 = this.SP();
-                  if(var9 == var8) {
+                  if((var8 - var9 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var10 = var8 + 2 & '\uffff';
@@ -525,7 +525,7 @@ public class Wally extends MiniZX {
                   this.$813B();
                   if(!this.unwinding()) {
                      int var12 = this.SP();
-                     if(var12 == var11) {
+                     if((var11 - var12 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var13 = var11 + 2 & '\uffff';
@@ -544,7 +544,7 @@ public class Wally extends MiniZX {
          }
 
          var2 = new int[]{'\u8184'};
-      } while(this.isOwnAddress(var2));
+      } while(this.ownAddress(var2) != -1);
 
    }
 
@@ -556,7 +556,7 @@ public class Wally extends MiniZX {
             int var1 = this.SP();
             this.$EB55();
             int var2 = this.SP();
-            if(var2 == var1) {
+            if((var1 - var2 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var3 = var1 + 2 & '\uffff';
@@ -571,7 +571,7 @@ public class Wally extends MiniZX {
             this.$EABF();
             if(!this.unwinding()) {
                int var6 = this.SP();
-               if(var6 == var4) {
+               if((var4 - var6 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var7 = var4 + 2 & '\uffff';
@@ -586,7 +586,7 @@ public class Wally extends MiniZX {
                this.$AC06();
                if(!this.unwinding()) {
                   int var9 = this.SP();
-                  if(var9 == var8) {
+                  if((var8 - var9 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var10 = var8 + 2 & '\uffff';
@@ -601,7 +601,7 @@ public class Wally extends MiniZX {
                   this.$E79B();
                   if(!this.unwinding()) {
                      int var12 = this.SP();
-                     if(var12 == var11) {
+                     if((var11 - var12 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var13 = var11 + 2 & '\uffff';
@@ -615,7 +615,7 @@ public class Wally extends MiniZX {
                      int var14 = this.SP();
                      this.$B09F();
                      int var15 = this.SP();
-                     if(var15 == var14) {
+                     if((var14 - var15 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var16 = var14 + 2 & '\uffff';
@@ -630,7 +630,7 @@ public class Wally extends MiniZX {
                      this.$81AE();
                      if(!this.unwinding()) {
                         int var18 = this.SP();
-                        if(var18 == var17) {
+                        if((var17 - var18 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var19 = var17 + 2 & '\uffff';
@@ -644,7 +644,7 @@ public class Wally extends MiniZX {
                         int var20 = this.SP();
                         this.$81C4();
                         int var21 = this.SP();
-                        if(var21 == var20) {
+                        if((var20 - var21 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var22 = var20 + 2 & '\uffff';
@@ -659,7 +659,7 @@ public class Wally extends MiniZX {
                         this.$ED2A();
                         if(!this.unwinding()) {
                            int var24 = this.SP();
-                           if(var24 == var23) {
+                           if((var23 - var24 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var25 = var23 + 2 & '\uffff';
@@ -677,7 +677,7 @@ public class Wally extends MiniZX {
             }
 
             int[] var5 = new int[]{'\u8194'};
-            if(!this.isOwnAddress(var5)) {
+            if(this.ownAddress(var5) == -1) {
                return;
             }
          }
@@ -691,7 +691,7 @@ public class Wally extends MiniZX {
       this.$BAB4();
       if(!this.unwinding()) {
          int var2 = this.SP();
-         if(var2 == var1) {
+         if((var1 - var2 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var3 = var1 + 2 & '\uffff';
@@ -706,7 +706,7 @@ public class Wally extends MiniZX {
          this.$A92C();
          if(!this.unwinding()) {
             int var5 = this.SP();
-            if(var5 == var4) {
+            if((var4 - var5 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var6 = var4 + 2 & '\uffff';
@@ -721,7 +721,7 @@ public class Wally extends MiniZX {
             this.$EEC1();
             if(!this.unwinding()) {
                int var8 = this.SP();
-               if(var8 == var7) {
+               if((var7 - var8 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var9 = var7 + 2 & '\uffff';
@@ -736,7 +736,7 @@ public class Wally extends MiniZX {
                this.$F10E();
                if(!this.unwinding()) {
                   int var11 = this.SP();
-                  if(var11 == var10) {
+                  if((var10 - var11 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var12 = var10 + 2 & '\uffff';
@@ -751,7 +751,7 @@ public class Wally extends MiniZX {
                   this.$F814();
                   if(!this.unwinding()) {
                      int var14 = this.SP();
-                     if(var14 == var13) {
+                     if((var13 - var14 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var15 = var13 + 2 & '\uffff';
@@ -766,7 +766,7 @@ public class Wally extends MiniZX {
                      this.$F277();
                      if(!this.unwinding()) {
                         int var17 = this.SP();
-                        if(var17 == var16) {
+                        if((var16 - var17 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var18 = var16 + 2 & '\uffff';
@@ -781,7 +781,7 @@ public class Wally extends MiniZX {
                         this.$B9D6();
                         if(!this.unwinding()) {
                            int var20 = this.SP();
-                           if(var20 == var19) {
+                           if((var19 - var20 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var21 = var19 + 2 & '\uffff';
@@ -1586,7 +1586,7 @@ public class Wally extends MiniZX {
             int var14 = this.SP();
             this.$A921();
             int var15 = this.SP();
-            if(var15 == var14) {
+            if((var14 - var15 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var16 = var14 + 2 & '\uffff';
@@ -1636,7 +1636,7 @@ public class Wally extends MiniZX {
                   int var29 = this.SP();
                   this.$AFC4();
                   int var30 = this.SP();
-                  if(var30 == var29) {
+                  if((var29 - var30 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var31 = var29 + 2 & '\uffff';
@@ -1673,7 +1673,7 @@ public class Wally extends MiniZX {
                         int var50 = this.SP();
                         this.$B197();
                         int var51 = this.SP();
-                        if(var51 == var50) {
+                        if((var50 - var51 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var52 = var50 + 2 & '\uffff';
@@ -1706,7 +1706,7 @@ public class Wally extends MiniZX {
                         int var66 = this.SP();
                         this.$AA8C();
                         int var67 = this.SP();
-                        if(var67 == var66) {
+                        if((var66 - var67 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var68 = var66 + 2 & '\uffff';
@@ -1753,7 +1753,7 @@ public class Wally extends MiniZX {
                         int var80 = this.SP();
                         this.$B288();
                         int var81 = this.SP();
-                        if(var81 == var80) {
+                        if((var80 - var81 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var82 = var80 + 2 & '\uffff';
@@ -1788,7 +1788,7 @@ public class Wally extends MiniZX {
                         }
 
                         int var90 = this.SP();
-                        if(var90 == var89) {
+                        if((var89 - var90 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var91 = var89 + 2 & '\uffff';
@@ -1851,7 +1851,7 @@ public class Wally extends MiniZX {
                         int var111 = this.SP();
                         this.$AE8A();
                         int var112 = this.SP();
-                        if(var112 == var111) {
+                        if((var111 - var112 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var113 = var111 + 2 & '\uffff';
@@ -1878,7 +1878,7 @@ public class Wally extends MiniZX {
                               int var118 = this.SP();
                               this.$AED7();
                               int var119 = this.SP();
-                              if(var119 == var118) {
+                              if((var118 - var119 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var120 = var118 + 2 & '\uffff';
@@ -1922,7 +1922,7 @@ public class Wally extends MiniZX {
                         int var130 = this.SP();
                         this.$ADBA();
                         int var131 = this.SP();
-                        if(var131 == var130) {
+                        if((var130 - var131 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var132 = var130 + 2 & '\uffff';
@@ -1960,7 +1960,7 @@ public class Wally extends MiniZX {
                      int var60 = this.SP();
                      this.$B288();
                      int var61 = this.SP();
-                     if(var61 == var60) {
+                     if((var60 - var61 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var62 = var60 + 2 & '\uffff';
@@ -1978,7 +1978,7 @@ public class Wally extends MiniZX {
                   int var37 = this.SP();
                   this.$B1B9();
                   int var38 = this.SP();
-                  if(var38 == var37) {
+                  if((var37 - var38 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var39 = var37 + 2 & '\uffff';
@@ -1997,7 +1997,7 @@ public class Wally extends MiniZX {
             int var134 = this.SP();
             this.$AFC4();
             int var135 = this.SP();
-            if(var135 == var134) {
+            if((var134 - var135 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var136 = var134 + 2 & '\uffff';
@@ -2179,7 +2179,7 @@ public class Wally extends MiniZX {
                   int var150 = this.SP();
                   this.$B197();
                   int var151 = this.SP();
-                  if(var151 == var150) {
+                  if((var150 - var151 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var152 = var150 + 2 & '\uffff';
@@ -2196,7 +2196,7 @@ public class Wally extends MiniZX {
                int var142 = this.SP();
                this.$B1B9();
                int var143 = this.SP();
-               if(var143 == var142) {
+               if((var142 - var143 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var144 = var142 + 2 & '\uffff';
@@ -2240,7 +2240,7 @@ public class Wally extends MiniZX {
       int var2 = this.SP();
       this.$AA8C();
       int var3 = this.SP();
-      if(var3 == var2) {
+      if((var2 - var3 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var4 = var2 + 2 & '\uffff';
@@ -2296,7 +2296,7 @@ public class Wally extends MiniZX {
                int var22 = this.SP();
                this.$A921();
                int var23 = this.SP();
-               if(var23 == var22) {
+               if((var22 - var23 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var24 = var22 + 2 & '\uffff';
@@ -2396,7 +2396,7 @@ public class Wally extends MiniZX {
             int var64 = this.SP();
             this.$A921();
             int var65 = this.SP();
-            if(var65 == var64) {
+            if((var64 - var65 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var66 = var64 + 2 & '\uffff';
@@ -2416,7 +2416,7 @@ public class Wally extends MiniZX {
                }
 
                int var76 = this.SP();
-               if(var76 == var75) {
+               if((var75 - var76 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var77 = var75 + 2 & '\uffff';
@@ -2443,7 +2443,7 @@ public class Wally extends MiniZX {
          int var72 = this.SP();
          this.$AA7F();
          int var73 = this.SP();
-         if(var73 == var72) {
+         if((var72 - var73 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var74 = var72 + 2 & '\uffff';
@@ -2471,7 +2471,7 @@ public class Wally extends MiniZX {
       int var1 = this.SP();
       this.$E3D3();
       int var2 = this.SP();
-      if(var2 == var1) {
+      if((var1 - var2 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var3 = var1 + 2 & '\uffff';
@@ -2495,7 +2495,7 @@ public class Wally extends MiniZX {
       int var3 = this.SP();
       this.$AC6C();
       int var4 = this.SP();
-      if(var4 == var3) {
+      if((var3 - var4 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var5 = var3 + 2 & '\uffff';
@@ -2599,7 +2599,7 @@ public class Wally extends MiniZX {
       int var12 = this.SP();
       this.$B288();
       int var13 = this.SP();
-      if(var13 == var12) {
+      if((var12 - var13 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var14 = var12 + 2 & '\uffff';
@@ -2677,7 +2677,7 @@ public class Wally extends MiniZX {
       int var12 = this.SP();
       this.$B288();
       int var13 = this.SP();
-      if(var13 == var12) {
+      if((var12 - var13 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var14 = var12 + 2 & '\uffff';
@@ -2727,7 +2727,7 @@ public class Wally extends MiniZX {
       int var5 = this.SP();
       this.$B288();
       int var6 = this.SP();
-      if(var6 == var5) {
+      if((var5 - var6 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var7 = var5 + 2 & '\uffff';
@@ -2777,7 +2777,7 @@ public class Wally extends MiniZX {
       int var5 = this.SP();
       this.$B288();
       int var6 = this.SP();
-      if(var6 == var5) {
+      if((var5 - var6 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var7 = var5 + 2 & '\uffff';
@@ -2827,7 +2827,7 @@ public class Wally extends MiniZX {
       int var5 = this.SP();
       this.$B288();
       int var6 = this.SP();
-      if(var6 == var5) {
+      if((var5 - var6 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var7 = var5 + 2 & '\uffff';
@@ -2875,7 +2875,7 @@ public class Wally extends MiniZX {
             int var18 = this.SP();
             this.$B288();
             int var19 = this.SP();
-            if(var19 == var18) {
+            if((var18 - var19 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var20 = var18 + 2 & '\uffff';
@@ -2930,7 +2930,7 @@ public class Wally extends MiniZX {
          int var8 = this.SP();
          this.$B288();
          int var9 = this.SP();
-         if(var9 == var8) {
+         if((var8 - var9 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var10 = var8 + 2 & '\uffff';
@@ -3085,7 +3085,7 @@ public class Wally extends MiniZX {
             int var7 = this.SP();
             this.$ABD7();
             int var8 = this.SP();
-            if(var8 == var7) {
+            if((var7 - var8 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var9 = var7 + 2 & '\uffff';
@@ -3116,7 +3116,7 @@ public class Wally extends MiniZX {
       int var15 = this.SP();
       this.$AC69();
       int var16 = this.SP();
-      if(var16 == var15) {
+      if((var15 - var16 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var17 = var15 + 2 & '\uffff';
@@ -3166,7 +3166,7 @@ public class Wally extends MiniZX {
          int var30 = this.SP();
          this.$AC5F();
          int var31 = this.SP();
-         if(var31 == var30) {
+         if((var30 - var31 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var32 = var30 + 2 & '\uffff';
@@ -3228,7 +3228,7 @@ public class Wally extends MiniZX {
                int var55 = this.SP();
                this.$AC5F();
                int var56 = this.SP();
-               if(var56 == var55) {
+               if((var55 - var56 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var57 = var55 + 2 & '\uffff';
@@ -3290,7 +3290,7 @@ public class Wally extends MiniZX {
                }
 
                int var73 = this.SP();
-               if(var73 == var72) {
+               if((var72 - var73 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var74 = var72 + 2 & '\uffff';
@@ -3305,7 +3305,7 @@ public class Wally extends MiniZX {
                   int var75 = this.SP();
                   this.$ABD7();
                   int var76 = this.SP();
-                  if(var76 == var75) {
+                  if((var75 - var76 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var77 = var75 + 2 & '\uffff';
@@ -3438,7 +3438,7 @@ public class Wally extends MiniZX {
          int var7 = this.SP();
          this.$AC69();
          int var8 = this.SP();
-         if(var8 == var7) {
+         if((var7 - var8 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var9 = var7 + 2 & '\uffff';
@@ -3456,7 +3456,7 @@ public class Wally extends MiniZX {
          int var12 = this.SP();
          this.$AE30();
          int var13 = this.SP();
-         if(var13 == var12) {
+         if((var12 - var13 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var14 = var12 + 2 & '\uffff';
@@ -3511,7 +3511,7 @@ public class Wally extends MiniZX {
                      int var34 = this.SP();
                      this.$AE30();
                      int var35 = this.SP();
-                     if(var35 == var34) {
+                     if((var34 - var35 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var36 = var34 + 2 & '\uffff';
@@ -3781,7 +3781,7 @@ public class Wally extends MiniZX {
       int var11 = this.SP();
       this.$AC5F();
       int var12 = this.SP();
-      if(var12 == var11) {
+      if((var11 - var12 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var13 = var11 + 2 & '\uffff';
@@ -3824,7 +3824,7 @@ public class Wally extends MiniZX {
       int var29 = this.SP();
       this.$ADBA();
       int var30 = this.SP();
-      if(var30 == var29) {
+      if((var29 - var30 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var31 = var29 + 2 & '\uffff';
@@ -4504,7 +4504,7 @@ public class Wally extends MiniZX {
       int var5 = this.SP();
       this.$AFC4();
       int var6 = this.SP();
-      if(var6 == var5) {
+      if((var5 - var6 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var7 = var5 + 2 & '\uffff';
@@ -4544,7 +4544,7 @@ public class Wally extends MiniZX {
             int var18 = this.SP();
             this.$B06D();
             int var19 = this.SP();
-            if(var19 == var18) {
+            if((var18 - var19 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var20 = var18 + 2 & '\uffff';
@@ -4570,7 +4570,7 @@ public class Wally extends MiniZX {
                int var25 = this.SP();
                this.$B00B();
                int var26 = this.SP();
-               if(var26 == var25) {
+               if((var25 - var26 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var27 = var25 + 2 & '\uffff';
@@ -4592,7 +4592,7 @@ public class Wally extends MiniZX {
                   int var33 = this.SP();
                   this.$B03C();
                   int var34 = this.SP();
-                  if(var34 == var33) {
+                  if((var33 - var34 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var35 = var33 + 2 & '\uffff';
@@ -5414,7 +5414,7 @@ public class Wally extends MiniZX {
                   int var80 = this.SP();
                   this.$81D4();
                   int var81 = this.SP();
-                  if(var81 == var80) {
+                  if((var80 - var81 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var82 = var80 + 2 & '\uffff';
@@ -5518,7 +5518,7 @@ public class Wally extends MiniZX {
          int var5 = this.SP();
          this.$E3D3();
          int var6 = this.SP();
-         if(var6 == var5) {
+         if((var5 - var6 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var7 = var5 + 2 & '\uffff';
@@ -5537,7 +5537,7 @@ public class Wally extends MiniZX {
       int var1 = this.SP();
       this.$A921();
       int var2 = this.SP();
-      if(var2 == var1) {
+      if((var1 - var2 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var3 = var1 + 2 & '\uffff';
@@ -5634,7 +5634,7 @@ public class Wally extends MiniZX {
             int var72 = this.SP();
             this.$81D4();
             int var73 = this.SP();
-            if(var73 == var72) {
+            if((var72 - var73 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var74 = var72 + 2 & '\uffff';
@@ -5679,7 +5679,7 @@ public class Wally extends MiniZX {
             int var57 = this.SP();
             this.$81D4();
             int var58 = this.SP();
-            if(var58 == var57) {
+            if((var57 - var58 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var59 = var57 + 2 & '\uffff';
@@ -5809,7 +5809,7 @@ public class Wally extends MiniZX {
       int var1 = this.SP();
       this.$B8ED();
       int var2 = this.SP();
-      if(var2 == var1) {
+      if((var1 - var2 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var3 = var1 + 2 & '\uffff';
@@ -5827,7 +5827,7 @@ public class Wally extends MiniZX {
       int var4 = this.SP();
       this.$B8C4();
       int var5 = this.SP();
-      if(var5 == var4) {
+      if((var4 - var5 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var6 = var4 + 2 & '\uffff';
@@ -5906,7 +5906,7 @@ public class Wally extends MiniZX {
          int var34 = this.SP();
          this.$B34C();
          int var35 = this.SP();
-         if(var35 == var34) {
+         if((var34 - var35 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var36 = var34 + 2 & '\uffff';
@@ -5949,7 +5949,7 @@ public class Wally extends MiniZX {
             int var47 = this.SP();
             this.$B34C();
             int var48 = this.SP();
-            if(var48 == var47) {
+            if((var47 - var48 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var49 = var47 + 2 & '\uffff';
@@ -6240,7 +6240,7 @@ public class Wally extends MiniZX {
          }
 
          var1 = new int[]{'\ub451'};
-      } while(this.isOwnAddress(var1));
+      } while(this.ownAddress(var1) != -1);
 
    }
 
@@ -6418,7 +6418,7 @@ public class Wally extends MiniZX {
                            int var47 = this.SP();
                            this.$B505();
                            int var48 = this.SP();
-                           if(var48 == var47) {
+                           if((var47 - var48 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var49 = var47 + 2 & '\uffff';
@@ -6452,7 +6452,7 @@ public class Wally extends MiniZX {
                   int var52 = this.SP();
                   this.$B4EB();
                   int var53 = this.SP();
-                  if(var53 == var52) {
+                  if((var52 - var53 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var54 = var52 + 2 & '\uffff';
@@ -6633,7 +6633,7 @@ public class Wally extends MiniZX {
          int var9 = this.SP();
          this.$B4EB();
          int var10 = this.SP();
-         if(var10 == var9) {
+         if((var9 - var10 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var11 = var9 + 2 & '\uffff';
@@ -6665,7 +6665,7 @@ public class Wally extends MiniZX {
          int var20 = this.SP();
          this.$B4EB();
          int var21 = this.SP();
-         if(var21 == var20) {
+         if((var20 - var21 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var22 = var20 + 2 & '\uffff';
@@ -7490,7 +7490,7 @@ public class Wally extends MiniZX {
       this.$B84B();
       if(!this.unwinding()) {
          int var7 = this.SP();
-         if(var7 == var6) {
+         if((var6 - var7 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var8 = var6 + 2 & '\uffff';
@@ -7641,7 +7641,7 @@ public class Wally extends MiniZX {
                                        }
 
                                        int var105 = this.SP();
-                                       if(var105 == var104) {
+                                       if((var104 - var105 & '\uffff') < '\u8000') {
                                           this.pop();
                                        } else {
                                           int var106 = var104 + 2 & '\uffff';
@@ -7656,7 +7656,7 @@ public class Wally extends MiniZX {
                                        int var101 = this.SP();
                                        this.$B7F9();
                                        int var102 = this.SP();
-                                       if(var102 == var101) {
+                                       if((var101 - var102 & '\uffff') < '\u8000') {
                                           this.pop();
                                        } else {
                                           int var103 = var101 + 2 & '\uffff';
@@ -7716,7 +7716,7 @@ public class Wally extends MiniZX {
                                  }
 
                                  int var74 = this.SP();
-                                 if(var74 == var73) {
+                                 if((var73 - var74 & '\uffff') < '\u8000') {
                                     this.pop();
                                  } else {
                                     int var75 = var73 + 2 & '\uffff';
@@ -7742,7 +7742,7 @@ public class Wally extends MiniZX {
                                  }
 
                                  int var81 = this.SP();
-                                 if(var81 == var80) {
+                                 if((var80 - var81 & '\uffff') < '\u8000') {
                                     this.pop();
                                  } else {
                                     int var82 = var80 + 2 & '\uffff';
@@ -7802,7 +7802,7 @@ public class Wally extends MiniZX {
                                  }
 
                                  int var66 = this.SP();
-                                 if(var66 == var65) {
+                                 if((var65 - var66 & '\uffff') < '\u8000') {
                                     this.pop();
                                  } else {
                                     int var67 = var65 + 2 & '\uffff';
@@ -7817,7 +7817,7 @@ public class Wally extends MiniZX {
                                  int var62 = this.SP();
                                  this.$B7F9();
                                  int var63 = this.SP();
-                                 if(var63 == var62) {
+                                 if((var62 - var63 & '\uffff') < '\u8000') {
                                     this.pop();
                                  } else {
                                     int var64 = var62 + 2 & '\uffff';
@@ -7952,7 +7952,7 @@ public class Wally extends MiniZX {
                }
 
                int var115 = this.SP();
-               if(var115 == var114) {
+               if((var114 - var115 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var116 = var114 + 2 & '\uffff';
@@ -7967,7 +7967,7 @@ public class Wally extends MiniZX {
                int var111 = this.SP();
                this.$B7F9();
                int var112 = this.SP();
-               if(var112 == var111) {
+               if((var111 - var112 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var113 = var111 + 2 & '\uffff';
@@ -8103,7 +8103,7 @@ public class Wally extends MiniZX {
          int var28 = this.SP();
          this.$B715();
          int var29 = this.SP();
-         if(var29 == var28) {
+         if((var28 - var29 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var30 = var28 + 2 & '\uffff';
@@ -8331,7 +8331,7 @@ public class Wally extends MiniZX {
       int var2 = this.SP();
       this.$B902();
       int var3 = this.SP();
-      if(var3 == var2) {
+      if((var2 - var3 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var4 = var2 + 2 & '\uffff';
@@ -8417,7 +8417,7 @@ public class Wally extends MiniZX {
             int var63 = this.SP();
             this.$B9AC();
             int var64 = this.SP();
-            if(var64 == var63) {
+            if((var63 - var64 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var65 = var63 + 2 & '\uffff';
@@ -8530,7 +8530,7 @@ public class Wally extends MiniZX {
             }
 
             int var60 = this.SP();
-            if(var60 == var59) {
+            if((var59 - var60 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var61 = var59 + 2 & '\uffff';
@@ -8552,7 +8552,7 @@ public class Wally extends MiniZX {
             int var15 = this.SP();
             this.$EC1D();
             int var16 = this.SP();
-            if(var16 == var15) {
+            if((var15 - var16 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var17 = var15 + 2 & '\uffff';
@@ -8609,7 +8609,7 @@ public class Wally extends MiniZX {
          int var9 = this.SP();
          this.$BA25();
          int var10 = this.SP();
-         if(var10 == var9) {
+         if((var9 - var10 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var11 = var9 + 2 & '\uffff';
@@ -8634,7 +8634,7 @@ public class Wally extends MiniZX {
          int var12 = this.SP();
          this.$BA25();
          int var13 = this.SP();
-         if(var13 == var12) {
+         if((var12 - var13 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var14 = var12 + 2 & '\uffff';
@@ -8690,7 +8690,7 @@ public class Wally extends MiniZX {
             }
 
             int var11 = this.SP();
-            if(var11 == var10) {
+            if((var10 - var11 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var12 = var10 + 2 & '\uffff';
@@ -8719,7 +8719,7 @@ public class Wally extends MiniZX {
             int var18 = this.SP();
             this.$B9FB();
             int var19 = this.SP();
-            if(var19 == var18) {
+            if((var18 - var19 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var20 = var18 + 2 & '\uffff';
@@ -8766,7 +8766,7 @@ public class Wally extends MiniZX {
          int var9 = this.SP();
          this.$BA25();
          int var10 = this.SP();
-         if(var10 == var9) {
+         if((var9 - var10 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var11 = var9 + 2 & '\uffff';
@@ -8791,7 +8791,7 @@ public class Wally extends MiniZX {
          int var12 = this.SP();
          this.$BA25();
          int var13 = this.SP();
-         if(var13 == var12) {
+         if((var12 - var13 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var14 = var12 + 2 & '\uffff';
@@ -8903,7 +8903,7 @@ public class Wally extends MiniZX {
          int var8 = this.SP();
          this.$AC6C();
          int var9 = this.SP();
-         if(var9 == var8) {
+         if((var8 - var9 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var10 = var8 + 2 & '\uffff';
@@ -8920,7 +8920,7 @@ public class Wally extends MiniZX {
          int var12 = this.SP();
          this.$BACE();
          int var13 = this.SP();
-         if(var13 == var12) {
+         if((var12 - var13 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var14 = var12 + 2 & '\uffff';
@@ -8946,7 +8946,7 @@ public class Wally extends MiniZX {
          int var19 = this.SP();
          this.$BACE();
          int var20 = this.SP();
-         if(var20 == var19) {
+         if((var19 - var20 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var21 = var19 + 2 & '\uffff';
@@ -8997,7 +8997,7 @@ public class Wally extends MiniZX {
          this.$B84B();
          if(!this.unwinding()) {
             int var37 = this.SP();
-            if(var37 == var36) {
+            if((var36 - var37 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var38 = var36 + 2 & '\uffff';
@@ -9014,7 +9014,7 @@ public class Wally extends MiniZX {
             this.$B84B();
             if(!this.unwinding()) {
                int var40 = this.SP();
-               if(var40 == var39) {
+               if((var39 - var40 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var41 = var39 + 2 & '\uffff';
@@ -9032,7 +9032,7 @@ public class Wally extends MiniZX {
                this.$B84B();
                if(!this.unwinding()) {
                   int var44 = this.SP();
-                  if(var44 == var43) {
+                  if((var43 - var44 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var45 = var43 + 2 & '\uffff';
@@ -9096,7 +9096,7 @@ public class Wally extends MiniZX {
             this.$B84B();
             if(!this.unwinding()) {
                int var12 = this.SP();
-               if(var12 == var11) {
+               if((var11 - var12 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var13 = var11 + 2 & '\uffff';
@@ -9384,7 +9384,7 @@ public class Wally extends MiniZX {
          int var5 = this.SP();
          this.$E3D3();
          int var6 = this.SP();
-         if(var6 == var5) {
+         if((var5 - var6 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var7 = var5 + 2 & '\uffff';
@@ -9454,7 +9454,7 @@ public class Wally extends MiniZX {
          }
 
          var17 = new int[]{'\ue33f'};
-      } while(this.isOwnAddress(var17));
+      } while(this.ownAddress(var17) != -1);
 
    }
 
@@ -9511,7 +9511,7 @@ public class Wally extends MiniZX {
          }
 
          int var13 = this.SP();
-         if(var13 == var12) {
+         if((var12 - var13 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var14 = var12 + 2 & '\uffff';
@@ -9609,7 +9609,7 @@ public class Wally extends MiniZX {
                   }
 
                   int var59 = this.SP();
-                  if(var59 == var58) {
+                  if((var58 - var59 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var60 = var58 + 2 & '\uffff';
@@ -9639,7 +9639,7 @@ public class Wally extends MiniZX {
                   }
 
                   int var31 = this.SP();
-                  if(var31 == var30) {
+                  if((var30 - var31 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var32 = var30 + 2 & '\uffff';
@@ -9698,7 +9698,7 @@ public class Wally extends MiniZX {
                   }
 
                   int var44 = this.SP();
-                  if(var44 == var43) {
+                  if((var43 - var44 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var45 = var43 + 2 & '\uffff';
@@ -9738,7 +9738,7 @@ public class Wally extends MiniZX {
          int var6 = this.SP();
          this.$E3EC();
          int var7 = this.SP();
-         if(var7 == var6) {
+         if((var6 - var7 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var8 = var6 + 2 & '\uffff';
@@ -9759,7 +9759,7 @@ public class Wally extends MiniZX {
                int var11 = this.SP();
                this.$E3EC();
                int var12 = this.SP();
-               if(var12 == var11) {
+               if((var11 - var12 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var13 = var11 + 2 & '\uffff';
@@ -9791,7 +9791,7 @@ public class Wally extends MiniZX {
                      int var21 = this.SP();
                      this.$E3EC();
                      int var22 = this.SP();
-                     if(var22 == var21) {
+                     if((var21 - var22 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var23 = var21 + 2 & '\uffff';
@@ -9877,7 +9877,7 @@ public class Wally extends MiniZX {
       int var1 = this.SP();
       this.$B931();
       int var2 = this.SP();
-      if(var2 == var1) {
+      if((var1 - var2 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var3 = var1 + 2 & '\uffff';
@@ -9896,7 +9896,7 @@ public class Wally extends MiniZX {
       this.$B84B();
       if(!this.unwinding()) {
          int var5 = this.SP();
-         if(var5 == var4) {
+         if((var4 - var5 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var6 = var4 + 2 & '\uffff';
@@ -9921,7 +9921,7 @@ public class Wally extends MiniZX {
          this.$B84B();
          if(!this.unwinding()) {
             int var10 = this.SP();
-            if(var10 == var9) {
+            if((var9 - var10 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var11 = var9 + 2 & '\uffff';
@@ -9936,7 +9936,7 @@ public class Wally extends MiniZX {
             this.$E36D();
             if(!this.unwinding()) {
                int var13 = this.SP();
-               if(var13 == var12) {
+               if((var12 - var13 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var14 = var12 + 2 & '\uffff';
@@ -9951,7 +9951,7 @@ public class Wally extends MiniZX {
                this.$E420();
                if(!this.unwinding()) {
                   int var16 = this.SP();
-                  if(var16 == var15) {
+                  if((var15 - var16 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var17 = var15 + 2 & '\uffff';
@@ -9973,7 +9973,7 @@ public class Wally extends MiniZX {
       int var1 = this.SP();
       this.$E77A();
       int var2 = this.SP();
-      if(var2 == var1) {
+      if((var1 - var2 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var3 = var1 + 2 & '\uffff';
@@ -10075,7 +10075,7 @@ public class Wally extends MiniZX {
       this.$E468();
       if(!this.unwinding()) {
          int var34 = this.SP();
-         if(var34 == var33) {
+         if((var33 - var34 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var35 = var33 + 2 & '\uffff';
@@ -10097,7 +10097,7 @@ public class Wally extends MiniZX {
          this.$E468();
          if(!this.unwinding()) {
             int var38 = this.SP();
-            if(var38 == var37) {
+            if((var37 - var38 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var39 = var37 + 2 & '\uffff';
@@ -10117,7 +10117,7 @@ public class Wally extends MiniZX {
             int var42 = this.SP();
             this.$B77B();
             int var43 = this.SP();
-            if(var43 == var42) {
+            if((var42 - var43 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var44 = var42 + 2 & '\uffff';
@@ -10137,7 +10137,7 @@ public class Wally extends MiniZX {
             int var47 = this.SP();
             this.$B77B();
             int var48 = this.SP();
-            if(var48 == var47) {
+            if((var47 - var48 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var49 = var47 + 2 & '\uffff';
@@ -10158,7 +10158,7 @@ public class Wally extends MiniZX {
       this.$B84B();
       if(!this.unwinding()) {
          int var2 = this.SP();
-         if(var2 == var1) {
+         if((var1 - var2 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var3 = var1 + 2 & '\uffff';
@@ -10197,7 +10197,7 @@ public class Wally extends MiniZX {
             int var13 = this.SP();
             this.$EC1D();
             int var14 = this.SP();
-            if(var14 == var13) {
+            if((var13 - var14 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var15 = var13 + 2 & '\uffff';
@@ -10364,7 +10364,7 @@ public class Wally extends MiniZX {
                   int var22 = this.SP();
                   this.$A921();
                   int var23 = this.SP();
-                  if(var23 == var22) {
+                  if((var22 - var23 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var24 = var22 + 2 & '\uffff';
@@ -10389,7 +10389,7 @@ public class Wally extends MiniZX {
                      int var28 = this.SP();
                      this.$AC69();
                      int var29 = this.SP();
-                     if(var29 == var28) {
+                     if((var28 - var29 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var30 = var28 + 2 & '\uffff';
@@ -10445,7 +10445,7 @@ public class Wally extends MiniZX {
                      }
 
                      int var50 = this.SP();
-                     if(var50 == var49) {
+                     if((var49 - var50 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var51 = var49 + 2 & '\uffff';
@@ -10469,7 +10469,7 @@ public class Wally extends MiniZX {
                   }
 
                   int var19 = this.SP();
-                  if(var19 == var18) {
+                  if((var18 - var19 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var20 = var18 + 2 & '\uffff';
@@ -10510,7 +10510,7 @@ public class Wally extends MiniZX {
       int var4 = this.SP();
       this.$AC6C();
       int var5 = this.SP();
-      if(var5 == var4) {
+      if((var4 - var5 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var6 = var4 + 2 & '\uffff';
@@ -10698,7 +10698,7 @@ public class Wally extends MiniZX {
                                           }
 
                                           int var204 = this.SP();
-                                          if(var204 == var203) {
+                                          if((var203 - var204 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var205 = var203 + 2 & '\uffff';
@@ -10789,7 +10789,7 @@ public class Wally extends MiniZX {
                                                          }
 
                                                          int var256 = this.SP();
-                                                         if(var256 == var255) {
+                                                         if((var255 - var256 & '\uffff') < '\u8000') {
                                                             this.pop();
                                                          } else {
                                                             int var257 = var255 + 2 & '\uffff';
@@ -10803,7 +10803,7 @@ public class Wally extends MiniZX {
                                                          int var258 = this.SP();
                                                          this.$B3AB();
                                                          int var259 = this.SP();
-                                                         if(var259 == var258) {
+                                                         if((var258 - var259 & '\uffff') < '\u8000') {
                                                             this.pop();
                                                          } else {
                                                             int var260 = var258 + 2 & '\uffff';
@@ -10817,7 +10817,7 @@ public class Wally extends MiniZX {
                                                          int var261 = this.SP();
                                                          this.$B8ED();
                                                          int var262 = this.SP();
-                                                         if(var262 == var261) {
+                                                         if((var261 - var262 & '\uffff') < '\u8000') {
                                                             this.pop();
                                                          } else {
                                                             int var263 = var261 + 2 & '\uffff';
@@ -10835,7 +10835,7 @@ public class Wally extends MiniZX {
                                                          int var264 = this.SP();
                                                          this.$B8C4();
                                                          int var265 = this.SP();
-                                                         if(var265 == var264) {
+                                                         if((var264 - var265 & '\uffff') < '\u8000') {
                                                             this.pop();
                                                          } else {
                                                             int var266 = var264 + 2 & '\uffff';
@@ -10849,7 +10849,7 @@ public class Wally extends MiniZX {
                                                          int var267 = this.SP();
                                                          this.$B3AB();
                                                          int var268 = this.SP();
-                                                         if(var268 == var267) {
+                                                         if((var267 - var268 & '\uffff') < '\u8000') {
                                                             this.pop();
                                                          } else {
                                                             int var269 = var267 + 2 & '\uffff';
@@ -10863,7 +10863,7 @@ public class Wally extends MiniZX {
                                                          int var270 = this.SP();
                                                          this.$B2F1();
                                                          int var271 = this.SP();
-                                                         if(var271 == var270) {
+                                                         if((var270 - var271 & '\uffff') < '\u8000') {
                                                             this.pop();
                                                          } else {
                                                             int var272 = var270 + 2 & '\uffff';
@@ -10939,7 +10939,7 @@ public class Wally extends MiniZX {
                                                    int var239 = this.SP();
                                                    this.$B288();
                                                    int var240 = this.SP();
-                                                   if(var240 == var239) {
+                                                   if((var239 - var240 & '\uffff') < '\u8000') {
                                                       this.pop();
                                                    } else {
                                                       int var241 = var239 + 2 & '\uffff';
@@ -10959,7 +10959,7 @@ public class Wally extends MiniZX {
                                                    int var226 = this.SP();
                                                    this.$B288();
                                                    int var227 = this.SP();
-                                                   if(var227 == var226) {
+                                                   if((var226 - var227 & '\uffff') < '\u8000') {
                                                       this.pop();
                                                    } else {
                                                       int var228 = var226 + 2 & '\uffff';
@@ -10990,7 +10990,7 @@ public class Wally extends MiniZX {
                                              }
 
                                              int var232 = this.SP();
-                                             if(var232 == var231) {
+                                             if((var231 - var232 & '\uffff') < '\u8000') {
                                                 this.pop();
                                              } else {
                                                 int var233 = var231 + 2 & '\uffff';
@@ -11008,7 +11008,7 @@ public class Wally extends MiniZX {
                                              }
 
                                              int var235 = this.SP();
-                                             if(var235 == var234) {
+                                             if((var234 - var235 & '\uffff') < '\u8000') {
                                                 this.pop();
                                              } else {
                                                 int var236 = var234 + 2 & '\uffff';
@@ -11072,7 +11072,7 @@ public class Wally extends MiniZX {
                                              int var549 = this.SP();
                                              this.$AA8C();
                                              int var550 = this.SP();
-                                             if(var550 == var549) {
+                                             if((var549 - var550 & '\uffff') < '\u8000') {
                                                 this.pop();
                                              } else {
                                                 int var551 = var549 + 2 & '\uffff';
@@ -11187,7 +11187,7 @@ public class Wally extends MiniZX {
                                              }
 
                                              int var598 = this.SP();
-                                             if(var598 == var597) {
+                                             if((var597 - var598 & '\uffff') < '\u8000') {
                                                 this.pop();
                                              } else {
                                                 int var599 = var597 + 2 & '\uffff';
@@ -11201,7 +11201,7 @@ public class Wally extends MiniZX {
                                              int var600 = this.SP();
                                              this.$AA7F();
                                              int var601 = this.SP();
-                                             if(var601 == var600) {
+                                             if((var600 - var601 & '\uffff') < '\u8000') {
                                                 this.pop();
                                              } else {
                                                 int var602 = var600 + 2 & '\uffff';
@@ -11426,7 +11426,7 @@ public class Wally extends MiniZX {
                                           }
 
                                           int var472 = this.SP();
-                                          if(var472 == var471) {
+                                          if((var471 - var472 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var473 = var471 + 2 & '\uffff';
@@ -11499,7 +11499,7 @@ public class Wally extends MiniZX {
                                  }
 
                                  int var378 = this.SP();
-                                 if(var378 == var377) {
+                                 if((var377 - var378 & '\uffff') < '\u8000') {
                                     this.pop();
                                  } else {
                                     int var379 = var377 + 2 & '\uffff';
@@ -11542,7 +11542,7 @@ public class Wally extends MiniZX {
                                     }
 
                                     int var388 = this.SP();
-                                    if(var388 == var387) {
+                                    if((var387 - var388 & '\uffff') < '\u8000') {
                                        this.pop();
                                     } else {
                                        int var389 = var387 + 2 & '\uffff';
@@ -11579,7 +11579,7 @@ public class Wally extends MiniZX {
                                           int var437 = this.SP();
                                           this.$81D4();
                                           int var438 = this.SP();
-                                          if(var438 == var437) {
+                                          if((var437 - var438 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var439 = var437 + 2 & '\uffff';
@@ -11601,7 +11601,7 @@ public class Wally extends MiniZX {
                                        int var400 = this.SP();
                                        this.$B902();
                                        int var401 = this.SP();
-                                       if(var401 == var400) {
+                                       if((var400 - var401 & '\uffff') < '\u8000') {
                                           this.pop();
                                        } else {
                                           int var402 = var400 + 2 & '\uffff';
@@ -11619,7 +11619,7 @@ public class Wally extends MiniZX {
                                        }
 
                                        int var404 = this.SP();
-                                       if(var404 == var403) {
+                                       if((var403 - var404 & '\uffff') < '\u8000') {
                                           this.pop();
                                        } else {
                                           int var405 = var403 + 2 & '\uffff';
@@ -11662,7 +11662,7 @@ public class Wally extends MiniZX {
                                           int var415 = this.SP();
                                           this.$EEA2();
                                           int var416 = this.SP();
-                                          if(var416 == var415) {
+                                          if((var415 - var416 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var417 = var415 + 2 & '\uffff';
@@ -11680,7 +11680,7 @@ public class Wally extends MiniZX {
                                           }
 
                                           int var419 = this.SP();
-                                          if(var419 == var418) {
+                                          if((var418 - var419 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var420 = var418 + 2 & '\uffff';
@@ -11698,7 +11698,7 @@ public class Wally extends MiniZX {
                                           }
 
                                           int var422 = this.SP();
-                                          if(var422 == var421) {
+                                          if((var421 - var422 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var423 = var421 + 2 & '\uffff';
@@ -11716,7 +11716,7 @@ public class Wally extends MiniZX {
                                           }
 
                                           int var425 = this.SP();
-                                          if(var425 == var424) {
+                                          if((var424 - var425 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var426 = var424 + 2 & '\uffff';
@@ -11730,7 +11730,7 @@ public class Wally extends MiniZX {
                                           int var427 = this.SP();
                                           this.$B9FB();
                                           int var428 = this.SP();
-                                          if(var428 == var427) {
+                                          if((var427 - var428 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var429 = var427 + 2 & '\uffff';
@@ -11820,7 +11820,7 @@ public class Wally extends MiniZX {
                                  int var296 = this.SP();
                                  this.$B902();
                                  int var297 = this.SP();
-                                 if(var297 == var296) {
+                                 if((var296 - var297 & '\uffff') < '\u8000') {
                                     this.pop();
                                  } else {
                                     int var298 = var296 + 2 & '\uffff';
@@ -11876,7 +11876,7 @@ public class Wally extends MiniZX {
                                        }
 
                                        int var309 = this.SP();
-                                       if(var309 == var308) {
+                                       if((var308 - var309 & '\uffff') < '\u8000') {
                                           this.pop();
                                        } else {
                                           int var310 = var308 + 2 & '\uffff';
@@ -11890,7 +11890,7 @@ public class Wally extends MiniZX {
                                        int var311 = this.SP();
                                        this.$B9AC();
                                        int var312 = this.SP();
-                                       if(var312 == var311) {
+                                       if((var311 - var312 & '\uffff') < '\u8000') {
                                           this.pop();
                                        } else {
                                           int var313 = var311 + 2 & '\uffff';
@@ -11909,7 +11909,7 @@ public class Wally extends MiniZX {
                                           }
 
                                           int var315 = this.SP();
-                                          if(var315 == var314) {
+                                          if((var314 - var315 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var316 = var314 + 2 & '\uffff';
@@ -11923,7 +11923,7 @@ public class Wally extends MiniZX {
                                           int var317 = this.SP();
                                           this.$EEA2();
                                           int var318 = this.SP();
-                                          if(var318 == var317) {
+                                          if((var317 - var318 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var319 = var317 + 2 & '\uffff';
@@ -11941,7 +11941,7 @@ public class Wally extends MiniZX {
                                           }
 
                                           int var321 = this.SP();
-                                          if(var321 == var320) {
+                                          if((var320 - var321 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var322 = var320 + 2 & '\uffff';
@@ -11959,7 +11959,7 @@ public class Wally extends MiniZX {
                                           }
 
                                           int var324 = this.SP();
-                                          if(var324 == var323) {
+                                          if((var323 - var324 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var325 = var323 + 2 & '\uffff';
@@ -11977,7 +11977,7 @@ public class Wally extends MiniZX {
                                           }
 
                                           int var327 = this.SP();
-                                          if(var327 == var326) {
+                                          if((var326 - var327 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var328 = var326 + 2 & '\uffff';
@@ -11995,7 +11995,7 @@ public class Wally extends MiniZX {
                                           }
 
                                           int var330 = this.SP();
-                                          if(var330 == var329) {
+                                          if((var329 - var330 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var331 = var329 + 2 & '\uffff';
@@ -12013,7 +12013,7 @@ public class Wally extends MiniZX {
                                           }
 
                                           int var333 = this.SP();
-                                          if(var333 == var332) {
+                                          if((var332 - var333 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var334 = var332 + 2 & '\uffff';
@@ -12027,7 +12027,7 @@ public class Wally extends MiniZX {
                                           int var335 = this.SP();
                                           this.$B9FB();
                                           int var336 = this.SP();
-                                          if(var336 == var335) {
+                                          if((var335 - var336 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var337 = var335 + 2 & '\uffff';
@@ -12128,7 +12128,7 @@ public class Wally extends MiniZX {
                               }
 
                               int var358 = this.SP();
-                              if(var358 == var357) {
+                              if((var357 - var358 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var359 = var357 + 2 & '\uffff';
@@ -12197,7 +12197,7 @@ public class Wally extends MiniZX {
                            }
 
                            int var184 = this.SP();
-                           if(var184 == var183) {
+                           if((var183 - var184 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var185 = var183 + 2 & '\uffff';
@@ -12230,7 +12230,7 @@ public class Wally extends MiniZX {
                         }
 
                         int var167 = this.SP();
-                        if(var167 == var166) {
+                        if((var166 - var167 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var168 = var166 + 2 & '\uffff';
@@ -12363,7 +12363,7 @@ public class Wally extends MiniZX {
                                  int var118 = this.SP();
                                  this.$EC3D();
                                  int var119 = this.SP();
-                                 if(var119 == var118) {
+                                 if((var118 - var119 & '\uffff') < '\u8000') {
                                     this.pop();
                                  } else {
                                     int var120 = var118 + 2 & '\uffff';
@@ -12412,7 +12412,7 @@ public class Wally extends MiniZX {
                                  int var89 = this.SP();
                                  this.$AA8C();
                                  int var90 = this.SP();
-                                 if(var90 == var89) {
+                                 if((var89 - var90 & '\uffff') < '\u8000') {
                                     this.pop();
                                  } else {
                                     int var91 = var89 + 2 & '\uffff';
@@ -12495,7 +12495,7 @@ public class Wally extends MiniZX {
                            int var75 = this.SP();
                            this.$EC3D();
                            int var76 = this.SP();
-                           if(var76 == var75) {
+                           if((var75 - var76 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var77 = var75 + 2 & '\uffff';
@@ -12591,7 +12591,7 @@ public class Wally extends MiniZX {
                      int var46 = this.SP();
                      this.$EC1D();
                      int var47 = this.SP();
-                     if(var47 == var46) {
+                     if((var46 - var47 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var48 = var46 + 2 & '\uffff';
@@ -12661,7 +12661,7 @@ public class Wally extends MiniZX {
       int var1 = this.SP();
       this.$AA8C();
       int var2 = this.SP();
-      if(var2 == var1) {
+      if((var1 - var2 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var3 = var1 + 2 & '\uffff';
@@ -12811,7 +12811,7 @@ public class Wally extends MiniZX {
       int var11 = this.SP();
       this.$AA8C();
       int var12 = this.SP();
-      if(var12 == var11) {
+      if((var11 - var12 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var13 = var11 + 2 & '\uffff';
@@ -12906,7 +12906,7 @@ public class Wally extends MiniZX {
                int var27 = this.SP();
                this.$B902();
                int var28 = this.SP();
-               if(var28 == var27) {
+               if((var27 - var28 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var29 = var27 + 2 & '\uffff';
@@ -12943,7 +12943,7 @@ public class Wally extends MiniZX {
                int var39 = this.SP();
                this.$B8C4();
                int var40 = this.SP();
-               if(var40 == var39) {
+               if((var39 - var40 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var41 = var39 + 2 & '\uffff';
@@ -12957,7 +12957,7 @@ public class Wally extends MiniZX {
                int var42 = this.SP();
                this.$B9AC();
                int var43 = this.SP();
-               if(var43 == var42) {
+               if((var42 - var43 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var44 = var42 + 2 & '\uffff';
@@ -12972,7 +12972,7 @@ public class Wally extends MiniZX {
                   int var45 = this.SP();
                   this.$EEA2();
                   int var46 = this.SP();
-                  if(var46 == var45) {
+                  if((var45 - var46 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var47 = var45 + 2 & '\uffff';
@@ -13009,7 +13009,7 @@ public class Wally extends MiniZX {
                      int var55 = this.SP();
                      this.$EF35();
                      int var56 = this.SP();
-                     if(var56 == var55) {
+                     if((var55 - var56 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var57 = var55 + 2 & '\uffff';
@@ -13027,7 +13027,7 @@ public class Wally extends MiniZX {
                      }
 
                      int var59 = this.SP();
-                     if(var59 == var58) {
+                     if((var58 - var59 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var60 = var58 + 2 & '\uffff';
@@ -13048,7 +13048,7 @@ public class Wally extends MiniZX {
                         int var63 = this.SP();
                         this.$B9FB();
                         int var64 = this.SP();
-                        if(var64 == var63) {
+                        if((var63 - var64 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var65 = var63 + 2 & '\uffff';
@@ -13062,7 +13062,7 @@ public class Wally extends MiniZX {
                         int var66 = this.SP();
                         this.$ABD7();
                         int var67 = this.SP();
-                        if(var67 == var66) {
+                        if((var66 - var67 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var68 = var66 + 2 & '\uffff';
@@ -13095,7 +13095,7 @@ public class Wally extends MiniZX {
                            }
 
                            int var77 = this.SP();
-                           if(var77 == var76) {
+                           if((var76 - var77 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var78 = var76 + 2 & '\uffff';
@@ -13139,7 +13139,7 @@ public class Wally extends MiniZX {
          int var2 = this.SP();
          this.$EF35();
          int var3 = this.SP();
-         if(var3 == var2) {
+         if((var2 - var3 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var4 = var2 + 2 & '\uffff';
@@ -13157,7 +13157,7 @@ public class Wally extends MiniZX {
          }
 
          int var6 = this.SP();
-         if(var6 == var5) {
+         if((var5 - var6 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var7 = var5 + 2 & '\uffff';
@@ -13178,7 +13178,7 @@ public class Wally extends MiniZX {
          }
 
          int var10 = this.SP();
-         if(var10 == var9) {
+         if((var9 - var10 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var11 = var9 + 2 & '\uffff';
@@ -13215,7 +13215,7 @@ public class Wally extends MiniZX {
          }
 
          var1 = new int[]{'\uee9f'};
-      } while(this.isOwnAddress(var1));
+      } while(this.ownAddress(var1) != -1);
 
    }
 
@@ -13233,7 +13233,7 @@ public class Wally extends MiniZX {
          int var1 = this.SP();
          this.$BA25();
          int var2 = this.SP();
-         if(var2 == var1) {
+         if((var1 - var2 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var3 = var1 + 2 & '\uffff';
@@ -13258,7 +13258,7 @@ public class Wally extends MiniZX {
          int var4 = this.SP();
          this.$BA25();
          int var5 = this.SP();
-         if(var5 == var4) {
+         if((var4 - var5 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var6 = var4 + 2 & '\uffff';
@@ -13283,7 +13283,7 @@ public class Wally extends MiniZX {
                int var1 = this.SP();
                this.$EEA2();
                int var2 = this.SP();
-               if(var2 == var1) {
+               if((var1 - var2 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var3 = var1 + 2 & '\uffff';
@@ -13306,7 +13306,7 @@ public class Wally extends MiniZX {
                int var7 = this.SP();
                this.$AA8C();
                int var8 = this.SP();
-               if(var8 == var7) {
+               if((var7 - var8 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var9 = var7 + 2 & '\uffff';
@@ -13371,7 +13371,7 @@ public class Wally extends MiniZX {
                         int var44 = this.SP();
                         this.$EC1D();
                         int var45 = this.SP();
-                        if(var45 == var44) {
+                        if((var44 - var45 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var46 = var44 + 2 & '\uffff';
@@ -13396,7 +13396,7 @@ public class Wally extends MiniZX {
                            this.$A8A0();
                            if(!this.unwinding()) {
                               int var76 = this.SP();
-                              if(var76 == var75) {
+                              if((var75 - var76 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var77 = var75 + 2 & '\uffff';
@@ -13423,7 +13423,7 @@ public class Wally extends MiniZX {
                            int var48 = this.SP();
                            this.$EF35();
                            int var49 = this.SP();
-                           if(var49 == var48) {
+                           if((var48 - var49 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var50 = var48 + 2 & '\uffff';
@@ -13440,7 +13440,7 @@ public class Wally extends MiniZX {
                            this.$A8A0();
                            if(!this.unwinding()) {
                               int var52 = this.SP();
-                              if(var52 == var51) {
+                              if((var51 - var52 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var53 = var51 + 2 & '\uffff';
@@ -13455,7 +13455,7 @@ public class Wally extends MiniZX {
                               this.$E329();
                               if(!this.unwinding()) {
                                  int var55 = this.SP();
-                                 if(var55 == var54) {
+                                 if((var54 - var55 & '\uffff') < '\u8000') {
                                     this.pop();
                                  } else {
                                     int var56 = var54 + 2 & '\uffff';
@@ -13544,7 +13544,7 @@ public class Wally extends MiniZX {
                               int var98 = this.SP();
                               this.$EF35();
                               int var99 = this.SP();
-                              if(var99 == var98) {
+                              if((var98 - var99 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var100 = var98 + 2 & '\uffff';
@@ -13588,7 +13588,7 @@ public class Wally extends MiniZX {
                               }
 
                               int var108 = this.SP();
-                              if(var108 == var107) {
+                              if((var107 - var108 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var109 = var107 + 2 & '\uffff';
@@ -13606,7 +13606,7 @@ public class Wally extends MiniZX {
                               }
 
                               int var111 = this.SP();
-                              if(var111 == var110) {
+                              if((var110 - var111 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var112 = var110 + 2 & '\uffff';
@@ -13646,7 +13646,7 @@ public class Wally extends MiniZX {
                               int var129 = this.SP();
                               this.$EF35();
                               int var130 = this.SP();
-                              if(var130 == var129) {
+                              if((var129 - var130 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var131 = var129 + 2 & '\uffff';
@@ -13663,7 +13663,7 @@ public class Wally extends MiniZX {
                               this.$A8A0();
                               if(!this.unwinding()) {
                                  int var133 = this.SP();
-                                 if(var133 == var132) {
+                                 if((var132 - var133 & '\uffff') < '\u8000') {
                                     this.pop();
                                  } else {
                                     int var134 = var132 + 2 & '\uffff';
@@ -13678,7 +13678,7 @@ public class Wally extends MiniZX {
                                  this.$E329();
                                  if(!this.unwinding()) {
                                     int var136 = this.SP();
-                                    if(var136 == var135) {
+                                    if((var135 - var136 & '\uffff') < '\u8000') {
                                        this.pop();
                                     } else {
                                        int var137 = var135 + 2 & '\uffff';
@@ -13694,7 +13694,7 @@ public class Wally extends MiniZX {
                                     int var138 = this.SP();
                                     this.$EF35();
                                     int var139 = this.SP();
-                                    if(var139 == var138) {
+                                    if((var138 - var139 & '\uffff') < '\u8000') {
                                        this.pop();
                                     } else {
                                        int var140 = var138 + 2 & '\uffff';
@@ -13709,7 +13709,7 @@ public class Wally extends MiniZX {
                                     this.$A8A0();
                                     if(!this.unwinding()) {
                                        int var142 = this.SP();
-                                       if(var142 == var141) {
+                                       if((var141 - var142 & '\uffff') < '\u8000') {
                                           this.pop();
                                        } else {
                                           int var143 = var141 + 2 & '\uffff';
@@ -13724,7 +13724,7 @@ public class Wally extends MiniZX {
                                        this.$E329();
                                        if(!this.unwinding()) {
                                           int var145 = this.SP();
-                                          if(var145 == var144) {
+                                          if((var144 - var145 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var146 = var144 + 2 & '\uffff';
@@ -13820,7 +13820,7 @@ public class Wally extends MiniZX {
                                           }
 
                                           int var214 = this.SP();
-                                          if(var214 == var213) {
+                                          if((var213 - var214 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var215 = var213 + 2 & '\uffff';
@@ -13874,7 +13874,7 @@ public class Wally extends MiniZX {
                                     int var221 = this.SP();
                                     this.$EF35();
                                     int var222 = this.SP();
-                                    if(var222 == var221) {
+                                    if((var221 - var222 & '\uffff') < '\u8000') {
                                        this.pop();
                                     } else {
                                        int var223 = var221 + 2 & '\uffff';
@@ -13894,7 +13894,7 @@ public class Wally extends MiniZX {
                                     }
 
                                     int var225 = this.SP();
-                                    if(var225 == var224) {
+                                    if((var224 - var225 & '\uffff') < '\u8000') {
                                        this.pop();
                                     } else {
                                        int var226 = var224 + 2 & '\uffff';
@@ -13912,7 +13912,7 @@ public class Wally extends MiniZX {
                                     }
 
                                     int var228 = this.SP();
-                                    if(var228 == var227) {
+                                    if((var227 - var228 & '\uffff') < '\u8000') {
                                        this.pop();
                                     } else {
                                        int var229 = var227 + 2 & '\uffff';
@@ -14015,7 +14015,7 @@ public class Wally extends MiniZX {
                                              int var293 = this.SP();
                                              this.$EC1D();
                                              int var294 = this.SP();
-                                             if(var294 == var293) {
+                                             if((var293 - var294 & '\uffff') < '\u8000') {
                                                 this.pop();
                                              } else {
                                                 int var295 = var293 + 2 & '\uffff';
@@ -14039,7 +14039,7 @@ public class Wally extends MiniZX {
                                              int var296 = this.SP();
                                              this.$EF35();
                                              int var297 = this.SP();
-                                             if(var297 == var296) {
+                                             if((var296 - var297 & '\uffff') < '\u8000') {
                                                 this.pop();
                                              } else {
                                                 int var298 = var296 + 2 & '\uffff';
@@ -14067,7 +14067,7 @@ public class Wally extends MiniZX {
                                              }
 
                                              int var304 = this.SP();
-                                             if(var304 == var303) {
+                                             if((var303 - var304 & '\uffff') < '\u8000') {
                                                 this.pop();
                                              } else {
                                                 int var305 = var303 + 2 & '\uffff';
@@ -14085,7 +14085,7 @@ public class Wally extends MiniZX {
                                              }
 
                                              int var307 = this.SP();
-                                             if(var307 == var306) {
+                                             if((var306 - var307 & '\uffff') < '\u8000') {
                                                 this.pop();
                                              } else {
                                                 int var308 = var306 + 2 & '\uffff';
@@ -14160,7 +14160,7 @@ public class Wally extends MiniZX {
                                     int var311 = this.SP();
                                     this.$EC1D();
                                     int var312 = this.SP();
-                                    if(var312 == var311) {
+                                    if((var311 - var312 & '\uffff') < '\u8000') {
                                        this.pop();
                                     } else {
                                        int var313 = var311 + 2 & '\uffff';
@@ -14226,7 +14226,7 @@ public class Wally extends MiniZX {
                                              }
 
                                              int var323 = this.SP();
-                                             if(var323 == var322) {
+                                             if((var322 - var323 & '\uffff') < '\u8000') {
                                                 this.pop();
                                              } else {
                                                 int var324 = var322 + 2 & '\uffff';
@@ -14374,7 +14374,7 @@ public class Wally extends MiniZX {
                                        }
 
                                        int var365 = this.SP();
-                                       if(var365 == var364) {
+                                       if((var364 - var365 & '\uffff') < '\u8000') {
                                           this.pop();
                                        } else {
                                           int var366 = var364 + 2 & '\uffff';
@@ -14413,7 +14413,7 @@ public class Wally extends MiniZX {
                                        int var370 = this.SP();
                                        this.$EC1D();
                                        int var371 = this.SP();
-                                       if(var371 == var370) {
+                                       if((var370 - var371 & '\uffff') < '\u8000') {
                                           this.pop();
                                        } else {
                                           int var372 = var370 + 2 & '\uffff';
@@ -14466,7 +14466,7 @@ public class Wally extends MiniZX {
                                     this.$A83D();
                                     if(!this.unwinding()) {
                                        int var381 = this.SP();
-                                       if(var381 == var380) {
+                                       if((var380 - var381 & '\uffff') < '\u8000') {
                                           this.pop();
                                        } else {
                                           int var382 = var380 + 2 & '\uffff';
@@ -14481,7 +14481,7 @@ public class Wally extends MiniZX {
                                        this.$E329();
                                        if(!this.unwinding()) {
                                           int var384 = this.SP();
-                                          if(var384 == var383) {
+                                          if((var383 - var384 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var385 = var383 + 2 & '\uffff';
@@ -14520,7 +14520,7 @@ public class Wally extends MiniZX {
                                           int var388 = this.SP();
                                           this.$EF35();
                                           int var389 = this.SP();
-                                          if(var389 == var388) {
+                                          if((var388 - var389 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var390 = var388 + 2 & '\uffff';
@@ -14651,7 +14651,7 @@ public class Wally extends MiniZX {
                                           }
 
                                           int var436 = this.SP();
-                                          if(var436 == var435) {
+                                          if((var435 - var436 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var437 = var435 + 2 & '\uffff';
@@ -14669,7 +14669,7 @@ public class Wally extends MiniZX {
                                           }
 
                                           int var439 = this.SP();
-                                          if(var439 == var438) {
+                                          if((var438 - var439 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var440 = var438 + 2 & '\uffff';
@@ -14716,7 +14716,7 @@ public class Wally extends MiniZX {
                                        int var448 = this.SP();
                                        this.$EF35();
                                        int var449 = this.SP();
-                                       if(var449 == var448) {
+                                       if((var448 - var449 & '\uffff') < '\u8000') {
                                           this.pop();
                                        } else {
                                           int var450 = var448 + 2 & '\uffff';
@@ -14754,7 +14754,7 @@ public class Wally extends MiniZX {
                                        this.$A83D();
                                        if(!this.unwinding()) {
                                           int var459 = this.SP();
-                                          if(var459 == var458) {
+                                          if((var458 - var459 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var460 = var458 + 2 & '\uffff';
@@ -14772,7 +14772,7 @@ public class Wally extends MiniZX {
                                           int var463 = this.SP();
                                           this.$EF35();
                                           int var464 = this.SP();
-                                          if(var464 == var463) {
+                                          if((var463 - var464 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var465 = var463 + 2 & '\uffff';
@@ -14789,7 +14789,7 @@ public class Wally extends MiniZX {
                                           this.$A83D();
                                           if(!this.unwinding()) {
                                              int var467 = this.SP();
-                                             if(var467 == var466) {
+                                             if((var466 - var467 & '\uffff') < '\u8000') {
                                                 this.pop();
                                              } else {
                                                 int var468 = var466 + 2 & '\uffff';
@@ -14804,7 +14804,7 @@ public class Wally extends MiniZX {
                                              this.$E329();
                                              if(!this.unwinding()) {
                                                 int var470 = this.SP();
-                                                if(var470 == var469) {
+                                                if((var469 - var470 & '\uffff') < '\u8000') {
                                                    this.pop();
                                                 } else {
                                                    int var471 = var469 + 2 & '\uffff';
@@ -14872,7 +14872,7 @@ public class Wally extends MiniZX {
                                                 int var549 = this.SP();
                                                 this.$EF35();
                                                 int var550 = this.SP();
-                                                if(var550 == var549) {
+                                                if((var549 - var550 & '\uffff') < '\u8000') {
                                                    this.pop();
                                                 } else {
                                                    int var551 = var549 + 2 & '\uffff';
@@ -14889,7 +14889,7 @@ public class Wally extends MiniZX {
                                                 this.$A8A0();
                                                 if(!this.unwinding()) {
                                                    int var553 = this.SP();
-                                                   if(var553 == var552) {
+                                                   if((var552 - var553 & '\uffff') < '\u8000') {
                                                       this.pop();
                                                    } else {
                                                       int var554 = var552 + 2 & '\uffff';
@@ -14904,7 +14904,7 @@ public class Wally extends MiniZX {
                                                    this.$E329();
                                                    if(!this.unwinding()) {
                                                       int var556 = this.SP();
-                                                      if(var556 == var555) {
+                                                      if((var555 - var556 & '\uffff') < '\u8000') {
                                                          this.pop();
                                                       } else {
                                                          int var557 = var555 + 2 & '\uffff';
@@ -14918,7 +14918,7 @@ public class Wally extends MiniZX {
                                                       int var558 = this.SP();
                                                       this.$EF35();
                                                       int var559 = this.SP();
-                                                      if(var559 == var558) {
+                                                      if((var558 - var559 & '\uffff') < '\u8000') {
                                                          this.pop();
                                                       } else {
                                                          int var560 = var558 + 2 & '\uffff';
@@ -14935,7 +14935,7 @@ public class Wally extends MiniZX {
                                                       this.$A8A0();
                                                       if(!this.unwinding()) {
                                                          int var562 = this.SP();
-                                                         if(var562 == var561) {
+                                                         if((var561 - var562 & '\uffff') < '\u8000') {
                                                             this.pop();
                                                          } else {
                                                             int var563 = var561 + 2 & '\uffff';
@@ -14950,7 +14950,7 @@ public class Wally extends MiniZX {
                                                          this.$E329();
                                                          if(!this.unwinding()) {
                                                             int var565 = this.SP();
-                                                            if(var565 == var564) {
+                                                            if((var564 - var565 & '\uffff') < '\u8000') {
                                                                this.pop();
                                                             } else {
                                                                int var566 = var564 + 2 & '\uffff';
@@ -14988,7 +14988,7 @@ public class Wally extends MiniZX {
                                                 int var523 = this.SP();
                                                 this.$EF35();
                                                 int var524 = this.SP();
-                                                if(var524 == var523) {
+                                                if((var523 - var524 & '\uffff') < '\u8000') {
                                                    this.pop();
                                                 } else {
                                                    int var525 = var523 + 2 & '\uffff';
@@ -15046,7 +15046,7 @@ public class Wally extends MiniZX {
                                                 }
 
                                                 int var541 = this.SP();
-                                                if(var541 == var540) {
+                                                if((var540 - var541 & '\uffff') < '\u8000') {
                                                    this.pop();
                                                 } else {
                                                    int var542 = var540 + 2 & '\uffff';
@@ -15064,7 +15064,7 @@ public class Wally extends MiniZX {
                                                 }
 
                                                 int var544 = this.SP();
-                                                if(var544 == var543) {
+                                                if((var543 - var544 & '\uffff') < '\u8000') {
                                                    this.pop();
                                                 } else {
                                                    int var545 = var543 + 2 & '\uffff';
@@ -15095,7 +15095,7 @@ public class Wally extends MiniZX {
                                           int var481 = this.SP();
                                           this.$EC1D();
                                           int var482 = this.SP();
-                                          if(var482 == var481) {
+                                          if((var481 - var482 & '\uffff') < '\u8000') {
                                              this.pop();
                                           } else {
                                              int var483 = var481 + 2 & '\uffff';
@@ -15115,7 +15115,7 @@ public class Wally extends MiniZX {
                                              int var484 = this.SP();
                                              this.$EC1D();
                                              int var485 = this.SP();
-                                             if(var485 == var484) {
+                                             if((var484 - var485 & '\uffff') < '\u8000') {
                                                 this.pop();
                                              } else {
                                                 int var486 = var484 + 2 & '\uffff';
@@ -15245,7 +15245,7 @@ public class Wally extends MiniZX {
                                           this.$A83D();
                                           if(!this.unwinding()) {
                                              int var519 = this.SP();
-                                             if(var519 == var518) {
+                                             if((var518 - var519 & '\uffff') < '\u8000') {
                                                 this.pop();
                                              } else {
                                                 int var520 = var518 + 2 & '\uffff';
@@ -15280,7 +15280,7 @@ public class Wally extends MiniZX {
                                     int var234 = this.SP();
                                     this.$EC1D();
                                     int var235 = this.SP();
-                                    if(var235 == var234) {
+                                    if((var234 - var235 & '\uffff') < '\u8000') {
                                        this.pop();
                                     } else {
                                        int var236 = var234 + 2 & '\uffff';
@@ -15348,7 +15348,7 @@ public class Wally extends MiniZX {
                               this.$ED8A();
                               if(!this.unwinding()) {
                                  int var247 = this.SP();
-                                 if(var247 == var246) {
+                                 if((var246 - var247 & '\uffff') < '\u8000') {
                                     this.pop();
                                  } else {
                                     int var248 = var246 + 2 & '\uffff';
@@ -15413,7 +15413,7 @@ public class Wally extends MiniZX {
                                  int var192 = this.SP();
                                  this.$F047();
                                  int var193 = this.SP();
-                                 if(var193 == var192) {
+                                 if((var192 - var193 & '\uffff') < '\u8000') {
                                     this.pop();
                                  } else {
                                     int var194 = var192 + 2 & '\uffff';
@@ -15435,7 +15435,7 @@ public class Wally extends MiniZX {
                                  int var186 = this.SP();
                                  this.$F047();
                                  int var187 = this.SP();
-                                 if(var187 == var186) {
+                                 if((var186 - var187 & '\uffff') < '\u8000') {
                                     this.pop();
                                  } else {
                                     int var188 = var186 + 2 & '\uffff';
@@ -15457,7 +15457,7 @@ public class Wally extends MiniZX {
                            int var155 = this.SP();
                            this.$EF35();
                            int var156 = this.SP();
-                           if(var156 == var155) {
+                           if((var155 - var156 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var157 = var155 + 2 & '\uffff';
@@ -15472,7 +15472,7 @@ public class Wally extends MiniZX {
                            this.$A8A0();
                            if(!this.unwinding()) {
                               int var159 = this.SP();
-                              if(var159 == var158) {
+                              if((var158 - var159 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var160 = var158 + 2 & '\uffff';
@@ -15496,7 +15496,7 @@ public class Wally extends MiniZX {
                               int var165 = this.SP();
                               this.$EF35();
                               int var166 = this.SP();
-                              if(var166 == var165) {
+                              if((var165 - var166 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var167 = var165 + 2 & '\uffff';
@@ -15511,7 +15511,7 @@ public class Wally extends MiniZX {
                               this.$A8A0();
                               if(!this.unwinding()) {
                                  int var169 = this.SP();
-                                 if(var169 == var168) {
+                                 if((var168 - var169 & '\uffff') < '\u8000') {
                                     this.pop();
                                  } else {
                                     int var170 = var168 + 2 & '\uffff';
@@ -15572,7 +15572,7 @@ public class Wally extends MiniZX {
                                  this.$E329();
                                  if(!this.unwinding()) {
                                     int var184 = this.SP();
-                                    if(var184 == var183) {
+                                    if((var183 - var184 & '\uffff') < '\u8000') {
                                        this.pop();
                                     } else {
                                        int var185 = var183 + 2 & '\uffff';
@@ -15612,7 +15612,7 @@ public class Wally extends MiniZX {
                            int var117 = this.SP();
                            this.$EF35();
                            int var118 = this.SP();
-                           if(var118 == var117) {
+                           if((var117 - var118 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var119 = var117 + 2 & '\uffff';
@@ -15630,7 +15630,7 @@ public class Wally extends MiniZX {
                            }
 
                            int var121 = this.SP();
-                           if(var121 == var120) {
+                           if((var120 - var121 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var122 = var120 + 2 & '\uffff';
@@ -15648,7 +15648,7 @@ public class Wally extends MiniZX {
                            }
 
                            int var124 = this.SP();
-                           if(var124 == var123) {
+                           if((var123 - var124 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var125 = var123 + 2 & '\uffff';
@@ -15693,7 +15693,7 @@ public class Wally extends MiniZX {
                         int var80 = this.SP();
                         this.$EF35();
                         int var81 = this.SP();
-                        if(var81 == var80) {
+                        if((var80 - var81 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var82 = var80 + 2 & '\uffff';
@@ -15732,7 +15732,7 @@ public class Wally extends MiniZX {
                         }
 
                         int var89 = this.SP();
-                        if(var89 == var88) {
+                        if((var88 - var89 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var90 = var88 + 2 & '\uffff';
@@ -15750,7 +15750,7 @@ public class Wally extends MiniZX {
                         }
 
                         int var92 = this.SP();
-                        if(var92 == var91) {
+                        if((var91 - var92 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var93 = var91 + 2 & '\uffff';
@@ -15810,7 +15810,7 @@ public class Wally extends MiniZX {
                   }
 
                   int var28 = this.SP();
-                  if(var28 == var26) {
+                  if((var26 - var28 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var29 = var26 + 2 & '\uffff';
@@ -16172,7 +16172,7 @@ public class Wally extends MiniZX {
       int var4 = this.SP();
       this.$81E3();
       int var5 = this.SP();
-      if(var5 == var4) {
+      if((var4 - var5 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var6 = var4 + 2 & '\uffff';
@@ -16215,7 +16215,7 @@ public class Wally extends MiniZX {
       this.$A8A0();
       if(!this.unwinding()) {
          int var8 = this.SP();
-         if(var8 == var7) {
+         if((var7 - var8 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var9 = var7 + 2 & '\uffff';
@@ -16245,7 +16245,7 @@ public class Wally extends MiniZX {
          this.$A8A0();
          if(!this.unwinding()) {
             int var16 = this.SP();
-            if(var16 == var15) {
+            if((var15 - var16 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var17 = var15 + 2 & '\uffff';
@@ -16265,7 +16265,7 @@ public class Wally extends MiniZX {
             this.$E329();
             if(!this.unwinding()) {
                int var20 = this.SP();
-               if(var20 == var19) {
+               if((var19 - var20 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var21 = var19 + 2 & '\uffff';
@@ -16407,7 +16407,7 @@ public class Wally extends MiniZX {
          int var4 = this.SP();
          this.$B03C();
          int var5 = this.SP();
-         if(var5 == var4) {
+         if((var4 - var5 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var6 = var4 + 2 & '\uffff';
@@ -16424,7 +16424,7 @@ public class Wally extends MiniZX {
          int var8 = this.SP();
          this.$B00B();
          int var9 = this.SP();
-         if(var9 == var8) {
+         if((var8 - var9 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var10 = var8 + 2 & '\uffff';
@@ -16568,7 +16568,7 @@ public class Wally extends MiniZX {
       int var2 = this.SP();
       this.$EF35();
       int var3 = this.SP();
-      if(var3 == var2) {
+      if((var2 - var3 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var4 = var2 + 2 & '\uffff';
@@ -16614,7 +16614,7 @@ public class Wally extends MiniZX {
             int var17 = this.SP();
             this.$AF01();
             int var18 = this.SP();
-            if(var18 == var17) {
+            if((var17 - var18 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var19 = var17 + 2 & '\uffff';
@@ -16670,7 +16670,7 @@ public class Wally extends MiniZX {
          this.$A8A0();
          if(!this.unwinding()) {
             int var31 = this.SP();
-            if(var31 == var30) {
+            if((var30 - var31 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var32 = var30 + 2 & '\uffff';
@@ -16685,7 +16685,7 @@ public class Wally extends MiniZX {
             this.$E329();
             if(!this.unwinding()) {
                int var34 = this.SP();
-               if(var34 == var33) {
+               if((var33 - var34 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var35 = var33 + 2 & '\uffff';
@@ -16716,7 +16716,7 @@ public class Wally extends MiniZX {
          int var31 = this.SP();
          this.$EF35();
          int var32 = this.SP();
-         if(var32 == var31) {
+         if((var31 - var32 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var33 = var31 + 2 & '\uffff';
@@ -16734,7 +16734,7 @@ public class Wally extends MiniZX {
          int var36 = this.SP();
          this.$AC69();
          int var37 = this.SP();
-         if(var37 == var36) {
+         if((var36 - var37 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var38 = var36 + 2 & '\uffff';
@@ -16756,7 +16756,7 @@ public class Wally extends MiniZX {
          int var43 = this.SP();
          this.$AC5F();
          int var44 = this.SP();
-         if(var44 == var43) {
+         if((var43 - var44 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var45 = var43 + 2 & '\uffff';
@@ -16809,7 +16809,7 @@ public class Wally extends MiniZX {
                   int var61 = this.SP();
                   this.$AF01();
                   int var62 = this.SP();
-                  if(var62 == var61) {
+                  if((var61 - var62 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var63 = var61 + 2 & '\uffff';
@@ -16832,7 +16832,7 @@ public class Wally extends MiniZX {
                      int var67 = this.SP();
                      this.$AC69();
                      int var68 = this.SP();
-                     if(var68 == var67) {
+                     if((var67 - var68 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var69 = var67 + 2 & '\uffff';
@@ -16854,7 +16854,7 @@ public class Wally extends MiniZX {
                      int var74 = this.SP();
                      this.$AC5F();
                      int var75 = this.SP();
-                     if(var75 == var74) {
+                     if((var74 - var75 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var76 = var74 + 2 & '\uffff';
@@ -16969,7 +16969,7 @@ public class Wally extends MiniZX {
          this.$A8A0();
          if(!this.unwinding()) {
             int var19 = this.SP();
-            if(var19 == var18) {
+            if((var18 - var19 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var20 = var18 + 2 & '\uffff';
@@ -16989,7 +16989,7 @@ public class Wally extends MiniZX {
             this.$EF91();
             if(!this.unwinding()) {
                int var23 = this.SP();
-               if(var23 == var22) {
+               if((var22 - var23 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var24 = var22 + 2 & '\uffff';
@@ -17004,7 +17004,7 @@ public class Wally extends MiniZX {
                this.$E329();
                if(!this.unwinding()) {
                   int var26 = this.SP();
-                  if(var26 == var25) {
+                  if((var25 - var26 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var27 = var25 + 2 & '\uffff';
@@ -17044,7 +17044,7 @@ public class Wally extends MiniZX {
       this.$A83D();
       if(!this.unwinding()) {
          int var5 = this.SP();
-         if(var5 == var4) {
+         if((var4 - var5 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var6 = var4 + 2 & '\uffff';
@@ -17059,7 +17059,7 @@ public class Wally extends MiniZX {
          this.$EF91();
          if(!this.unwinding()) {
             int var8 = this.SP();
-            if(var8 == var7) {
+            if((var7 - var8 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var9 = var7 + 2 & '\uffff';
@@ -17079,7 +17079,7 @@ public class Wally extends MiniZX {
             this.$A83D();
             if(!this.unwinding()) {
                int var12 = this.SP();
-               if(var12 == var11) {
+               if((var11 - var12 & '\uffff') < '\u8000') {
                   this.pop();
                } else {
                   int var13 = var11 + 2 & '\uffff';
@@ -17094,7 +17094,7 @@ public class Wally extends MiniZX {
                this.$EF91();
                if(!this.unwinding()) {
                   int var15 = this.SP();
-                  if(var15 == var14) {
+                  if((var14 - var15 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var16 = var14 + 2 & '\uffff';
@@ -17118,7 +17118,7 @@ public class Wally extends MiniZX {
                   this.$A83D();
                   if(!this.unwinding()) {
                      int var21 = this.SP();
-                     if(var21 == var20) {
+                     if((var20 - var21 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var22 = var20 + 2 & '\uffff';
@@ -17133,7 +17133,7 @@ public class Wally extends MiniZX {
                      this.$EF91();
                      if(!this.unwinding()) {
                         int var24 = this.SP();
-                        if(var24 == var23) {
+                        if((var23 - var24 & '\uffff') < '\u8000') {
                            this.pop();
                         } else {
                            int var25 = var23 + 2 & '\uffff';
@@ -17153,7 +17153,7 @@ public class Wally extends MiniZX {
                         this.$A83D();
                         if(!this.unwinding()) {
                            int var28 = this.SP();
-                           if(var28 == var27) {
+                           if((var27 - var28 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var29 = var27 + 2 & '\uffff';
@@ -17168,7 +17168,7 @@ public class Wally extends MiniZX {
                            this.$EF91();
                            if(!this.unwinding()) {
                               int var31 = this.SP();
-                              if(var31 == var30) {
+                              if((var30 - var31 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var32 = var30 + 2 & '\uffff';
@@ -17278,7 +17278,7 @@ public class Wally extends MiniZX {
       this.$A83D();
       if(!this.unwinding()) {
          int var28 = this.SP();
-         if(var28 == var27) {
+         if((var27 - var28 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var29 = var27 + 2 & '\uffff';
@@ -17453,7 +17453,7 @@ public class Wally extends MiniZX {
             int var13 = this.SP();
             this.$EF35();
             int var14 = this.SP();
-            if(var14 == var13) {
+            if((var13 - var14 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var15 = var13 + 2 & '\uffff';
@@ -17475,7 +17475,7 @@ public class Wally extends MiniZX {
             }
 
             int var19 = this.SP();
-            if(var19 == var18) {
+            if((var18 - var19 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var20 = var18 + 2 & '\uffff';
@@ -17537,7 +17537,7 @@ public class Wally extends MiniZX {
                   }
 
                   int var72 = this.SP();
-                  if(var72 == var71) {
+                  if((var71 - var72 & '\uffff') < '\u8000') {
                      this.pop();
                   } else {
                      int var73 = var71 + 2 & '\uffff';
@@ -17649,7 +17649,7 @@ public class Wally extends MiniZX {
             int var6 = this.SP();
             this.$EF88();
             int var7 = this.SP();
-            if(var7 == var6) {
+            if((var6 - var7 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var8 = var6 + 2 & '\uffff';
@@ -17686,7 +17686,7 @@ public class Wally extends MiniZX {
       int var1 = this.SP();
       this.$B03C();
       int var2 = this.SP();
-      if(var2 == var1) {
+      if((var1 - var2 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var3 = var1 + 2 & '\uffff';
@@ -17731,7 +17731,7 @@ public class Wally extends MiniZX {
       int var14 = this.SP();
       this.$B00B();
       int var15 = this.SP();
-      if(var15 == var14) {
+      if((var14 - var15 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var16 = var14 + 2 & '\uffff';
@@ -17776,7 +17776,7 @@ public class Wally extends MiniZX {
       int var27 = this.SP();
       this.$ABD7();
       int var28 = this.SP();
-      if(var28 == var27) {
+      if((var27 - var28 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var29 = var27 + 2 & '\uffff';
@@ -17799,7 +17799,7 @@ public class Wally extends MiniZX {
          int var33 = this.SP();
          this.$F9A4();
          int var34 = this.SP();
-         if(var34 == var33) {
+         if((var33 - var34 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var35 = var33 + 2 & '\uffff';
@@ -17904,7 +17904,7 @@ public class Wally extends MiniZX {
       this.$A83D();
       if(!this.unwinding()) {
          int var63 = this.SP();
-         if(var63 == var62) {
+         if((var62 - var63 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var64 = var62 + 2 & '\uffff';
@@ -18080,7 +18080,7 @@ public class Wally extends MiniZX {
          int var4 = this.SP();
          this.$B06D();
          int var5 = this.SP();
-         if(var5 == var4) {
+         if((var4 - var5 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var6 = var4 + 2 & '\uffff';
@@ -18117,7 +18117,7 @@ public class Wally extends MiniZX {
             int var16 = this.SP();
             this.$F9A4();
             int var17 = this.SP();
-            if(var17 == var16) {
+            if((var16 - var17 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var18 = var16 + 2 & '\uffff';
@@ -18155,7 +18155,7 @@ public class Wally extends MiniZX {
             int var27 = this.SP();
             this.$E3D3();
             int var28 = this.SP();
-            if(var28 == var27) {
+            if((var27 - var28 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var29 = var27 + 2 & '\uffff';
@@ -18175,7 +18175,7 @@ public class Wally extends MiniZX {
          int var30 = this.SP();
          this.$EF35();
          int var31 = this.SP();
-         if(var31 == var30) {
+         if((var30 - var31 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var32 = var30 + 2 & '\uffff';
@@ -18192,7 +18192,7 @@ public class Wally extends MiniZX {
          this.$A83D();
          if(!this.unwinding()) {
             int var34 = this.SP();
-            if(var34 == var33) {
+            if((var33 - var34 & '\uffff') < '\u8000') {
                this.pop();
             } else {
                int var35 = var33 + 2 & '\uffff';
@@ -18362,7 +18362,7 @@ public class Wally extends MiniZX {
                                  int var109 = this.SP();
                                  this.$FAF0();
                                  int var110 = this.SP();
-                                 if(var110 == var109) {
+                                 if((var109 - var110 & '\uffff') < '\u8000') {
                                     this.pop();
                                  } else {
                                     int var111 = var109 + 2 & '\uffff';
@@ -18445,7 +18445,7 @@ public class Wally extends MiniZX {
                                        int var137 = this.SP();
                                        this.$FAE7();
                                        int var138 = this.SP();
-                                       if(var138 == var137) {
+                                       if((var137 - var138 & '\uffff') < '\u8000') {
                                           this.pop();
                                        } else {
                                           int var139 = var137 + 2 & '\uffff';
@@ -18461,7 +18461,7 @@ public class Wally extends MiniZX {
                                        int var140 = this.SP();
                                        this.$FAE7();
                                        int var141 = this.SP();
-                                       if(var141 == var140) {
+                                       if((var140 - var141 & '\uffff') < '\u8000') {
                                           this.pop();
                                        } else {
                                           int var142 = var140 + 2 & '\uffff';
@@ -18477,7 +18477,7 @@ public class Wally extends MiniZX {
                                        int var143 = this.SP();
                                        this.$FAE7();
                                        int var144 = this.SP();
-                                       if(var144 == var143) {
+                                       if((var143 - var144 & '\uffff') < '\u8000') {
                                           this.pop();
                                        } else {
                                           int var145 = var143 + 2 & '\uffff';
@@ -18493,7 +18493,7 @@ public class Wally extends MiniZX {
                                        int var146 = this.SP();
                                        this.$FAE7();
                                        int var147 = this.SP();
-                                       if(var147 == var146) {
+                                       if((var146 - var147 & '\uffff') < '\u8000') {
                                           this.pop();
                                        } else {
                                           int var148 = var146 + 2 & '\uffff';
@@ -18512,7 +18512,7 @@ public class Wally extends MiniZX {
                               int var93 = this.SP();
                               this.$FAF0();
                               int var94 = this.SP();
-                              if(var94 == var93) {
+                              if((var93 - var94 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var95 = var93 + 2 & '\uffff';
@@ -18526,7 +18526,7 @@ public class Wally extends MiniZX {
                               int var96 = this.SP();
                               this.$FAF0();
                               int var97 = this.SP();
-                              if(var97 == var96) {
+                              if((var96 - var97 & '\uffff') < '\u8000') {
                                  this.pop();
                               } else {
                                  int var98 = var96 + 2 & '\uffff';
@@ -18543,7 +18543,7 @@ public class Wally extends MiniZX {
                            int var99 = this.SP();
                            this.$F9C4();
                            int var100 = this.SP();
-                           if(var100 == var99) {
+                           if((var99 - var100 & '\uffff') < '\u8000') {
                               this.pop();
                            } else {
                               int var101 = var99 + 2 & '\uffff';
@@ -18607,7 +18607,7 @@ public class Wally extends MiniZX {
       int var3 = this.SP();
       this.$E3D3();
       int var4 = this.SP();
-      if(var4 == var3) {
+      if((var3 - var4 & '\uffff') < '\u8000') {
          this.pop();
       } else {
          int var5 = var3 + 2 & '\uffff';
@@ -18728,7 +18728,7 @@ public class Wally extends MiniZX {
          int var6 = this.SP();
          this.$EF88();
          int var7 = this.SP();
-         if(var7 == var6) {
+         if((var6 - var7 & '\uffff') < '\u8000') {
             this.pop();
          } else {
             int var8 = var6 + 2 & '\uffff';
@@ -18828,7 +18828,7 @@ public class Wally extends MiniZX {
                      int var31 = this.SP();
                      this.$5B80();
                      int var32 = this.SP();
-                     if(var32 == var31) {
+                     if((var31 - var32 & '\uffff') < '\u8000') {
                         this.pop();
                      } else {
                         int var33 = var31 + 2 & '\uffff';
