@@ -6591,6 +6591,30 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void theRetAfterTheTextOfARoutineThatReturnsPastItRunsInItsCallerWhenTheRecordingStartsAtThePrinter() {
+    // the words on the stack from before the recording share the call site -1: the RET after the text took the main loop's word as a normal return, so -1 looked like a jump table and the printer's shifted return became a jump that took that RET into the printer's routine
+    translate(
+        at(0xFF00, 0x04, 0x81, 0x00, 0x82),
+        at(0x8000, 0xE1, 0x7E, 0x23, 0xB7, 0x20, 0xFB, 0xE5, 0xC9),
+        at(0x8100, 0x0C, 0xCD, 0x00, 0x80, 0x41, 0x00, 0xC9),
+        at(0x8200, 0xCD, 0x00, 0x81, 0x04, 0x76, 0x18, 0xFD));
+    Assert.assertEquals(0x0101, endValue("BC"));
+  }
+
+  @Test
+  public void theRetAfterTheTextOfARoutineThatReturnsPastItRunsInItsCallerWhenTheRecordingStartsInsideWhatThePrinterCalls() {
+    // Sir Fred E70D: LD B,111; CALL 9409; the text; RET. The translation starts at 940C, after the printer's POP HL and the RST 10 that reused its slot, so its first PUSH HL; RET had no return of its own and looked like a jump that took that RET into the printer's routine, where no later call ran it
+    translateFrom(0x800F, 0xFF02,
+        at(0xFF02, 0x00, 0x82),
+        at(0x9000, 0x06, 0x81),
+        at(0x8000, 0xE1, 0x22, 0x00, 0x90, 0x2A, 0x00, 0x90, 0x7E, 0x23, 0x22, 0x00, 0x90, 0xCD, 0x00, 0x83, 0xB7, 0x20, 0xF2, 0x2A, 0x00, 0x90, 0xE5, 0xC9),
+        at(0x8300, 0xC9),
+        at(0x8100, 0x0C, 0xCD, 0x00, 0x80, 0x41, 0x00, 0xC9),
+        at(0x8200, 0xCD, 0x00, 0x81, 0x04, 0x76, 0x18, 0xFD));
+    Assert.assertEquals(0x0101, endValue("BC"));
+  }
+
+  @Test
   public void anInterruptHandlerThatResetsTheStackGoesBackToTheMainLoop() {
     // Dizzy F877: the handler leaves the interrupted code's frames; the Java can't carry that back through the pc() it interrupted
     interruptEvery = 20;
