@@ -153,6 +153,10 @@ public class RoutineManager {
     stackAnalyzer.abandoningRets.entries().stream().filter(e -> leavesJavaFrames(e.getKey(), e.getValue(), stackAnalyzer, false)).forEach(e -> externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(e.getKey())));
     externalEntries.addAll(stackAnalyzer.calledThrough.values());
     stackAnalyzer.shiftedReturns.keySet().forEach(ret -> externalEntries.addAll(stackAnalyzer.dynamicInvocation.get(ret)));
+    stackAnalyzer.callContinuations.forEach((site, continuation) -> {
+      if (findRoutineAt(site) != findRoutineAt(continuation))
+        externalEntries.add(continuation);
+    });
     externalEntries.addAll(stackAnalyzer.codeVersions.successors());
     splitAtEntriesFromOutside();
     stackAnalyzer.dataConsumedBy.entries().stream().filter(e -> findRoutineAt(e.getKey()) != findRoutineAt(e.getValue()))

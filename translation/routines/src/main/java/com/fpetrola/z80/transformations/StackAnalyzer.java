@@ -91,6 +91,7 @@ public class StackAnalyzer implements java.io.Serializable {
   private final transient List<Integer> simulatedCallsPcs = new ArrayList<>();
   private final transient Map<Integer, Entry> entries = new HashMap<>();
   private final transient Map<Integer, Entry> consumedReturns = new HashMap<>();
+  private transient Map.Entry<Integer, Entry> lastPoppedReturn;
   public record Frame(int callSite, Frame enclosing) {
   }
 
@@ -442,11 +443,12 @@ public class StackAnalyzer implements java.io.Serializable {
   }
 
   private void jumpTableAt(int callSite) {
-    if (callSite == -1 || !jumpTableSites.add(callSite))
+    if (!jumpTableSites.add(callSite))
       return;
     Integer known = callContinuations.remove(callSite);
     shiftedReturns.entries().stream().filter(e -> e.getValue() == callSite).toList().forEach(e -> {
       shiftedReturns.removeMapping(e.getKey(), e.getValue());
+      shiftedReturns.removeMapping(e.getKey(), -1);
       if (known != null)
         dynamicInvocation.put(e.getKey(), known);
     });
@@ -489,6 +491,7 @@ public class StackAnalyzer implements java.io.Serializable {
           return false;
         Entry consumedReturn = consumedReturns.get(poppedSlot());
         Entry entry = entries.remove(poppedSlot());
+        lastPoppedReturn = null;
         if (entry != null && entry.returnAddress()) {
           returnsConsumedBy.put(pcValue, entry.pc());
           if (callContinuations.containsKey(entry.pc()))
@@ -509,6 +512,7 @@ public class StackAnalyzer implements java.io.Serializable {
         Entry entry = entries.remove(slot);
         if (entry != null && entry.returnAddress()) {
           consumedReturns.put(slot, entry);
+          lastPoppedReturn = Map.entry(slot, entry);
           if (entry.pc() != -1)
             poppedCallSites.put(entry.pc(), pcValue);
           Frame popped = frames.get(slot);
@@ -527,13 +531,15 @@ public class StackAnalyzer implements java.io.Serializable {
     callSinceLoad |= returnAddress;
     int sp = state.getRegisterSP().read();
     Entry entry = new Entry(state.getMemory().read16Bits(sp), state.getPc().read(), returnAddress);
-    entries.put(sp, returnAddress ? entry : returnPutBack(entry));
+    entries.put(sp, returnAddress ? entry : returnPutBack(entry, sp));
     if (returnAddress && collecting())
       returnSlots.put(sp, entry.pc());
     if (!returnAddress)
       pushedValues.put(entry.pc(), entry.value());
-    if (returnAddress)
+    if (returnAddress) {
       consumedReturns.remove(sp - 2 & 0xffff);
+      lastPoppedReturn = null;
+    }
     if (returnAddress && entry.pc() != -1)
       frames.put(sp, new Frame(entry.pc(), enclosingFrame(sp + 2)));
     if (!stackAsRepository.active)
@@ -542,12 +548,13 @@ public class StackAnalyzer implements java.io.Serializable {
       layoutCallSites.add(entry.pc());
   }
 
-  /** A PUSH of a return address a POP took puts that return back, with what was pushed since under it: Turbo Esprit A79E-A7A3. */
-  private Entry returnPutBack(Entry pushed) {
-    Entry back = consumedReturns.values().stream().filter(popped -> popped.value() == pushed.value()).findFirst().orElse(pushed);
-    if (back != pushed)
-      returnsPutBack.add(back.pc());
-    return back;
+  /** A PUSH of the return address the last POP took, with no call or return since and below where it took it, puts that return back with what was pushed since under it: Turbo Esprit A79E-A7A3. */
+  private Entry returnPutBack(Entry pushed, int sp) {
+    int above = lastPoppedReturn == null ? 0 : lastPoppedReturn.getKey() - sp & 0xffff;
+    if (above == 0 || above >= 0x8000 || lastPoppedReturn.getValue().value() != pushed.value())
+      return pushed;
+    returnsPutBack.add(lastPoppedReturn.getValue().pc());
+    return lastPoppedReturn.getValue();
   }
 
   private Frame enclosingFrame(int from) {

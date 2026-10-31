@@ -4470,11 +4470,6 @@ public class RecordedProgramTests {
               int var2 = this.SP();
               if((var1 - var2 & 0xFFFF) < 0x8000) {
                  this.pop();
-              } else {
-                 int var3 = var1 + 2 & 0xFFFF;
-                 if(var2 == var3) {
-                    return;
-                 }
               }
 
               this.setNextAddress(0x8300);
@@ -6595,6 +6590,65 @@ public class RecordedProgramTests {
         at(0x8000, 0xE1, 0x23, 0xE5, 0xC9),
         at(0x8100, 0x00, 0x0C, 0xCD, 0x00, 0x80, 0x00, 0x04, 0x76, 0x18, 0xFD));
     Assert.assertEquals(0x0101, endValue("BC"));
+  }
+
+  @Test
+  public void aRetThatIsAJumpTableForItsCallsStaysOneWhenTheRecordingStartsInsideIt() {
+    // Bomb Jack C8D1 (frame 468): the RET returns normally or skips the byte after the CALL depending on state, a jump table for its call sites; the recording starts inside the routine, so for the frame from before it the same RET looked like a plain shifted return, and RETURN replaced the dispatch
+    translateFrom(0x8103, 0xFF00,
+        at(0xFF00, 0x13, 0x80, 0x03, 0x80),
+        at(0x8003, 0x0C, 0xCD, 0x10, 0x80, 0x0C, 0xCD, 0x10, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8010, 0xCD, 0x00, 0x81, 0x04, 0xC9),
+        at(0x8100, 0xCB, 0x41, 0xC8, 0xE1, 0x23, 0xE5, 0xC9));
+    Assert.assertEquals(0x0102, endValue("BC"));
+  }
+
+  @Test
+  public void aContinuationPassedInARegisterThatEqualsAnOlderReturnIsDataForTheRet() {
+    // Bomb Jack C8A7 (frame 468): POP HL takes its own return and PUSH BC puts the continuation its caller passed, which a RET then dispatches to; that value equalled a return taken by a POP of an outer frame, so the push counted as that return put back and the RET as a plain return
+    translate(listing("""
+        8000  CD 10 80  CALL 0x8010
+        8003  0C  INC C
+        8004  76  HALT
+        8005  18 FD  JR 0x8004
+        8010  E1  POP HL
+        8011  E5  PUSH HL
+        8012  01 03 80  LD BC, 0x8003
+        8015  CD 20 80  CALL 0x8020
+        8018  00  NOP
+        8020  E1  POP HL
+        8021  C5  PUSH BC
+        8022  C9  RET
+        """));
+    Assert.assertEquals(0x8004, endValue("BC"));
+    Assert.assertEquals("the RET goes to the continuation it was given", Set.of(0x8003), Set.copyOf(stackAnalyzer.dynamicInvocation.get(0x8022)));
+  }
+
+  @Test
+  public void aPushInAnotherFrameOfTheValueOfAReturnAPopTookIsNotThatReturnPutBack() {
+    // Emlyn 5D78 (frame 2338): an inline-data reader's return, taken by its POP, was matched by value with a push in another frame, which then counted as that return consumed by a RET: the reader's call became a jump table and its RET went back to the caller's caller
+    translate(listing("""
+        8000  CD 00 81  CALL 0x8100
+        8003  0C  INC C
+        8004  0C  INC C
+        8005  78  LD A, B
+        8006  B7  OR A, A
+        8007  20 07  JR NZ, 0x8010
+        8009  04  INC B
+        800A  CD 20 80  CALL 0x8020
+        8010  76  HALT
+        8011  18 FD  JR 0x8010
+        8020  21 03 80  LD HL, 0x8003
+        8023  E5  PUSH HL
+        8024  C9  RET
+        8100  E1  POP HL
+        8101  23  INC HL
+        8102  23  INC HL
+        8103  E5  PUSH HL
+        8104  C9  RET
+        """));
+    Assert.assertEquals(0x0102, endValue("BC"));
+    Assert.assertEquals("the reader's call goes on past its data", Integer.valueOf(0x8005), stackAnalyzer.callContinuations.get(0x8000));
   }
 
   @Test
