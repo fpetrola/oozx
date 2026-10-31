@@ -6566,6 +6566,22 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void anInterruptHandlerThatDropsTheInterruptedAddressReturnsToTheCallerOfTheInterruptedCode() {
+    // Turbo Esprit E622-E638: the music loop is only left by its interrupt handler, which pops the interrupted PC and returns to whoever called the music (F9F5)
+    interruptEvery = 20;
+    int[] table = new int[1 + 257];
+    table[0] = 0x9000;
+    Arrays.fill(table, 1, table.length, 0x80);
+    translate(
+        at(0x8000, 0x3E, 0x90, 0xED, 0x47, 0xED, 0x5E, 0xCD, 0x40, 0x80, 0x0C, 0x76, 0x18, 0xFD),
+        at(0x8040, 0xFB, 0x04, 0x18, 0xFD),
+        at(0x8080, 0xC3, 0x90, 0x80),
+        at(0x8090, 0xE1, 0xC9),
+        table);
+    Assert.assertEquals(1, endValue("BC") & 0xff);
+  }
+
+  @Test
   public void anInterruptHandlerThatResetsTheStackGoesBackToTheMainLoop() {
     // Dizzy F877: the handler leaves the interrupted code's frames; the Java can't carry that back through the pc() it interrupted
     interruptEvery = 20;

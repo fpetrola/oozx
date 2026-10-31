@@ -269,8 +269,11 @@ public class StackAnalyzer implements java.io.Serializable {
       dataOnTopAt.put(pcValue, top.pc());
     instruction.accept(new InstructionVisitor<>() {
       public void visitingPop(Pop pop) {
-        if (collecting() && returnSlots.get(state.getRegisterSP().read()).contains(INTERRUPT))
+        int sp = state.getRegisterSP().read();
+        if (collecting() && returnSlots.get(sp).contains(INTERRUPT)) {
           layoutCallSites.add(INTERRUPT);
+          layoutCallSites.addAll(returnSlots.get(sp + 2 & 0xffff));
+        }
         Entry entry = entryAtSp();
         if (collecting() && entry != null && !entry.returnAddress() && entry.pc() != -1) {
           recordedPops.add(pcValue);

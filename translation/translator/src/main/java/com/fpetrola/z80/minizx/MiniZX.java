@@ -153,7 +153,7 @@ public abstract class MiniZX extends SpectrumApplication {
     return ended;
   }
 
-  /** A handler that leaves the interrupted code's frames (Dizzy F877), or returns somewhere else than where it interrupted, cannot hand that back through the pc() it interrupted: it goes up to run(). */
+  /** A handler that leaves the interrupted code's frames (Dizzy F877), returns somewhere else than where it interrupted, or drops the interrupted address and returns to the code below it (Turbo Esprit E622), cannot hand that back through the pc() it interrupted: it goes up to run(). */
   private void interrupt() {
     iff = iff2 = false;
     int vector = I << 8 | 0xff;
@@ -167,8 +167,11 @@ public abstract class MiniZX extends SpectrumApplication {
       push(interrupted);
       int sp = SP;
       jump(handler);
-      if (SP == sp && !unwinding() && pop() != interrupted)
-        unwind(mem16(sp, -1));
+      if (!unwinding() && SP == sp) {
+        if (pop() != interrupted)
+          unwind(mem16(sp, -1));
+      } else if (!unwinding() && SP == (sp + 2 & 0xffff))
+        unwind(pop());
     } else
       jump(handler);
     interrupts++;
