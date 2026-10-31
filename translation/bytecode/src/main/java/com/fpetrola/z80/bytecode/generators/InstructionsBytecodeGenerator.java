@@ -388,7 +388,6 @@ public class InstructionsBytecodeGenerator implements InstructionVisitor<Object>
         case SWITCH_STACK -> methodMaker.invoke("switchStack");
         case NON_LOCAL -> routineByteCodeGenerator.unwind(methodMaker.invoke("pop"));
         case CONTINUATION -> routineByteCodeGenerator.invokeTransformedMethod(exit.continuation());
-        case DROP -> methodMaker.invoke("pop");
         case DISPATCH -> {
           Variable poppedValue = methodMaker.invoke("pop");
           invokeDynamicCall(false, stackAnalyzer.getInvocationsSet(pcValue), poppedValue);

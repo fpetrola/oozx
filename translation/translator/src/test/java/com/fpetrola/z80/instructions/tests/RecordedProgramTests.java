@@ -4544,7 +4544,6 @@ public class RecordedProgramTests {
               this.HL(var1);
               int var2 = this.HL();
               this.push(var2);
-              this.pop();
            }
         }
         """, withoutTiming(java));
@@ -6579,6 +6578,16 @@ public class RecordedProgramTests {
         at(0x8090, 0xE1, 0xC9),
         table);
     Assert.assertEquals(1, endValue("BC") & 0xff);
+  }
+
+  @Test
+  public void aRoutineThatReturnsPastInlineDataGoesThereWhenTheTranslationStartsInsideIt() {
+    // Sir Fred 940C: the recording starts inside the routine that prints the text after its CALL (POP HL ... PUSH HL; RET); with no Java caller to go on at the text's end, the RET dropped that address and the run went on at the word below it
+    translate(
+        at(0xFF00, 0x00, 0x81),
+        at(0x8000, 0xE1, 0x23, 0xE5, 0xC9),
+        at(0x8100, 0x00, 0x0C, 0xCD, 0x00, 0x80, 0x00, 0x04, 0x76, 0x18, 0xFD));
+    Assert.assertEquals(0x0101, endValue("BC"));
   }
 
   @Test

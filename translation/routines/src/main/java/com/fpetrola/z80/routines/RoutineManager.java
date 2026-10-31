@@ -817,8 +817,8 @@ public class RoutineManager {
       return new RetExit(Exit.NON_LOCAL, -1);
     if (continuation != null)
       return new RetExit(Exit.CONTINUATION, continuation);
-    if (consumesData)
-      return new RetExit(stackAnalyzer.shiftedReturns.containsKey(ret) ? Exit.DROP : Exit.DISPATCH, -1);
+    if (consumesData && !stackAnalyzer.shiftedReturns.containsKey(ret))
+      return new RetExit(Exit.DISPATCH, -1);
     return new RetExit(Exit.RETURN, -1);
   }
 
