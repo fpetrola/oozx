@@ -5036,6 +5036,18 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void copiesOfARegionNeverGoOverCopiesAlreadyMade() {
+    // Target: Emlyn's templates at the hand-picked E000 and E300: the eight copies of 9BBF-9C1D ran past E300 and the copies of 9AF7 there were named and reported as 9C18
+    explore(
+        at(0x8000, 0xCD, 0x00, 0x81, 0x21, 0x00, 0x82, 0x11, 0x00, 0x81, 0x01, 0x04, 0x00, 0xED, 0xB0, 0xCD, 0x00, 0x81, 0x76, 0x18, 0xFD),
+        at(0x8100, 0x3C, 0xC9, 0x00, 0x00),
+        at(0x8200, 0xCD, 0x00, 0x83, 0xC9),
+        at(0x8300, 0x0C, 0xC9));
+    int copied = routineManager.codeVariants.get(0).relocatedAt();
+    Assert.assertThrows(IllegalStateException.class, () -> base.translateCodeVariants(0x8100, 0x8104, copied, versions));
+  }
+
+  @Test
   public void aHaltInsideACopyOfARewrittenRegionReportsItsOriginalAddress() {
     // Target: Batman EB38-EB43, the frame wait (EI; HALT; IN A,(C)) rewritten in place: the copy's HALT reported the copy's address and the lockstep saw PC=6569 at the frame end
     String java = translate(

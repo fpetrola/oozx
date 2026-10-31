@@ -139,13 +139,16 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
       more = regions.stream().map(this::exploreEntriesOf).reduce(false, Boolean::logicalOr);
   }
 
-  public void translateCodeVariants(int start, int end, int relocationBase, CodeVersions versions) {
+  /** Translates the region from a copy per recorded shape placed from relocationBase on, which must hold no protected byte; returns where the copies end. */
+  public int translateCodeVariants(int start, int end, int relocationBase, CodeVersions versions) {
     int variableStart = versions.blockRegions().stream().filter(region -> region[0] >= start && region[1] <= end).findFirst().orElseThrow()[0];
     List<CodeVersions.Shape> variants = versions.shapes(variableStart);
     List<RoutineManager.CodeVariant> copies = copiesOf(start, end, variableStart, variants, relocationBase);
     if (copies == null)
       throw new IllegalStateException("a relative jump of " + Helper.formatAddress(start) + "-" + Helper.formatAddress(end) + " cannot reach its trampoline");
     int size = copies.stream().mapToInt(copy -> copy.code().length).sum();
+    if (java.util.stream.IntStream.range(relocationBase, relocationBase + size).anyMatch(getState().getMemory()::isProtected))
+      throw new IllegalStateException("the copies of " + Helper.formatAddress(start) + "-" + Helper.formatAddress(end) + " would go over protected bytes from " + Helper.formatAddress(relocationBase) + " on");
     routineManager.forgetCode(relocationBase, relocationBase + size);
     getStackAnalyzer().codeVersions.mutant().removeIf(address -> address >= variableStart && address < variableStart + variants.get(0).bytes().length);
     symbolicExecutionAdapter.routineExecutorHandler.forgetExecutions(relocationBase, relocationBase + size);
@@ -158,6 +161,7 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
     routineManager.codeVariants.addAll(copies);
     getState().getMemory().protect(relocationBase, relocationBase + size);
     while (exploreEntriesOf(copies)) ;
+    return relocationBase + size;
   }
 
   /** Explores every copy of a region from the entries into the region known so far; true when there were new ones. */
