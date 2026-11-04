@@ -110,7 +110,7 @@ public class StateBytecodeGenerator {
 ////    routine1.split(34762);
 
     if (!routineManager.planned) {
-      routineManager.planPoppedReturnsOfRewrittenCalls(symbolicExecutionAdapter.getStackAnalyzer());
+      routineManager.planPoppedReturns(symbolicExecutionAdapter.getStackAnalyzer());
       routineManager.planEntries(symbolicExecutionAdapter.getStackAnalyzer());
       new ArrayList<>(routineManager.getRoutines()).forEach(this::splitIfTooLargeForOneMethod);
       foldJumpCyclesIntoTheirHeads();

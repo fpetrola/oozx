@@ -4895,6 +4895,39 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void everyCallWhoseReturnAPopTakesCatchesAfterThatPop() {
+    // Sir Fred 8202 (1104-sf7, frame 3388): the tail 81F8-8202, jumped to at the end of the chains called at EB1C, 8EE9 and 8F22, makes calls and then pops the caller's return and goes on in the main loop at 8203; after the tail's first call returned, the exploration was in the tail's routine, which holds only the target of the chain it saw first, so only that call got the catch at 8203; the unwinding from the others went past their frames, the loop's head caught it as a landing and the pop it owed was never paid (a word more on Java's stack, BC not loaded)
+    translate(listing("""
+        8000  06 00  LD B, 0x00
+        8002  CD 00 83  CALL 0x8300
+        8005  76  HALT
+        8006  18 FD  JR 0x8005
+        82FB  CD 00 85  CALL 0x8500
+        82FE  1C  INC E
+        82FF  E1  POP HL
+        8300  04  INC B
+        8301  78  LD A, B
+        8302  FE 05  CP A, 0x05
+        8304  C8  RET Z
+        8305  E6 01  AND A, 0x01
+        8307  28 05  JR Z, 0x830E
+        8309  CD 00 84  CALL 0x8400
+        830C  18 F2  JR 0x8300
+        830E  CD 10 84  CALL 0x8410
+        8311  18 ED  JR 0x8300
+        8400  0C  INC C
+        8401  C3 FB 82  JP 0x82FB
+        8410  14  INC D
+        8411  C3 FB 82  JP 0x82FB
+        8500  3C  INC A
+        8501  C9  RET
+        """));
+    Assert.assertEquals(0x0502, endValue("BC"));
+    Assert.assertEquals(0x0204, endValue("DE"));
+    Assert.assertEquals(0x8311, endValue("HL"));
+  }
+
+  @Test
   public void aPartOfALoopNeverCallsItsSiblingsEvenWhenTheyLoopAmongThemselves() {
     // Target: Batman D1F1/E366: parts of the loop D537 jump to each other without passing through the head, and a sibling reached only from the head jumps into that cycle; the structure of a part saw a loop through its siblings with an entry, dispatched it like the head does and called the siblings from inside the part (no label for D1F1). A sibling is where a part ends: an exit, never a call
     String java = translate(listing("""

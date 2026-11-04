@@ -195,13 +195,14 @@ public class RoutineManager {
     return routinesPlanned && instructions.get(abandon.closedCall()) instanceof Call call && caller != null && findRoutineAt(ret) == caller && findRoutineAt(call.getJumpAddress()) != caller;
   }
 
-  public void planPoppedReturnsOfRewrittenCalls(StackAnalyzer stackAnalyzer) {
-    stackAnalyzer.poppedCallSites.entries().stream().filter(e -> stackAnalyzer.codeVersions.isVersioned(e.getKey()) && instructions.get(e.getKey()) instanceof Call).forEach(e -> {
-      Routine popper = findRoutineAt(e.getValue());
-      if (popper != null && instructions.containsKey(e.getValue())) {
-        popper.getVirtualPop().put(e.getValue(), e.getValue());
+  /** Every call whose return a virtual POP took catches the unwinding after that POP, whichever routine the exploration was in when it saw the POP (Sir Fred 8202 ends three chains); the POP of a rewritten call's return is virtual, since the call that ran may be another version. */
+  public void planPoppedReturns(StackAnalyzer stackAnalyzer) {
+    stackAnalyzer.poppedCallSites.entries().stream().filter(e -> instructions.get(e.getKey()) instanceof Call && instructions.containsKey(e.getValue()) && findRoutineAt(e.getValue()) != null).forEach(e -> {
+      boolean rewritten = stackAnalyzer.codeVersions.isVersioned(e.getKey());
+      if (rewritten)
+        findRoutineAt(e.getValue()).getVirtualPop().put(e.getValue(), e.getValue());
+      if (rewritten || isVirtualPop(e.getValue()) && !stackAnalyzer.callContinuations.containsKey(e.getKey()))
         addReturnPoint(e.getKey(), addressAfter(e.getValue()));
-      }
     });
   }
 
@@ -657,7 +658,11 @@ public class RoutineManager {
   /** The code right after a POP that took a return: what runs there belongs to the routine the POP went back to. */
   private boolean followsAVirtualPop(int address) {
     int before = addressBefore(address);
-    return before != -1 && routines.stream().anyMatch(routine -> routine.getVirtualPop().containsValue(before));
+    return before != -1 && isVirtualPop(before);
+  }
+
+  private boolean isVirtualPop(int pop) {
+    return routines.stream().anyMatch(routine -> routine.getVirtualPop().containsValue(pop));
   }
 
   private boolean reachesOnlyItsOwnTail(Routine owner, int entry) {
