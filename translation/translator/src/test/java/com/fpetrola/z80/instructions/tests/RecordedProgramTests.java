@@ -7895,6 +7895,32 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aPartWithAJumpIntoTheOperandOfOneOfItsInstructionsIsTakenOutOnce() {
+    // Batman {9F73:C6FE} (1030-batman10 to 13): outline started a run of a part wherever addressBefore found no member, and addressBefore answers the instruction of length 1 to 4 that ends right before; after a jump into the second byte of LD A,n that byte is an instruction too, the run through the LD had already moved it, and the parent was asked to split there again (NoSuchElementException in Routine.split)
+    System.setProperty("translation.methodBytes", "80");
+    try {
+      translate(with(listing("""
+          8000  06 01  LD B, 0x01
+          8002  CD 00 81  CALL 0x8100
+          8005  4F  LD C, A
+          8006  06 02  LD B, 0x02
+          8008  CD 00 81  CALL 0x8100
+          800B  57  LD D, A
+          800C  76  HALT
+          800D  18 FD  JR 0x800C
+          8114  78  LD A, B
+          8115  FE 01  CP A, 0x01
+          8117  28 01  JR Z, 0x811A
+          8119  3E AF  LD A, 0xAF
+          """), at(0x8100, IntStream.range(0, 20).map(i -> 0x1C).toArray()), at(0x811B, IntStream.concat(IntStream.range(0, 60).map(i -> 0x23), IntStream.of(0xC9)).toArray())));
+      Assert.assertEquals(0x0200, endValue("BC"));
+      Assert.assertEquals(0xAF28, endValue("DE"));
+    } finally {
+      System.clearProperty("translation.methodBytes");
+    }
+  }
+
+  @Test
   public void aRoutineTooLargeForOneJavaMethodIsCutIntoPartsOfAtMostThatSizeCalledOneAfterTheOther() {
     int[] first = new int[1 + 2000 + 3], second = new int[1 + 2000 + 5];
     first[0] = START;

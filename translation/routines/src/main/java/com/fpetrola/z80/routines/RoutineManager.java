@@ -351,10 +351,12 @@ public class RoutineManager {
   /** Whether a generation of the class planned the routines (entries, size, loops) and a second one must keep that plan. */
   public boolean planned;
 
-  /** Takes these addresses out of {@code parent} as a routine of its own entered at {@code entry}, which the parent calls. */
+  /** Takes these addresses out of {@code parent} as a routine of its own entered at {@code entry}, which the parent calls; an address a run already took (the operand of a jumped-into instruction is an address too) starts none. */
   public Routine outline(Routine parent, int entry, java.util.Set<Integer> addresses, java.util.List<Outlined.Continuation> exits, boolean leaves) {
     Routine piece = null;
-    for (int first : addresses.stream().sorted().filter(address -> !addresses.contains(addressBefore(address))).toList()) {
+    for (int first : addresses.stream().sorted().toList()) {
+      if (piece != null && piece.contains(first))
+        continue;
       Routine moved = parent.split(first);
       int last = first;
       while (addresses.contains(addressAfter(last)))
