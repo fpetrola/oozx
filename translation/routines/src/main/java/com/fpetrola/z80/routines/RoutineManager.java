@@ -258,8 +258,9 @@ public class RoutineManager {
   /** Addresses whose code only ran with another bank paged: in the starting bank they are not that code. */
   public final java.util.Set<Integer> bankedOnly = new java.util.HashSet<>();
 
+  /** The copies of a rewritten region with an instruction at this entry into it: where the Java at the entry dispatches. */
   public List<CodeVariant> codeVariantsAt(int address) {
-    return codeVariants.stream().filter(v -> v.bank() == -1 && v.entries(this).contains(address)).toList();
+    return codeVariants.stream().filter(v -> v.bank() == -1 && v.entries(this).contains(address) && v.hasInstructionAt(address)).toList();
   }
 
   public List<CodeVariant> bankVariantsAt(int address) {
@@ -525,10 +526,13 @@ public class RoutineManager {
     });
   }
 
-  /** Where the instruction at an address goes on, as its Java does: the continuation when it falls through, a fixed jump target, the recorded targets of a jump through a register or of a RET used as a jump. A CALL, and a JP through a register that is a simulated call (its continuation pushed), reach their target only {@code withCalls}. */
+  /** Where the instruction at an address goes on, as its Java does: the copies of a rewritten region at its entry, the continuation when it falls through, a fixed jump target, the recorded targets of a jump through a register or of a RET used as a jump. A CALL, and a JP through a register that is a simulated call (its continuation pushed), reach their target only {@code withCalls}. */
   public java.util.Set<Integer> goesOnAt(int address, Routine routine, StackAnalyzer stackAnalyzer, boolean withCalls) {
     Instruction instruction = instructions.get(address);
     java.util.Set<Integer> targets = new java.util.LinkedHashSet<>();
+    codeVariantsAt(address).forEach(copy -> targets.add(copy.relocated(address)));
+    if (!targets.isEmpty())
+      return targets;
     if (fallsThrough(instruction))
       targets.add(continuation(address, stackAnalyzer));
     if (instruction instanceof Ret)

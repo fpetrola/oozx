@@ -4866,6 +4866,35 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void theCopiesOfARewrittenJumpInALoopAreMembersOfTheLoop() {
+    // Sir Fred 9F62: the main loop's head ends in a JP the game rewrites (two shapes, so two copies); the head dispatched to a copy as a call and the copy entered the loop's part as a call again, nesting two Java frames per turn (449 at frame 6548, with two words on the Z80 stack)
+    translate(listing("""
+        8000  06 00  LD B, 0x00
+        8002  04  INC B
+        8003  78  LD A, B
+        8004  FE 0C  CP A, 0x0C
+        8006  28 18  JR Z, 0x8020
+        8008  C3 00 81  JP 0x8100
+        8020  76  HALT
+        8021  18 FD  JR 0x8020
+        8040  21 C3 00  LD HL, 0x00C3
+        8043  22 08 80  LD (0x8008), HL
+        8046  3E 81  LD A, 0x81
+        8048  32 0A 80  LD (0x800A), A
+        804B  0C  INC C
+        804C  C3 02 80  JP 0x8002
+        8100  21 18 36  LD HL, 0x3618
+        8103  22 08 80  LD (0x8008), HL
+        8106  AF  XOR A, A
+        8107  32 0A 80  LD (0x800A), A
+        810A  14  INC D
+        810B  C3 02 80  JP 0x8002
+        """));
+    Assert.assertEquals(0x0C05, endValue("BC"));
+    Assert.assertEquals(0x0600, endValue("DE"));
+  }
+
+  @Test
   public void aPartOfALoopNeverCallsItsSiblingsEvenWhenTheyLoopAmongThemselves() {
     // Target: Batman D1F1/E366: parts of the loop D537 jump to each other without passing through the head, and a sibling reached only from the head jumps into that cycle; the structure of a part saw a loop through its siblings with an entry, dispatched it like the head does and called the siblings from inside the part (no label for D1F1). A sibling is where a part ends: an exit, never a call
     String java = translate(listing("""

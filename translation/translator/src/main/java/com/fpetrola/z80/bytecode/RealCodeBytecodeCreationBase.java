@@ -167,10 +167,9 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
   /** Explores every copy of a region from the entries into the region known so far; true when there were new ones. */
   private boolean exploreEntriesOf(List<RoutineManager.CodeVariant> copies) {
     RoutineManager.CodeVariant first = copies.get(0);
-    java.util.function.Function<Integer, List<RoutineManager.CodeVariant>> entering = entry -> copies.stream().filter(copy -> copy.hasInstructionAt(entry)).toList();
-    List<Integer> entries = routineManager.entriesInto(first.start(), first.end()).stream().filter(entry -> entering.apply(entry).stream().anyMatch(copy -> !routineManager.externalEntries.contains(copy.relocated(entry)))).toList();
-    entries.forEach(entry -> entering.apply(entry).forEach(copy -> stepUntilComplete(copy.relocated(entry))));
-    entries.forEach(entry -> entering.apply(entry).forEach(copy -> routineManager.externalEntries.add(copy.relocated(entry))));
+    List<Integer> entries = routineManager.entriesInto(first.start(), first.end()).stream().filter(entry -> routineManager.codeVariantsAt(entry).stream().anyMatch(copy -> !routineManager.externalEntries.contains(copy.relocated(entry)))).toList();
+    entries.forEach(entry -> routineManager.codeVariantsAt(entry).forEach(copy -> stepUntilComplete(copy.relocated(entry))));
+    entries.forEach(entry -> routineManager.codeVariantsAt(entry).forEach(copy -> routineManager.externalEntries.add(copy.relocated(entry))));
     return !entries.isEmpty();
   }
 
