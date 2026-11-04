@@ -527,7 +527,7 @@ public class RoutineManager {
     });
   }
 
-  /** Where the instruction at an address goes on, as its Java does: the copies of a rewritten region at its entry, the continuation when it falls through, a fixed jump target, the recorded targets of a jump through a register or of a RET used as a jump. A CALL, and a JP through a register that is a simulated call (its continuation pushed), reach their target only {@code withCalls}. */
+  /** Where the instruction at an address goes on, as its Java does: the copies of a rewritten region at its entry, the continuation when it falls through, a fixed jump target (also of every recorded version of the instruction), the recorded targets of a jump through a register or of a RET used as a jump. A CALL, and a JP through a register that is a simulated call (its continuation pushed), reach their target only {@code withCalls}. */
   public java.util.Set<Integer> goesOnAt(int address, Routine routine, StackAnalyzer stackAnalyzer, boolean withCalls) {
     Instruction instruction = instructions.get(address);
     java.util.Set<Integer> targets = new java.util.LinkedHashSet<>();
@@ -544,6 +544,8 @@ public class RoutineManager {
           targets.addAll(stackAnalyzer.getInvocationsSet(address));
       } else
         targets.add(jump.getJumpAddress());
+    stackAnalyzer.codeVersions.instructionVersions(address).stream().map(bytes -> stackAnalyzer.codeVersions.decode(address, bytes)).filter(version -> withCalls || !(version instanceof Call))
+        .mapToInt(RoutineManager::fixedJumpTarget).filter(target -> target != -1).forEach(targets::add);
     return targets;
   }
 

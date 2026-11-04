@@ -4928,6 +4928,38 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void theTargetsOfAJumpWhoseOperandTheLoopRewritesAreMembersOfTheLoop() {
+    // Sir Fred EB6D (1104-sf8, frame 6548): EB2C, a part of the main loop, looks up a table and writes the target into the operand of its JP (LD (EB6E),HL; JP nn); one target, ECD9, goes back to the loop with JP E966; only the image's version of the JP was a successor, so ECD9 was no member and its jump entered the loop's head as a call, one Java frame more per turn
+    translate(listing("""
+        8000  06 00  LD B, 0x00
+        8002  CD 00 81  CALL 0x8100
+        8005  76  HALT
+        8006  18 FD  JR 0x8005
+        8100  04  INC B
+        8101  78  LD A, B
+        8102  FE 20  CP A, 0x20
+        8104  C8  RET Z
+        8105  C3 00 82  JP 0x8200
+        8200  78  LD A, B
+        8201  E6 01  AND A, 0x01
+        8203  21 00 83  LD HL, 0x8300
+        8206  28 03  JR Z, 0x820B
+        8208  21 10 83  LD HL, 0x8310
+        820B  22 0F 82  LD (0x820F), HL
+        820E  C3 00 81  JP 0x8100
+        8300  0C  INC C
+        8301  C3 00 81  JP 0x8100
+        8310  14  INC D
+        8311  C3 00 81  JP 0x8100
+        """));
+    Assert.assertEquals(0x200F, endValue("BC"));
+    Assert.assertEquals(0x1000, endValue("DE"));
+    Routine loop = routineManager.topParent(routineManager.findRoutineAt(0x8100));
+    Assert.assertEquals(loop, routineManager.topParent(routineManager.findRoutineAt(0x8300)));
+    Assert.assertEquals(loop, routineManager.topParent(routineManager.findRoutineAt(0x8310)));
+  }
+
+  @Test
   public void aPartOfALoopNeverCallsItsSiblingsEvenWhenTheyLoopAmongThemselves() {
     // Target: Batman D1F1/E366: parts of the loop D537 jump to each other without passing through the head, and a sibling reached only from the head jumps into that cycle; the structure of a part saw a loop through its siblings with an entry, dispatched it like the head does and called the siblings from inside the part (no label for D1F1). A sibling is where a part ends: an exit, never a call
     String java = translate(listing("""
