@@ -139,64 +139,44 @@ public class Routine {
 
   public boolean splitAt(int address) {
     Block block = findBlockOf(address);
-    return splitBlocksIfRequired(this, block, address, block.getRangeHandler().getStartAddress(), getVirtualPop(), getReturnPointsDropped());
+    return splitBlocksIfRequired(this, block, address, block.getRangeHandler().getStartAddress());
   }
 
-  private static boolean splitBlocksIfRequired(Routine routineAt, Block block, int startAddress1, int startAddress2, Map<Integer, Integer> virtualPop1, MultiValuedMap<Integer, Integer> returnPointsDropped) {
+  private static boolean splitBlocksIfRequired(Routine routineAt, Block block, int startAddress1, int startAddress2) {
     if (block.contains(routineAt.entryPoint) && routineAt.entryPoint > startAddress1)
       routineAt.addBlock(block.split(routineAt.entryPoint - 1));
     if (startAddress1 != startAddress2) {
       Block split = block.split(startAddress1 - 1);
 //      if (startAddress2 != routineAt.entryPoint)
 //        routineAt.setEntryPoint(startAddress1 - 1);
-      return createRoutineFromSplit(routineAt, startAddress1, virtualPop1, split, returnPointsDropped);
+      return createRoutineFromSplit(routineAt, startAddress1, split);
     } else {
       if (routineAt.getBlocks().size() > 1) {
         routineAt.removeBlock(block);
         if (block.getRangeHandler().getStartAddress() == routineAt.entryPoint) {
           routineAt.setEntryPoint(routineAt.getBlocks().get(0).getRangeHandler().getStartAddress());
         }
-        return createRoutineFromSplit(routineAt, startAddress1, virtualPop1, block, returnPointsDropped);
+        return createRoutineFromSplit(routineAt, startAddress1, block);
       }
     }
     return false;
   }
 
-  private static boolean createRoutineFromSplit(Routine routineAt, int startAddress1, Map<Integer, Integer> virtualPop1, Block split, MultiValuedMap<Integer, Integer> returnPointsDropped) {
+  private static boolean createRoutineFromSplit(Routine routineAt, int startAddress1, Block split) {
     Routine routine = new Routine(split, startAddress1, true);
-
-    updateVirtualPops(routineAt, virtualPop1, routine);
-    updateReturnPointsDropped(routineAt, returnPointsDropped, routine);
-
+    routineAt.handOverFacts(routine);
     routineAt.routineManager.addRoutine(routine);
     return true;
   }
 
-  private static void updateVirtualPops(Routine routineAt, Map<Integer, Integer> virtualPops1, Routine routine) {
-    routine.getVirtualPop().putAll(virtualPops1);
-    Map<Integer, Integer> returnPoints1 = new HashMap<>(routine.getVirtualPop());
-    returnPoints1.entrySet().forEach(e -> {
-      if (!routineAt.contains(e.getKey())) {
-        routineAt.getVirtualPop().remove(e.getKey(), e.getValue());
-      }
-
-      if (!routine.contains(e.getKey())) {
-        routine.getVirtualPop().remove(e.getKey(), e.getValue());
-      }
-    });
-  }
-
-  private static void updateReturnPointsDropped(Routine routineAt, MultiValuedMap<Integer, Integer> returnPointsDropped, Routine routine) {
-    routine.getReturnPointsDropped().putAll(returnPointsDropped);
-    new ArrayList<>(returnPointsDropped.entries()).forEach(e -> {
-      if (!routineAt.contains(e.getValue())) {
-        routineAt.getReturnPointsDropped().removeMapping(e.getKey(), e.getValue());
-      }
-
-      if (!routine.contains(e.getValue())) {
-        routine.getReturnPointsDropped().removeMapping(e.getKey(), e.getValue());
-      }
-    });
+  /** After a split: a virtual pop goes with the routine that holds its address, a dropped return point with the one that holds its target. */
+  private void handOverFacts(Routine routine) {
+    routine.virtualPop.putAll(virtualPop);
+    routine.returnPointsDropped.putAll(returnPointsDropped);
+    for (Routine each : List.of(this, routine)) {
+      each.virtualPop.keySet().removeIf(address -> !each.contains(address));
+      new ArrayList<>(each.returnPointsDropped.entries()).stream().filter(e -> !each.contains(e.getValue())).forEach(e -> each.returnPointsDropped.removeMapping(e.getKey(), e.getValue()));
+    }
   }
 
   public void optimize() {
@@ -238,7 +218,7 @@ public class Routine {
 
         int finalAddress = address;
         if (address != entryPoint && integers.stream().anyMatch(call -> routineManager1.findRoutineAt(call) != routineManager1.findRoutineAt(finalAddress))) {
-          changes[0] |= splitBlocksIfRequired(this, block2, address, startAddress, getVirtualPop(), getReturnPointsDropped());
+          changes[0] |= splitBlocksIfRequired(this, block2, address, startAddress);
         }
 
         List<Integer> callees = callees1.get(address);
@@ -249,7 +229,7 @@ public class Routine {
             new ArrayList<Block>(routineAt.getBlocks()).forEach(block1 -> {
               if (block1.contains(finalI1)) {
                 int startAddress2 = block1.getRangeHandler().getStartAddress();
-                changes[0] |= splitBlocksIfRequired(routineAt, block1, finalI1, startAddress2, getVirtualPop(), getReturnPointsDropped());
+                changes[0] |= splitBlocksIfRequired(routineAt, block1, finalI1, startAddress2);
               }
             });
           }
@@ -280,6 +260,7 @@ public class Routine {
     removeBlock(block);
     addInnerRoutine(routine);
     routine.setRoutineManager(routineManager);
+    handOverFacts(routine);
     return routine;
   }
 

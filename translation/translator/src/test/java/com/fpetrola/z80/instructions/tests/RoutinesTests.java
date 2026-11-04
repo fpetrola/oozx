@@ -28,6 +28,7 @@ import io.exemplary.guice.Modules;
 import io.exemplary.guice.TestRunner;
 import jakarta.inject.Inject;
 import org.junit.Assert;
+import java.util.Map;
 import java.util.Set;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -577,6 +578,30 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
     Routine routine1 = routines.get(1);
     Assert.assertEquals(6, routine1.getStartAddress());
     Assert.assertEquals(7, routine1.getEndAddress());
+  }
+
+  @Test
+  public void aVirtualPopGoesWithTheRoutineThatKeepsItsAddressWhenTheRoutineIsSplit() {
+    // Sir Fred A2F9 (1104-sf5, frame 3148): A298 pops the return of EA4D's CALL at A2F9 and goes on in the main loop, so that POP was virtual, keyed by the instruction before it, and $EA04 catches at A2FA popping into HL; the CALL A2B2 of 7E39 then split the routine at A2B2 through Routine.split, which moved the block but not the virtual pop: {A2B2:A2F8} popped for real, unwound to A2FA and the catch popped again
+    setUpMemory();
+    getSymbolicExecutionAdapter().new SymbolicInstructionFactoryDelegator() {
+      {
+        add(Call(t(), c(3)));
+        add(Ld(r(B), c(3)));
+        add(Ret(t()));
+        add(Ld(r(A), c(1))); // 3
+        add(Inc(r(D)));
+        add(Pop(r(HL))); // 5: takes the return of the call at 0, whose routine goes on at 6
+        add(Inc(r(E)));
+        add(Ret(t()));
+      }
+    };
+    stepUntilComplete();
+    Routine routine = getRoutineManager().findRoutineAt(3);
+    Assert.assertEquals(Map.of(4, 5), routine.getVirtualPop());
+    Routine tail = routine.split(4);
+    Assert.assertEquals(Map.of(4, 5), tail.getVirtualPop());
+    Assert.assertEquals(Map.of(), routine.getVirtualPop());
   }
 
   @Test
@@ -1817,22 +1842,15 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
         public class JSW extends SpectrumApplication {
            public void $0() {
-              int[] var1;
-              do {
-                 this.di();
-                 this.$1();
-                 if(!this.unwinding()) {
-                    return;
-                 }
-
-                 var1 = new int[]{2};
-              } while(this.isOwnAddress(var1));
-
+              this.di();
+              this.$1();
+              if(!this.unwinding()) {
+                 ;
+              }
            }
 
            public void $1() {
-              int[] var1;
-              do {
+              while(true) {
                  if(this.isNextPC(2)) {
                     this.setNextAddress(2);
                  }
@@ -1849,9 +1867,14 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
                     return;
                  }
 
-                 var1 = new int[]{1};
-              } while(this.ownAddress(var1) != -1);
-
+                 int[] var1 = new int[]{1};
+                 if(this.ownAddress(var1) == -1) {
+                    int[] var2 = new int[]{2};
+                    if(!this.isOwnAddress(var2)) {
+                       return;
+                    }
+                 }
+              }
            }
 
            public void $7() {
