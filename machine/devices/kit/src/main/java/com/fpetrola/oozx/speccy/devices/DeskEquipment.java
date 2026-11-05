@@ -40,6 +40,6 @@ public interface DeskEquipment extends dev.plugdesk.desk.Window {
   /** In the Emulator menu, under its name. */
   @Override
   default String path() {
-    return "Emulator/" + name();
+    return "Emulator/" + dev.plugdesk.desk.Action.step(name()) + "...";
   }
 }

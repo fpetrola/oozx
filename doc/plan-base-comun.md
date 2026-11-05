@@ -291,6 +291,20 @@ IdeSeed pierde su parte de `Workbench` (paso 8); hasta ahí la base suma.
   `Emulator/<nombre>` y `Explains` con `Help/<nombre>`. Lo que el paso 3 decía de sacar del app
   (`showOnTheDesk`, `fillTheDeskWindows`, `fillHelpMenu`, los botones) espera al paso 4: hasta que
   oozx arme sus menús con las acciones de la base, esos métodos son los que los arman.
+- Paso 4 hecho (tag `step-4`): los menús y la barra de oozx son acciones que el `Workbench` de la base
+  arma. El escritorio de oozx da las suyas (`offers()`: File, Emulator, TV, About, los equipos y las
+  herramientas con tecla); las ventanas de los plugins llegan solas porque `DeskEquipment` es una
+  `Window`; `Mdi` da las de Window; `LookAndFeels` da los looks; `Offered` da los huecos de lo que
+  traerían los plugins que no están, donde va cada rol y todos bajo Discover; `Palette` busca entre
+  todo lo ofrecido; `PluginsWindow` es la ventana de plugins. `WhatIsMissing` es de la base, con los
+  roles que contestan dichos por la aplicación. El orden de los menús de arriba lo dice
+  `menus=` en el archivo de la aplicación; un separador va entre centenas de `place`. `Action` ganó
+  `needs()` (el plugin que falta) y `ticked()` (casilla). Se fueron del escritorio de oozx los menús
+  hechos a mano, la barra, los huecos, cascada y mosaico, y tres clases (ActionPalette,
+  PluginsInternalFrame, WhatIsMissing). Comparado el árbol de menús volcado del escritorio real antes
+  y después: igual salvo que las opciones del TV son casillas y no radio, la barra pone Plugins antes
+  de las ventanas de los plugins, una "/" en un nombre se escribe con la barra de división (U+2215)
+  para no partir el camino, y los ítems con ícono lo muestran también en el menú.
 
 ## Los pasos
 

@@ -24,6 +24,6 @@ import dev.crystal.plugins.api.RoleInterface;
 public interface Explains extends DeskEquipment {
   @Override
   default String path() {
-    return "Help/" + name();
+    return "Help/" + dev.plugdesk.desk.Action.step(name()) + "...";
   }
 }

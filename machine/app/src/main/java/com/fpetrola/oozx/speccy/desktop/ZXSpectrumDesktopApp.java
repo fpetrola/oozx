@@ -17,6 +17,8 @@
 
 package com.fpetrola.oozx.speccy.desktop;
 
+import dev.plugdesk.desk.WhatIsMissing;
+
 import dev.plugdesk.desk.LookAndFeels;
 
 import com.fpetrola.oozx.speccy.devices.MachineFrame;
@@ -279,18 +281,8 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
       for (com.fpetrola.oozx.speccy.devices.MachineTool tool : WhatIsPluggedIn.theOne().tools()) {
         toolBar.add(tool.button(this));
       }
-      List<JMenuItem> holes = parentApp.holes(com.fpetrola.oozx.speccy.devices.MachineTool.class);
-      if (!holes.isEmpty()) {
-        JButton more = new JButton("+");
-        more.setToolTipText("More for this machine: choosing one brings its plugin");
-        more.addActionListener(e -> {
-          javax.swing.JPopupMenu offered = new javax.swing.JPopupMenu();
-          holes.forEach(offered::add);
-          Widgets.scrollingWhenLong(offered);
-          offered.show(more, 0, more.getHeight());
-        });
-        toolBar.add(more);
-      }
+      List<dev.plugdesk.desk.Action> holes = parentApp.offered.of(com.fpetrola.oozx.speccy.devices.MachineTool.class);
+      if (!holes.isEmpty()) toolBar.add(parentApp.workbench.more(holes, "More for this machine: choosing one brings its plugin"));
     }
     tighten(toolBar, 1);
     toolBar.revalidate();
@@ -323,6 +315,19 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     });
   }
 
+  /** One choice among several: the group is what makes the previous tick go out when a new one lights. */
+  private static JMenu radioMenu(String title, java.util.Map<String, Runnable> options, String chosen) {
+    JMenu menu = new JMenu(title);
+    ButtonGroup group = new ButtonGroup();
+    options.forEach((name, action) -> {
+      JRadioButtonMenuItem item = new JRadioButtonMenuItem(name, name.equals(chosen));
+      item.addActionListener(e -> action.run());
+      group.add(item);
+      menu.add(item);
+    });
+    return menu;
+  }
+
   /**
    * The look, the speed, the volume and the way out, which is what is worth reaching with no
    * toolbar in sight. Every item writes where the toolbar writes, so the two never disagree.
@@ -336,7 +341,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
       java.util.Map<String, Runnable> looks = new java.util.LinkedHashMap<>();
       for (ScreenProfile profile : ScreenSettings.profiles())
         looks.put(profile.name(), () -> settings.apply(profile));
-      menu.add(ZXSpectrumDesktopApp.radioMenu("Look", looks, current == null ? null : current.name()));
+      menu.add(radioMenu("Look", looks, current == null ? null : current.name()));
     }
 
     for (com.fpetrola.oozx.speccy.devices.MachineTool tool : WhatIsPluggedIn.theOne().tools()) {
@@ -366,12 +371,16 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     }
   }
   private final Function<String, EmulatorCore> mockCoreState;
+  /** The windows of the desk, free inside it, and the desk that offers what the menus and the bar have. */
+  private dev.plugdesk.desk.Mdi mdi;
   private JDesktopPane desktop;
+  dev.plugdesk.desk.Workbench workbench;
+  dev.plugdesk.desk.Offered offered;
+  private final dev.plugdesk.desk.PluginsWindow pluginsWindow =
+      new dev.plugdesk.desk.PluginsWindow("Emulator/Plugins...", loadIcon("1F9E9.svg"));
   private int emulatorCount = 0;
   private final JFileChooser fileChooser = new JFileChooser();
   protected OOZxConfiguration config;
-  private JMenu recentFilesMenu;
-
   {
     // Everything this can be given, including the zips the archives serve: what to do with a
     // file is decided from the file, so there is no reason to ask for one kind at a time.
@@ -388,7 +397,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       String path = fileChooser.getSelectedFile().getAbsolutePath();
       config.setLastOpenDirectory(fileChooser.getCurrentDirectory().getAbsolutePath());
       config.addRecentFile(path);
-      updateRecentFilesMenu();
+      workbench.changed();
       open(path);
     }
   }
@@ -464,7 +473,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
    */
   void doWhatIsOffered(dev.crystal.plugins.api.Offer offer) {
     java.util.function.Predicate<Object> offering = one -> one.getClass().getName().equals(offer.extension());
-    has.deskWindows().stream().filter(offering).findFirst().ifPresent(this::showOnTheDesk);
+    has.deskWindows().stream().filter(offering).findFirst().ifPresent(this::show);
     has.equipment().stream().filter(offering).findFirst().ifPresent(this::show);
     has.tools().stream().filter(offering).findFirst().ifPresent(tool -> {
       EmulatorInternalFrame machine = getActiveEmulator();
@@ -539,7 +548,9 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         .addKeyEventDispatcher(this::typeIntoTheMachineInFront);
     // What the windows that are found ask of whoever put them on the screen: this desk.
     com.fpetrola.oozx.speccy.devices.Desk.isRunBy(this);
-    SwingUtilities.invokeLater(this::lookForWhatCouldBeBrought);
+    dev.plugdesk.desk.WhatIsMissing.answering(List.of(com.fpetrola.oozx.speccy.machine.StartsAMachineOn.class,
+        com.fpetrola.emulation.helpers.snapshots.SnapshotFile.class, com.fpetrola.oozx.formats.SnapshotFormat.class,
+        Equipment.class, com.fpetrola.oozx.Extension.class, com.fpetrola.oozx.plugins.BesideTheGame.class));
     stopsThePersonWhenSomethingIsMissing();
     whatThereIs();
     applySavedLookAndFeel();
@@ -554,17 +565,27 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     setSize(1200, 800);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-    desktop = new JDesktopPane();
-    add(desktop, BorderLayout.CENTER);
+    // Made after the saved look is on: a pane takes its look from whoever is on when it is made.
+    mdi = new dev.plugdesk.desk.Mdi();
+    desktop = (JDesktopPane) mdi.area();
     new Timer(1000, e -> openWhatTheMachineUses()).start();
 
-    // Menu Bar
-    JMenuBar menuBar = createMenuBar();
-    setJMenuBar(menuBar);
-
-    // Toolbar
-    JToolBar toolBar = createMainToolBar();
-    add(toolBar, BorderLayout.NORTH);
+    // The menus and the bar are what is offered: this desk's own, the plugins' windows, and what
+    // the plugins that are not here would bring, each where its kind goes.
+    java.util.Map<Class<?>, String> whereEachGoes = new java.util.LinkedHashMap<>();
+    whereEachGoes.put(com.fpetrola.oozx.speccy.devices.Explains.class, "Help");
+    whereEachGoes.put(DeskEquipment.class, "Emulator");
+    whereEachGoes.put(Equipment.class, "Emulator/Equipment");
+    whereEachGoes.put(dev.plugdesk.desk.Look.class, LOOKS);
+    offered = new dev.plugdesk.desk.Offered(whereEachGoes, "Discover", offer -> {
+      somethingWasPluggedIn();
+      doWhatIsOffered(offer);
+    });
+    workbench = new dev.plugdesk.desk.Workbench(mdi, List.of(), List.of(this::offers,
+        () -> dev.plugdesk.app.Plugins.found(dev.plugdesk.desk.Action.class), offered));
+    add(workbench, BorderLayout.CENTER);
+    setJMenuBar(workbench.menus());
+    offered.look(workbench::changed);
 
     restoreMainWindowState();
 
@@ -591,125 +612,77 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     config.save();
   }
 
-  private JMenuBar createMenuBar() {
-    JMenuBar menuBar = new JMenuBar();
+  private static final String PLUGINS = "Plugins";
+  private static final String LOOKS = "Window/Look&Feel";
 
-    // ====================== MENU FILE ======================
-    JMenu fileMenu = new JMenu("File");
-    fileMenu.setMnemonic(KeyEvent.VK_F);
-
-    // ---- Open (cargar tape/snapshot) ----
-    JMenuItem openItem = new JMenuItem("Open...");
-    openItem.setMnemonic(KeyEvent.VK_O);
-    openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
-    openItem.addActionListener(e -> openFile());
-    fileMenu.add(openItem);
-
-    fileMenu.addSeparator();
-
-    // ---- Recent Files ----
-    recentFilesMenu = new JMenu("Recent Files");
-    recentFilesMenu.setMnemonic(KeyEvent.VK_R);
-    updateRecentFilesMenu();
-    fileMenu.add(recentFilesMenu);
-
-    fileMenu.addSeparator();
-
-    // ---- Save State ----
-    JMenuItem saveStateItem = new JMenuItem("Save State...");
-    saveStateItem.setMnemonic(KeyEvent.VK_S);
-    saveStateItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
-    saveStateItem.addActionListener(e -> saveState());
-    fileMenu.add(saveStateItem);
-
-    // ---- Load State ----
-    JMenuItem loadStateItem = new JMenuItem("Load State...");
-    loadStateItem.setMnemonic(KeyEvent.VK_L);
-    loadStateItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK));
-    loadStateItem.addActionListener(e -> loadState());
-    fileMenu.add(loadStateItem);
-
-    fileMenu.addSeparator();
-
-    // ---- Quit ----
-    JMenuItem quitItem = new JMenuItem("Quit");
-    quitItem.setMnemonic(KeyEvent.VK_Q);
-    quitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
-    quitItem.addActionListener(e -> {
-      keepTheSession();
-      System.exit(0);
-    });
-    fileMenu.add(quitItem);
-
-    menuBar.add(fileMenu);
-
-    // ====================== MENU EMULATOR ======================
-    JMenu emulatorMenu = new JMenu("Emulator");
-    emulatorMenu.setMnemonic(KeyEvent.VK_E);
-
-    AbstractAction newEmulatorAction = new AbstractAction("New Emulator") {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        EmulatorCore emulatorCore = mockCore.apply("", null);
-        createNewEmulator(emulatorCore);
-      }
-    };
-    newEmulatorAction.putValue(AbstractAction.ACCELERATOR_KEY,
-        KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
-    emulatorMenu.add(newEmulatorAction);
-
-
-    // What there is to plug in: every device jar on the classpath, and nothing named here.
-    equipmentMenu = new JMenu("Equipment");
-    fillEquipmentMenu();
-    emulatorMenu.add(equipmentMenu);
-
-    JMenuItem pluginsItem = new JMenuItem("Plugins...");
-    pluginsItem.addActionListener(e -> showPlugins());
-    emulatorMenu.add(pluginsItem);
-
-
-    // The windows of the desk itself - a browser, a library - are found the same way the boards
-    // are, so what the Emulator menu offers is what this build turns out to have. Where they go
-    // is remembered, because one that arrives while this runs is offered at once and belongs here
-    // rather than at the end of the menu.
-    theEmulatorMenu = emulatorMenu;
-    whereTheDeskWindowsGo = emulatorMenu.getItemCount();
-    fillTheDeskWindows();
-
-    emulatorMenu.addSeparator();
-
-    // Lo que las herramientas de maquina ofrecen con un atajo, sobre la maquina activa.
+  /** What this desk offers itself, each where it goes in the menus: the rest comes from the plugins. */
+  private List<dev.plugdesk.desk.Action> offers() {
+    List<dev.plugdesk.desk.Action> offers = new java.util.ArrayList<>(List.of(
+        offering("File/Open...", "ctrl O", 100, this::openFile),
+        offering("File/Save State...", "ctrl S", 300, this::saveState),
+        offering("File/Load State...", "ctrl L", 301, this::loadState),
+        offering("File/Quit", "ctrl Q", 400, () -> {
+          keepTheSession();
+          System.exit(0);
+        }),
+        new Offering("Emulator/New Emulator", List.of(KeyStroke.getKeyStroke("ctrl N")), 100,
+            loadIcon("Sinclair_ZX_Spectrum-02b.svg"), null, () -> createNewEmulator(mockCore.apply("", null))),
+        dev.plugdesk.desk.Palette.opening(workbench, "Discover/What do you want to do?...", "ctrl shift P"),
+        offering("Help/About", null, 1000, this::showAboutDialog)));
+    List<String> recent = config.getRecentFiles();
+    for (int i = 0; i < recent.size(); i++) {
+      String file = recent.get(i);
+      offers.add(offering("File/Recent Files/" + dev.plugdesk.desk.Action.step(new java.io.File(file).getName()), i < 10 ? "ctrl " + (i + 1) % 10 : null, 200, () -> open(file)));
+    }
+    if (!recent.isEmpty()) offers.add(offering("File/Recent Files/Clear Recent Files", null, 300, () -> {
+      config.getRecentFiles().clear();
+      config.save();
+      workbench.changed();
+    }));
+    for (Equipment kind : has.equipment())
+      offers.add(offering("Emulator/Equipment/" + dev.plugdesk.desk.Action.step(kind.name()), null, 100, () -> show(kind)));
+    offers.add(pluginsWindow);
     for (com.fpetrola.oozx.speccy.devices.MachineTool tool : has.tools()) {
       if (tool.key() == null) continue;
-      JMenuItem item = new JMenuItem(tool.tooltip());
-      item.setAccelerator(tool.key());
-      item.addActionListener(e -> {
+      offers.add(new Offering("Emulator/" + dev.plugdesk.desk.Action.step(tool.tooltip()), List.of(tool.key()), 200, null, null, () -> {
         EmulatorInternalFrame active = getActiveEmulator();
         if (active != null) tool.use(active);
-      });
-      emulatorMenu.add(item);
+      }));
     }
+    offers.addAll(mdi.actions("Window"));
+    LookAndFeels.actions(LOOKS, this::rememberLookAndFeel).actions().forEach(look -> offers.add(at(300, look)));
+    String lead = screenDefault("tv", TvScreen.RGB_MONITOR.label());
+    for (TvScreen tv : TvScreen.values())
+      offers.add(new Offering("Window/TV/" + tv.label(), List.of(), 300, null, tv.label().equals(lead) || tv.name().equals(lead),
+          () -> {
+            setScreenDefault("tv", tv.label());
+            workbench.changed();
+          }));
+    boolean scanLines = Double.parseDouble(screenDefault("scanlines", "0")) > 0;
+    // Scan lines are a depth in the window, not a switch, so the shortcut ticks to a visible
+    // amount and unticks to none rather than pretending there are only two states.
+    offers.add(new Offering("Window/TV/Scan lines", List.of(), 400, null, scanLines,
+        () -> {
+          setScreenDefault("scanlines", scanLines ? "0" : "0.35");
+          workbench.changed();
+        }));
+    return offers;
+  }
 
-    menuBar.add(emulatorMenu);
+  private record Offering(String path, List<KeyStroke> keys, int place, javax.swing.Icon icon, Boolean ticked,
+                          Runnable doing) implements dev.plugdesk.desk.Action {
+    public void run() {
+      doing.run();
+    }
+  }
 
-    // ====================== MENU OPTIONS ======================
+  private static dev.plugdesk.desk.Action offering(String path, String key, int place, Runnable doing) {
+    return new Offering(path, key == null ? List.of() : List.of(KeyStroke.getKeyStroke(key)), place, null, null, doing);
+  }
 
-    // Window menu (includes Look&Feel submenu)
-    addWindowMenu(menuBar);
-
-    whatToDo = new JMenu("Discover");
-    menuBar.add(whatToDo);
-    fillWhatToDo();
-    fillHelpMenu();
-
-    // ====================== MENU HELP ======================
-    helpMenu = new JMenu("Help");
-    helpMenu.setMnemonic(KeyEvent.VK_H);
-    fillHelpMenu();
-    menuBar.add(helpMenu);
-
-    return menuBar;
+  /** The same action at another place: the looks go after what the Window menu does with windows. */
+  private static dev.plugdesk.desk.Action at(int place, dev.plugdesk.desk.Action action) {
+    return new Offering(action.path(), action.keys(), place, action.icon(), action.ticked(), action::run);
   }
 
   private void showAboutDialog() {
@@ -796,42 +769,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     ScreenSettings.setKeptProfiles(kept);
   }
 
-  /** One choice among several: the group is what makes the previous tick go out when a new one lights. */
-  static JMenu radioMenu(String title, java.util.Map<String, Runnable> options, String chosen) {
-    JMenu menu = new JMenu(title);
-    ButtonGroup group = new ButtonGroup();
-    options.forEach((name, action) -> {
-      JRadioButtonMenuItem item = new JRadioButtonMenuItem(name, name.equals(chosen));
-      item.addActionListener(e -> action.run());
-      group.add(item);
-      menu.add(item);
-    });
-    return menu;
-  }
-
-  private JMenu createTvMenu() {
-    String current = screenDefault("tv", TvScreen.RGB_MONITOR.label());
-    Map<String, Runnable> leads = new LinkedHashMap<>();
-    String chosen = null;
-    for (TvScreen lead : TvScreen.values()) {
-      leads.put(lead.label(), () -> setScreenDefault("tv", lead.label()));
-      if (lead.label().equals(current) || lead.name().equals(current)) chosen = lead.label();
-    }
-    JMenu tvMenu = radioMenu("TV", leads, chosen);
-
-    tvMenu.addSeparator();
-
-    // Scan lines are a depth in the window, not a switch, so the shortcut ticks to a visible
-    // amount and unticks to none rather than pretending there are only two states.
-    JCheckBoxMenuItem scanLines = new JCheckBoxMenuItem("Scan lines",
-        Double.parseDouble(screenDefault("scanlines", "0")) > 0);
-    scanLines.addActionListener(e ->
-        setScreenDefault("scanlines", scanLines.isSelected() ? "0.35" : "0"));
-    tvMenu.add(scanLines);
-
-    return tvMenu;
-  }
-
   /**
    * Through the core, the same way the border button asks for its option, rather than reaching
    * into the panel to find the screen: the screen is somewhere under a component tree that is
@@ -870,176 +807,14 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     return config.getScreenDefaults().getOrDefault(key, fallback);
   }
 
-  private void addWindowMenu(JMenuBar menuBar) {
-    JMenu windowMenu = new JMenu("Window");
-    windowMenu.setMnemonic(KeyEvent.VK_W);
-
-    // ---- Close Active Window ----
-    AbstractAction closeWindowAction = new AbstractAction("Close Active Window") {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        closeActiveWindow();
-      }
-    };
-    closeWindowAction.putValue(AbstractAction.ACCELERATOR_KEY,
-        KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK));
-    windowMenu.add(closeWindowAction);
-
-    // ---- Close All Windows ----
-    AbstractAction closeAllWindowsAction = new AbstractAction("Close All Windows") {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        closeAllWindows();
-      }
-    };
-    closeAllWindowsAction.putValue(AbstractAction.ACCELERATOR_KEY,
-        KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
-    windowMenu.add(closeAllWindowsAction);
-
-    windowMenu.addSeparator();
-
-    AbstractAction cascadeAction = new AbstractAction("Cascade") {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        cascadeWindows();
-      }
-    };
-    cascadeAction.putValue(AbstractAction.ACCELERATOR_KEY,
-        KeyStroke.getKeyStroke(KeyEvent.VK_1, InputEvent.ALT_DOWN_MASK));
-    windowMenu.add(cascadeAction);
-
-    AbstractAction tileAction = new AbstractAction("Tile") {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        tileWindows();
-      }
-    };
-    tileAction.putValue(AbstractAction.ACCELERATOR_KEY,
-        KeyStroke.getKeyStroke(KeyEvent.VK_2, InputEvent.ALT_DOWN_MASK));
-    windowMenu.add(tileAction);
-
-    windowMenu.addSeparator();
-
-    // ---- Look&Feel Submenu ----
-    lookAndFeelMenu = new JMenu("Look&Feel");
-    lookAndFeelMenu.setMnemonic(KeyEvent.VK_L);
-
-    LookAndFeels.fillMenu(lookAndFeelMenu, this::rememberLookAndFeel);
-
-    windowMenu.add(lookAndFeelMenu);
-    windowMenu.add(createTvMenu());
-
-    menuBar.add(windowMenu);
-  }
-
-  private void closeActiveWindow() {
-    JInternalFrame frame = desktop.getSelectedFrame();
-    if (frame != null) {
-      try {
-        frame.setClosed(true);
-      } catch (java.beans.PropertyVetoException e) {
-        // Window refused to close
-      }
-    }
-  }
-
-  private void closeAllWindows() {
-    JInternalFrame[] frames = desktop.getAllFrames();
-    for (JInternalFrame frame : frames) {
-      try {
-        frame.setClosed(true);
-      } catch (java.beans.PropertyVetoException e) {
-        // Window refused to close
-      }
-    }
-  }
-
-  /** Los botones de las ventanas de escritorio que traen los plugins: el navegador de juegos, si esta. */
-  private final JPanel deskWindowButtons = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0));
-
-  private void fillTheDeskWindowButtons() {
-    deskWindowButtons.removeAll();
-    deskWindowButtons.setOpaque(false);
-    for (DeskEquipment window : has.deskWindows()) {
-      if (window.icon() == null) continue;
-      JButton button = new JButton(window.icon());
-      button.setToolTipText(window.name());
-      button.addActionListener(e -> showOnTheDesk(window));
-      deskWindowButtons.add(button);
-    }
-    if (!couldBring.isEmpty()) {
-      JButton more = new JButton("+");
-      more.setToolTipText("More that can be had: choosing one brings its plugin");
-      more.addActionListener(e -> {
-        javax.swing.JPopupMenu everything = new javax.swing.JPopupMenu();
-        couldBring.forEach((artifact, offers) -> offers.forEach(offer -> everything.add(hole(artifact, offer))));
-        com.fpetrola.oozx.speccy.windows.Widgets.scrollingWhenLong(everything);
-        everything.show(more, 0, more.getHeight());
-      });
-      deskWindowButtons.add(more);
-    }
-    EmulatorInternalFrame.tighten(deskWindowButtons);
-    deskWindowButtons.revalidate();
-    deskWindowButtons.repaint();
-  }
-
-  private JToolBar createMainToolBar() {
-    JToolBar toolBar = new JToolBar();
-    toolBar.setFloatable(false);
-
-    JButton newEmulatorBtn = new JButton(loadIcon("Sinclair_ZX_Spectrum-02b.svg"));
-    newEmulatorBtn.setToolTipText("New Emulator");
-    newEmulatorBtn.addActionListener(e -> {
-      EmulatorCore core = mockCore.apply("", null);
-      createNewEmulator(core);
-    });
-    toolBar.add(newEmulatorBtn);
-
-    toolBar.add(deskWindowButtons);
-    fillTheDeskWindowButtons();
-
-
-    JButton pluginsBtn = new JButton(loadIcon("1F9E9.svg"));
-    pluginsBtn.setToolTipText("Plugins - what is in this emulator and what else can be had");
-    pluginsBtn.addActionListener(e -> showPlugins());
-    toolBar.add(pluginsBtn);
-
-
-    EmulatorInternalFrame.tighten(toolBar);
-    return toolBar;
-  }
-
-  /** Every window of the desk that was found, and the one open of each kind. */
-  private java.util.List<DeskEquipment> deskKinds = java.util.List.of();
-
-  private final java.util.Map<String, JInternalFrame> onTheDesk = new java.util.HashMap<>();
-
-  /** That window of the desk, opened once: asking again brings the one that is there to the front. */
-  public JInternalFrame showOnTheDesk(DeskEquipment kind) {
-    JInternalFrame window = onTheDesk.get(kind.name());
-    if (window == null || window.isClosed()) {
-      window = kind.open();
-      onTheDesk.put(kind.name(), window);
-    }
-    place(window);
-    return window;
-  }
-
   @Override
   public void place(JInternalFrame window) {
-    if (window.getParent() == null) desktop.add(window);
-    window.setVisible(true);
-    window.toFront();
-    try {
-      window.setSelected(true);
-    } catch (java.beans.PropertyVetoException itWouldNot) {
-      // The window is there either way.
-    }
+    mdi.show(window.getTitle(), window, dev.plugdesk.desk.Window.Side.FREE);
   }
 
   @Override
   public void show(dev.plugdesk.desk.Window window) {
-    if (window instanceof DeskEquipment kind) showOnTheDesk(kind);
+    workbench.show(window);
   }
 
   @Override
@@ -1049,19 +824,18 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
 
   @Override
   public String nameOf(javax.swing.JComponent window) {
-    if (window == plugins) return PLUGINS;
-    return java.util.stream.Stream.concat(onTheDesk.keySet().stream().filter(name -> onTheDesk.get(name) == window),
-        equipment.keySet().stream().filter(name -> equipment.get(name).contains(window))).findFirst().orElse(null);
+    String path = workbench.nameOf(window);
+    if (path != null) return path.equals(pluginsWindow.path()) ? PLUGINS
+        : has.deskWindows().stream().filter(kind -> kind.path().equals(path)).map(DeskEquipment::name).findFirst().orElse(path);
+    return equipment.keySet().stream().filter(name -> equipment.get(name).contains(window)).findFirst().orElse(null);
   }
 
   @Override
   public JInternalFrame window(String name) {
-    if (PLUGINS.equals(name)) {
-      showPlugins();
-      return plugins;
-    }
-    DeskEquipment kind = deskKinds.stream().filter(one -> one.name().equals(name)).findFirst().orElse(null);
-    return kind != null ? showOnTheDesk(kind) : equipment(name);
+    String path = PLUGINS.equals(name) ? pluginsWindow.path()
+        : has.deskWindows().stream().filter(kind -> kind.name().equals(name)).map(DeskEquipment::path).findFirst().orElse(name);
+    javax.swing.JComponent window = workbench.window(path);
+    return window instanceof JInternalFrame frame ? frame : equipment(name);
   }
 
   /**
@@ -1220,7 +994,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     machinesByCore.remove(closed);
     equipment.values().forEach(open -> open.removeIf(JInternalFrame::isClosed));
     equipment.values().removeIf(java.util.List::isEmpty);
-    onTheDesk.values().removeIf(JInternalFrame::isClosed);
   }
 
   public com.fpetrola.oozx.Speccy machineOf(JInternalFrame window) {
@@ -1623,148 +1396,25 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
 
   {
     dev.plugdesk.app.Plugins.whenHeld(leaving -> putMachinesAway());
-    dev.plugdesk.app.Plugins.whenCatalogArrives(() -> SwingUtilities.invokeLater(this::lookForWhatCouldBeBrought));
+    dev.plugdesk.app.Plugins.whenCatalogArrives(() -> SwingUtilities.invokeLater(() -> offered.look(workbench::changed)));
   }
 
-
-  /** Where the Equipment menu is, so that a board which arrives while this runs can be added to it. */
-  private JMenu equipmentMenu;
-
-  private JMenu lookAndFeelMenu;
-
-  /** The same for the windows of the desk, which are items of the Emulator menu itself. */
-  private JMenu theEmulatorMenu;
-  private int whereTheDeskWindowsGo;
-  private final java.util.List<JMenuItem> deskWindowItems = new java.util.ArrayList<>();
 
   /** Said once the folder changed: the menus offer what is there now, and only that. */
   public void somethingWasPluggedIn() {
-    fillEquipmentMenu();
-    fillTheDeskWindows();
-    fillTheDeskWindowButtons();
     whatThereIs();
-    LookAndFeels.lookPluginsChanged(lookAndFeelMenu, this::rememberLookAndFeel);
-    addHoles(lookAndFeelMenu, dev.plugdesk.desk.Look.class);
-    com.fpetrola.oozx.speccy.windows.Widgets.scrollingWhenLong(lookAndFeelMenu.getPopupMenu());
+    LookAndFeels.lookPluginsChanged();
     refillMachineToolBars();
-    fillWhatToDo();
-    fillHelpMenu();
+    workbench.changed();
     // What could not be done before may be done now, so it is worth saying again if it is not.
     TellsThePerson.thatMayHaveChanged();
-    lookForWhatCouldBeBrought();
-  }
-
-  private JMenu helpMenu;
-
-  /** Lo que explica algo, puesto o para traer, y el About, que es de la base. */
-  private void fillHelpMenu() {
-    if (helpMenu == null) return;
-    helpMenu.removeAll();
-    for (DeskEquipment kind : has.deskWindows()) {
-      if (!(kind instanceof com.fpetrola.oozx.speccy.devices.Explains)) continue;
-      JMenuItem item = new JMenuItem(kind.name() + "...");
-      item.addActionListener(e -> showOnTheDesk(kind));
-      helpMenu.add(item);
-    }
-    holes(com.fpetrola.oozx.speccy.devices.Explains.class).forEach(helpMenu::add);
-    if (helpMenu.getMenuComponentCount() > 0) helpMenu.addSeparator();
-    JMenuItem aboutItem = new JMenuItem("About");
-    aboutItem.addActionListener(e -> showAboutDialog());
-    helpMenu.add(aboutItem);
-  }
-
-  /** Lo que se puede hacer: preguntar, y en gris lo que ofrecen los plugins que no estan puestos. */
-  private JMenu whatToDo;
-
-  private void fillWhatToDo() {
-    if (whatToDo == null) return;
-    whatToDo.removeAll();
-    JMenuItem ask = new JMenuItem("What do you want to do?...");
-    ask.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
-    ask.addActionListener(e -> new ActionPalette(this).setVisible(true));
-    whatToDo.add(ask);
-    whatToDo.addSeparator();
-    couldBring.forEach((artifact, offers) -> offers.forEach(offer -> whatToDo.add(hole(artifact, offer))));
-    com.fpetrola.oozx.speccy.windows.Widgets.scrollingWhenLong(whatToDo.getPopupMenu(), 2);
-  }
-
-  /** Lo que se podria hacer trayendo un plugin, por el plugin que habria que traer. */
-  private java.util.Map<dev.crystal.plugins.api.PluginArtifact, List<dev.crystal.plugins.api.Offer>> couldBring = java.util.Map.of();
-
-  /** Pregunta al archivo lo que se podria traer, y cuando contesta pone los huecos en su lugar. */
-  private void lookForWhatCouldBeBrought() {
-    new SwingWorker<java.util.Map<dev.crystal.plugins.api.PluginArtifact, List<dev.crystal.plugins.api.Offer>>, Void>() {
-      protected java.util.Map<dev.crystal.plugins.api.PluginArtifact, List<dev.crystal.plugins.api.Offer>> doInBackground() {
-        return dev.plugdesk.app.Plugins.managing().availableOffering();
-      }
-
-      protected void done() {
-        try {
-          couldBring = get();
-        } catch (Exception cannotAsk) {
-          return;
-        }
-        fillEquipmentMenu();
-        fillTheDeskWindows();
-        fillTheDeskWindowButtons();
-        LookAndFeels.fillMenu(lookAndFeelMenu, ZXSpectrumDesktopApp.this::rememberLookAndFeel);
-        addHoles(lookAndFeelMenu, dev.plugdesk.desk.Look.class);
-    com.fpetrola.oozx.speccy.windows.Widgets.scrollingWhenLong(lookAndFeelMenu.getPopupMenu());
-        refillMachineToolBars();
-        fillWhatToDo();
-        fillHelpMenu();
-    fillHelpMenu();
-      }
-    }.execute();
+    offered.look(workbench::changed);
   }
 
   private void refillMachineToolBars() {
     for (JInternalFrame frame : desktop.getAllFrames()) {
       if (frame instanceof EmulatorInternalFrame machine) machine.refillTools();
     }
-  }
-
-  /** Lo que falta de ese rol, en gris al final del menu: elegido, trae el plugin y lo hace. */
-  private void addHoles(JMenu menu, Class<?> role) {
-    List<JMenuItem> holes = holes(role);
-    if (holes.isEmpty() || menu == null) return;
-    menu.addSeparator();
-    holes.forEach(menu::add);
-  }
-
-  List<JMenuItem> holes(Class<?> role) {
-    return holes(role, Void.class);
-  }
-
-  /** Los de ese rol que no son de otro, que tiene su propio lugar. */
-  List<JMenuItem> holes(Class<?> role, Class<?> placedElsewhere) {
-    List<JMenuItem> holes = new java.util.ArrayList<>();
-    couldBring.forEach((artifact, offers) -> offers.stream().filter(offer -> offer.is(role) && !offer.is(placedElsewhere))
-        .forEach(offer -> holes.add(hole(artifact, offer))));
-    return holes;
-  }
-
-  private JMenuItem hole(dev.crystal.plugins.api.PluginArtifact artifact, dev.crystal.plugins.api.Offer offer) {
-    JMenuItem item = new JMenuItem(offer.text() + "  (+)");
-    item.setForeground(java.awt.Color.GRAY);
-    item.setToolTipText("Needs " + artifact.id() + ": choosing it brings it");
-    item.addActionListener(e -> bringAndDo(artifact, offer));
-    return item;
-  }
-
-  /** Trae el plugin y hace lo que se habia elegido: el mismo camino para la paleta y los huecos. */
-  void bringAndDo(dev.crystal.plugins.api.PluginArtifact artifact, dev.crystal.plugins.api.Offer offer) {
-    new SwingWorker<Void, Void>() {
-      protected Void doInBackground() {
-        dev.plugdesk.app.Plugins.add(artifact.id());
-        return null;
-      }
-
-      protected void done() {
-        somethingWasPluggedIn();
-        doWhatIsOffered(offer);
-      }
-    }.execute();
   }
 
 
@@ -1780,46 +1430,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     com.fpetrola.emulation.helpers.snapshots.SnapshotFactory.alsoRead(has::formats);
   }
 
-
-  private void fillTheDeskWindows() {
-    deskWindowItems.forEach(theEmulatorMenu::remove);
-    deskWindowItems.clear();
-    deskKinds = has.deskWindows();
-    int place = whereTheDeskWindowsGo;
-    for (DeskEquipment kind : deskKinds) {
-      if (kind instanceof com.fpetrola.oozx.speccy.devices.Explains) continue;
-      JMenuItem item = new JMenuItem(kind.name() + "...");
-      item.addActionListener(e -> showOnTheDesk(kind));
-      theEmulatorMenu.add(item, place++);
-      deskWindowItems.add(item);
-    }
-    for (JMenuItem hole : holes(DeskEquipment.class, com.fpetrola.oozx.speccy.devices.Explains.class)) {
-      theEmulatorMenu.add(hole, place++);
-      deskWindowItems.add(hole);
-    }
-  }
-
-  private void fillEquipmentMenu() {
-    equipmentMenu.removeAll();
-    for (Equipment kind : has.equipment()) {
-      JMenuItem item = new JMenuItem(kind.name());
-      item.addActionListener(e -> show(kind));
-      equipmentMenu.add(item);
-    }
-    addHoles(equipmentMenu, Equipment.class);
-    com.fpetrola.oozx.speccy.windows.Widgets.scrollingWhenLong(equipmentMenu.getPopupMenu());
-  }
-
-  private PluginsInternalFrame plugins;
-  private static final String PLUGINS = "Plugins";
-
-  /** The window that says what is published and brings in what is ticked. */
-  public void showPlugins() {
-    if (plugins == null || plugins.isClosed()) {
-      plugins = new PluginsInternalFrame();
-    }
-    place(plugins);
-  }
 
   /**
    * Every piece of equipment open at once, one per machine, clipped on the same way a deck is.
@@ -2217,98 +1827,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       were.forEach(state -> new File(state.getFilePath()).delete());
       away.delete();
     };
-  }
-
-  private void updateRecentFilesMenu() {
-    recentFilesMenu.removeAll();
-    List<String> recentFiles = config.getRecentFiles();
-
-    if (recentFiles.isEmpty()) {
-      JMenuItem emptyItem = new JMenuItem("(No recent files)");
-      emptyItem.setEnabled(false);
-      recentFilesMenu.add(emptyItem);
-      return;
-    }
-
-    for (String filePath : recentFiles) {
-      JMenuItem item = new JMenuItem(new java.io.File(filePath).getName());
-      item.setToolTipText(filePath);
-      item.addActionListener(e -> open(filePath));
-      int place = recentFilesMenu.getItemCount() + 1;
-      if (place <= 10) item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_0 + place % 10, InputEvent.CTRL_DOWN_MASK));
-      recentFilesMenu.add(item);
-    }
-
-    recentFilesMenu.addSeparator();
-    JMenuItem clearItem = new JMenuItem("Clear Recent Files");
-    clearItem.addActionListener(e -> {
-      config.getRecentFiles().clear();
-      config.save();
-      updateRecentFilesMenu();
-    });
-    recentFilesMenu.add(clearItem);
-  }
-
-  private void cascadeWindows() {
-    JInternalFrame[] frames = desktop.getAllFrames();
-    int x = 0;
-    int y = 0;
-    int width = desktop.getWidth() / 2;
-    int height = desktop.getHeight() / 2;
-
-    for (int i = 0; i < frames.length; i++) {
-      if (!frames[i].isIcon()) {
-        try {
-          frames[i].setMaximum(false);
-          frames[i].reshape(x, y, width, height);
-          x += 30;
-          y += 30;
-          if (x + width > desktop.getWidth()) x = 0;
-          if (y + height > desktop.getHeight()) y = 0;
-        } catch (Exception ex) {
-        }
-      }
-    }
-  }
-
-  private void tileWindows() {
-    JInternalFrame[] frames = desktop.getAllFrames();
-    int count = frames.length;
-    if (count == 0) return;
-
-    int sqrt = (int) Math.sqrt(count);
-    int rows = sqrt;
-    int cols = count / rows;
-    int extra = count % rows;
-
-    int width = desktop.getWidth() / cols;
-    int height = desktop.getHeight() / rows;
-
-    int x = 0;
-    int y = 0;
-    int w = width;
-    int h = height;
-
-    for (int i = 0; i < rows; i++) {
-      for (int j = 0; j < cols; j++) {
-        int index = i * cols + j;
-        if (index >= count) break;
-        if (!frames[index].isIcon()) {
-          try {
-            frames[index].setMaximum(false);
-            frames[index].reshape(x, y, w, h);
-          } catch (Exception ex) {
-          }
-        }
-        x += w;
-      }
-      x = 0;
-      y += h;
-      if (i == rows - extra - 1) {
-        cols++;
-        w = desktop.getWidth() / cols;
-      }
-    }
   }
 
 

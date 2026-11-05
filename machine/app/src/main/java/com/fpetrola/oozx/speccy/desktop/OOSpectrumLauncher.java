@@ -24,7 +24,7 @@ import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.machine.StartsAMachineOn;
 import com.fpetrola.oozx.speccy.modules.timer.Speed;
 import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
-import com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp;
+
 
 import java.io.File;
 import java.nio.file.Path;
