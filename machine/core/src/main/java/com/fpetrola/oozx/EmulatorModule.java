@@ -36,7 +36,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.multibindings.OptionalBinder;
-import com.fpetrola.oozx.config.Configuration;
+import dev.plugdesk.app.Configuration;
 import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 import java.util.ServiceLoader;
 
@@ -149,7 +149,7 @@ public class EmulatorModule extends AbstractModule {
     @Inject
     private java.util.Set<Core> available;
     @Inject
-    private com.fpetrola.oozx.config.Configuration configuration;
+    private dev.plugdesk.app.Configuration configuration;
     @Inject
     private Core preferred;
 

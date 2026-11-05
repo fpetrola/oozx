@@ -18,10 +18,10 @@
     </properties>
 
     <dependencies>
-        <!-- Lo que carga los plugins, y lo que hace que aparezcan en nuestro propio injector. -->
+        <!-- La base de la aplicacion: la casa y config.json, los plugins (con crystal debajo) y de donde vienen. -->
         <dependency>
-            <groupId>dev.crystal.plugins</groupId>
-            <artifactId>framework-guice</artifactId>
+            <groupId>dev.plugdesk</groupId>
+            <artifactId>plugdesk-app</artifactId>
             <version>0.1.0-SNAPSHOT</version>
         </dependency>
 

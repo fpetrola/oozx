@@ -40,7 +40,7 @@ import com.fpetrola.oozx.speccy.screen.TvScreen;
 import com.fpetrola.oozx.speccy.config.OOZxConfiguration;
 import com.fpetrola.oozx.speccy.peripherals.EmulatorCore;
 import com.fpetrola.oozx.EmulatorListener;
-import com.fpetrola.oozx.TellsThePerson;
+import dev.plugdesk.app.TellsThePerson;
 import com.fpetrola.oozx.speccy.peripherals.DefaultsCore;
 import com.fpetrola.z80.cpu.State;
 
@@ -530,7 +530,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   public ZXSpectrumDesktopApp(java.util.function.BiFunction<String, String, EmulatorCore> mockCore, Function<String, EmulatorCore> mockCoreState1) {
     this.mockCore = mockCore;
     this.mockCoreState = mockCoreState1;
-    this.config = com.fpetrola.oozx.config.Configuration.shared().of(OOZxConfiguration.class);
+    this.config = dev.plugdesk.app.Configuration.shared().of(OOZxConfiguration.class);
     // One place for the keyboard, rather than one per emulator window: which machine is being
     // typed into is a question about this desktop, not about any one of the machines on it.
     KeyboardFocusManager.getCurrentKeyboardFocusManager()
@@ -1482,7 +1482,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         java.io.File file = new java.io.File(local);
         if (file.isFile() && !OOSpectrumLauncher.somethingOpens(file)) return file;
         if (mayAsk && file.isFile()) {
-          List<com.fpetrola.oozx.plugins.PluginReleases.Board> beside =
+          List<dev.plugdesk.app.Releases.Board> beside =
               WhatIsMissing.bringingBeside(com.fpetrola.oozx.plugins.BesideTheGame.kindsBeside(file));
           if (!beside.isEmpty()) return beside;
         }
@@ -1502,7 +1502,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
           }
           if (got instanceof List<?> brings) {
             @SuppressWarnings("unchecked")
-            List<com.fpetrola.oozx.plugins.PluginReleases.Board> boards = (List<com.fpetrola.oozx.plugins.PluginReleases.Board>) brings;
+            List<dev.plugdesk.app.Releases.Board> boards = (List<dev.plugdesk.app.Releases.Board>) brings;
             WhatIsMissing.offer(ZXSpectrumDesktopApp.this, boards,
                 "Beside " + DownloadAndUnzip.nameOf(local) + " there is more of the game than this build uses.",
                 () -> { somethingWasPluggedIn(); load(local, game, whenDone, false); },
@@ -1606,12 +1606,12 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
    * Los menus se rearman cuando cambia lo enchufado, lo diga la ventana de plugins o lo haga
    * alguien por codigo: quien los maneja avisa, asi que no hay que preguntarle a cada rato.
    */
-  private final AutoCloseable whileItChanges = com.fpetrola.oozx.plugins.Plugins.managing()
+  private final AutoCloseable whileItChanges = dev.plugdesk.app.Plugins.managing()
       .onChange(() -> javax.swing.SwingUtilities.invokeLater(this::somethingWasPluggedIn));
 
   {
-    com.fpetrola.oozx.plugins.Plugins.whenHeld(leaving -> putMachinesAway());
-    com.fpetrola.oozx.plugins.Plugins.whenCatalogArrives(() -> SwingUtilities.invokeLater(this::lookForWhatCouldBeBrought));
+    dev.plugdesk.app.Plugins.whenHeld(leaving -> putMachinesAway());
+    dev.plugdesk.app.Plugins.whenCatalogArrives(() -> SwingUtilities.invokeLater(this::lookForWhatCouldBeBrought));
   }
 
 
@@ -1683,7 +1683,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   private void lookForWhatCouldBeBrought() {
     new SwingWorker<java.util.Map<dev.crystal.plugins.api.PluginArtifact, List<dev.crystal.plugins.api.Offer>>, Void>() {
       protected java.util.Map<dev.crystal.plugins.api.PluginArtifact, List<dev.crystal.plugins.api.Offer>> doInBackground() {
-        return com.fpetrola.oozx.plugins.Plugins.managing().availableOffering();
+        return dev.plugdesk.app.Plugins.managing().availableOffering();
       }
 
       protected void done() {
@@ -1744,7 +1744,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   void bringAndDo(dev.crystal.plugins.api.PluginArtifact artifact, dev.crystal.plugins.api.Offer offer) {
     new SwingWorker<Void, Void>() {
       protected Void doInBackground() {
-        com.fpetrola.oozx.plugins.Plugins.add(artifact.id());
+        dev.plugdesk.app.Plugins.add(artifact.id());
         return null;
       }
 
@@ -2129,11 +2129,11 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   }
 
   private static File sessionFolder() {
-    return new File(com.fpetrola.oozx.config.Configuration.home(), "session");
+    return new File(dev.plugdesk.app.Configuration.home(), "session");
   }
 
   private static com.fpetrola.oozx.speccy.devices.Session session() {
-    return com.fpetrola.oozx.plugins.Plugins.found(com.fpetrola.oozx.speccy.devices.Session.class)
+    return dev.plugdesk.app.Plugins.found(com.fpetrola.oozx.speccy.devices.Session.class)
         .stream().findFirst().orElse(null);
   }
 

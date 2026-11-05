@@ -44,6 +44,16 @@ jobs:
     - name: Build the plugin framework
       run: mvn -B -U -DskipTests install -f crystal-plugins/pom.xml
 
+    # La base de la aplicacion, sobre el framework: la casa, config.json, los plugins y de donde
+    # vienen. Tampoco publica artefactos, y va a un tag por la misma razon que el framework.
+    - uses: actions/checkout@v4
+      with:
+        repository: fpetrola/plugdesk
+        ref: step-1
+        path: plugdesk
+    - name: Build the application base
+      run: mvn -B -U -DskipTests install -f plugdesk/pom.xml
+
     # Sin los plugins adentro: son otro repositorio, aca no estan, y este build no publica nada.
     # Vacio apaga el empaquetado; con el groupId puesto y ninguno encontrado, el build falla.
     # Sin translation/translator: depende de zx-rzx y device-ay, que se construyen en oozx-plugins

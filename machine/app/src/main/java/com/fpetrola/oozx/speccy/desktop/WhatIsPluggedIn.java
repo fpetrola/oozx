@@ -49,7 +49,7 @@ public class WhatIsPluggedIn {
 
   public static synchronized WhatIsPluggedIn theOne() {
     if (theOne == null) {
-      theOne = com.google.inject.Guice.createInjector(com.fpetrola.oozx.plugins.Plugins.asModule())
+      theOne = com.google.inject.Guice.createInjector(dev.plugdesk.app.Plugins.asModule())
           .getInstance(WhatIsPluggedIn.class);
     }
     return theOne;

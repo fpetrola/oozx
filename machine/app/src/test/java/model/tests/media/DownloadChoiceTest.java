@@ -17,7 +17,7 @@
 
 package model.tests.media;
 
-import com.fpetrola.oozx.config.Configuration;
+import dev.plugdesk.app.Configuration;
 import com.fpetrola.oozx.speccy.media.DownloadAndUnzip;
 import org.junit.jupiter.api.Test;
 

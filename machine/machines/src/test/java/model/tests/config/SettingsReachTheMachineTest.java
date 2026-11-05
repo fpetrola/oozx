@@ -18,7 +18,7 @@
 package model.tests.config;
 
 import com.fpetrola.oozx.Speccy;
-import com.fpetrola.oozx.config.Configuration;
+import dev.plugdesk.app.Configuration;
 import com.fpetrola.oozx.config.RomFiles;
 import model.harness.MachineTest;
 import org.junit.jupiter.api.Test;

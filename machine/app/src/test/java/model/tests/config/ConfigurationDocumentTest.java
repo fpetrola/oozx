@@ -18,8 +18,8 @@ package model.tests.config;
 
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.modules.z80.SpectrumZ80Clock;
-import com.fpetrola.oozx.config.Configuration;
-import com.fpetrola.oozx.config.Section;
+import dev.plugdesk.app.Configuration;
+import dev.plugdesk.app.Section;
 import com.fpetrola.oozx.speccy.modules.sound.SoundCard;
 import com.fpetrola.oozx.speccy.modules.sound.SilentSoundDevice;
 import com.google.inject.Guice;
@@ -86,6 +86,6 @@ class ConfigurationDocumentTest {
 
   /** Lo que esta maquina es, que es lo que el modulo recibe en vez de ir a buscarlo. */
   private static java.util.List<com.fpetrola.oozx.Extension> whatThisBuildHas() {
-    return com.fpetrola.oozx.plugins.Plugins.found(com.fpetrola.oozx.Extension.class);
+    return dev.plugdesk.app.Plugins.found(com.fpetrola.oozx.Extension.class);
   }
 }

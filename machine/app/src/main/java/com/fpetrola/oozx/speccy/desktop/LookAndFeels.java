@@ -86,7 +86,7 @@ public final class LookAndFeels {
   private static String wornFromPlugin;
 
   static {
-    com.fpetrola.oozx.plugins.Plugins.beforeTakingOut(LookAndFeels::pluginLeaving);
+    dev.plugdesk.app.Plugins.beforeTakingOut(LookAndFeels::pluginLeaving);
   }
 
   /** Con el cargador del plugin todavia abierto: despues, sacarse el look ya no puede cargar sus clases. */
@@ -289,7 +289,7 @@ public final class LookAndFeels {
     }
     if (worn != laf) wornBefore = worn;
     worn = laf;
-    wornFromPlugin = laf.from == null ? null : com.fpetrola.oozx.plugins.Plugins.whoBrought(laf.from);
+    wornFromPlugin = laf.from == null ? null : dev.plugdesk.app.Plugins.whoBrought(laf.from);
     for (Window window : Window.getWindows()) {
       redress(window);
       window.invalidate();

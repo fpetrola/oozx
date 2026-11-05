@@ -17,6 +17,8 @@
 
 package com.fpetrola.oozx.plugins;
 
+import dev.plugdesk.app.Plugins;
+
 import dev.crystal.plugins.api.RoleInterface;
 
 import com.fpetrola.oozx.config.RomFiles;

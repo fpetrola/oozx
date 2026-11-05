@@ -84,7 +84,7 @@ public class DefaultsCore extends MockEmulatorCore {
   @Override
   public void setMachineModel(String model) {
     chosenModel = model;
-    com.fpetrola.oozx.config.Configuration.shared().setValue("machine", "model", model);
+    dev.plugdesk.app.Configuration.shared().setValue("machine", "model", model);
   }
 
   /** The sets for the machine a new emulator will become, which is the one being configured here. */
@@ -130,7 +130,7 @@ public class DefaultsCore extends MockEmulatorCore {
   @Override
   public void setProcessor(String processor) {
     chosenProcessor = processor;
-    com.fpetrola.oozx.config.Configuration.shared().setValue("machine", "processor", processor);
+    dev.plugdesk.app.Configuration.shared().setValue("machine", "processor", processor);
   }
 
   @Override

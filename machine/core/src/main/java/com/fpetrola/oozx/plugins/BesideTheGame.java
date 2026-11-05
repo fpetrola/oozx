@@ -17,6 +17,10 @@
 
 package com.fpetrola.oozx.plugins;
 
+import dev.plugdesk.app.Plugins;
+
+import dev.plugdesk.app.Releases;
+
 import dev.crystal.plugins.api.RoleInterface;
 
 /**
@@ -65,7 +69,7 @@ public interface BesideTheGame {
 
   private static String askedOfWhatIsOffered(String kind) {
     try {
-      return PluginReleases.bringing(kind, java.util.List.of(BesideTheGame.class.getName())).stream()
+      return Releases.bringing(kind, java.util.List.of(BesideTheGame.class.getName())).stream()
           .findFirst().map(board -> board.name() + " (not installed)").orElse("");
     } catch (Exception cannotAsk) {
       return "";

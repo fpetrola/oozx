@@ -56,7 +56,7 @@ public class Machines extends AbstractModule implements Extension {
     @com.google.inject.Inject
     private java.util.Set<Spectrum> models;
     @com.google.inject.Inject
-    private com.fpetrola.oozx.config.Configuration configuration;
+    private dev.plugdesk.app.Configuration configuration;
     @com.google.inject.Inject
     private Spec48 whatASpectrumIs;
 

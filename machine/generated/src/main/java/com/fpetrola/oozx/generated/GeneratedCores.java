@@ -16,7 +16,7 @@
  */
 package com.fpetrola.oozx.generated;
 
-import com.fpetrola.oozx.TellsThePerson;
+import dev.plugdesk.app.TellsThePerson;
 
 import com.fpetrola.oozx.EmulatorModule;
 import com.fpetrola.oozx.speccy.modules.memory.MemoryBus;

@@ -21,7 +21,7 @@ import com.fpetrola.oozx.speccy.modules.machine.Machine;
 import com.fpetrola.oozx.speccy.modules.memory.MemoryBus;
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.modules.z80.SpectrumZ80Clock;
-import com.fpetrola.oozx.config.Configuration;
+import dev.plugdesk.app.Configuration;
 import com.fpetrola.oozx.speccy.machine.*;
 import com.fpetrola.oozx.speccy.modules.sound.Sound;
 import com.fpetrola.oozx.speccy.modules.timer.Speed;
@@ -63,6 +63,6 @@ class SectionsAreDeclaredTest {
 
   /** Lo que esta maquina es, que es lo que el modulo recibe en vez de ir a buscarlo. */
   private static java.util.List<com.fpetrola.oozx.Extension> whatThisBuildHas() {
-    return com.fpetrola.oozx.plugins.Plugins.found(com.fpetrola.oozx.Extension.class);
+    return dev.plugdesk.app.Plugins.found(com.fpetrola.oozx.Extension.class);
   }
 }

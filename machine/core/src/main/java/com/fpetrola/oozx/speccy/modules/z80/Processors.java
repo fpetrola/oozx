@@ -17,7 +17,7 @@
 
 package com.fpetrola.oozx.speccy.modules.z80;
 
-import com.fpetrola.oozx.TellsThePerson;
+import dev.plugdesk.app.TellsThePerson;
 
 import com.fpetrola.z80.cpu.Core;
 import com.fpetrola.z80.cpu.IO;

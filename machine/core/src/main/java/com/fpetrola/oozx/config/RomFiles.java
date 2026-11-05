@@ -17,6 +17,10 @@
 
 package com.fpetrola.oozx.config;
 
+import dev.plugdesk.app.Section;
+
+import dev.plugdesk.app.Configuration;
+
 import com.fpetrola.oozx.speccy.machine.RomNotLoadedException;
 import com.fpetrola.oozx.speccy.machine.Roms;
 import com.fpetrola.oozx.speccy.machine.Spectrum;
@@ -96,8 +100,8 @@ public final class RomFiles implements Roms {
   private static int workedOutFrom = -1;
 
   private static RomFiles theBuild() {
-    if (ofTheBuild == null || workedOutFrom != com.fpetrola.oozx.plugins.Plugins.generation()) {
-      workedOutFrom = com.fpetrola.oozx.plugins.Plugins.generation();
+    if (ofTheBuild == null || workedOutFrom != dev.plugdesk.app.Plugins.generation()) {
+      workedOutFrom = dev.plugdesk.app.Plugins.generation();
       ofTheBuild = Configuration.shipped().of(RomFiles.class);
       whatArrivedBrought(ofTheBuild);
     }
@@ -110,7 +114,7 @@ public final class RomFiles implements Roms {
    * naming something already here is saying the same thing twice rather than overruling it.
    */
   private static void whatArrivedBrought(RomFiles known) {
-    for (RomsOfItsOwn arrived : com.fpetrola.oozx.plugins.Plugins.found(RomsOfItsOwn.class)) {
+    for (RomsOfItsOwn arrived : dev.plugdesk.app.Plugins.found(RomsOfItsOwn.class)) {
       arrived.files().forEach(known.files::putIfAbsent);
       arrived.sets().forEach(known.sets::putIfAbsent);
       arrived.sources().forEach(known.sources::putIfAbsent);
@@ -297,7 +301,7 @@ public final class RomFiles implements Roms {
     } catch (IOException cannot) {
       throw new RomNotLoadedException("ROM '" + filename + "' cannot be read: " + cannot, filename);
     }
-    for (RomsOfItsOwn brought : com.fpetrola.oozx.plugins.Plugins.found(RomsOfItsOwn.class)) {
+    for (RomsOfItsOwn brought : dev.plugdesk.app.Plugins.found(RomsOfItsOwn.class)) {
       if (brought.files().values().stream().noneMatch(named -> named.contains(filename))
           && brought.sets().values().stream()
               .noneMatch(set -> set.values().stream().anyMatch(named -> named.contains(filename)))) {

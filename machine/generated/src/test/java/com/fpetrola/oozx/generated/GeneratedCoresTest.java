@@ -38,16 +38,16 @@ class GeneratedCoresTest {
    */
   @Test
   void theMachineTheGeneratorReadsIsNotStartedOnWhatWasChosen() {
-    com.fpetrola.oozx.config.Configuration.shared().setValue("machine", "processor", GeneratedMachineCore.NAME);
+    dev.plugdesk.app.Configuration.shared().setValue("machine", "processor", GeneratedMachineCore.NAME);
     try {
       Speccy model = GeneratedCores.model();
       assertEquals("OOP", model.processors.current(), "the model runs on the model's core");
       model.end();
       assertEquals(GeneratedMachineCore.NAME,
-          com.fpetrola.oozx.config.Configuration.shared().valueOf("machine", "processor", String.class),
+          dev.plugdesk.app.Configuration.shared().valueOf("machine", "processor", String.class),
           "and the choice is left for the machine that asked");
     } finally {
-      com.fpetrola.oozx.config.Configuration.shared().setValue("machine", "processor", null);
+      dev.plugdesk.app.Configuration.shared().setValue("machine", "processor", null);
     }
   }
 }

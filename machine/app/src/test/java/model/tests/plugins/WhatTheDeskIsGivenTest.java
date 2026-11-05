@@ -17,7 +17,7 @@
 
 package model.tests.plugins;
 
-import com.fpetrola.oozx.plugins.Plugins;
+import dev.plugdesk.app.Plugins;
 import com.fpetrola.oozx.speccy.desktop.WhatIsPluggedIn;
 import com.google.inject.Guice;
 import org.junit.jupiter.api.AfterEach;

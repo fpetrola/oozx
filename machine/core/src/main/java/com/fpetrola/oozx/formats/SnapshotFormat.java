@@ -84,7 +84,7 @@ public interface SnapshotFormat {
 
   /** The same for a file on the disk, asked of whichever format reads it. */
   static java.util.Map<String, byte[]> carriedBy(File file) {
-    for (SnapshotFormat format : com.fpetrola.oozx.plugins.Plugins.found(SnapshotFormat.class)) {
+    for (SnapshotFormat format : dev.plugdesk.app.Plugins.found(SnapshotFormat.class)) {
       if (!format.reads(file)) continue;
       try {
         return format.carried(java.nio.file.Files.readAllBytes(file.toPath()));

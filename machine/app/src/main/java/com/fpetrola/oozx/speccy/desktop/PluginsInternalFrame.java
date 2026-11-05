@@ -17,7 +17,7 @@
 
 package com.fpetrola.oozx.speccy.desktop;
 
-import com.fpetrola.oozx.plugins.Plugins;
+import dev.plugdesk.app.Plugins;
 
 import dev.crystal.plugins.swing.PluginsPanel;
 

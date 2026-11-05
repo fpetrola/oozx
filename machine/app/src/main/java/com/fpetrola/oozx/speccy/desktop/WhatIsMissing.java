@@ -17,10 +17,10 @@
 
 package com.fpetrola.oozx.speccy.desktop;
 
-import com.fpetrola.oozx.TellsThePerson;
-import com.fpetrola.oozx.plugins.PluginReleases;
-import com.fpetrola.oozx.plugins.Plugins;
-import com.fpetrola.oozx.plugins.PluginReleases.Board;
+import dev.plugdesk.app.TellsThePerson;
+import dev.plugdesk.app.Releases;
+import dev.plugdesk.app.Plugins;
+import dev.plugdesk.app.Releases.Board;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
@@ -72,7 +72,7 @@ final class WhatIsMissing {
     new SwingWorker<List<Board>, Void>() {
       protected List<Board> doInBackground() throws Exception {
         java.util.Set<Board> brings = new java.util.LinkedHashSet<>();
-        for (String what : wanted) brings.addAll(PluginReleases.bringing(what, ANSWERING));
+        for (String what : wanted) brings.addAll(Releases.bringing(what, ANSWERING));
         return List.copyOf(brings);
       }
 
@@ -104,7 +104,7 @@ final class WhatIsMissing {
     java.util.Set<Board> brings = new java.util.LinkedHashSet<>();
     for (String kind : nobodyHereAnswers(kinds)) {
       try {
-        brings.addAll(PluginReleases.bringing(kind, ANSWERING));
+        brings.addAll(Releases.bringing(kind, ANSWERING));
       } catch (Exception cannotAsk) {
         return List.of();
       }
@@ -148,7 +148,7 @@ final class WhatIsMissing {
           try {
             // Una llamada por cada uno: quien los carga baja lo que haga falta, verificado, y
             // resuelve de que dependen. Seguirlas a mano era instalar sin la dependencia.
-            PluginReleases.bring(board);
+            Releases.bring(board);
           } catch (Exception wouldNot) {
             didNotArrive.add(board.name() + ": " + wouldNot.getMessage());
           }

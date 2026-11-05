@@ -17,7 +17,7 @@
 
 package com.fpetrola.oozx.speccy.modules.snapshot;
 
-import com.fpetrola.oozx.TellsThePerson;
+import dev.plugdesk.app.TellsThePerson;
 
 import com.fpetrola.emulation.helpers.machine.MachineTypes;
 import com.fpetrola.emulation.helpers.snapshots.SnapshotLoader;
@@ -177,7 +177,7 @@ public class Snapshots extends AbstractPeripheral {
 
   /** The formats that walk the machine, asked each time: one plugged in while running counts from then. */
   private static java.util.List<com.fpetrola.oozx.formats.SnapshotFormat> formats() {
-    return com.fpetrola.oozx.plugins.Plugins.found(com.fpetrola.oozx.formats.SnapshotFormat.class);
+    return dev.plugdesk.app.Plugins.found(com.fpetrola.oozx.formats.SnapshotFormat.class);
   }
 
   /** What the last snapshot read or written with a format left out. */

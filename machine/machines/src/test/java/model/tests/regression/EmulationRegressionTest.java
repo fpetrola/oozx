@@ -250,6 +250,6 @@ public class EmulationRegressionTest extends MachineTest {
 
   /** Lo que esta maquina es, que es lo que el modulo recibe en vez de ir a buscarlo. */
   private static java.util.List<com.fpetrola.oozx.Extension> whatThisBuildHas() {
-    return com.fpetrola.oozx.plugins.Plugins.found(com.fpetrola.oozx.Extension.class);
+    return dev.plugdesk.app.Plugins.found(com.fpetrola.oozx.Extension.class);
   }
 }

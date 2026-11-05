@@ -22,7 +22,7 @@ import com.fpetrola.oozx.speccy.modules.input.Input;
 import com.fpetrola.oozx.speccy.modules.joystick.Joystick;
 import com.fpetrola.oozx.speccy.modules.keyboard.SpectrumKey;
 import model.harness.MachineTest;
-import com.fpetrola.oozx.config.Configuration;
+import dev.plugdesk.app.Configuration;
 import org.junit.jupiter.api.Test;
 import java.nio.file.Files;
 import java.nio.file.Path;

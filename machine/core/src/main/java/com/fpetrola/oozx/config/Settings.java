@@ -17,6 +17,8 @@
 
 package com.fpetrola.oozx.config;
 
+import dev.plugdesk.app.Configuration;
+
 import com.fpetrola.oozx.speccy.modules.machine.Machine;
 import com.fpetrola.oozx.speccy.modules.sound.Sound;
 import com.fpetrola.oozx.speccy.modules.memory.Rom;

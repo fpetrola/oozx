@@ -22,8 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fpetrola.emulation.SnapshotUnicodePacker;
-import com.fpetrola.oozx.config.Configuration;
-import com.fpetrola.oozx.config.Section;
+import dev.plugdesk.app.Configuration;
+import dev.plugdesk.app.Section;
 
 import java.beans.Transient;
 import java.io.File;

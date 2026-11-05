@@ -224,7 +224,7 @@ public class LocalLibretroCore implements LibretroCore {
    */
   public void retro_select_machine(String name) {
     machine.forShortName(name).ifPresentOrElse(machine::select, () -> {
-      com.fpetrola.oozx.TellsThePerson.thisBuildCannot(
+      dev.plugdesk.app.TellsThePerson.thisBuildCannot(
           "this build has no " + name + ", so the default machine runs instead", name);
       machine.selectDefault();
     });

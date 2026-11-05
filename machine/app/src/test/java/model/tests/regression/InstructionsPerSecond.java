@@ -63,7 +63,7 @@ class InstructionsPerSecond extends MachineTest {
   @Test
   void instructionsASecond() {
     for (String core : new String[]{"Generated", "OOP"}) {
-      com.fpetrola.oozx.config.Configuration.shared().setValue("machine", "processor", core);
+      dev.plugdesk.app.Configuration.shared().setValue("machine", "processor", core);
       Speccy speccy = silentMachine();
       speccy.sound.output.enabled = false;
       speccy.picture.active = Boolean.getBoolean("oozx.picture");
@@ -90,7 +90,7 @@ class InstructionsPerSecond extends MachineTest {
         System.out.printf("MIPS %.2f%n", instructionsPerBlock / seconds / 1e6);
       }
     }
-    com.fpetrola.oozx.config.Configuration.shared().setValue("machine", "processor", null);
+    dev.plugdesk.app.Configuration.shared().setValue("machine", "processor", null);
   }
 
   /** The loop's own count, which wraps at 65536 and is read as it grows. */

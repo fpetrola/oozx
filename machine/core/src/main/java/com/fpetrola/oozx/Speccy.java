@@ -52,7 +52,7 @@ public class Speccy {
   /** The frontend driving this machine, when there is one: the app parks it here and reads it back. */
   public com.fpetrola.oozx.EmulatorControl control;
   /** This machine's configuration, for whoever has to reach a section nothing else hands out. */
-  public final com.fpetrola.oozx.config.Configuration configuration;
+  public final dev.plugdesk.app.Configuration configuration;
   /** This machine's settings, which start as the file says; null for one built without the file. */
   private Settings settings;
 
@@ -89,7 +89,7 @@ public class Speccy {
   }
 
   public static Speccy create(SpectrumZ80Clock clock, com.google.inject.Module... overrides) {
-    return com.fpetrola.oozx.plugins.Plugins.building(() -> madeWith(clock, overrides));
+    return dev.plugdesk.app.Plugins.building(() -> madeWith(clock, overrides));
   }
 
   /**
@@ -99,9 +99,9 @@ public class Speccy {
    */
   private static Speccy madeWith(SpectrumZ80Clock clock, com.google.inject.Module... overrides) {
     Injector injector = Guice.createInjector(Modules.override(
-        new EmulatorModule(clock, com.fpetrola.oozx.plugins.Plugins.found(
+        new EmulatorModule(clock, dev.plugdesk.app.Plugins.found(
             com.fpetrola.oozx.Extension.class)),
-        com.fpetrola.oozx.plugins.Plugins.asModule()).with(overrides));
+        dev.plugdesk.app.Plugins.asModule()).with(overrides));
     Speccy speccy = injector.getInstance(Speccy.class);
     // The file's values go into the machine here, from outside it: no part of the machine knows
     // there is a file, only that it has a speed, a set of ROMs, and so on.
@@ -112,7 +112,7 @@ public class Speccy {
   @Inject
   public Speccy(SpectrumZ80Clock zxClock, EmulationSession session, MemoryBus memory, SpectrumMemory banks,
                 Display display, KeyMatrix keys, PeripheralRegistry peripheralRegistry, MachinePortBus ports, Sound sound, Ula ula,
-                Scheduler scheduler, Machine machine, Cpu cpu, Picture picture, Speed speed, com.fpetrola.oozx.config.Configuration configuration, com.fpetrola.oozx.config.RomFiles roms,
+                Scheduler scheduler, Machine machine, Cpu cpu, Picture picture, Speed speed, dev.plugdesk.app.Configuration configuration, com.fpetrola.oozx.config.RomFiles roms,
                 java.util.Set<Peripheral> devices,
                 Timer timer, com.fpetrola.oozx.speccy.modules.z80.Processors processors, com.fpetrola.oozx.speccy.modules.z80.MachineLoop loop) {
     this.zxClock = zxClock;

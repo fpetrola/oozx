@@ -121,7 +121,7 @@ public class DownloadAndUnzip {
     } catch (URISyntaxException unescaped) {
       path = url.replaceFirst("^[a-zA-Z]+://", "");
     }
-    Path place = com.fpetrola.oozx.config.Configuration.home().toPath().resolve("downloads").resolve(host);
+    Path place = dev.plugdesk.app.Configuration.home().toPath().resolve("downloads").resolve(host);
     for (String segment : path.split("/")) {
       if (!segment.isEmpty() && !segment.equals(".") && !segment.equals("..")) place = place.resolve(segment);
     }
@@ -224,7 +224,7 @@ public class DownloadAndUnzip {
   private static boolean aSnapshot(String name) {
     File file = new File(name);
     return name.endsWith(".z80") || name.endsWith(".sna") || name.endsWith(".szx")
-        || com.fpetrola.oozx.plugins.Plugins.found(com.fpetrola.oozx.formats.SnapshotFormat.class).stream()
+        || dev.plugdesk.app.Plugins.found(com.fpetrola.oozx.formats.SnapshotFormat.class).stream()
         .anyMatch(format -> format.reads(file));
   }
 

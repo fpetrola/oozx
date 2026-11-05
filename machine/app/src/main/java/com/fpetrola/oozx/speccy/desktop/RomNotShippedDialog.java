@@ -17,7 +17,7 @@
 
 package com.fpetrola.oozx.speccy.desktop;
 
-import com.fpetrola.oozx.config.Configuration;
+import dev.plugdesk.app.Configuration;
 import com.fpetrola.oozx.config.RomFiles;
 
 import javax.swing.BorderFactory;

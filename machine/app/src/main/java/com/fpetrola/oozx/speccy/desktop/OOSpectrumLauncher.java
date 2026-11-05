@@ -138,7 +138,7 @@ public class OOSpectrumLauncher {
   }
 
   static void nothingHereOpensThat(File file) {
-    com.fpetrola.oozx.TellsThePerson.thisBuildCannot(
+    dev.plugdesk.app.TellsThePerson.thisBuildCannot(
         ("Nothing in this build knows how to open %s, so what came up is a machine at the BASIC "
             + "prompt with nothing loaded into it.\n\nReading that kind of file is what a plugin does.")
             .formatted(file.getName()));
@@ -186,7 +186,7 @@ public class OOSpectrumLauncher {
     speccy.machine.getMachineTypes().stream()
         .filter(type -> type.getName().equals(wanted))
         .findFirst().ifPresent(type -> {
-          if (!RomNotShippedDialog.readyFor(com.fpetrola.oozx.config.Configuration.shared().of(com.fpetrola.oozx.config.RomFiles.class), type)) return;
+          if (!RomNotShippedDialog.readyFor(dev.plugdesk.app.Configuration.shared().of(com.fpetrola.oozx.config.RomFiles.class), type)) return;
           speccy.machine.selectDefault();
           speccy.machine.select(type);
         });
