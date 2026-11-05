@@ -17,22 +17,7 @@
 
 package com.fpetrola.oozx.speccy.devices;
 
-import dev.crystal.plugins.api.RoleInterface;
-
-/**
- * Una familia de looks que el escritorio se puede poner: como se llama, cuales tiene, y como se
- * pone cada uno.
- * <p>
- * Los que vienen con Java los pone el escritorio mismo. Los de las bibliotecas de terceros los
- * trae un plugin, que se lleva esas bibliotecas con el.
- */
-@RoleInterface
-public interface Look {
-
-  String family();
-
-  java.util.List<String> names();
-
-  /** Se lo pone a Swing. Lo que se pinte despues sale de el. */
-  void wear(String name) throws Exception;
+/** @deprecated plugdesk's, {@link dev.plugdesk.desk.Look}. Stays while a published tool-looks implements this one. */
+@Deprecated
+public interface Look extends dev.plugdesk.desk.Look {
 }

@@ -26,6 +26,11 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>dev.plugdesk</groupId>
+            <artifactId>plugdesk-desk</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
         <!--
           xBRZ, the pixel-art scaler, as a Java port by Stanio of Zenju's original.
 

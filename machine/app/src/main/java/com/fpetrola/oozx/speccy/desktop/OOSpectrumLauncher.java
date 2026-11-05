@@ -50,7 +50,7 @@ public class OOSpectrumLauncher {
   public void init() {
     // The keys a Spectrum understands, written in this toolkit's key codes: the emulator has no
     // opinion about what a keyboard sends, so whoever has one says so before a machine is built.
-    LookAndFeels.install(LookAndFeels.DEFAULT);
+    dev.plugdesk.desk.LookAndFeels.install(null);
 
     // Some machines need a ROM this build cannot ship. Nothing is fetched without a yes, and
     // whoever is in front of the machine is the only one who can give it.

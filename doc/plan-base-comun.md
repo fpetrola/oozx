@@ -273,6 +273,14 @@ IdeSeed pierde su parte de `Workbench` (paso 8); hasta ahí la base suma.
   de extensiones); ahora excluye `framework-runtime`, que llega por `plugdesk-app`. Y plugdesk solo
   corre el procesador de roles de crystal, por la misma razón. Los CI de oozx y de los plugins
   construyen plugdesk al tag que dice el de oozx.
+- Paso 2 hecho (tag `step-2`): `Look` y `LookAndFeels` en `desk`; los looks se buscan con
+  `Plugins.found(Look.class)` de la base, y el look con que arranca la aplicación lo dice su archivo
+  (`look=Solarized Light` en oozx). `scrollingWhenLong` es de `Workbench`, dueño de los menús, y
+  `Widgets` delega. El `Look` del kit queda deprecado extendiendo el de la base. `tool-looks` cuelga
+  del padre raíz de los plugins y compila solo contra `plugdesk-desk` y la API de crystal. El padre
+  de los plugins también excluye el runtime de crystal de `plugdesk-app` y `plugdesk-desk`.
+  Verificado en Xephyr: arranca en el look guardado que trae el jar nuevo, el menú tiene las ocho
+  familias, cambiar pregunta y volver vuelve.
 
 ## Los pasos
 

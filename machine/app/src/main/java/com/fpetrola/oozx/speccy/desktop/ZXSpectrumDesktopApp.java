@@ -17,6 +17,8 @@
 
 package com.fpetrola.oozx.speccy.desktop;
 
+import dev.plugdesk.desk.LookAndFeels;
+
 import com.fpetrola.oozx.speccy.devices.MachineFrame;
 import com.fpetrola.oozx.speccy.media.DownloadAndUnzip;
 import com.fpetrola.oozx.speccy.windows.Widgets;
@@ -468,8 +470,8 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       EmulatorInternalFrame machine = getActiveEmulator();
       if (machine != null) tool.use(machine);
     });
-    has.looks().stream().filter(offering).findFirst()
-        .ifPresent(look -> LookAndFeels.install(look.family() + " / " + look.names().get(0)));
+    dev.plugdesk.app.Plugins.found(dev.plugdesk.desk.Look.class).stream().filter(offering).findFirst()
+        .ifPresent(LookAndFeels::wear);
   }
 
   private EmulatorInternalFrame getActiveEmulator() {
@@ -1632,7 +1634,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     fillTheDeskWindowButtons();
     whatThereIs();
     LookAndFeels.lookPluginsChanged(lookAndFeelMenu, this::rememberLookAndFeel);
-    addHoles(lookAndFeelMenu, com.fpetrola.oozx.speccy.devices.Look.class);
+    addHoles(lookAndFeelMenu, dev.plugdesk.desk.Look.class);
     com.fpetrola.oozx.speccy.windows.Widgets.scrollingWhenLong(lookAndFeelMenu.getPopupMenu());
     refillMachineToolBars();
     fillWhatToDo();
@@ -1696,7 +1698,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         fillTheDeskWindows();
         fillTheDeskWindowButtons();
         LookAndFeels.fillMenu(lookAndFeelMenu, ZXSpectrumDesktopApp.this::rememberLookAndFeel);
-        addHoles(lookAndFeelMenu, com.fpetrola.oozx.speccy.devices.Look.class);
+        addHoles(lookAndFeelMenu, dev.plugdesk.desk.Look.class);
     com.fpetrola.oozx.speccy.windows.Widgets.scrollingWhenLong(lookAndFeelMenu.getPopupMenu());
         refillMachineToolBars();
         fillWhatToDo();

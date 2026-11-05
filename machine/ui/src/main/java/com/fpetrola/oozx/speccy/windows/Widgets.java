@@ -292,82 +292,12 @@ public class Widgets {
     return new ImageIcon(image);
   }
 
-  /** Cuantos items muestra un menu largo a la vez. */
-  private static final int ITEMS_AT_ONCE = 18;
-
-  /**
-   * Un menu con mas de lo que entra deja de llenar la pantalla: muestra unos cuantos items y dos
-   * flechas que lo recorren al dejarles el mouse encima, y la rueda tambien. Los items siguen siendo
-   * del menu: puestos en un panel con barra, Swing no los reconocia como suyos y cerraba el menu en
-   * cuanto el mouse pasaba por uno. Llamar despues de llenarlo.
-   */
+  /** Plugdesk's, where the menus are made; here for the windows that call it from here. */
   public static void scrollingWhenLong(javax.swing.JPopupMenu menu) {
-    scrollingWhenLong(menu, 0);
+    dev.plugdesk.desk.Workbench.scrollingWhenLong(menu);
   }
 
-  /** Lo mismo, dejando fijos arriba los primeros: lo que tiene que estar siempre a mano. */
   public static void scrollingWhenLong(javax.swing.JPopupMenu menu, int fixedOnTop) {
-    java.awt.Component[] fixed = java.util.Arrays.copyOf(menu.getComponents(), fixedOnTop);
-    java.awt.Component[] all = java.util.Arrays.copyOfRange(menu.getComponents(), fixedOnTop, menu.getComponentCount());
-    if (all.length <= ITEMS_AT_ONCE) return;
-    int[] first = {0};
-    javax.swing.JMenuItem up = new javax.swing.JMenuItem("\u25B2");
-    javax.swing.JMenuItem down = new javax.swing.JMenuItem("\u25BC");
-    // Del ancho del mas ancho de todos, visible o no: si no, cambiaba al recorrerlo.
-    java.awt.Insets border = menu.getInsets();
-    int widest = java.util.Arrays.stream(menu.getComponents()).mapToInt(item -> item.getPreferredSize().width).max().orElse(0)
-        + border.left + border.right;
-    Runnable show = () -> {
-      menu.removeAll();
-      for (java.awt.Component kept : fixed) menu.add(kept);
-      menu.add(up);
-      for (int i = first[0]; i < Math.min(all.length, first[0] + ITEMS_AT_ONCE); i++) menu.add(all[i]);
-      menu.add(down);
-      up.setEnabled(first[0] > 0);
-      down.setEnabled(first[0] + ITEMS_AT_ONCE < all.length);
-      menu.setPreferredSize(null);
-      menu.setPreferredSize(new java.awt.Dimension(widest, menu.getPreferredSize().height));
-      menu.pack();
-      menu.revalidate();
-      menu.repaint();
-    };
-    java.util.function.IntConsumer move = step -> {
-      int moved = Math.max(0, Math.min(all.length - ITEMS_AT_ONCE, first[0] + step));
-      if (moved != first[0]) {
-        first[0] = moved;
-        show.run();
-      }
-    };
-    for (javax.swing.JMenuItem arrow : java.util.List.of(up, down)) {
-      arrow.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-      int step = arrow == up ? -1 : 1;
-      javax.swing.Timer going = new javax.swing.Timer(90, e -> move.accept(step));
-      arrow.getModel().addChangeListener(e -> {
-        if (arrow.isArmed() && arrow.isEnabled()) going.start();
-        else going.stop();
-      });
-      // Una flecha no es una eleccion: tocarla no cierra el menu.
-      arrow.setUI(new javax.swing.plaf.basic.BasicMenuItemUI() {
-        @Override
-        protected void doClick(javax.swing.MenuSelectionManager manager) {
-        }
-
-        /** Centrada en si misma: el lugar que Swing le da depende de los items de al lado, que cambian. */
-        @Override
-        public void paint(java.awt.Graphics g, javax.swing.JComponent c) {
-          if (arrow.isArmed() && arrow.isEnabled()) {
-            g.setColor(javax.swing.UIManager.getColor("MenuItem.selectionBackground"));
-            g.fillRect(0, 0, c.getWidth(), c.getHeight());
-          }
-          g.setColor(arrow.isEnabled() ? arrow.getForeground() : javax.swing.UIManager.getColor("MenuItem.disabledForeground"));
-          g.setFont(arrow.getFont());
-          java.awt.FontMetrics metrics = g.getFontMetrics();
-          g.drawString(arrow.getText(), (c.getWidth() - metrics.stringWidth(arrow.getText())) / 2,
-              (c.getHeight() - metrics.getHeight()) / 2 + metrics.getAscent());
-        }
-      });
-    }
-    menu.addMouseWheelListener(wheel -> move.accept(wheel.getWheelRotation()));
-    show.run();
+    dev.plugdesk.desk.Workbench.scrollingWhenLong(menu, fixedOnTop);
   }
 }
