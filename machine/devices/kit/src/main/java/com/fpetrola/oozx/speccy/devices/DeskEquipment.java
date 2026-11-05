@@ -30,14 +30,16 @@ import javax.swing.JInternalFrame;
  * this window is about the desk, so it has no machine and no clip.
  */
 @RoleInterface
-public interface DeskEquipment {
+public interface DeskEquipment extends dev.plugdesk.desk.Window {
 
   String name();
 
+  @Override
   JInternalFrame open();
 
-  /** Su boton en la barra del escritorio, o nada si se abre solo desde el menu. */
-  default javax.swing.Icon icon() {
-    return null;
+  /** In the Emulator menu, under its name. */
+  @Override
+  default String path() {
+    return "Emulator/" + name();
   }
 }

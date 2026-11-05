@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  * How a desk keeps its windows from one run to the next is here too, so that any desk, the
  * application's or a test's, keeps them and brings them back the same way.
  */
-public interface Desk {
+public interface Desk extends dev.plugdesk.desk.Desk {
 
   /**
    * A game as the desk opens it: which file to load, on which machine, and what the catalogue
@@ -162,9 +162,27 @@ public interface Desk {
     return null;
   }
 
-  /** The name the desk opened that window under, or null where it is not one of those. */
+  /** @deprecated the base's {@link #nameOf(javax.swing.JComponent)}; stays for the published tool-mappings. */
+  @Deprecated
   default String nameOf(JInternalFrame window) {
+    return nameOf((javax.swing.JComponent) window);
+  }
+
+  @Override
+  default String nameOf(javax.swing.JComponent window) {
     return null;
+  }
+
+  @Override
+  default void show(dev.plugdesk.desk.Window window) {
+  }
+
+  @Override
+  default void say(String text) {
+  }
+
+  @Override
+  default void changed() {
   }
 
   /** A window of that name, opened as the desk's menu opens it: the one of the desk, or another of equipment; null where none is. */

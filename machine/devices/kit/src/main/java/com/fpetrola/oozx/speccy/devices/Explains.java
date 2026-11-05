@@ -22,4 +22,8 @@ import dev.crystal.plugins.api.RoleInterface;
 /** Una ventana del escritorio que explica algo del emulador: va al menu Help y no a las demas. */
 @RoleInterface
 public interface Explains extends DeskEquipment {
+  @Override
+  default String path() {
+    return "Help/" + name();
+  }
 }

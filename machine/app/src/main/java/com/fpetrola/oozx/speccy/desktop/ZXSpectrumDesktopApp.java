@@ -1038,7 +1038,17 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   }
 
   @Override
-  public String nameOf(JInternalFrame window) {
+  public void show(dev.plugdesk.desk.Window window) {
+    if (window instanceof DeskEquipment kind) showOnTheDesk(kind);
+  }
+
+  @Override
+  public void changed() {
+    somethingWasPluggedIn();
+  }
+
+  @Override
+  public String nameOf(javax.swing.JComponent window) {
     if (window == plugins) return PLUGINS;
     return java.util.stream.Stream.concat(onTheDesk.keySet().stream().filter(name -> onTheDesk.get(name) == window),
         equipment.keySet().stream().filter(name -> equipment.get(name).contains(window))).findFirst().orElse(null);

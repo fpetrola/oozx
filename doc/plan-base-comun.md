@@ -281,6 +281,16 @@ IdeSeed pierde su parte de `Workbench` (paso 8); hasta ahí la base suma.
   de los plugins también excluye el runtime de crystal de `plugdesk-app` y `plugdesk-desk`.
   Verificado en Xephyr: arranca en el look guardado que trae el jar nuevo, el menú tiene las ocho
   familias, cambiar pregunta y volver vuelve.
+- Paso 3 hecho (tag `step-3`): `WindowInside` es de la base (se fue de tools/mappings), y el `Desk`
+  de la base sabe el nombre de una ventana (`nameOf`), abrirla por nombre (`window`), y guardarla y
+  devolverla con lo que tiene adentro (`inside`/`bringBack`). `SzxSession` usa eso para toda ventana
+  que no es una máquina y se queda solo con el plegado de las enganchadas. El `Workbench` de la base
+  guarda y devuelve sus ventanas con su lugar (`keep`/`bringBack`), que es lo que va a usar IdeSeed.
+  El `Desk` del kit extiende el de la base; su `nameOf(JInternalFrame)` queda deprecado y delega,
+  porque el tool-mappings publicado lo llama. `DeskEquipment` es una `Window` con camino
+  `Emulator/<nombre>` y `Explains` con `Help/<nombre>`. Lo que el paso 3 decía de sacar del app
+  (`showOnTheDesk`, `fillTheDeskWindows`, `fillHelpMenu`, los botones) espera al paso 4: hasta que
+  oozx arme sus menús con las acciones de la base, esos métodos son los que los arman.
 
 ## Los pasos
 
