@@ -30,7 +30,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         repository: fpetrola/crystal-plugins
-        ref: only-with-1
+        ref: a2b53897c122379259a708d53b79997ae922b028
         path: crystal-plugins
 
     # 21 y no 18: el framework se compila con release 21, y modulos de aca tambien. El pom
@@ -49,7 +49,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         repository: fpetrola/plugdesk
-        ref: standard-1
+        ref: standard-2
         path: plugdesk
     - name: Build the application base
       run: mvn -B -U -DskipTests install -f plugdesk/pom.xml
