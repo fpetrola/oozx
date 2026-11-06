@@ -326,6 +326,13 @@ IdeSeed pierde su parte de `Workbench` (paso 8); hasta ahí la base suma.
   sus plugins dibujados por batik y por jsvg: los mismos dibujos, con otro antialiasing.
   `EveryIconIsDrawnTest` (kit) dibuja cada SVG de `ui` y del kit y pide que pinte algo. Visto en
   Xephyr: la barra del escritorio y la de una máquina, iguales a las de batik.
+- Paso 7 hecho (tag `step-7`): `Docked`, el layout de IdeSeed (izquierda, centro, abajo y derecha,
+  cada lado con pestañas; divisores que se pliegan; Maximize Views con Ctrl+Shift+'; los divisores se
+  guardan con `arrangement()`/`arrange()`). Una ventana acoplada no tiene lugar propio:
+  `Layout.placeOf` puede ser null. Dos trampas de `JSplitPane` encontradas en pantalla: el divisor
+  que puso el layout dice -1, y uno fijado antes de que su split tenga su tamaño se corre después.
+  Para IdeSeed (paso 8) falta que la base guarde los divisores al cerrar: `DeskWindow` no ve el
+  layout; va con el paso 8, que es el primero que lo usa.
 
 ## Los pasos
 
