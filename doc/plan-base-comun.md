@@ -305,6 +305,18 @@ IdeSeed pierde su parte de `Workbench` (paso 8); hasta ahí la base suma.
   y después: igual salvo que las opciones del TV son casillas y no radio, la barra pone Plugins antes
   de las ventanas de los plugins, una "/" en un nombre se escribe con la barra de división (U+2215)
   para no partir el camino, y los ítems con ícono lo muestran también en el menú.
+- Paso 5 hecho en parte (tag `step-5`): el marco es de la base. `DeskWindow` hace la ventana, la pone
+  donde estaba (o centrada la primera vez) y al cerrarse, como sea que se cierre, guarda su lugar,
+  deja a la aplicación guardar lo suyo y escribe config.json. `DeskConfiguration` (sección `desk`)
+  tiene el lugar y el look; `LookAndFeels` recuerda el elegido solo. El escritorio de oozx es un
+  `JPanel`, ya no un `JFrame`, y se construye sin pantalla: `TheDeskIsMadeWithoutAWindowTest` lo
+  arma de verdad y le pide sus menús. File > Quit cierra la ventana como su botón. El look y el
+  lugar que guardaba oozx se toman una vez para la sección nueva (`adoptWhatTheBaseKeepsNow`).
+  Visto en Xephyr con tu configuración: abre donde estaba y en Darcula, Quit escribe la sección, y
+  al volver la ventana sale de ahí. Lo que no se hizo: que la prueba de punto fijo de tool-mappings
+  corra sobre el escritorio real y se borre su doble. El doble vive en las pruebas de un plugin, que
+  no dependen del app de oozx, y el escritorio real necesita los que construyen máquinas del lanzador
+  y los equipos de los plugins con los plugins apagados. Queda como paso propio.
 
 ## Los pasos
 

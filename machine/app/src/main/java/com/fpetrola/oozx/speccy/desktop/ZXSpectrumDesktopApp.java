@@ -359,7 +359,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
 
 
 // --- UPDATED: ZXSpectrumDesktopApp with Game Browser ---
-public class ZXSpectrumDesktopApp extends JFrame implements Desk {
+public class ZXSpectrumDesktopApp extends JPanel implements Desk {
   /** Builds a machine for a file; the second argument names the machine, or is null for automatic. */
   private final java.util.function.BiFunction<String, String, EmulatorCore> mockCore;
   /** The machines this build has, learnt from the last emulator made, for offering them. */
@@ -539,6 +539,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
   }
 
   public ZXSpectrumDesktopApp(java.util.function.BiFunction<String, String, EmulatorCore> mockCore, Function<String, EmulatorCore> mockCoreState1) {
+    super(new BorderLayout());
     this.mockCore = mockCore;
     this.mockCoreState = mockCoreState1;
     this.config = dev.plugdesk.app.Configuration.shared().of(OOZxConfiguration.class);
@@ -553,17 +554,14 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         Equipment.class, com.fpetrola.oozx.Extension.class, com.fpetrola.oozx.plugins.BesideTheGame.class));
     stopsThePersonWhenSomethingIsMissing();
     whatThereIs();
-    applySavedLookAndFeel();
+    adoptWhatTheBaseKeepsNow();
+    LookAndFeels.wearTheKept();
     // Emulators apply the defaults themselves as they are built, so putting the saved ones in
     // place here is all it takes for the next window to open configured.
     if (config.getScreenDefaults() != null && !config.getScreenDefaults().isEmpty()) {
       ScreenSettings.setDefaults(config.getScreenDefaults());
     }
     restoreKeptProfiles();
-
-    setTitle("ZX Spectrum Multi-Emulator");
-    setSize(1200, 800);
-    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
     // Made after the saved look is on: a pane takes its look from whoever is on when it is made.
     mdi = new dev.plugdesk.desk.Mdi();
@@ -584,17 +582,24 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     workbench = new dev.plugdesk.desk.Workbench(mdi, List.of(), List.of(this::offers,
         () -> dev.plugdesk.app.Plugins.found(dev.plugdesk.desk.Action.class), offered));
     add(workbench, BorderLayout.CENTER);
-    setJMenuBar(workbench.menus());
     offered.look(workbench::changed);
+  }
 
-    restoreMainWindowState();
+  /** For the window the desk is put in. */
+  public JMenuBar menus() {
+    return workbench.menus();
+  }
 
-    addWindowListener(new WindowAdapter() {
-      @Override
-      public void windowClosing(WindowEvent e) {
-        keepTheSession();
-      }
-    });
+  /**
+   * What the desk kept before the base kept it, taken once: the look it wore and where its window was. Those two are
+   * plugdesk's now, and a desk opened for the first time after that would forget them.
+   */
+  private void adoptWhatTheBaseKeepsNow() {
+    dev.plugdesk.desk.DeskConfiguration desk = dev.plugdesk.desk.DeskConfiguration.kept();
+    if (desk.look == null) desk.look = config.getLookAndFeel();
+    OOZxConfiguration.WindowState main = config.getMainWindowState();
+    if (desk.place() == null && main != null && main.getWidth() > 0)
+      desk.place(new Rectangle(main.getX(), main.getY(), main.getWidth(), main.getHeight()));
   }
 
   /**
@@ -605,11 +610,9 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
     restoreOpenWindows();
   }
 
-  /** Everything open, written down for the next start to find it as it was, whichever way it closes. */
-  private void keepTheSession() {
-    saveMainWindowState();
+  /** Every window open, written down for the next start to find it as it was, whichever way the desk closes. */
+  public void keepTheSession() {
     saveOpenWindows();
-    config.save();
   }
 
   private static final String PLUGINS = "Plugins";
@@ -621,10 +624,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         offering("File/Open...", "ctrl O", 100, this::openFile),
         offering("File/Save State...", "ctrl S", 300, this::saveState),
         offering("File/Load State...", "ctrl L", 301, this::loadState),
-        offering("File/Quit", "ctrl Q", 400, () -> {
-          keepTheSession();
-          System.exit(0);
-        }),
+        offering("File/Quit", "ctrl Q", 400, () -> dev.plugdesk.desk.DeskWindow.close(this)),
         new Offering("Emulator/New Emulator", List.of(KeyStroke.getKeyStroke("ctrl N")), 100,
             loadIcon("Sinclair_ZX_Spectrum-02b.svg"), null, () -> createNewEmulator(mockCore.apply("", null))),
         dev.plugdesk.desk.Palette.opening(workbench, "Discover/What do you want to do?...", "ctrl shift P"),
@@ -650,7 +650,7 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
       }));
     }
     offers.addAll(mdi.actions("Window"));
-    LookAndFeels.actions(LOOKS, this::rememberLookAndFeel).actions().forEach(look -> offers.add(at(300, look)));
+    LookAndFeels.actions(LOOKS).actions().forEach(look -> offers.add(at(300, look)));
     String lead = screenDefault("tv", TvScreen.RGB_MONITOR.label());
     for (TvScreen tv : TvScreen.values())
       offers.add(new Offering("Window/TV/" + tv.label(), List.of(), 300, null, tv.label().equals(lead) || tv.name().equals(lead),
@@ -738,21 +738,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
         new JLabel(about),
         "About " + appName,
         JOptionPane.INFORMATION_MESSAGE);
-  }
-
-  private void rememberLookAndFeel(String name) {
-    config.setLookAndFeel(name);
-    config.save();
-  }
-
-  /**
-   * Puts back the look chosen last time. The launcher installs one before there is any
-   * configuration to read, so this runs afterwards and replaces it; picking a look is a
-   * decision worth surviving the window closing.
-   */
-  private void applySavedLookAndFeel() {
-    String saved = config.getLookAndFeel();
-    if (saved != null) LookAndFeels.install(saved);
   }
 
   /**
@@ -1717,28 +1702,6 @@ public class ZXSpectrumDesktopApp extends JFrame implements Desk {
 //    stateCapture.start();
 
     return frame;
-  }
-
-  private void saveMainWindowState() {
-    OOZxConfiguration.WindowState mainState = new OOZxConfiguration.WindowState(
-        "MAIN_WINDOW", getX(), getY(), getWidth(), getHeight());
-    config.setMainWindowState(mainState);
-  }
-
-  /** Where it was last time; the middle of the first screen the first time. */
-  private void restoreMainWindowState() {
-    OOZxConfiguration.WindowState mainState = config.getMainWindowState();
-    if (mainState != null && mainState.getWidth() > 0 && mainState.getHeight() > 0) {
-      setSize(mainState.getWidth(), mainState.getHeight());
-    }
-    if (mainState != null && mainState.getX() >= 0 && mainState.getY() >= 0) {
-      setLocation(mainState.getX(), mainState.getY());
-    } else {
-      Rectangle screen = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
-          .getDefaultConfiguration().getBounds();
-      setLocation(screen.x + (screen.width - getPreferredSize().width) / 2,
-          screen.y + (screen.height - getPreferredSize().height) / 2);
-    }
   }
 
   private void saveOpenWindows() {

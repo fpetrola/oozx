@@ -89,7 +89,8 @@ public class OOSpectrumLauncher {
 
     appHolder[0] = zxSpectrumDesktopApp;
     zxSpectrumDesktopApp.comeBack();
-    zxSpectrumDesktopApp.setVisible(true);
+    dev.plugdesk.desk.DeskWindow.open("ZX Spectrum Multi-Emulator", zxSpectrumDesktopApp, zxSpectrumDesktopApp.menus(),
+        zxSpectrumDesktopApp::keepTheSession);
   }
 
   /** A machine with nothing loaded, sitting at the BASIC prompt, running at real speed. */
