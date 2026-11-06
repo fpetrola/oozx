@@ -341,7 +341,8 @@ IdeSeed pierde su parte de `Workbench` (paso 8); hasta ahí la base suma.
   el escritorio real por `META-INF/services`, con los plugins apagados. Comprobado que la prueba
   depende del escritorio real: con su `equipmentOn` roto a propósito, falla.
 - 2026-11-06, pedido de Fernando: la base sola no traía forma de crecer, y lo común de las aplicaciones
-  tenía que llegar como plugins. Hecho (tag `standard-1` de plugdesk):
+  tenía que llegar como plugins. Hecho (tags `standard-1` y `standard-2` de plugdesk; el segundo solo arregla el CI,
+  que construye crystal al commit a2b5389 porque el tag only-with-1 no tiene `PluginSources.repository`):
   - El núcleo ofrece la ventana de plugins en `Tools/Plugins...` (`Workbench.of`), que la aplicación
     puede mover con `menu.<camino>=<otro camino>` en su archivo; `Workbench.of(plugins, layout,
     acciones propias...)`; `DeskWindow.start(título, layout)` arranca una aplicación en una línea; un
