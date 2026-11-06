@@ -340,6 +340,29 @@ IdeSeed pierde su parte de `Workbench` (paso 8); hasta ahí la base suma.
   una función que hace lo del lanzador sin sonido. Los equipos y el navegador de juegos los encuentra
   el escritorio real por `META-INF/services`, con los plugins apagados. Comprobado que la prueba
   depende del escritorio real: con su `equipmentOn` roto a propósito, falla.
+- 2026-11-06, pedido de Fernando: la base sola no traía forma de crecer, y lo común de las aplicaciones
+  tenía que llegar como plugins. Hecho (tag `standard-1` de plugdesk):
+  - El núcleo ofrece la ventana de plugins en `Tools/Plugins...` (`Workbench.of`), que la aplicación
+    puede mover con `menu.<camino>=<otro camino>` en su archivo; `Workbench.of(plugins, layout,
+    acciones propias...)`; `DeskWindow.start(título, layout)` arranca una aplicación en una línea; un
+    rol `Part` para lo que un plugin pone al lado de las ventanas; `Plugins.live(rol)`.
+  - Seis plugins estándar en `plugdesk/standard`, groupId `dev.plugdesk.standard`: looks (el menú
+    Look&Feel y ponerse el look guardado al arrancar), sugerencias (la paleta y Discover con lo que se
+    puede traer), ventanas (cerrar, cascada, mosaico, si el escritorio es de ventanas libres), docks
+    (Maximize Views, si es acoplado), barra de botones (una `Part`) y ayuda (About desde el archivo de
+    la aplicación: title, version, description, author, license, website, copyright; y Keys, todas las
+    teclas). `plugdesk-standard` es el jar que los lleva adentro.
+  - Los plugins de fábrica se juntan de todas partes (`Defaults`): el índice de cada jar que los lleva
+    y, corriendo desde las clases, el repositorio local para el grupo que la aplicación dice. Y los que
+    nunca se ofrecieron se instalan aunque la caché ya exista (crystal los pone solo la primera vez),
+    anotando cuáles se ofrecieron en `plugins.offered`: uno que la persona sacó no vuelve.
+  - Los layouts quedan en el núcleo: sacar el layout dejaría la aplicación sin escritorio, y oozx
+    trabaja sobre su `JDesktopPane`. Lo que se hace con ellos es de los plugins.
+  - oozx deja de armar ventanas, looks, paleta, Discover y About: los traen los plugins. Su app depende
+    de `plugdesk-standard` y concatena `bundled.idx` en el jar de un solo archivo.
+  - Probado: una aplicación vacía de una línea arranca con los seis instalados de fábrica, y sacar uno
+    en vivo saca su menú; en una casa con caché vieja, oozx instala los seis al actualizarse; el árbol
+    de menús de oozx es el de antes salvo lo ya aceptado y Help > Keys, que es nuevo.
 
 ## Los pasos
 

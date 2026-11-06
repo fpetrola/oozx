@@ -19,7 +19,6 @@ package com.fpetrola.oozx.speccy.desktop;
 
 import dev.plugdesk.desk.WhatIsMissing;
 
-import dev.plugdesk.desk.LookAndFeels;
 
 import com.fpetrola.oozx.speccy.devices.MachineFrame;
 import com.fpetrola.oozx.speccy.media.DownloadAndUnzip;
@@ -479,8 +478,6 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
       EmulatorInternalFrame machine = getActiveEmulator();
       if (machine != null) tool.use(machine);
     });
-    dev.plugdesk.app.Plugins.found(dev.plugdesk.desk.Look.class).stream().filter(offering).findFirst()
-        .ifPresent(LookAndFeels::wear);
   }
 
   private EmulatorInternalFrame getActiveEmulator() {
@@ -555,7 +552,6 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     stopsThePersonWhenSomethingIsMissing();
     whatThereIs();
     adoptWhatTheBaseKeepsNow();
-    LookAndFeels.wearTheKept();
     // Emulators apply the defaults themselves as they are built, so putting the saved ones in
     // place here is all it takes for the next window to open configured.
     if (config.getScreenDefaults() != null && !config.getScreenDefaults().isEmpty()) {
@@ -574,13 +570,15 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     whereEachGoes.put(com.fpetrola.oozx.speccy.devices.Explains.class, "Help");
     whereEachGoes.put(DeskEquipment.class, "Emulator");
     whereEachGoes.put(Equipment.class, "Emulator/Equipment");
-    whereEachGoes.put(dev.plugdesk.desk.Look.class, LOOKS);
-    offered = new dev.plugdesk.desk.Offered(whereEachGoes, "Discover", offer -> {
+    whereEachGoes.put(dev.plugdesk.desk.Look.class, "Window/Look&Feel");
+    offered = new dev.plugdesk.desk.Offered(whereEachGoes, null, offer -> {
       somethingWasPluggedIn();
       doWhatIsOffered(offer);
     });
-    workbench = new dev.plugdesk.desk.Workbench(mdi, List.of(), List.of(this::offers,
-        () -> dev.plugdesk.app.Plugins.found(dev.plugdesk.desk.Action.class), offered));
+    workbench = new dev.plugdesk.desk.Workbench(mdi, dev.plugdesk.app.Plugins.live(dev.plugdesk.desk.Action.class),
+        List.of(this::offers, offered, () -> dev.plugdesk.app.Plugins.found(dev.plugdesk.desk.Actions.class).stream()
+            .flatMap(theirs -> theirs.actions().stream()).toList()),
+        dev.plugdesk.app.Plugins.live(dev.plugdesk.desk.Part.class));
     add(workbench, BorderLayout.CENTER);
     offered.look(workbench::changed);
   }
@@ -616,7 +614,6 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
   }
 
   private static final String PLUGINS = "Plugins";
-  private static final String LOOKS = "Window/Look&Feel";
 
   /** What this desk offers itself, each where it goes in the menus: the rest comes from the plugins. */
   private List<dev.plugdesk.desk.Action> offers() {
@@ -626,9 +623,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
         offering("File/Load State...", "ctrl L", 301, this::loadState),
         offering("File/Quit", "ctrl Q", 400, () -> dev.plugdesk.desk.DeskWindow.close(this)),
         new Offering("Emulator/New Emulator", List.of(KeyStroke.getKeyStroke("ctrl N")), 100,
-            loadIcon("Sinclair_ZX_Spectrum-02b.svg"), null, () -> createNewEmulator(mockCore.apply("", null))),
-        dev.plugdesk.desk.Palette.opening(workbench, "Discover/What do you want to do?...", "ctrl shift P"),
-        offering("Help/About", null, 1000, this::showAboutDialog)));
+            loadIcon("Sinclair_ZX_Spectrum-02b.svg"), null, () -> createNewEmulator(mockCore.apply("", null)))));
     List<String> recent = config.getRecentFiles();
     for (int i = 0; i < recent.size(); i++) {
       String file = recent.get(i);
@@ -649,11 +644,9 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
         if (active != null) tool.use(active);
       }));
     }
-    offers.addAll(mdi.actions("Window"));
-    LookAndFeels.actions(LOOKS).actions().forEach(look -> offers.add(at(300, look)));
     String lead = screenDefault("tv", TvScreen.RGB_MONITOR.label());
     for (TvScreen tv : TvScreen.values())
-      offers.add(new Offering("Window/TV/" + tv.label(), List.of(), 300, null, tv.label().equals(lead) || tv.name().equals(lead),
+      offers.add(new Offering("Window/TV/" + tv.label(), List.of(), 301, null, tv.label().equals(lead) || tv.name().equals(lead),
           () -> {
             setScreenDefault("tv", tv.label());
             workbench.changed();
@@ -661,7 +654,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     boolean scanLines = Double.parseDouble(screenDefault("scanlines", "0")) > 0;
     // Scan lines are a depth in the window, not a switch, so the shortcut ticks to a visible
     // amount and unticks to none rather than pretending there are only two states.
-    offers.add(new Offering("Window/TV/Scan lines", List.of(), 400, null, scanLines,
+    offers.add(new Offering("Window/TV/Scan lines", List.of(), 401, null, scanLines,
         () -> {
           setScreenDefault("scanlines", scanLines ? "0" : "0.35");
           workbench.changed();
@@ -678,66 +671,6 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
 
   private static dev.plugdesk.desk.Action offering(String path, String key, int place, Runnable doing) {
     return new Offering(path, key == null ? List.of() : List.of(KeyStroke.getKeyStroke(key)), place, null, null, doing);
-  }
-
-  /** The same action at another place: the looks go after what the Window menu does with windows. */
-  private static dev.plugdesk.desk.Action at(int place, dev.plugdesk.desk.Action action) {
-    return new Offering(action.path(), action.keys(), place, action.icon(), action.ticked(), action::run);
-  }
-
-  private void showAboutDialog() {
-    String appName = "OOZX";
-    String version = "0.0.1";
-    String versionSuffix = "SNAPSHOT";
-    String shortDescription = "Modern ZX Spectrum Emulator";
-    String fullDescription = "Object-Oriented emulator with modular, pluggable architecture";
-    String author = "Fernando Damian Petrola";
-    String copyright = "Copyright (C) 2023-2025";
-    String license = "GNU General Public License v3";
-    String website = "github.com/fpetrola/oozx";
-
-    String about = String.format("""
-            <html>
-                  <head>
-                    <title></title>
-                  </head>
-                  <body style='font-family: Segoe UI, Arial, sans-serif; width: 420px; color: #333;'>
-                    <div style='text-align: center;'>
-                      <h1 style='margin: 0; padding: 0; font-size: 28px; color: #1f77b4;'>%s</h1>
-                      <p style='margin: 2px 0; font-size: 10px; color: #999;'>v%s <span style='color: #aaa;'>%s</span></p>
-                    </div>
-                    <p style='text-align: center; margin: 8px 0; font-size: 12px; color: #555;'><b>%s</b></p>
-                    <p style='text-align: center; margin: 4px 0; font-size: 11px; color: #777;'>%s</p>
-                    <hr style='border: none; border-top: 1px solid #ddd; margin: 12px 0;'>
-                    <table style='width: 100%%; font-size: 11px; line-height: 1.8;'>
-                      <tr>
-                        <td style='color: #666;'><b>Author:</b></td>
-                        <td style='text-align: right; color: #333;'>%s</td>
-                      </tr>
-                      <tr>
-                        <td style='color: #666;'><b>License:</b></td>
-                        <td style='text-align: right; color: #333;'>%s</td>
-                      </tr>
-                      <tr>
-                        <td style='color: #666;'><b>Repository:</b></td>
-                        <td style='text-align: right;'><span style='color: #0066cc;'>%s</span></td>
-                      </tr>
-                    </table>
-                    <hr style='border: none; border-top: 1px solid #ddd; margin: 12px 0;'>
-                    <div style='padding: 8px; border-radius: 4px; border-left: 3px solid #1f77b4;'>
-                      <p style='font-size: 10px; color: #666; margin: 0; line-height: 1.5;'>A high-performance, multi-model Z80 emulator built with pure object-oriented design. Features pluggable peripherals, simultaneous multi-game emulation, online game discovery, and automatic state preservation between sessions.</p>
-                    </div>
-                    <p style='text-align: center; margin-top: 12px; font-size: 9px; color: #999;'>%s</p>
-                  </body>
-                  </html>
-            """,
-        appName, version, versionSuffix, shortDescription, fullDescription, author, license, website, copyright
-    );
-
-    JOptionPane.showMessageDialog(this,
-        new JLabel(about),
-        "About " + appName,
-        JOptionPane.INFORMATION_MESSAGE);
   }
 
   /**
@@ -1388,7 +1321,6 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
   /** Said once the folder changed: the menus offer what is there now, and only that. */
   public void somethingWasPluggedIn() {
     whatThereIs();
-    LookAndFeels.lookPluginsChanged();
     refillMachineToolBars();
     workbench.changed();
     // What could not be done before may be done now, so it is worth saying again if it is not.

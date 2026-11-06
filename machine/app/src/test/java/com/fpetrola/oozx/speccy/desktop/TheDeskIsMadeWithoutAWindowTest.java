@@ -31,8 +31,9 @@ class TheDeskIsMadeWithoutAWindowTest {
     assertEquals(List.of("File", "Emulator", "Window"), names(menus).subList(0, 3));
     assertTrue(items(menus.getMenu(0)).containsAll(List.of("Open...", "Save State...", "Load State...", "Quit")));
     assertTrue(items(menus.getMenu(1)).containsAll(List.of("New Emulator", "Plugins...")));
-    assertEquals(List.of("Close Active Window", "Close All Windows", "Cascade", "Tile", "Look&Feel", "TV"), items(menus.getMenu(2)));
-    assertTrue(names(menus).contains("Help") && items(menus.getMenu(names(menus).indexOf("Help"))).contains("About"));
+    assertEquals(List.of("TV"), items(menus.getMenu(2)),
+        "the window menu, the looks and the help are plugins, and with plugins off they are not here");
+    assertTrue(!names(menus).contains("Help") && !names(menus).contains("Discover"));
   }
 
   private static List<String> names(JMenuBar bar) {

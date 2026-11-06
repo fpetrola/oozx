@@ -75,7 +75,7 @@ class WhatTheDeskIsGivenTest {
   void theDeskIsGivenWhatTheJarBrought() {
     WhatIsPluggedIn has = Guice.createInjector(Plugins.asModule()).getInstance(WhatIsPluggedIn.class);
 
-    assertEquals(Plugins.pluggedIn().isEmpty(), has.equipment().isEmpty(),
+    assertEquals(Plugins.found(com.fpetrola.oozx.speccy.devices.Equipment.class).size(), has.equipment().size(),
         "lo que trajo el jar es lo que el escritorio ofrece");
   }
 
