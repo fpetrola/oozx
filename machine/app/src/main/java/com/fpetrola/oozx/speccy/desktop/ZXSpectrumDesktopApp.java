@@ -1709,7 +1709,8 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     config.getOpenWindows().addAll(keep(session(), backToFront(), sessionFolder()));
   }
 
-  private List<JInternalFrame> backToFront() {
+  /** Every window on the desk, from the back to the front, which is the order they are kept and brought back in. */
+  public List<JInternalFrame> backToFront() {
     return List.of(desktop.getAllFrames()).reversed();
   }
 

@@ -333,6 +333,13 @@ IdeSeed pierde su parte de `Workbench` (paso 8); hasta ahí la base suma.
   que puso el layout dice -1, y uno fijado antes de que su split tenga su tamaño se corre después.
   Para IdeSeed (paso 8) falta que la base guarde los divisores al cerrar: `DeskWindow` no ve el
   layout; va con el paso 8, que es el primero que lo usa.
+- Lo que quedaba del paso 5, hecho: el punto fijo de tool-mappings
+  (`theDeskComesBackExactlyAsItWasLeft` y `theOtherWindowsOfTheDeskComeBackAsTheyWereLeft`) corre
+  sobre `ZXSpectrumDesktopApp` y el doble de escritorio se borró. La prueba toma el app de oozx solo
+  para sus pruebas; las máquinas se ponen con `Desk.show`, y el escritorio arma las que vuelven con
+  una función que hace lo del lanzador sin sonido. Los equipos y el navegador de juegos los encuentra
+  el escritorio real por `META-INF/services`, con los plugins apagados. Comprobado que la prueba
+  depende del escritorio real: con su `equipmentOn` roto a propósito, falla.
 
 ## Los pasos
 
