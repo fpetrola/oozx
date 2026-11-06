@@ -317,6 +317,15 @@ IdeSeed pierde su parte de `Workbench` (paso 8); hasta ahí la base suma.
   corra sobre el escritorio real y se borre su doble. El doble vive en las pruebas de un plugin, que
   no dependen del app de oozx, y el escritorio real necesita los que construyen máquinas del lanzador
   y los equipos de los plugins con los plugins apagados. Queda como paso propio.
+- Paso 6 hecho (tag `step-6`): `Widgets` es de la base (con `scrollingWhenLong` y `tighten`, que
+  vuelven de `Workbench`); el de oozx delega cada uno de sus 16 métodos, porque 19 plugins
+  publicados lo llaman (verificado con javap). Los SVG los dibuja jsvg 2.0, reubicado dentro de
+  `plugdesk-desk` (`dev.plugdesk.desk.internal.jsvg`): `tool-looks` lleva jsvg 0.0.9 para darklaf, y
+  crystal le da a un plugin la copia de la aplicación cuando la aplicación tiene la biblioteca. batik
+  sale de `ui` y del app, con `SvgIconLoader` y `SvgIconLoader0`. Comparados los 43 SVG de oozx y
+  sus plugins dibujados por batik y por jsvg: los mismos dibujos, con otro antialiasing.
+  `EveryIconIsDrawnTest` (kit) dibuja cada SVG de `ui` y del kit y pide que pinte algo. Visto en
+  Xephyr: la barra del escritorio y la de una máquina, iguales a las de batik.
 
 ## Los pasos
 

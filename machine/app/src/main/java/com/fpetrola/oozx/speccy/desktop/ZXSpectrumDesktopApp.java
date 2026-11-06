@@ -23,7 +23,7 @@ import dev.plugdesk.desk.LookAndFeels;
 
 import com.fpetrola.oozx.speccy.devices.MachineFrame;
 import com.fpetrola.oozx.speccy.media.DownloadAndUnzip;
-import com.fpetrola.oozx.speccy.windows.Widgets;
+import dev.plugdesk.desk.Widgets;
 import com.fpetrola.oozx.speccy.windows.AttachedFrame;
 import com.fpetrola.oozx.speccy.modules.z80.Cpu;
 import com.fpetrola.oozx.speccy.devices.DeviceFrame;
@@ -1225,7 +1225,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
    * full URL in front of the one sentence that says anything.
    */
   static String reason(Throwable failure) {
-    return com.fpetrola.oozx.speccy.windows.Widgets.reason(failure);
+    return dev.plugdesk.desk.Widgets.reason(failure);
   }
 
   public void loadInNewEmulator(String path) {

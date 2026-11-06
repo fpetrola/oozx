@@ -16,7 +16,7 @@
  */
 package model.tests.ui;
 
-import com.fpetrola.oozx.speccy.windows.Widgets;
+import dev.plugdesk.desk.Widgets;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.JComboBox;

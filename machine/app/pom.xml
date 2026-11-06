@@ -114,11 +114,6 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>batik-transcoder</artifactId>
-            <version>1.17</version>
-        </dependency>
     </dependencies>
 
     <!-- Un solo jar ejecutable: mvn -o package -pl machine/app -am -DskipTests
