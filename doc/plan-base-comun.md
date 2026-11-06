@@ -331,8 +331,7 @@ IdeSeed pierde su parte de `Workbench` (paso 8); hasta ahí la base suma.
   guardan con `arrangement()`/`arrange()`). Una ventana acoplada no tiene lugar propio:
   `Layout.placeOf` puede ser null. Dos trampas de `JSplitPane` encontradas en pantalla: el divisor
   que puso el layout dice -1, y uno fijado antes de que su split tenga su tamaño se corre después.
-  Para IdeSeed (paso 8) falta que la base guarde los divisores al cerrar: `DeskWindow` no ve el
-  layout; va con el paso 8, que es el primero que lo usa.
+  Guardar los divisores al cerrar quedó para el paso 8, que es el primero que lo usa (hecho ahí).
 - Lo que quedaba del paso 5, hecho: el punto fijo de tool-mappings
   (`theDeskComesBackExactlyAsItWasLeft` y `theOtherWindowsOfTheDeskComeBackAsTheyWereLeft`) corre
   sobre `ZXSpectrumDesktopApp` y el doble de escritorio se borró. La prueba toma el app de oozx solo
@@ -364,6 +363,13 @@ IdeSeed pierde su parte de `Workbench` (paso 8); hasta ahí la base suma.
   - Probado: una aplicación vacía de una línea arranca con los seis instalados de fábrica, y sacar uno
     en vivo saca su menú; en una casa con caché vieja, oozx instala los seis al actualizarse; el árbol
     de menús de oozx es el de antes salvo lo ya aceptado y Help > Keys, que es nuevo.
+- Paso 8 hecho por la sesión de IdeSeed (tag `step-8` de plugdesk, 7f8cc1d; IdeSeed def32fd): la
+  ventana de IdeSeed es un `Workbench` con `Docked`, sus menús son `Action`s, y `DeskWindow` guarda
+  el lugar de la ventana y sus divisores (`DeskConfiguration` suma la clave `arrangement`; una casa
+  sin ella abre como antes). Además: `Docked` esconde las pestañas de un lado con una sola ventana
+  (FlatLaf), la línea de estado admite cosas a su derecha (`besideStatus`) y `Widgets.scrollingWhenLong`
+  lee `menu-items=N` del archivo de la aplicación (18 si no dice nada). Siguen siendo de IdeSeed por
+  ahora: Zoom, Shown, Find Action y el servicio de plugins (paso 9).
 
 ## Los pasos
 
