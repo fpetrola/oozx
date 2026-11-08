@@ -4999,6 +4999,51 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void anInterruptBetweenThePopAndThePushThatPutsAReturnBackDoesNotMakeItData() {
+    // Sir Fred 6A6B (frame 71): CALL 6A57; POP AF; POP BC; PUSH BC; PUSH AF; BIT 0,B; RET Z. When the ISR (which calls and returns) came between POP AF and PUSH AF, the push was data, so RET Z both returned and went on at a pushed word: it called the caller's routine from inside itself
+    interruptEvery = 11;
+    maxSteps = 5000;
+    int[] table = new int[1 + 257];
+    table[0] = 0x9000;
+    Arrays.fill(table, 1, table.length, 0x80);
+    translate(Stream.concat(Stream.<int[]>of(table), Arrays.stream(listing("""
+        8000  3E 90  LD A, 0x90
+        8002  ED 47  LD I, A
+        8004  ED 5E  IM
+        8006  FB  EI
+        8007  06 00  LD B, 0x00
+        8009  C5  PUSH BC
+        800A  CD 00 81  CALL 0x8100
+        800D  C1  POP BC
+        800E  04  INC B
+        800F  78  LD A, B
+        8010  FE 20  CP A, 0x20
+        8012  20 F5  JR NZ, 0x8009
+        8014  76  HALT
+        8080  F5  PUSH AF
+        8081  CD 90 80  CALL 0x8090
+        8084  F1  POP AF
+        8085  FB  EI
+        8086  C9  RET
+        8090  0C  INC C
+        8091  C9  RET
+        8100  CD 00 82  CALL 0x8200
+        8103  F1  POP AF
+        8104  C1  POP BC
+        8105  C5  PUSH BC
+        8106  F5  PUSH AF
+        8107  CB 40  BIT 0, B
+        8109  C8  RET Z
+        810A  13  INC DE
+        810B  C9  RET
+        8200  14  INC D
+        8201  C9  RET
+        """))).toArray(int[][]::new));
+    Assert.assertEquals(0x20, endValue("BC") >> 8);
+    Assert.assertEquals(Set.of(), stackAnalyzer.dataConsumedBy.get(0x8109).stream().collect(java.util.stream.Collectors.toSet()));
+  }
+
+  @Test
   public void aPartOfALoopNeverCallsItsSiblingsEvenWhenTheyLoopAmongThemselves() {
     // Target: Batman D1F1/E366: parts of the loop D537 jump to each other without passing through the head, and a sibling reached only from the head jumps into that cycle; the structure of a part saw a loop through its siblings with an entry, dispatched it like the head does and called the siblings from inside the part (no label for D1F1). A sibling is where a part ends: an exit, never a call
     String java = translate(listing("""

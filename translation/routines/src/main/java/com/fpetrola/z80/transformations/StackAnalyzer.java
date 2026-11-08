@@ -92,6 +92,7 @@ public class StackAnalyzer implements java.io.Serializable {
   private final transient Map<Integer, Entry> entries = new HashMap<>();
   private final transient Map<Integer, Entry> consumedReturns = new HashMap<>();
   private transient PoppedReturn lastPoppedReturn;
+  private final transient Map<Integer, PoppedReturn> poppedBeforeInterrupt = new HashMap<>();
   private record PoppedReturn(int slot, Entry entry, int pop) {}
   public record Frame(int callSite, Frame enclosing) {
   }
@@ -136,6 +137,8 @@ public class StackAnalyzer implements java.io.Serializable {
         layoutCallSites.add(INTERRUPT);
     }
     stackWritten.set(sp, sp + 2);
+    if (lastPoppedReturn != null)
+      poppedBeforeInterrupt.put(sp, lastPoppedReturn);
   }
 
   /** Stack bytes read by address come from whichever calls were stacked above them when written: every call whose return went there keeps it. */
@@ -488,11 +491,12 @@ public class StackAnalyzer implements java.io.Serializable {
 
       public boolean visitingRet(Ret ret) {
         int nextPC = ret.getNextPC();
+        if (nextPC != -1)
+          lastPoppedReturn = poppedBeforeInterrupt.remove(poppedSlot());
         if (ret instanceof RetN || nextPC == -1 || stackSwitches.containsKey(pcValue))
           return false;
         Entry consumedReturn = consumedReturns.get(poppedSlot());
         Entry entry = entries.remove(poppedSlot());
-        lastPoppedReturn = null;
         if (entry != null && entry.returnAddress()) {
           returnsConsumedBy.put(pcValue, entry.pc());
           if (callContinuations.containsKey(entry.pc()))
@@ -549,7 +553,7 @@ public class StackAnalyzer implements java.io.Serializable {
       layoutCallSites.add(entry.pc());
   }
 
-  /** A PUSH of the return address the last POP took, with no call or return since, where it took it or below (with what was pushed since under it: Turbo Esprit A79E-A7A3), puts that return back, and that POP took no return: Sir Fred 5E40-5E42, whose return a later POP takes for good. */
+  /** A PUSH of the return address the last POP took, with no call or return since (an interrupt in between is neither: Sir Fred 6A70-6A73), where it took it or below (with what was pushed since under it: Turbo Esprit A79E-A7A3), puts that return back, and that POP took no return: Sir Fred 5E40-5E42, whose return a later POP takes for good. */
   private Entry returnPutBack(Entry pushed, int sp) {
     if (lastPoppedReturn == null || (lastPoppedReturn.slot() - sp & 0xffff) >= 0x8000 || lastPoppedReturn.entry().value() != pushed.value())
       return pushed;
@@ -602,6 +606,7 @@ public class StackAnalyzer implements java.io.Serializable {
     calledThrough.clear();
     jumpTableSites.clear();
     returnsPutBack.clear();
+    poppedBeforeInterrupt.clear();
     pushesTakenByPops.clear();
     abandoningRets.clear();
     returnSlots.clear();
