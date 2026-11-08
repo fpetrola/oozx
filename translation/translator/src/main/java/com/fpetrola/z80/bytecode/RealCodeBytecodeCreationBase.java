@@ -117,8 +117,10 @@ public class RealCodeBytecodeCreationBase extends CPUExecutionContext implements
   }
 
   public void translateRomRoutines(int... entries) {
-    for (int entry : entries)
+    for (int entry : entries) {
+      routineManager.externalEntries.add(entry);
       symbolicExecutionAdapter.stepUntilComplete(this, this.getState(), entry, 0, 0x4000);
+    }
   }
 
   /** Every region the program rewrites with a content of its own runs from a copy per recorded content, entered by the hash of what is there. */

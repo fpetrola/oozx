@@ -496,6 +496,16 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void theDispatchByAddressHasOnlyWhatArrivesByAddress() {
+    // Saboteur: runTranslated had a case for each of its 218 methods, and a lockstep of the whole recording used 3 (the start, the interrupt and a return on the snapshot's stack)
+    String java = translate(at(0x8000, 0xCD, 0x10, 0x80, 0x76, 0x18, 0xFD), at(0x8010, 0x04, 0xC9));
+    String dispatch = java.substring(java.indexOf("boolean runTranslated(int var1) {"));
+    dispatch = dispatch.substring(0, dispatch.indexOf("\n   }\n"));
+    Assert.assertTrue(dispatch, dispatch.contains("$8000()"));
+    Assert.assertFalse(dispatch, dispatch.contains("$8010()"));
+  }
+
+  @Test
   public void aRoutineAnUnwindingLandsBackInCallsItsBodyAgainInsteadOfJumpingBackToItsStart() {
     // Saboteur F913: its 148 calls that may unwind all jumped to one block that went back to the method's start, and Fernflower's SSA ran out of memory on that loop
     String java = withoutTiming(wallyEE9C());

@@ -153,7 +153,14 @@ public class StateBytecodeGenerator {
     });
 
     MethodMaker runTranslated = classMaker.addMethod(boolean.class, "runTranslated", int.class).protected_();
-    int[] translated = bytecodeGenerationContext.methods.keySet().stream().filter(address -> routineManager.findRoutineAt(address) != null).mapToInt(Integer::intValue).sorted().toArray();
+    Set<Integer> enteredFromOutside = new HashSet<>(routineManager.externalEntries);
+    enteredFromOutside.addAll(symbolicExecutionAdapter.getStackAnalyzer().dynamicInvocation.values());
+    routines.forEach(routine -> {
+      enteredFromOutside.addAll(routineManager.landingsOf(routine, symbolicExecutionAdapter.getStackAnalyzer(), bytecodeGenerationContext.ancestorJumps()));
+      enteredFromOutside.addAll(routine.getReturnPointsDropped().values());
+      routine.getVirtualPop().values().forEach(pop -> enteredFromOutside.add(routineManager.addressAfter(pop)));
+    });
+    int[] translated = bytecodeGenerationContext.methods.keySet().stream().filter(address -> routineManager.findRoutineAt(address) != null && enteredFromOutside.contains(address)).mapToInt(Integer::intValue).sorted().toArray();
     Label[] entries = java.util.stream.IntStream.range(0, translated.length).mapToObj(i -> runTranslated.label()).toArray(Label[]::new);
     Label none = runTranslated.label();
     runTranslated.invoke("pagedCopy", runTranslated.param(0)).switch_(none, translated, entries);
