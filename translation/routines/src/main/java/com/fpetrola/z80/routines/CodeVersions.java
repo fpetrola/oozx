@@ -255,10 +255,14 @@ public class CodeVersions implements java.io.Serializable {
     return operandsOnly && !(instruction instanceof JumpInstruction) ? Kind.OPERAND : Kind.INSTRUCTION;
   }
 
-  public static List<Integer> fixedStoreTargets(int address, Instruction instruction, int[] memory) {
+  /** Where a store with its address in the instruction writes; none when that address is itself rewritten, since the memory then holds no fixed target. */
+  public List<Integer> fixedStoreTargets(int address, Instruction instruction, int[] memory) {
     if (!(instruction instanceof Ld ld && (ld.getTarget() instanceof IndirectMemory8BitReference target ? target.getTarget() : ld.getTarget() instanceof IndirectMemory16BitReference target ? target.getTarget() : null) instanceof Memory16BitReference operand))
       return List.of();
-    int at = address + operand.getDelta(), stored = memory[Space.address(at)] | memory[Space.address(at + 1)] << 8;
+    int at = address + operand.getDelta();
+    if (mutant.contains(Space.address(at)) || mutant.contains(Space.address(at + 1)))
+      return List.of();
+    int stored = memory[Space.address(at)] | memory[Space.address(at + 1)] << 8;
     return ld.getTarget() instanceof IndirectMemory16BitReference ? List.of(stored, stored + 1 & 0xffff) : List.of(stored);
   }
 

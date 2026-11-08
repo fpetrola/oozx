@@ -314,7 +314,7 @@ public class RemoteZ80Translator {
         for (int slot = emulator[0].ooz80.getState().getRegisterSP().read(); starting && slot < 0x10000 - 1 && externalEntries.size() < 10; slot += 2)
           externalEntries.add(memory[slot] | memory[slot + 1] << 8);
         recordVersion(codeBytes, versions, address, bytes);
-        patched.addAll(CodeVersions.fixedStoreTargets(address, instruction, memory));
+        patched.addAll(versions.fixedStoreTargets(address, instruction, memory));
       }
 
       public void interruptedTo(int vector) {

@@ -215,7 +215,7 @@ public class SymbolicExecutionAdapter {
     writeMemoryReferences.clear();
     java.util.BitSet code = routineManager.codeAddresses();
     Set<Integer> mutant = stackAnalyzer.codeVersions.mutant();
-    java.util.stream.Stream.concat(written.stream().boxed(), routineManager.fixedStoreTargets(state.getMemory().getData()))
+    java.util.stream.Stream.concat(written.stream().boxed(), routineManager.fixedStoreTargets(stackAnalyzer.codeVersions, state.getMemory().getData()))
         .filter(address -> !mutant.contains(address) && !stackAnalyzer.codeVersions.inBlock(address) && routineManager.originalAddress(address) == address && code.get(address))
         .forEach(mutant::add);
   }

@@ -721,8 +721,8 @@ public class RoutineManager {
     return -1;
   }
 
-  public Stream<Integer> fixedStoreTargets(int[] memory) {
-    return instructions.entrySet().stream().flatMap(e -> CodeVersions.fixedStoreTargets(e.getKey(), e.getValue(), memory).stream().map(target -> inBankOf(e.getKey(), target)));
+  public Stream<Integer> fixedStoreTargets(CodeVersions versions, int[] memory) {
+    return instructions.entrySet().stream().flatMap(e -> versions.fixedStoreTargets(e.getKey(), e.getValue(), memory).stream().map(target -> inBankOf(e.getKey(), target)));
   }
 
   /** A store from code relocated out of a bank hits that bank's copy, not the code the starting bank has at the same address. */

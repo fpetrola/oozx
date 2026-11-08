@@ -6539,6 +6539,17 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aStoreWhoseAddressIsPatchedHasNoFixedTargetToMakeMutant() {
+    // Head over Heels AF1F: LD (nn),A with nn rewritten at runtime; the 9200 left in memory made CALL 8D18 run in the emulator
+    String java = translate(
+        at(0x8000, 0x21, 0x30, 0x80, 0x22, 0x41, 0x80, 0xCD, 0x40, 0x80, 0xCD, 0x20, 0x80, 0x21, 0x20, 0x80, 0x22, 0x41, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8020, 0xCD, 0x28, 0x80, 0xC9),
+        at(0x8028, 0x06, 0x01, 0xC9),
+        at(0x8040, 0x32, 0x20, 0x80, 0xC9));
+    Assert.assertFalse(stackAnalyzer.codeVersions.mutant().contains(0x8020));
+  }
+
+  @Test
   public void aForkThatJumpsThroughARegisterIntoScreenMemoryTeachesNoTarget() {
     // Emlyn 6075: a fork reached CALL 162C with HL=57CB, and without the fence the zeros of the screen became $57CB
     String java = translate(
