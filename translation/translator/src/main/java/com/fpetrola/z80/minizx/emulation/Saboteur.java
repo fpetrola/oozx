@@ -875,19 +875,59 @@ public class Saboteur extends MiniZX {
    }
 
    public void $3D1() {
-      label70:
+      switch(super.nextAddress) {
+      case 978:
+         this.isNextPC(978);
+         this.setNextAddress(978);
+         break;
+      case 979:
+         this.isNextPC(979);
+         this.setNextAddress(979);
+         break;
+      case 980:
+         this.isNextPC(980);
+         this.setNextAddress(980);
+      }
+
+      label88:
       while(true) {
-         this.pc(977, 1, 4);
+         switch(super.nextAddress) {
+         case 978:
+            this.isNextPC(978);
+            break;
+         case 979:
+            this.isNextPC(979);
+            this.setNextAddress(979);
+            break;
+         case 980:
+            this.isNextPC(980);
+            this.setNextAddress(980);
+            break;
+         default:
+            this.pc(977, 1, 4);
+         }
 
-         label68:
+         label86:
          while(true) {
-            this.pc(978, 1, 4);
+            switch(super.nextAddress) {
+            case 979:
+               this.isNextPC(979);
+               break;
+            case 980:
+               this.isNextPC(980);
+               this.setNextAddress(980);
+               break;
+            default:
+               this.pc(978, 1, 4);
+            }
 
-            label66:
+            label84:
             while(true) {
-               this.pc(979, 1, 4);
+               if(!this.isNextPC(980)) {
+                  this.pc(979, 1, 4);
+               }
 
-               label64:
+               label82:
                while(true) {
                   this.pc(980, 1, 4);
                   int var1 = this.B();
@@ -945,15 +985,15 @@ public class Saboteur extends MiniZX {
                                  this.C(var27);
                                  this.pc(1012, 2, 8);
                                  if(this.IX() == 977) {
-                                    continue label70;
+                                    continue label88;
                                  }
 
                                  if(this.IX() == 978) {
-                                    continue label68;
+                                    continue label86;
                                  }
 
                                  if(this.IX() == 979) {
-                                    continue label66;
+                                    continue label84;
                                  }
 
                                  if(this.IX() != 980) {
@@ -995,15 +1035,15 @@ public class Saboteur extends MiniZX {
                                  this.DE(var23);
                                  this.pc(1008, 2, 8);
                                  if(this.IX() == 977) {
-                                    continue label70;
+                                    continue label88;
                                  }
 
                                  if(this.IX() == 978) {
-                                    continue label68;
+                                    continue label86;
                                  }
 
                                  if(this.IX() == 979) {
-                                    continue label66;
+                                    continue label84;
                                  }
 
                                  if(this.IX() != 980) {
@@ -1016,7 +1056,7 @@ public class Saboteur extends MiniZX {
                                     return;
                                  }
                               }
-                              continue label64;
+                              continue label82;
                            }
                         }
                      }
@@ -20285,7 +20325,7 @@ public class Saboteur extends MiniZX {
          this.pc('\ub3e1', 1, 10);
          this.HL(29242);
 
-         label3495:
+         label3487:
          while(true) {
             this.pc('\ub3e4', 1, 7);
             this.C(8);
@@ -20554,7 +20594,7 @@ public class Saboteur extends MiniZX {
                            this.pc('\ub667', 1, 13);
                            int var645 = this.A();
                            this.wMem(29507, var645, '\ub667');
-                           break label3495;
+                           break label3487;
                         }
 
                         this.tstates(5);
@@ -20571,65 +20611,65 @@ public class Saboteur extends MiniZX {
       }
 
       while(true) {
-         label3864: {
-            label3505: {
-               label3506: {
-                  label3507: {
-                     label3865: {
-                        label3866: {
-                           label3510: {
-                              label3867: {
-                                 label3868: {
-                                    label3513: {
-                                       label3514: {
-                                          label3515: {
-                                             label3516: {
-                                                label3517: {
-                                                   label3518: {
-                                                      label3869: {
-                                                         label3870: {
-                                                            label3521: {
-                                                               label3871: {
-                                                                  label3523: {
-                                                                     label3524: {
-                                                                        label3525: {
-                                                                           label3526: {
-                                                                              label3527: {
-                                                                                 label3528: {
-                                                                                    label3529: {
-                                                                                       label3530: {
-                                                                                          label3531: {
-                                                                                             label3532: {
-                                                                                                label3533: {
-                                                                                                   label3534: {
-                                                                                                      label3535: {
-                                                                                                         label3872: {
-                                                                                                            label3873: {
-                                                                                                               label3874: {
-                                                                                                                  label3539: {
-                                                                                                                     label3875: {
-                                                                                                                        label3541: {
-                                                                                                                           label3876: {
-                                                                                                                              label3543: {
-                                                                                                                                 label3877: {
-                                                                                                                                    label3545: {
-                                                                                                                                       label3546: {
-                                                                                                                                          label3547: {
-                                                                                                                                             label3878: {
-                                                                                                                                                label3879: {
-                                                                                                                                                   label3880: {
-                                                                                                                                                      label3551: {
-                                                                                                                                                         label3881: {
-                                                                                                                                                            label3882: {
-                                                                                                                                                               label3554: {
-                                                                                                                                                                  label3883: {
-                                                                                                                                                                     label3884: {
-                                                                                                                                                                        label3885: {
-                                                                                                                                                                           label3558: {
-                                                                                                                                                                              label3559: {
-                                                                                                                                                                                 label3886: {
-                                                                                                                                                                                    label3561: {
-                                                                                                                                                                                       label3328: {
+         label3854: {
+            label3497: {
+               label3498: {
+                  label3499: {
+                     label3855: {
+                        label3856: {
+                           label3502: {
+                              label3857: {
+                                 label3858: {
+                                    label3505: {
+                                       label3506: {
+                                          label3507: {
+                                             label3508: {
+                                                label3509: {
+                                                   label3510: {
+                                                      label3859: {
+                                                         label3860: {
+                                                            label3513: {
+                                                               label3861: {
+                                                                  label3515: {
+                                                                     label3516: {
+                                                                        label3517: {
+                                                                           label3518: {
+                                                                              label3519: {
+                                                                                 label3520: {
+                                                                                    label3521: {
+                                                                                       label3522: {
+                                                                                          label3523: {
+                                                                                             label3524: {
+                                                                                                label3525: {
+                                                                                                   label3526: {
+                                                                                                      label3527: {
+                                                                                                         label3862: {
+                                                                                                            label3863: {
+                                                                                                               label3864: {
+                                                                                                                  label3531: {
+                                                                                                                     label3865: {
+                                                                                                                        label3533: {
+                                                                                                                           label3866: {
+                                                                                                                              label3535: {
+                                                                                                                                 label3867: {
+                                                                                                                                    label3537: {
+                                                                                                                                       label3538: {
+                                                                                                                                          label3539: {
+                                                                                                                                             label3868: {
+                                                                                                                                                label3541: {
+                                                                                                                                                   label3869: {
+                                                                                                                                                      label3543: {
+                                                                                                                                                         label3870: {
+                                                                                                                                                            label3871: {
+                                                                                                                                                               label3546: {
+                                                                                                                                                                  label3872: {
+                                                                                                                                                                     label3548: {
+                                                                                                                                                                        label3873: {
+                                                                                                                                                                           label3550: {
+                                                                                                                                                                              label3874: {
+                                                                                                                                                                                 label3552: {
+                                                                                                                                                                                    label3553: {
+                                                                                                                                                                                       label3320: {
                                                                                                                                                                                           switch(super.nextAddress) {
                                                                                                                                                                                           case 29514:
                                                                                                                                                                                              this.isNextPC(29514);
@@ -20694,160 +20734,160 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                           case 31000:
                                                                                                                                                                                              this.isNextPC(31000);
                                                                                                                                                                                              this.setNextAddress(31000);
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 31003:
                                                                                                                                                                                              this.isNextPC(31003);
-                                                                                                                                                                                             break label3510;
+                                                                                                                                                                                             break label3502;
                                                                                                                                                                                           case 41183:
                                                                                                                                                                                              this.isNextPC('\ua0df');
-                                                                                                                                                                                             break label3882;
+                                                                                                                                                                                             break label3871;
                                                                                                                                                                                           case 41186:
                                                                                                                                                                                              this.isNextPC('\ua0e2');
-                                                                                                                                                                                             break label3516;
+                                                                                                                                                                                             break label3508;
                                                                                                                                                                                           case 41189:
                                                                                                                                                                                              this.isNextPC('\ua0e5');
-                                                                                                                                                                                             break label3515;
+                                                                                                                                                                                             break label3507;
                                                                                                                                                                                           case 41192:
                                                                                                                                                                                              this.isNextPC('\ua0e8');
-                                                                                                                                                                                             break label3883;
+                                                                                                                                                                                             break label3872;
                                                                                                                                                                                           case 41197:
                                                                                                                                                                                              this.isNextPC('\ua0ed');
-                                                                                                                                                                                             break label3554;
+                                                                                                                                                                                             break label3546;
                                                                                                                                                                                           case 41207:
                                                                                                                                                                                              this.isNextPC('\ua0f7');
-                                                                                                                                                                                             break label3884;
+                                                                                                                                                                                             break label3548;
                                                                                                                                                                                           case 41212:
                                                                                                                                                                                              this.isNextPC('\ua0fc');
-                                                                                                                                                                                             break label3533;
+                                                                                                                                                                                             break label3525;
                                                                                                                                                                                           case 41217:
                                                                                                                                                                                              this.isNextPC('\ua101');
-                                                                                                                                                                                             break label3885;
+                                                                                                                                                                                             break label3873;
                                                                                                                                                                                           case 41222:
                                                                                                                                                                                              this.isNextPC('\ua106');
-                                                                                                                                                                                             break label3558;
+                                                                                                                                                                                             break label3550;
                                                                                                                                                                                           case 41227:
                                                                                                                                                                                              this.isNextPC('\ua10b');
-                                                                                                                                                                                             break label3559;
+                                                                                                                                                                                             break label3874;
                                                                                                                                                                                           case 41232:
                                                                                                                                                                                              this.isNextPC('\ua110');
-                                                                                                                                                                                             break label3551;
+                                                                                                                                                                                             break label3543;
                                                                                                                                                                                           case 41237:
                                                                                                                                                                                              this.isNextPC('\ua115');
-                                                                                                                                                                                             break label3879;
+                                                                                                                                                                                             break label3541;
                                                                                                                                                                                           case 41242:
                                                                                                                                                                                              this.isNextPC('\ua11a');
-                                                                                                                                                                                             break label3535;
+                                                                                                                                                                                             break label3527;
                                                                                                                                                                                           case 41247:
                                                                                                                                                                                              this.isNextPC('\ua11f');
-                                                                                                                                                                                             break label3547;
+                                                                                                                                                                                             break label3539;
                                                                                                                                                                                           case 41252:
                                                                                                                                                                                              this.isNextPC('\ua124');
-                                                                                                                                                                                             break label3545;
+                                                                                                                                                                                             break label3537;
                                                                                                                                                                                           case 41257:
                                                                                                                                                                                              this.isNextPC('\ua129');
-                                                                                                                                                                                             break label3543;
+                                                                                                                                                                                             break label3535;
                                                                                                                                                                                           case 41262:
                                                                                                                                                                                              this.isNextPC('\ua12e');
-                                                                                                                                                                                             break label3541;
+                                                                                                                                                                                             break label3533;
                                                                                                                                                                                           case 41267:
                                                                                                                                                                                              this.isNextPC('\ua133');
-                                                                                                                                                                                             break label3873;
+                                                                                                                                                                                             break label3863;
                                                                                                                                                                                           case 41272:
                                                                                                                                                                                              this.isNextPC('\ua138');
-                                                                                                                                                                                             break label3539;
+                                                                                                                                                                                             break label3531;
                                                                                                                                                                                           case 41282:
                                                                                                                                                                                              this.isNextPC('\ua142');
-                                                                                                                                                                                             break label3881;
+                                                                                                                                                                                             break label3870;
                                                                                                                                                                                           case 41285:
                                                                                                                                                                                              this.isNextPC('\ua145');
-                                                                                                                                                                                             break label3527;
+                                                                                                                                                                                             break label3519;
                                                                                                                                                                                           case 41295:
                                                                                                                                                                                              this.isNextPC('\ua14f');
-                                                                                                                                                                                             break label3876;
+                                                                                                                                                                                             break label3866;
                                                                                                                                                                                           case 41311:
                                                                                                                                                                                              this.isNextPC('\ua15f');
-                                                                                                                                                                                             break label3877;
+                                                                                                                                                                                             break label3867;
                                                                                                                                                                                           case 41322:
                                                                                                                                                                                              this.isNextPC('\ua16a');
-                                                                                                                                                                                             break label3546;
+                                                                                                                                                                                             break label3538;
                                                                                                                                                                                           case 41327:
                                                                                                                                                                                              this.isNextPC('\ua16f');
-                                                                                                                                                                                             break label3878;
+                                                                                                                                                                                             break label3868;
                                                                                                                                                                                           case 41332:
                                                                                                                                                                                              this.isNextPC('\ua174');
-                                                                                                                                                                                             break label3561;
+                                                                                                                                                                                             break label3553;
                                                                                                                                                                                           case 41337:
                                                                                                                                                                                              this.isNextPC('\ua179');
-                                                                                                                                                                                             break label3880;
+                                                                                                                                                                                             break label3869;
                                                                                                                                                                                           case 41347:
                                                                                                                                                                                              this.isNextPC('\ua183');
-                                                                                                                                                                                             break label3875;
+                                                                                                                                                                                             break label3865;
                                                                                                                                                                                           case 41352:
                                                                                                                                                                                              this.isNextPC('\ua188');
-                                                                                                                                                                                             break label3874;
+                                                                                                                                                                                             break label3864;
                                                                                                                                                                                           case 41362:
                                                                                                                                                                                              this.isNextPC('\ua192');
-                                                                                                                                                                                             break label3532;
+                                                                                                                                                                                             break label3524;
                                                                                                                                                                                           case 41367:
                                                                                                                                                                                              this.isNextPC('\ua197');
-                                                                                                                                                                                             break label3328;
+                                                                                                                                                                                             break label3320;
                                                                                                                                                                                           case 41372:
                                                                                                                                                                                              this.isNextPC('\ua19c');
-                                                                                                                                                                                             break label3534;
+                                                                                                                                                                                             break label3526;
                                                                                                                                                                                           case 41377:
                                                                                                                                                                                              this.isNextPC('\ua1a1');
-                                                                                                                                                                                             break label3886;
+                                                                                                                                                                                             break label3552;
                                                                                                                                                                                           case 41391:
                                                                                                                                                                                              this.isNextPC('\ua1af');
-                                                                                                                                                                                             break label3514;
+                                                                                                                                                                                             break label3506;
                                                                                                                                                                                           case 41397:
                                                                                                                                                                                              this.isNextPC('\ua1b5');
-                                                                                                                                                                                             break label3524;
+                                                                                                                                                                                             break label3516;
                                                                                                                                                                                           case 41408:
                                                                                                                                                                                              this.isNextPC('\ua1c0');
-                                                                                                                                                                                             break label3529;
+                                                                                                                                                                                             break label3521;
                                                                                                                                                                                           case 41419:
                                                                                                                                                                                              this.isNextPC('\ua1cb');
-                                                                                                                                                                                             break label3526;
+                                                                                                                                                                                             break label3518;
                                                                                                                                                                                           case 41430:
                                                                                                                                                                                              this.isNextPC('\ua1d6');
-                                                                                                                                                                                             break label3871;
+                                                                                                                                                                                             break label3861;
                                                                                                                                                                                           case 41811:
                                                                                                                                                                                              this.isNextPC('\ua353');
-                                                                                                                                                                                             break label3530;
+                                                                                                                                                                                             break label3522;
                                                                                                                                                                                           case 41814:
                                                                                                                                                                                              this.isNextPC('\ua356');
-                                                                                                                                                                                             break label3513;
+                                                                                                                                                                                             break label3505;
                                                                                                                                                                                           case 41820:
                                                                                                                                                                                              this.isNextPC('\ua35c');
-                                                                                                                                                                                             break label3870;
+                                                                                                                                                                                             break label3860;
                                                                                                                                                                                           case 41825:
                                                                                                                                                                                              this.isNextPC('\ua361');
-                                                                                                                                                                                             break label3521;
+                                                                                                                                                                                             break label3513;
                                                                                                                                                                                           case 41835:
                                                                                                                                                                                              this.isNextPC('\ua36b');
-                                                                                                                                                                                             break label3531;
+                                                                                                                                                                                             break label3523;
                                                                                                                                                                                           case 41840:
                                                                                                                                                                                              this.isNextPC('\ua370');
-                                                                                                                                                                                             break label3523;
+                                                                                                                                                                                             break label3515;
                                                                                                                                                                                           case 41845:
                                                                                                                                                                                              this.isNextPC('\ua375');
-                                                                                                                                                                                             break label3525;
+                                                                                                                                                                                             break label3517;
                                                                                                                                                                                           case 41855:
                                                                                                                                                                                              this.isNextPC('\ua37f');
-                                                                                                                                                                                             break label3528;
+                                                                                                                                                                                             break label3520;
                                                                                                                                                                                           case 41860:
                                                                                                                                                                                              this.isNextPC('\ua384');
-                                                                                                                                                                                             break label3518;
+                                                                                                                                                                                             break label3510;
                                                                                                                                                                                           case 41865:
                                                                                                                                                                                              this.isNextPC('\ua389');
-                                                                                                                                                                                             break label3517;
+                                                                                                                                                                                             break label3509;
                                                                                                                                                                                           case 41870:
                                                                                                                                                                                              this.isNextPC('\ua38e');
-                                                                                                                                                                                             break label3869;
+                                                                                                                                                                                             break label3859;
                                                                                                                                                                                           case 45928:
                                                                                                                                                                                              this.isNextPC('\ub368');
-                                                                                                                                                                                             break label3872;
+                                                                                                                                                                                             break label3862;
                                                                                                                                                                                           case 45967:
                                                                                                                                                                                              this.isNextPC('\ub38f');
                                                                                                                                                                                              this.setNextAddress('\ub38f');
@@ -20855,41 +20895,41 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                           case 46111:
                                                                                                                                                                                              this.isNextPC('\ub41f');
                                                                                                                                                                                              this.setNextAddress('\ub41f');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 46114:
                                                                                                                                                                                              this.isNextPC('\ub422');
-                                                                                                                                                                                             break label3866;
+                                                                                                                                                                                             break label3856;
                                                                                                                                                                                           case 46126:
                                                                                                                                                                                              this.isNextPC('\ub42e');
-                                                                                                                                                                                             break label3506;
+                                                                                                                                                                                             break label3498;
                                                                                                                                                                                           case 46150:
                                                                                                                                                                                              this.isNextPC('\ub446');
                                                                                                                                                                                              this.setNextAddress('\ub446');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 46156:
                                                                                                                                                                                              this.isNextPC('\ub44c');
                                                                                                                                                                                              this.setNextAddress('\ub44c');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 46162:
                                                                                                                                                                                              this.isNextPC('\ub452');
                                                                                                                                                                                              this.setNextAddress('\ub452');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 46168:
                                                                                                                                                                                              this.isNextPC('\ub458');
                                                                                                                                                                                              this.setNextAddress('\ub458');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 46202:
                                                                                                                                                                                              this.isNextPC('\ub47a');
                                                                                                                                                                                              this.setNextAddress('\ub47a');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 46211:
                                                                                                                                                                                              this.isNextPC('\ub483');
                                                                                                                                                                                              this.setNextAddress('\ub483');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 46386:
                                                                                                                                                                                              this.isNextPC('\ub532');
                                                                                                                                                                                              this.setNextAddress('\ub532');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 46830:
                                                                                                                                                                                              this.isNextPC('\ub6ee');
                                                                                                                                                                                              break;
@@ -20899,218 +20939,218 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                              break;
                                                                                                                                                                                           case 46884:
                                                                                                                                                                                              this.isNextPC('\ub724');
-                                                                                                                                                                                             break label3505;
+                                                                                                                                                                                             break label3497;
                                                                                                                                                                                           case 46971:
                                                                                                                                                                                              this.isNextPC('\ub77b');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 47124:
                                                                                                                                                                                              this.isNextPC('\ub814');
                                                                                                                                                                                              this.setNextAddress('\ub814');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 47241:
                                                                                                                                                                                              this.isNextPC('\ub889');
                                                                                                                                                                                              this.setNextAddress('\ub889');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 47249:
                                                                                                                                                                                              this.isNextPC('\ub891');
                                                                                                                                                                                              this.setNextAddress('\ub891');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 47312:
                                                                                                                                                                                              this.isNextPC('\ub8d0');
                                                                                                                                                                                              this.setNextAddress('\ub8d0');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 47415:
                                                                                                                                                                                              this.isNextPC('\ub937');
                                                                                                                                                                                              this.setNextAddress('\ub937');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 47421:
                                                                                                                                                                                              this.isNextPC('\ub93d');
                                                                                                                                                                                              this.setNextAddress('\ub93d');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 47648:
                                                                                                                                                                                              this.isNextPC('\uba20');
                                                                                                                                                                                              this.setNextAddress('\uba20');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 47829:
                                                                                                                                                                                              this.isNextPC('\ubad5');
                                                                                                                                                                                              this.setNextAddress('\ubad5');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 48039:
                                                                                                                                                                                              this.isNextPC('\ubba7');
                                                                                                                                                                                              this.setNextAddress('\ubba7');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 48084:
                                                                                                                                                                                              this.isNextPC('\ubbd4');
                                                                                                                                                                                              this.setNextAddress('\ubbd4');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 48144:
                                                                                                                                                                                              this.isNextPC('\ubc10');
                                                                                                                                                                                              this.setNextAddress('\ubc10');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 48213:
                                                                                                                                                                                              this.isNextPC('\ubc55');
                                                                                                                                                                                              this.setNextAddress('\ubc55');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 48559:
                                                                                                                                                                                              this.isNextPC('\ubdaf');
                                                                                                                                                                                              this.setNextAddress('\ubdaf');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 48653:
                                                                                                                                                                                              this.isNextPC('\ube0d');
                                                                                                                                                                                              this.setNextAddress('\ube0d');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 48739:
                                                                                                                                                                                              this.isNextPC('\ube63');
                                                                                                                                                                                              this.setNextAddress('\ube63');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 48753:
                                                                                                                                                                                              this.isNextPC('\ube71');
                                                                                                                                                                                              this.setNextAddress('\ube71');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 48810:
                                                                                                                                                                                              this.isNextPC('\ubeaa');
                                                                                                                                                                                              this.setNextAddress('\ubeaa');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 48811:
                                                                                                                                                                                              this.isNextPC('\ubeab');
                                                                                                                                                                                              this.setNextAddress('\ubeab');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 48819:
                                                                                                                                                                                              this.isNextPC('\ubeb3');
                                                                                                                                                                                              this.setNextAddress('\ubeb3');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 49072:
                                                                                                                                                                                              this.isNextPC('\ubfb0');
                                                                                                                                                                                              this.setNextAddress('\ubfb0');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 49100:
                                                                                                                                                                                              this.isNextPC('\ubfcc');
                                                                                                                                                                                              this.setNextAddress('\ubfcc');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 49300:
                                                                                                                                                                                              this.isNextPC('\uc094');
                                                                                                                                                                                              this.setNextAddress('\uc094');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 49518:
                                                                                                                                                                                              this.isNextPC('\uc16e');
                                                                                                                                                                                              this.setNextAddress('\uc16e');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 49590:
                                                                                                                                                                                              this.isNextPC('\uc1b6');
                                                                                                                                                                                              this.setNextAddress('\uc1b6');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 49702:
                                                                                                                                                                                              this.isNextPC('\uc226');
                                                                                                                                                                                              this.setNextAddress('\uc226');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 49711:
                                                                                                                                                                                              this.isNextPC('\uc22f');
                                                                                                                                                                                              this.setNextAddress('\uc22f');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 49739:
                                                                                                                                                                                              this.isNextPC('\uc24b');
                                                                                                                                                                                              this.setNextAddress('\uc24b');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 49851:
                                                                                                                                                                                              this.isNextPC('\uc2bb');
                                                                                                                                                                                              this.setNextAddress('\uc2bb');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 49861:
                                                                                                                                                                                              this.isNextPC('\uc2c5');
                                                                                                                                                                                              this.setNextAddress('\uc2c5');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 49914:
                                                                                                                                                                                              this.isNextPC('\uc2fa');
                                                                                                                                                                                              this.setNextAddress('\uc2fa');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 49945:
                                                                                                                                                                                              this.isNextPC('\uc319');
                                                                                                                                                                                              this.setNextAddress('\uc319');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 49977:
                                                                                                                                                                                              this.isNextPC('\uc339');
                                                                                                                                                                                              this.setNextAddress('\uc339');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 50137:
                                                                                                                                                                                              this.isNextPC('\uc3d9');
                                                                                                                                                                                              this.setNextAddress('\uc3d9');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 50343:
                                                                                                                                                                                              this.isNextPC('\uc4a7');
                                                                                                                                                                                              this.setNextAddress('\uc4a7');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 50384:
                                                                                                                                                                                              this.isNextPC('\uc4d0');
                                                                                                                                                                                              this.setNextAddress('\uc4d0');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 50398:
                                                                                                                                                                                              this.isNextPC('\uc4de');
                                                                                                                                                                                              this.setNextAddress('\uc4de');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 50422:
                                                                                                                                                                                              this.isNextPC('\uc4f6');
                                                                                                                                                                                              this.setNextAddress('\uc4f6');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 50445:
                                                                                                                                                                                              this.isNextPC('\uc50d');
                                                                                                                                                                                              this.setNextAddress('\uc50d');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 50592:
                                                                                                                                                                                              this.isNextPC('\uc5a0');
                                                                                                                                                                                              this.setNextAddress('\uc5a0');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 50630:
                                                                                                                                                                                              this.isNextPC('\uc5c6');
                                                                                                                                                                                              this.setNextAddress('\uc5c6');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 50692:
                                                                                                                                                                                              this.isNextPC('\uc604');
                                                                                                                                                                                              this.setNextAddress('\uc604');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 50723:
                                                                                                                                                                                              this.isNextPC('\uc623');
                                                                                                                                                                                              this.setNextAddress('\uc623');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 50755:
                                                                                                                                                                                              this.isNextPC('\uc643');
                                                                                                                                                                                              this.setNextAddress('\uc643');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 50764:
                                                                                                                                                                                              this.isNextPC('\uc64c');
-                                                                                                                                                                                             break label3507;
+                                                                                                                                                                                             break label3499;
                                                                                                                                                                                           case 50801:
                                                                                                                                                                                              this.isNextPC('\uc671');
-                                                                                                                                                                                             break label3865;
+                                                                                                                                                                                             break label3855;
                                                                                                                                                                                           case 50817:
                                                                                                                                                                                              this.isNextPC('\uc681');
-                                                                                                                                                                                             break label3868;
+                                                                                                                                                                                             break label3858;
                                                                                                                                                                                           case 50831:
                                                                                                                                                                                              this.isNextPC('\uc68f');
                                                                                                                                                                                              this.setNextAddress('\uc68f');
-                                                                                                                                                                                             break label3865;
+                                                                                                                                                                                             break label3855;
                                                                                                                                                                                           case 50853:
                                                                                                                                                                                              this.isNextPC('\uc6a5');
                                                                                                                                                                                              this.setNextAddress('\uc6a5');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 50914:
                                                                                                                                                                                              this.isNextPC('\uc6e2');
                                                                                                                                                                                              this.setNextAddress('\uc6e2');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 50933:
                                                                                                                                                                                              this.isNextPC('\uc6f5');
                                                                                                                                                                                              this.setNextAddress('\uc6f5');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 50956:
                                                                                                                                                                                              this.isNextPC('\uc70c');
                                                                                                                                                                                              this.setNextAddress('\uc70c');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 57243:
                                                                                                                                                                                              this.isNextPC('\udf9b');
                                                                                                                                                                                              this.setNextAddress('\udf9b');
-                                                                                                                                                                                             break label3864;
+                                                                                                                                                                                             break label3854;
                                                                                                                                                                                           case 63859:
                                                                                                                                                                                              this.isNextPC('\uf973');
-                                                                                                                                                                                             break label3867;
+                                                                                                                                                                                             break label3857;
                                                                                                                                                                                           default:
                                                                                                                                                                                              int var546 = this.$B66A();
                                                                                                                                                                                              if(this.unwinding()) {
@@ -21122,76 +21162,76 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                              }
                                                                                                                                                                                           }
 
-                                                                                                                                                                                          label3327:
+                                                                                                                                                                                          label3319:
                                                                                                                                                                                           while(true) {
-                                                                                                                                                                                             label3887: {
-                                                                                                                                                                                                label3564: {
-                                                                                                                                                                                                   label3565: {
-                                                                                                                                                                                                      label3566: {
-                                                                                                                                                                                                         label3567: {
-                                                                                                                                                                                                            label3568: {
-                                                                                                                                                                                                               label3569: {
-                                                                                                                                                                                                                  label3888: {
-                                                                                                                                                                                                                     label3571: {
-                                                                                                                                                                                                                        label3889: {
-                                                                                                                                                                                                                           label3573: {
-                                                                                                                                                                                                                              label3574: {
-                                                                                                                                                                                                                                 label3575: {
-                                                                                                                                                                                                                                    label3890: {
-                                                                                                                                                                                                                                       label3577: {
-                                                                                                                                                                                                                                          label3578: {
+                                                                                                                                                                                             label3875: {
+                                                                                                                                                                                                label3556: {
+                                                                                                                                                                                                   label3557: {
+                                                                                                                                                                                                      label3558: {
+                                                                                                                                                                                                         label3559: {
+                                                                                                                                                                                                            label3560: {
+                                                                                                                                                                                                               label3561: {
+                                                                                                                                                                                                                  label3876: {
+                                                                                                                                                                                                                     label3563: {
+                                                                                                                                                                                                                        label3877: {
+                                                                                                                                                                                                                           label3878: {
+                                                                                                                                                                                                                              label3566: {
+                                                                                                                                                                                                                                 label3879: {
+                                                                                                                                                                                                                                    label3880: {
+                                                                                                                                                                                                                                       label3569: {
+                                                                                                                                                                                                                                          label3570: {
                                                                                                                                                                                                                                              switch(super.nextAddress) {
                                                                                                                                                                                                                                              case 29514:
                                                                                                                                                                                                                                                 this.isNextPC(29514);
-                                                                                                                                                                                                                                                break label3564;
+                                                                                                                                                                                                                                                break label3556;
                                                                                                                                                                                                                                              case 29517:
                                                                                                                                                                                                                                                 this.isNextPC(29517);
-                                                                                                                                                                                                                                                break label3569;
+                                                                                                                                                                                                                                                break label3561;
                                                                                                                                                                                                                                              case 29569:
                                                                                                                                                                                                                                                 this.isNextPC(29569);
                                                                                                                                                                                                                                                 break;
                                                                                                                                                                                                                                              case 29572:
                                                                                                                                                                                                                                                 this.isNextPC(29572);
-                                                                                                                                                                                                                                                break label3888;
+                                                                                                                                                                                                                                                break label3876;
                                                                                                                                                                                                                                              case 29599:
                                                                                                                                                                                                                                                 this.isNextPC(29599);
-                                                                                                                                                                                                                                                break label3578;
+                                                                                                                                                                                                                                                break label3570;
                                                                                                                                                                                                                                              case 29604:
                                                                                                                                                                                                                                                 this.isNextPC(29604);
-                                                                                                                                                                                                                                                break label3577;
+                                                                                                                                                                                                                                                break label3569;
                                                                                                                                                                                                                                              case 29606:
                                                                                                                                                                                                                                                 this.isNextPC(29606);
-                                                                                                                                                                                                                                                break label3571;
+                                                                                                                                                                                                                                                break label3563;
                                                                                                                                                                                                                                              case 29637:
                                                                                                                                                                                                                                                 this.isNextPC(29637);
-                                                                                                                                                                                                                                                break label3575;
+                                                                                                                                                                                                                                                break label3879;
                                                                                                                                                                                                                                              case 29639:
                                                                                                                                                                                                                                                 this.isNextPC(29639);
-                                                                                                                                                                                                                                                break label3565;
+                                                                                                                                                                                                                                                break label3557;
                                                                                                                                                                                                                                              case 29675:
                                                                                                                                                                                                                                                 this.isNextPC(29675);
-                                                                                                                                                                                                                                                break label3574;
+                                                                                                                                                                                                                                                break label3566;
                                                                                                                                                                                                                                              case 29679:
                                                                                                                                                                                                                                                 this.isNextPC(29679);
-                                                                                                                                                                                                                                                break label3890;
+                                                                                                                                                                                                                                                break label3880;
                                                                                                                                                                                                                                              case 29683:
                                                                                                                                                                                                                                                 this.isNextPC(29683);
-                                                                                                                                                                                                                                                break label3566;
+                                                                                                                                                                                                                                                break label3558;
                                                                                                                                                                                                                                              case 29702:
                                                                                                                                                                                                                                                 this.isNextPC(29702);
-                                                                                                                                                                                                                                                break label3573;
+                                                                                                                                                                                                                                                break label3878;
                                                                                                                                                                                                                                              case 29739:
                                                                                                                                                                                                                                                 this.isNextPC(29739);
-                                                                                                                                                                                                                                                break label3889;
+                                                                                                                                                                                                                                                break label3877;
                                                                                                                                                                                                                                              case 29778:
                                                                                                                                                                                                                                                 this.isNextPC(29778);
-                                                                                                                                                                                                                                                break label3568;
+                                                                                                                                                                                                                                                break label3560;
                                                                                                                                                                                                                                              case 45967:
                                                                                                                                                                                                                                                 this.isNextPC('\ub38f');
-                                                                                                                                                                                                                                                break label3567;
+                                                                                                                                                                                                                                                break label3559;
                                                                                                                                                                                                                                              case 46850:
                                                                                                                                                                                                                                                 this.isNextPC('\ub702');
-                                                                                                                                                                                                                                                break label3887;
+                                                                                                                                                                                                                                                break label3875;
                                                                                                                                                                                                                                              default:
                                                                                                                                                                                                                                                 int var18 = this.$B6EE();
                                                                                                                                                                                                                                                 if(this.unwinding()) {
@@ -21203,133 +21243,133 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                                                                                    this.untranslated(21845);
                                                                                                                                                                                                                                                    return;
                                                                                                                                                                                                                                                 case 1:
-                                                                                                                                                                                                                                                   break label3866;
+                                                                                                                                                                                                                                                   break label3856;
                                                                                                                                                                                                                                                 case 2:
-                                                                                                                                                                                                                                                   break label3507;
+                                                                                                                                                                                                                                                   break label3499;
                                                                                                                                                                                                                                                 case 3:
-                                                                                                                                                                                                                                                   break label3506;
+                                                                                                                                                                                                                                                   break label3498;
                                                                                                                                                                                                                                                 case 4:
-                                                                                                                                                                                                                                                   break label3881;
-                                                                                                                                                                                                                                                case 5:
-                                                                                                                                                                                                                                                   break label3530;
-                                                                                                                                                                                                                                                case 6:
-                                                                                                                                                                                                                                                   break label3529;
-                                                                                                                                                                                                                                                case 7:
-                                                                                                                                                                                                                                                   break label3528;
-                                                                                                                                                                                                                                                case 8:
-                                                                                                                                                                                                                                                   break label3867;
-                                                                                                                                                                                                                                                case 9:
-                                                                                                                                                                                                                                                   break label3559;
-                                                                                                                                                                                                                                                case 10:
-                                                                                                                                                                                                                                                   break label3880;
-                                                                                                                                                                                                                                                case 11:
-                                                                                                                                                                                                                                                   break label3558;
-                                                                                                                                                                                                                                                case 12:
-                                                                                                                                                                                                                                                   break label3885;
-                                                                                                                                                                                                                                                case 13:
-                                                                                                                                                                                                                                                   break label3525;
-                                                                                                                                                                                                                                                case 14:
-                                                                                                                                                                                                                                                   break label3878;
-                                                                                                                                                                                                                                                case 15:
-                                                                                                                                                                                                                                                   break label3546;
-                                                                                                                                                                                                                                                case 16:
-                                                                                                                                                                                                                                                   break label3884;
-                                                                                                                                                                                                                                                case 17:
-                                                                                                                                                                                                                                                   break label3877;
-                                                                                                                                                                                                                                                case 18:
-                                                                                                                                                                                                                                                   break label3510;
-                                                                                                                                                                                                                                                case 19:
-                                                                                                                                                                                                                                                   break label3523;
-                                                                                                                                                                                                                                                case 20:
-                                                                                                                                                                                                                                                   break label3521;
-                                                                                                                                                                                                                                                case 21:
                                                                                                                                                                                                                                                    break label3870;
-                                                                                                                                                                                                                                                case 22:
-                                                                                                                                                                                                                                                   break label3883;
-                                                                                                                                                                                                                                                case 23:
-                                                                                                                                                                                                                                                   break label3554;
-                                                                                                                                                                                                                                                case 24:
-                                                                                                                                                                                                                                                   break label3526;
-                                                                                                                                                                                                                                                case 25:
-                                                                                                                                                                                                                                                   break label3869;
-                                                                                                                                                                                                                                                case 26:
-                                                                                                                                                                                                                                                   break label3876;
-                                                                                                                                                                                                                                                case 27:
-                                                                                                                                                                                                                                                   break label3524;
-                                                                                                                                                                                                                                                case 28:
-                                                                                                                                                                                                                                                   break label3865;
-                                                                                                                                                                                                                                                case 29:
-                                                                                                                                                                                                                                                   break label3882;
-                                                                                                                                                                                                                                                case 30:
-                                                                                                                                                                                                                                                   break label3875;
-                                                                                                                                                                                                                                                case 31:
+                                                                                                                                                                                                                                                case 5:
+                                                                                                                                                                                                                                                   break label3522;
+                                                                                                                                                                                                                                                case 6:
+                                                                                                                                                                                                                                                   break label3521;
+                                                                                                                                                                                                                                                case 7:
+                                                                                                                                                                                                                                                   break label3520;
+                                                                                                                                                                                                                                                case 8:
+                                                                                                                                                                                                                                                   break label3857;
+                                                                                                                                                                                                                                                case 9:
                                                                                                                                                                                                                                                    break label3874;
-                                                                                                                                                                                                                                                case 32:
-                                                                                                                                                                                                                                                   break label3518;
-                                                                                                                                                                                                                                                case 33:
-                                                                                                                                                                                                                                                   break label3551;
-                                                                                                                                                                                                                                                case 34:
-                                                                                                                                                                                                                                                   break label3872;
-                                                                                                                                                                                                                                                case 35:
-                                                                                                                                                                                                                                                   break label3879;
-                                                                                                                                                                                                                                                case 36:
-                                                                                                                                                                                                                                                   break label3868;
-                                                                                                                                                                                                                                                case 37:
-                                                                                                                                                                                                                                                   break label3517;
-                                                                                                                                                                                                                                                case 38:
-                                                                                                                                                                                                                                                   break label3547;
-                                                                                                                                                                                                                                                case 39:
-                                                                                                                                                                                                                                                   break label3871;
-                                                                                                                                                                                                                                                case 40:
-                                                                                                                                                                                                                                                   break label3545;
-                                                                                                                                                                                                                                                case 41:
-                                                                                                                                                                                                                                                   break label3543;
-                                                                                                                                                                                                                                                case 42:
-                                                                                                                                                                                                                                                   break label3541;
-                                                                                                                                                                                                                                                case 43:
-                                                                                                                                                                                                                                                   break label3534;
-                                                                                                                                                                                                                                                case 44:
-                                                                                                                                                                                                                                                   break label3539;
-                                                                                                                                                                                                                                                case 45:
+                                                                                                                                                                                                                                                case 10:
+                                                                                                                                                                                                                                                   break label3869;
+                                                                                                                                                                                                                                                case 11:
+                                                                                                                                                                                                                                                   break label3550;
+                                                                                                                                                                                                                                                case 12:
                                                                                                                                                                                                                                                    break label3873;
-                                                                                                                                                                                                                                                case 46:
-                                                                                                                                                                                                                                                   break label3532;
-                                                                                                                                                                                                                                                case 47:
+                                                                                                                                                                                                                                                case 13:
+                                                                                                                                                                                                                                                   break label3517;
+                                                                                                                                                                                                                                                case 14:
+                                                                                                                                                                                                                                                   break label3868;
+                                                                                                                                                                                                                                                case 15:
+                                                                                                                                                                                                                                                   break label3538;
+                                                                                                                                                                                                                                                case 16:
+                                                                                                                                                                                                                                                   break label3548;
+                                                                                                                                                                                                                                                case 17:
+                                                                                                                                                                                                                                                   break label3867;
+                                                                                                                                                                                                                                                case 18:
+                                                                                                                                                                                                                                                   break label3502;
+                                                                                                                                                                                                                                                case 19:
+                                                                                                                                                                                                                                                   break label3515;
+                                                                                                                                                                                                                                                case 20:
+                                                                                                                                                                                                                                                   break label3513;
+                                                                                                                                                                                                                                                case 21:
+                                                                                                                                                                                                                                                   break label3860;
+                                                                                                                                                                                                                                                case 22:
+                                                                                                                                                                                                                                                   break label3872;
+                                                                                                                                                                                                                                                case 23:
+                                                                                                                                                                                                                                                   break label3546;
+                                                                                                                                                                                                                                                case 24:
+                                                                                                                                                                                                                                                   break label3518;
+                                                                                                                                                                                                                                                case 25:
+                                                                                                                                                                                                                                                   break label3859;
+                                                                                                                                                                                                                                                case 26:
+                                                                                                                                                                                                                                                   break label3866;
+                                                                                                                                                                                                                                                case 27:
+                                                                                                                                                                                                                                                   break label3516;
+                                                                                                                                                                                                                                                case 28:
+                                                                                                                                                                                                                                                   break label3855;
+                                                                                                                                                                                                                                                case 29:
+                                                                                                                                                                                                                                                   break label3871;
+                                                                                                                                                                                                                                                case 30:
+                                                                                                                                                                                                                                                   break label3865;
+                                                                                                                                                                                                                                                case 31:
+                                                                                                                                                                                                                                                   break label3864;
+                                                                                                                                                                                                                                                case 32:
+                                                                                                                                                                                                                                                   break label3510;
+                                                                                                                                                                                                                                                case 33:
+                                                                                                                                                                                                                                                   break label3543;
+                                                                                                                                                                                                                                                case 34:
+                                                                                                                                                                                                                                                   break label3862;
+                                                                                                                                                                                                                                                case 35:
+                                                                                                                                                                                                                                                   break label3541;
+                                                                                                                                                                                                                                                case 36:
+                                                                                                                                                                                                                                                   break label3858;
+                                                                                                                                                                                                                                                case 37:
+                                                                                                                                                                                                                                                   break label3509;
+                                                                                                                                                                                                                                                case 38:
+                                                                                                                                                                                                                                                   break label3539;
+                                                                                                                                                                                                                                                case 39:
+                                                                                                                                                                                                                                                   break label3861;
+                                                                                                                                                                                                                                                case 40:
+                                                                                                                                                                                                                                                   break label3537;
+                                                                                                                                                                                                                                                case 41:
                                                                                                                                                                                                                                                    break label3535;
-                                                                                                                                                                                                                                                case 48:
-                                                                                                                                                                                                                                                   break label3327;
-                                                                                                                                                                                                                                                case 49:
-                                                                                                                                                                                                                                                   break label3531;
-                                                                                                                                                                                                                                                case 50:
-                                                                                                                                                                                                                                                   break label3561;
-                                                                                                                                                                                                                                                case 51:
+                                                                                                                                                                                                                                                case 42:
                                                                                                                                                                                                                                                    break label3533;
+                                                                                                                                                                                                                                                case 43:
+                                                                                                                                                                                                                                                   break label3526;
+                                                                                                                                                                                                                                                case 44:
+                                                                                                                                                                                                                                                   break label3531;
+                                                                                                                                                                                                                                                case 45:
+                                                                                                                                                                                                                                                   break label3863;
+                                                                                                                                                                                                                                                case 46:
+                                                                                                                                                                                                                                                   break label3524;
+                                                                                                                                                                                                                                                case 47:
+                                                                                                                                                                                                                                                   break label3527;
+                                                                                                                                                                                                                                                case 48:
+                                                                                                                                                                                                                                                   break label3319;
+                                                                                                                                                                                                                                                case 49:
+                                                                                                                                                                                                                                                   break label3523;
+                                                                                                                                                                                                                                                case 50:
+                                                                                                                                                                                                                                                   break label3553;
+                                                                                                                                                                                                                                                case 51:
+                                                                                                                                                                                                                                                   break label3525;
                                                                                                                                                                                                                                                 case 52:
-                                                                                                                                                                                                                                                   break label3886;
+                                                                                                                                                                                                                                                   break label3552;
                                                                                                                                                                                                                                                 case 53:
                                                                                                                                                                                                                                                    break;
                                                                                                                                                                                                                                                 case 54:
-                                                                                                                                                                                                                                                   break label3568;
+                                                                                                                                                                                                                                                   break label3560;
                                                                                                                                                                                                                                                 case 55:
-                                                                                                                                                                                                                                                   break label3566;
+                                                                                                                                                                                                                                                   break label3558;
                                                                                                                                                                                                                                                 case 56:
-                                                                                                                                                                                                                                                   break label3577;
-                                                                                                                                                                                                                                                case 57:
-                                                                                                                                                                                                                                                   break label3575;
-                                                                                                                                                                                                                                                case 58:
-                                                                                                                                                                                                                                                   break label3573;
-                                                                                                                                                                                                                                                case 59:
-                                                                                                                                                                                                                                                   break label3889;
-                                                                                                                                                                                                                                                case 60:
-                                                                                                                                                                                                                                                   break label3574;
-                                                                                                                                                                                                                                                case 61:
                                                                                                                                                                                                                                                    break label3569;
+                                                                                                                                                                                                                                                case 57:
+                                                                                                                                                                                                                                                   break label3879;
+                                                                                                                                                                                                                                                case 58:
+                                                                                                                                                                                                                                                   break label3878;
+                                                                                                                                                                                                                                                case 59:
+                                                                                                                                                                                                                                                   break label3877;
+                                                                                                                                                                                                                                                case 60:
+                                                                                                                                                                                                                                                   break label3566;
+                                                                                                                                                                                                                                                case 61:
+                                                                                                                                                                                                                                                   break label3561;
                                                                                                                                                                                                                                                 case 62:
-                                                                                                                                                                                                                                                   break label3578;
+                                                                                                                                                                                                                                                   break label3570;
                                                                                                                                                                                                                                                 case 63:
-                                                                                                                                                                                                                                                   break label3567;
+                                                                                                                                                                                                                                                   break label3559;
                                                                                                                                                                                                                                                 case 64:
-                                                                                                                                                                                                                                                   break label3890;
+                                                                                                                                                                                                                                                   break label3880;
                                                                                                                                                                                                                                                 case 65:
                                                                                                                                                                                                                                                    this.untranslated(0);
                                                                                                                                                                                                                                                    return;
@@ -21352,7 +21392,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                                                                              if(var4 != 0) {
                                                                                                                                                                                                                                                 return;
                                                                                                                                                                                                                                              }
-                                                                                                                                                                                                                                             break label3888;
+                                                                                                                                                                                                                                             break label3876;
                                                                                                                                                                                                                                           }
 
                                                                                                                                                                                                                                           int var6 = this.$739F();
@@ -21363,7 +21403,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                                                                           if(var6 != 0) {
                                                                                                                                                                                                                                              return;
                                                                                                                                                                                                                                           }
-                                                                                                                                                                                                                                          break label3888;
+                                                                                                                                                                                                                                          break label3876;
                                                                                                                                                                                                                                        }
 
                                                                                                                                                                                                                                        int var7 = this.$73A4();
@@ -21374,7 +21414,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                                                                        if(var7 != 0) {
                                                                                                                                                                                                                                           return;
                                                                                                                                                                                                                                        }
-                                                                                                                                                                                                                                       break label3571;
+                                                                                                                                                                                                                                       break label3563;
                                                                                                                                                                                                                                     }
 
                                                                                                                                                                                                                                     int var12 = this.$73EF();
@@ -21385,7 +21425,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                                                                     if(var12 != 0) {
                                                                                                                                                                                                                                        return;
                                                                                                                                                                                                                                     }
-                                                                                                                                                                                                                                    break label3571;
+                                                                                                                                                                                                                                    break label3563;
                                                                                                                                                                                                                                  }
 
                                                                                                                                                                                                                                  int var9 = this.$73C5();
@@ -21396,7 +21436,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                                                                  if(var9 != 0) {
                                                                                                                                                                                                                                     return;
                                                                                                                                                                                                                                  }
-                                                                                                                                                                                                                                 break label3565;
+                                                                                                                                                                                                                                 break label3557;
                                                                                                                                                                                                                               }
 
                                                                                                                                                                                                                               int var11 = this.$73EB();
@@ -21407,7 +21447,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                                                               if(var11 != 0) {
                                                                                                                                                                                                                                  return;
                                                                                                                                                                                                                               }
-                                                                                                                                                                                                                              break label3565;
+                                                                                                                                                                                                                              break label3557;
                                                                                                                                                                                                                            }
 
                                                                                                                                                                                                                            int var14 = this.$7406();
@@ -21418,7 +21458,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                                                            if(var14 != 0) {
                                                                                                                                                                                                                               return;
                                                                                                                                                                                                                            }
-                                                                                                                                                                                                                           break label3564;
+                                                                                                                                                                                                                           break label3556;
                                                                                                                                                                                                                         }
 
                                                                                                                                                                                                                         int var15 = this.$742B();
@@ -21429,7 +21469,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                                                         if(var15 != 0) {
                                                                                                                                                                                                                            return;
                                                                                                                                                                                                                         }
-                                                                                                                                                                                                                        break label3564;
+                                                                                                                                                                                                                        break label3556;
                                                                                                                                                                                                                      }
 
                                                                                                                                                                                                                      int var8 = this.$73A6();
@@ -21440,7 +21480,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                                                      if(var8 != 0) {
                                                                                                                                                                                                                         return;
                                                                                                                                                                                                                      }
-                                                                                                                                                                                                                     break label3564;
+                                                                                                                                                                                                                     break label3556;
                                                                                                                                                                                                                   }
 
                                                                                                                                                                                                                   int var5 = this.$7384();
@@ -21451,7 +21491,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                                                   if(var5 != 0) {
                                                                                                                                                                                                                      return;
                                                                                                                                                                                                                   }
-                                                                                                                                                                                                                  break label3564;
+                                                                                                                                                                                                                  break label3556;
                                                                                                                                                                                                                }
 
                                                                                                                                                                                                                int var3 = this.$734D();
@@ -21462,7 +21502,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                                                if(var3 != 0) {
                                                                                                                                                                                                                   return;
                                                                                                                                                                                                                }
-                                                                                                                                                                                                               break label3564;
+                                                                                                                                                                                                               break label3556;
                                                                                                                                                                                                             }
 
                                                                                                                                                                                                             int var16 = this.$7452();
@@ -21473,7 +21513,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                                             if(var16 != 0) {
                                                                                                                                                                                                                return;
                                                                                                                                                                                                             }
-                                                                                                                                                                                                            break label3564;
+                                                                                                                                                                                                            break label3556;
                                                                                                                                                                                                          }
 
                                                                                                                                                                                                          int var17 = this.$B38F();
@@ -21484,7 +21524,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                                          if(var17 != 0) {
                                                                                                                                                                                                             return;
                                                                                                                                                                                                          }
-                                                                                                                                                                                                         break label3564;
+                                                                                                                                                                                                         break label3556;
                                                                                                                                                                                                       }
 
                                                                                                                                                                                                       int var13 = this.$73F3();
@@ -21495,7 +21535,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                                       if(var13 != 0) {
                                                                                                                                                                                                          return;
                                                                                                                                                                                                       }
-                                                                                                                                                                                                      break label3564;
+                                                                                                                                                                                                      break label3556;
                                                                                                                                                                                                    }
 
                                                                                                                                                                                                    int var10 = this.$73C7();
@@ -21543,7 +21583,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                        if(var541 != 0) {
                                                                                                                                                                                           return;
                                                                                                                                                                                        }
-                                                                                                                                                                                       break label3527;
+                                                                                                                                                                                       break label3519;
                                                                                                                                                                                     }
 
                                                                                                                                                                                     int var543 = this.$A174();
@@ -21554,7 +21594,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                     if(var543 != 0) {
                                                                                                                                                                                        return;
                                                                                                                                                                                     }
-                                                                                                                                                                                    break label3527;
+                                                                                                                                                                                    break label3519;
                                                                                                                                                                                  }
 
                                                                                                                                                                                  int var545 = this.$A1A1();
@@ -21565,7 +21605,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                                  if(var545 != 0) {
                                                                                                                                                                                     return;
                                                                                                                                                                                  }
-                                                                                                                                                                                 break label3527;
+                                                                                                                                                                                 break label3519;
                                                                                                                                                                               }
 
                                                                                                                                                                               int var501 = this.$A10B();
@@ -21576,7 +21616,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                               if(var501 != 0) {
                                                                                                                                                                                  return;
                                                                                                                                                                               }
-                                                                                                                                                                              break label3516;
+                                                                                                                                                                              break label3508;
                                                                                                                                                                            }
 
                                                                                                                                                                            int var504 = this.$A106();
@@ -21587,7 +21627,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                            if(var504 != 0) {
                                                                                                                                                                               return;
                                                                                                                                                                            }
-                                                                                                                                                                           break label3516;
+                                                                                                                                                                           break label3508;
                                                                                                                                                                         }
 
                                                                                                                                                                         int var505 = this.$A101();
@@ -21598,7 +21638,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                         if(var505 != 0) {
                                                                                                                                                                            return;
                                                                                                                                                                         }
-                                                                                                                                                                        break label3516;
+                                                                                                                                                                        break label3508;
                                                                                                                                                                      }
 
                                                                                                                                                                      int var509 = this.$A0F7();
@@ -21609,7 +21649,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                      if(var509 != 0) {
                                                                                                                                                                         return;
                                                                                                                                                                      }
-                                                                                                                                                                     break label3516;
+                                                                                                                                                                     break label3508;
                                                                                                                                                                   }
 
                                                                                                                                                                   int var515 = this.$A0E8();
@@ -21620,7 +21660,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                   if(var515 != 0) {
                                                                                                                                                                      return;
                                                                                                                                                                   }
-                                                                                                                                                                  break label3516;
+                                                                                                                                                                  break label3508;
                                                                                                                                                                }
 
                                                                                                                                                                int var516 = this.$A0ED();
@@ -21631,7 +21671,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                                if(var516 != 0) {
                                                                                                                                                                   return;
                                                                                                                                                                }
-                                                                                                                                                               break label3516;
+                                                                                                                                                               break label3508;
                                                                                                                                                             }
 
                                                                                                                                                             int var522 = this.$A0DF();
@@ -21642,7 +21682,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                             if(var522 != 0) {
                                                                                                                                                                return;
                                                                                                                                                             }
-                                                                                                                                                            break label3516;
+                                                                                                                                                            break label3508;
                                                                                                                                                          }
 
                                                                                                                                                          int var492 = this.$A142();
@@ -21653,7 +21693,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                          if(var492 != 0) {
                                                                                                                                                             return;
                                                                                                                                                          }
-                                                                                                                                                         break label3527;
+                                                                                                                                                         break label3519;
                                                                                                                                                       }
 
                                                                                                                                                       int var526 = this.$A110();
@@ -21664,7 +21704,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                       if(var526 != 0) {
                                                                                                                                                          return;
                                                                                                                                                       }
-                                                                                                                                                      break label3516;
+                                                                                                                                                      break label3508;
                                                                                                                                                    }
 
                                                                                                                                                    int var503 = this.$A179();
@@ -21675,7 +21715,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                    if(var503 != 0) {
                                                                                                                                                       return;
                                                                                                                                                    }
-                                                                                                                                                   break label3527;
+                                                                                                                                                   break label3519;
                                                                                                                                                 }
 
                                                                                                                                                 int var528 = this.$A115();
@@ -21686,7 +21726,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                                 if(var528 != 0) {
                                                                                                                                                    return;
                                                                                                                                                 }
-                                                                                                                                                break label3516;
+                                                                                                                                                break label3508;
                                                                                                                                              }
 
                                                                                                                                              int var507 = this.$A16F();
@@ -21697,7 +21737,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                              if(var507 != 0) {
                                                                                                                                                 return;
                                                                                                                                              }
-                                                                                                                                             break label3527;
+                                                                                                                                             break label3519;
                                                                                                                                           }
 
                                                                                                                                           int var531 = this.$A11F();
@@ -21708,7 +21748,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                           if(var531 != 0) {
                                                                                                                                              return;
                                                                                                                                           }
-                                                                                                                                          break label3516;
+                                                                                                                                          break label3508;
                                                                                                                                        }
 
                                                                                                                                        int var508 = this.$A16A();
@@ -21719,7 +21759,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                        if(var508 != 0) {
                                                                                                                                           return;
                                                                                                                                        }
-                                                                                                                                       break label3527;
+                                                                                                                                       break label3519;
                                                                                                                                     }
 
                                                                                                                                     int var533 = this.$A124();
@@ -21730,7 +21770,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                     if(var533 != 0) {
                                                                                                                                        return;
                                                                                                                                     }
-                                                                                                                                    break label3516;
+                                                                                                                                    break label3508;
                                                                                                                                  }
 
                                                                                                                                  int var510 = this.$A15F();
@@ -21741,7 +21781,7 @@ public class Saboteur extends MiniZX {
                                                                                                                                  if(var510 != 0) {
                                                                                                                                     return;
                                                                                                                                  }
-                                                                                                                                 break label3527;
+                                                                                                                                 break label3519;
                                                                                                                               }
 
                                                                                                                               int var534 = this.$A129();
@@ -21752,7 +21792,7 @@ public class Saboteur extends MiniZX {
                                                                                                                               if(var534 != 0) {
                                                                                                                                  return;
                                                                                                                               }
-                                                                                                                              break label3516;
+                                                                                                                              break label3508;
                                                                                                                            }
 
                                                                                                                            int var519 = this.$A14F();
@@ -21763,7 +21803,7 @@ public class Saboteur extends MiniZX {
                                                                                                                            if(var519 != 0) {
                                                                                                                               return;
                                                                                                                            }
-                                                                                                                           break label3527;
+                                                                                                                           break label3519;
                                                                                                                         }
 
                                                                                                                         int var535 = this.$A12E();
@@ -21774,7 +21814,7 @@ public class Saboteur extends MiniZX {
                                                                                                                         if(var535 != 0) {
                                                                                                                            return;
                                                                                                                         }
-                                                                                                                        break label3516;
+                                                                                                                        break label3508;
                                                                                                                      }
 
                                                                                                                      int var523 = this.$A183();
@@ -21785,7 +21825,7 @@ public class Saboteur extends MiniZX {
                                                                                                                      if(var523 != 0) {
                                                                                                                         return;
                                                                                                                      }
-                                                                                                                     break label3527;
+                                                                                                                     break label3519;
                                                                                                                   }
 
                                                                                                                   int var537 = this.$A138();
@@ -21796,7 +21836,7 @@ public class Saboteur extends MiniZX {
                                                                                                                   if(var537 != 0) {
                                                                                                                      return;
                                                                                                                   }
-                                                                                                                  break label3516;
+                                                                                                                  break label3508;
                                                                                                                }
 
                                                                                                                int var524 = this.$A188();
@@ -21807,7 +21847,7 @@ public class Saboteur extends MiniZX {
                                                                                                                if(var524 != 0) {
                                                                                                                   return;
                                                                                                                }
-                                                                                                               break label3527;
+                                                                                                               break label3519;
                                                                                                             }
 
                                                                                                             int var538 = this.$A133();
@@ -21818,7 +21858,7 @@ public class Saboteur extends MiniZX {
                                                                                                             if(var538 != 0) {
                                                                                                                return;
                                                                                                             }
-                                                                                                            break label3516;
+                                                                                                            break label3508;
                                                                                                          }
 
                                                                                                          int var527 = this.$B368();
@@ -21829,7 +21869,7 @@ public class Saboteur extends MiniZX {
                                                                                                          if(var527 != 0) {
                                                                                                             return;
                                                                                                          }
-                                                                                                         break label3527;
+                                                                                                         break label3519;
                                                                                                       }
 
                                                                                                       int var540 = this.$A11A();
@@ -21840,7 +21880,7 @@ public class Saboteur extends MiniZX {
                                                                                                       if(var540 != 0) {
                                                                                                          return;
                                                                                                       }
-                                                                                                      break label3516;
+                                                                                                      break label3508;
                                                                                                    }
 
                                                                                                    int var536 = this.$A19C();
@@ -21851,7 +21891,7 @@ public class Saboteur extends MiniZX {
                                                                                                    if(var536 != 0) {
                                                                                                       return;
                                                                                                    }
-                                                                                                   break label3527;
+                                                                                                   break label3519;
                                                                                                 }
 
                                                                                                 int var544 = this.$A0FC();
@@ -21862,7 +21902,7 @@ public class Saboteur extends MiniZX {
                                                                                                 if(var544 != 0) {
                                                                                                    return;
                                                                                                 }
-                                                                                                break label3516;
+                                                                                                break label3508;
                                                                                              }
 
                                                                                              int var539 = this.$A192();
@@ -21873,7 +21913,7 @@ public class Saboteur extends MiniZX {
                                                                                              if(var539 != 0) {
                                                                                                 return;
                                                                                              }
-                                                                                             break label3527;
+                                                                                             break label3519;
                                                                                           }
 
                                                                                           int var542 = this.$A36B();
@@ -21884,7 +21924,7 @@ public class Saboteur extends MiniZX {
                                                                                           if(var542 != 0) {
                                                                                              return;
                                                                                           }
-                                                                                          break label3513;
+                                                                                          break label3505;
                                                                                        }
 
                                                                                        int var495 = this.$A353();
@@ -21895,7 +21935,7 @@ public class Saboteur extends MiniZX {
                                                                                        if(var495 != 0) {
                                                                                           return;
                                                                                        }
-                                                                                       break label3513;
+                                                                                       break label3505;
                                                                                     }
 
                                                                                     int var497 = this.$A1C0();
@@ -21906,7 +21946,7 @@ public class Saboteur extends MiniZX {
                                                                                     if(var497 != 0) {
                                                                                        return;
                                                                                     }
-                                                                                    break label3514;
+                                                                                    break label3506;
                                                                                  }
 
                                                                                  int var499 = this.$A37F();
@@ -21917,7 +21957,7 @@ public class Saboteur extends MiniZX {
                                                                                  if(var499 != 0) {
                                                                                     return;
                                                                                  }
-                                                                                 break label3513;
+                                                                                 break label3505;
                                                                               }
 
                                                                               int var493 = this.$A145();
@@ -21928,7 +21968,7 @@ public class Saboteur extends MiniZX {
                                                                               if(var493 != 0) {
                                                                                  return;
                                                                               }
-                                                                              break label3515;
+                                                                              break label3507;
                                                                            }
 
                                                                            int var517 = this.$A1CB();
@@ -21939,7 +21979,7 @@ public class Saboteur extends MiniZX {
                                                                            if(var517 != 0) {
                                                                               return;
                                                                            }
-                                                                           break label3514;
+                                                                           break label3506;
                                                                         }
 
                                                                         int var506 = this.$A375();
@@ -21950,7 +21990,7 @@ public class Saboteur extends MiniZX {
                                                                         if(var506 != 0) {
                                                                            return;
                                                                         }
-                                                                        break label3513;
+                                                                        break label3505;
                                                                      }
 
                                                                      int var520 = this.$A1B5();
@@ -21961,7 +22001,7 @@ public class Saboteur extends MiniZX {
                                                                      if(var520 != 0) {
                                                                         return;
                                                                      }
-                                                                     break label3514;
+                                                                     break label3506;
                                                                   }
 
                                                                   int var512 = this.$A370();
@@ -21972,7 +22012,7 @@ public class Saboteur extends MiniZX {
                                                                   if(var512 != 0) {
                                                                      return;
                                                                   }
-                                                                  break label3513;
+                                                                  break label3505;
                                                                }
 
                                                                int var532 = this.$A1D6();
@@ -21983,7 +22023,7 @@ public class Saboteur extends MiniZX {
                                                                if(var532 != 0) {
                                                                   return;
                                                                }
-                                                               break label3514;
+                                                               break label3506;
                                                             }
 
                                                             int var513 = this.$A361();
@@ -21994,7 +22034,7 @@ public class Saboteur extends MiniZX {
                                                             if(var513 != 0) {
                                                                return;
                                                             }
-                                                            break label3513;
+                                                            break label3505;
                                                          }
 
                                                          int var514 = this.$A35C();
@@ -22005,7 +22045,7 @@ public class Saboteur extends MiniZX {
                                                          if(var514 != 0) {
                                                             return;
                                                          }
-                                                         break label3513;
+                                                         break label3505;
                                                       }
 
                                                       int var518 = this.$A38E();
@@ -22016,7 +22056,7 @@ public class Saboteur extends MiniZX {
                                                       if(var518 != 0) {
                                                          return;
                                                       }
-                                                      break label3513;
+                                                      break label3505;
                                                    }
 
                                                    int var525 = this.$A384();
@@ -22027,7 +22067,7 @@ public class Saboteur extends MiniZX {
                                                    if(var525 != 0) {
                                                       return;
                                                    }
-                                                   break label3513;
+                                                   break label3505;
                                                 }
 
                                                 int var530 = this.$A389();
@@ -22038,7 +22078,7 @@ public class Saboteur extends MiniZX {
                                                 if(var530 != 0) {
                                                    return;
                                                 }
-                                                break label3513;
+                                                break label3505;
                                              }
 
                                              int var502 = this.$A0E2();
@@ -22059,7 +22099,7 @@ public class Saboteur extends MiniZX {
                                           if(var494 != 0) {
                                              return;
                                           }
-                                          break label3866;
+                                          break label3856;
                                        }
 
                                        int var498 = this.$A1AF();
@@ -22070,7 +22110,7 @@ public class Saboteur extends MiniZX {
                                        if(var498 != 0) {
                                           return;
                                        }
-                                       break label3866;
+                                       break label3856;
                                     }
 
                                     int var496 = this.$A356();
@@ -22081,7 +22121,7 @@ public class Saboteur extends MiniZX {
                                     if(var496 != 0) {
                                        return;
                                     }
-                                    break label3866;
+                                    break label3856;
                                  }
 
                                  int var529 = this.$C681();
@@ -22094,7 +22134,7 @@ public class Saboteur extends MiniZX {
                                  }
 
                                  this.setNextAddress('\uc68f');
-                                 break label3865;
+                                 break label3855;
                               }
 
                               int var500 = this.$F973();
@@ -22105,7 +22145,7 @@ public class Saboteur extends MiniZX {
                               if(var500 != 0) {
                                  return;
                               }
-                              break label3866;
+                              break label3856;
                            }
 
                            int var511 = this.$791B();
@@ -22116,7 +22156,7 @@ public class Saboteur extends MiniZX {
                            if(var511 != 0) {
                               return;
                            }
-                           break label3505;
+                           break label3497;
                         }
 
                         int var19 = this.$B422();
@@ -22127,7 +22167,7 @@ public class Saboteur extends MiniZX {
                         if(var19 != 0) {
                            return;
                         }
-                        break label3505;
+                        break label3497;
                      }
 
                      int var521 = this.$C671();
@@ -22138,7 +22178,7 @@ public class Saboteur extends MiniZX {
                      if(var521 != 0) {
                         return;
                      }
-                     break label3505;
+                     break label3497;
                   }
 
                   int var490 = this.$C64C();
@@ -22149,7 +22189,7 @@ public class Saboteur extends MiniZX {
                   if(var490 != 0) {
                      return;
                   }
-                  break label3505;
+                  break label3497;
                }
 
                int var491 = this.$B42E();
@@ -22178,72 +22218,72 @@ public class Saboteur extends MiniZX {
 
          label2789:
          while(true) {
-            label3892: {
-               label3893: {
-                  label3894: {
-                     label3895: {
-                        label3586: {
-                           label3896: {
-                              label3897: {
-                                 label3898: {
-                                    label3899: {
-                                       label3900: {
-                                          label3592: {
-                                             label3901: {
-                                                label3902: {
-                                                   label3595: {
-                                                      label3596: {
-                                                         label3597: {
-                                                            label3903: {
-                                                               label3904: {
-                                                                  label3905: {
-                                                                     label3906: {
-                                                                        label3907: {
-                                                                           label3908: {
-                                                                              label3604: {
-                                                                                 label3909: {
-                                                                                    label3606: {
-                                                                                       label3607: {
-                                                                                          label3910: {
-                                                                                             label3911: {
-                                                                                                label3610: {
+            label3882: {
+               label3883: {
+                  label3884: {
+                     label3885: {
+                        label3578: {
+                           label3886: {
+                              label3887: {
+                                 label3888: {
+                                    label3889: {
+                                       label3890: {
+                                          label3584: {
+                                             label3891: {
+                                                label3892: {
+                                                   label3587: {
+                                                      label3588: {
+                                                         label3589: {
+                                                            label3893: {
+                                                               label3894: {
+                                                                  label3895: {
+                                                                     label3896: {
+                                                                        label3897: {
+                                                                           label3898: {
+                                                                              label3596: {
+                                                                                 label3597: {
+                                                                                    label3899: {
+                                                                                       label3599: {
+                                                                                          label3900: {
+                                                                                             label3901: {
+                                                                                                label3602: {
                                                                                                    label2684: {
                                                                                                       switch(super.nextAddress) {
                                                                                                       case 31000:
                                                                                                          this.isNextPC(31000);
                                                                                                          this.setNextAddress(31000);
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       case 46111:
                                                                                                          this.isNextPC('\ub41f');
                                                                                                          this.setNextAddress('\ub41f');
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       case 46150:
                                                                                                          this.isNextPC('\ub446');
                                                                                                          this.setNextAddress('\ub446');
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       case 46156:
                                                                                                          this.isNextPC('\ub44c');
                                                                                                          this.setNextAddress('\ub44c');
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       case 46162:
                                                                                                          this.isNextPC('\ub452');
                                                                                                          this.setNextAddress('\ub452');
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       case 46168:
                                                                                                          this.isNextPC('\ub458');
                                                                                                          this.setNextAddress('\ub458');
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       case 46202:
                                                                                                          this.isNextPC('\ub47a');
                                                                                                          this.setNextAddress('\ub47a');
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       case 46211:
                                                                                                          this.isNextPC('\ub483');
                                                                                                          this.setNextAddress('\ub483');
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       case 46386:
                                                                                                          this.isNextPC('\ub532');
-                                                                                                         break label3900;
+                                                                                                         break label3890;
                                                                                                       case 47124:
                                                                                                          this.isNextPC('\ub814');
                                                                                                          break;
@@ -22257,155 +22297,155 @@ public class Saboteur extends MiniZX {
                                                                                                       case 47312:
                                                                                                          this.isNextPC('\ub8d0');
                                                                                                          this.setNextAddress('\ub8d0');
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       case 47415:
                                                                                                          this.isNextPC('\ub937');
                                                                                                          this.setNextAddress('\ub937');
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       case 47421:
                                                                                                          this.isNextPC('\ub93d');
                                                                                                          this.setNextAddress('\ub93d');
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       case 47648:
                                                                                                          this.isNextPC('\uba20');
                                                                                                          this.setNextAddress('\uba20');
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       case 47829:
                                                                                                          this.isNextPC('\ubad5');
                                                                                                          this.setNextAddress('\ubad5');
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       case 48039:
                                                                                                          this.isNextPC('\ubba7');
                                                                                                          this.setNextAddress('\ubba7');
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       case 48084:
                                                                                                          this.isNextPC('\ubbd4');
-                                                                                                         break label3905;
+                                                                                                         break label3895;
                                                                                                       case 48144:
                                                                                                          this.isNextPC('\ubc10');
                                                                                                          this.setNextAddress('\ubc10');
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       case 48213:
                                                                                                          this.isNextPC('\ubc55');
                                                                                                          this.setNextAddress('\ubc55');
                                                                                                          break label2684;
                                                                                                       case 48559:
                                                                                                          this.isNextPC('\ubdaf');
-                                                                                                         break label3907;
+                                                                                                         break label3897;
                                                                                                       case 48653:
                                                                                                          this.isNextPC('\ube0d');
-                                                                                                         break label3597;
+                                                                                                         break label3589;
                                                                                                       case 48739:
                                                                                                          this.isNextPC('\ube63');
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       case 48753:
                                                                                                          this.isNextPC('\ube71');
-                                                                                                         break label3592;
+                                                                                                         break label3584;
                                                                                                       case 48810:
                                                                                                          this.isNextPC('\ubeaa');
                                                                                                          this.setNextAddress('\ubeaa');
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       case 48811:
                                                                                                          this.isNextPC('\ubeab');
                                                                                                          this.setNextAddress('\ubeab');
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       case 48819:
                                                                                                          this.isNextPC('\ubeb3');
-                                                                                                         break label3596;
+                                                                                                         break label3588;
                                                                                                       case 49072:
                                                                                                          this.isNextPC('\ubfb0');
                                                                                                          this.setNextAddress('\ubfb0');
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       case 49100:
                                                                                                          this.isNextPC('\ubfcc');
-                                                                                                         break label3897;
+                                                                                                         break label3887;
                                                                                                       case 49300:
                                                                                                          this.isNextPC('\uc094');
-                                                                                                         break label3606;
+                                                                                                         break label3899;
                                                                                                       case 49518:
                                                                                                          this.isNextPC('\uc16e');
-                                                                                                         break label3898;
+                                                                                                         break label3888;
                                                                                                       case 49590:
                                                                                                          this.isNextPC('\uc1b6');
-                                                                                                         break label3901;
+                                                                                                         break label3891;
                                                                                                       case 49702:
                                                                                                          this.isNextPC('\uc226');
-                                                                                                         break label3899;
+                                                                                                         break label3889;
                                                                                                       case 49711:
                                                                                                          this.isNextPC('\uc22f');
-                                                                                                         break label3902;
+                                                                                                         break label3892;
                                                                                                       case 49739:
                                                                                                          this.isNextPC('\uc24b');
-                                                                                                         break label3595;
+                                                                                                         break label3587;
                                                                                                       case 49851:
                                                                                                          this.isNextPC('\uc2bb');
                                                                                                          this.setNextAddress('\uc2bb');
-                                                                                                         break label3901;
+                                                                                                         break label3891;
                                                                                                       case 49861:
                                                                                                          this.isNextPC('\uc2c5');
                                                                                                          this.setNextAddress('\uc2c5');
-                                                                                                         break label3901;
+                                                                                                         break label3891;
                                                                                                       case 49914:
                                                                                                          this.isNextPC('\uc2fa');
-                                                                                                         break label3895;
+                                                                                                         break label3885;
                                                                                                       case 49945:
                                                                                                          this.isNextPC('\uc319');
-                                                                                                         break label3586;
+                                                                                                         break label3578;
                                                                                                       case 49977:
                                                                                                          this.isNextPC('\uc339');
-                                                                                                         break label3910;
+                                                                                                         break label3900;
                                                                                                       case 50137:
                                                                                                          this.isNextPC('\uc3d9');
                                                                                                          this.setNextAddress('\uc3d9');
                                                                                                          break label2684;
                                                                                                       case 50343:
                                                                                                          this.isNextPC('\uc4a7');
-                                                                                                         break label3607;
+                                                                                                         break label3599;
                                                                                                       case 50384:
                                                                                                          this.isNextPC('\uc4d0');
-                                                                                                         break label3903;
+                                                                                                         break label3893;
                                                                                                       case 50398:
                                                                                                          this.isNextPC('\uc4de');
-                                                                                                         break label3904;
+                                                                                                         break label3894;
                                                                                                       case 50422:
                                                                                                          this.isNextPC('\uc4f6');
-                                                                                                         break label3906;
+                                                                                                         break label3896;
                                                                                                       case 50445:
                                                                                                          this.isNextPC('\uc50d');
-                                                                                                         break label3909;
+                                                                                                         break label3597;
                                                                                                       case 50592:
                                                                                                          this.isNextPC('\uc5a0');
-                                                                                                         break label3908;
+                                                                                                         break label3898;
                                                                                                       case 50630:
                                                                                                          this.isNextPC('\uc5c6');
-                                                                                                         break label3604;
+                                                                                                         break label3596;
                                                                                                       case 50692:
                                                                                                          this.isNextPC('\uc604');
-                                                                                                         break label3894;
+                                                                                                         break label3884;
                                                                                                       case 50723:
                                                                                                          this.isNextPC('\uc623');
-                                                                                                         break label3893;
+                                                                                                         break label3883;
                                                                                                       case 50755:
                                                                                                          this.isNextPC('\uc643');
-                                                                                                         break label3896;
+                                                                                                         break label3886;
                                                                                                       case 50853:
                                                                                                          this.isNextPC('\uc6a5');
                                                                                                          this.setNextAddress('\uc6a5');
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       case 50914:
                                                                                                          this.isNextPC('\uc6e2');
                                                                                                          this.setNextAddress('\uc6e2');
                                                                                                          break label2684;
                                                                                                       case 50933:
                                                                                                          this.isNextPC('\uc6f5');
-                                                                                                         break label3911;
+                                                                                                         break label3901;
                                                                                                       case 50956:
                                                                                                          this.isNextPC('\uc70c');
-                                                                                                         break label3610;
+                                                                                                         break label3602;
                                                                                                       case 57243:
                                                                                                          this.isNextPC('\udf9b');
                                                                                                          this.setNextAddress('\udf9b');
-                                                                                                         break label3892;
+                                                                                                         break label3882;
                                                                                                       default:
                                                                                                          int var489 = this.$B77B();
                                                                                                          if(this.unwinding()) {
@@ -22414,7 +22454,7 @@ public class Saboteur extends MiniZX {
 
                                                                                                          switch(var489) {
                                                                                                          case 0:
-                                                                                                            break label3592;
+                                                                                                            break label3584;
                                                                                                          case 1:
                                                                                                             break;
                                                                                                          default:
@@ -22464,72 +22504,72 @@ public class Saboteur extends MiniZX {
                                                                                                    switch(var461) {
                                                                                                    case 0:
                                                                                                       this.setNextAddress('\ub8d0');
-                                                                                                      break label3892;
+                                                                                                      break label3882;
                                                                                                    case 1:
-                                                                                                      break label3900;
+                                                                                                      break label3890;
                                                                                                    case 2:
-                                                                                                      break label3906;
+                                                                                                      break label3896;
                                                                                                    case 3:
-                                                                                                      break label3909;
+                                                                                                      break label3597;
                                                                                                    case 4:
-                                                                                                      break label3908;
+                                                                                                      break label3898;
                                                                                                    case 5:
-                                                                                                      break label3604;
+                                                                                                      break label3596;
                                                                                                    case 6:
-                                                                                                      break label3902;
+                                                                                                      break label3892;
                                                                                                    case 7:
-                                                                                                      break label3901;
+                                                                                                      break label3891;
                                                                                                    case 8:
-                                                                                                      break label3910;
+                                                                                                      break label3900;
                                                                                                    case 9:
-                                                                                                      break label3595;
+                                                                                                      break label3587;
                                                                                                    case 10:
-                                                                                                      break label3905;
+                                                                                                      break label3895;
                                                                                                    case 11:
-                                                                                                      break label3607;
+                                                                                                      break label3599;
                                                                                                    case 12:
-                                                                                                      break label3904;
+                                                                                                      break label3894;
                                                                                                    case 13:
-                                                                                                      break label3907;
+                                                                                                      break label3897;
                                                                                                    case 14:
                                                                                                       break;
                                                                                                    case 15:
-                                                                                                      break label3597;
+                                                                                                      break label3589;
                                                                                                    case 16:
-                                                                                                      break label3606;
+                                                                                                      break label3899;
                                                                                                    case 17:
                                                                                                       this.setNextAddress('\ubeab');
-                                                                                                      break label3892;
+                                                                                                      break label3882;
                                                                                                    case 18:
-                                                                                                      break label3896;
+                                                                                                      break label3886;
                                                                                                    case 19:
                                                                                                       this.setNextAddress('\ub8d0');
-                                                                                                      break label3892;
+                                                                                                      break label3882;
                                                                                                    case 20:
                                                                                                       this.setNextAddress('\ub8d0');
-                                                                                                      break label3892;
+                                                                                                      break label3882;
                                                                                                    case 21:
                                                                                                       this.setNextAddress('\ub8d0');
-                                                                                                      break label3892;
+                                                                                                      break label3882;
                                                                                                    case 22:
                                                                                                       this.setNextAddress('\ubfb0');
-                                                                                                      break label3892;
+                                                                                                      break label3882;
                                                                                                    case 23:
                                                                                                       this.setNextAddress('\ubfb0');
-                                                                                                      break label3892;
+                                                                                                      break label3882;
                                                                                                    case 24:
                                                                                                       this.setNextAddress('\ubfb0');
-                                                                                                      break label3892;
+                                                                                                      break label3882;
                                                                                                    case 25:
                                                                                                       this.setNextAddress('\ubfb0');
-                                                                                                      break label3892;
+                                                                                                      break label3882;
                                                                                                    case 26:
                                                                                                    case 27:
                                                                                                    case 32:
                                                                                                    case 34:
                                                                                                    case 35:
                                                                                                    case 36:
-                                                                                                      break label3898;
+                                                                                                      break label3888;
                                                                                                    case 28:
                                                                                                       this.$C4ED();
                                                                                                       if(this.unwinding()) {
@@ -22546,26 +22586,26 @@ public class Saboteur extends MiniZX {
                                                                                                       return;
                                                                                                    case 30:
                                                                                                       this.setNextAddress('\ubfb0');
-                                                                                                      break label3892;
+                                                                                                      break label3882;
                                                                                                    case 31:
-                                                                                                      break label3897;
+                                                                                                      break label3887;
                                                                                                    case 33:
                                                                                                       this.setNextAddress('\ubfb0');
-                                                                                                      break label3892;
+                                                                                                      break label3882;
                                                                                                    case 37:
-                                                                                                      break label3899;
+                                                                                                      break label3889;
                                                                                                    case 38:
-                                                                                                      break label3893;
+                                                                                                      break label3883;
                                                                                                    case 39:
                                                                                                       this.setNextAddress('\ub8d0');
-                                                                                                      break label3892;
+                                                                                                      break label3882;
                                                                                                    case 40:
-                                                                                                      break label3894;
+                                                                                                      break label3884;
                                                                                                    case 41:
                                                                                                       this.setNextAddress('\ub8d0');
-                                                                                                      break label3892;
+                                                                                                      break label3882;
                                                                                                    case 42:
-                                                                                                      break label3911;
+                                                                                                      break label3901;
                                                                                                    default:
                                                                                                       return;
                                                                                                    }
@@ -22588,10 +22628,10 @@ public class Saboteur extends MiniZX {
 
                                                                                              switch(var483) {
                                                                                              case 0:
-                                                                                                break label3899;
+                                                                                                break label3889;
                                                                                              case 1:
                                                                                                 this.setNextAddress('\ub8d0');
-                                                                                                break label3892;
+                                                                                                break label3882;
                                                                                              default:
                                                                                                 return;
                                                                                              }
@@ -22605,15 +22645,15 @@ public class Saboteur extends MiniZX {
                                                                                           switch(var475) {
                                                                                           case 0:
                                                                                              this.setNextAddress('\ub8d0');
-                                                                                             break label3892;
+                                                                                             break label3882;
                                                                                           case 1:
-                                                                                             break label3903;
+                                                                                             break label3893;
                                                                                           case 2:
                                                                                              this.setNextAddress('\ubfb0');
-                                                                                             break label3892;
+                                                                                             break label3882;
                                                                                           case 3:
                                                                                              this.setNextAddress('\ubfb0');
-                                                                                             break label3892;
+                                                                                             break label3882;
                                                                                           default:
                                                                                              return;
                                                                                           }
@@ -22627,10 +22667,10 @@ public class Saboteur extends MiniZX {
                                                                                        switch(var479) {
                                                                                        case 0:
                                                                                           this.setNextAddress('\ub8d0');
-                                                                                          break label3892;
+                                                                                          break label3882;
                                                                                        case 1:
                                                                                        case 2:
-                                                                                          break label3903;
+                                                                                          break label3893;
                                                                                        default:
                                                                                           return;
                                                                                        }
@@ -22643,10 +22683,10 @@ public class Saboteur extends MiniZX {
 
                                                                                     switch(var485) {
                                                                                     case 0:
-                                                                                       break label3596;
+                                                                                       break label3588;
                                                                                     case 1:
                                                                                        this.setNextAddress('\ub8d0');
-                                                                                       break label3892;
+                                                                                       break label3882;
                                                                                     default:
                                                                                        return;
                                                                                     }
@@ -22659,17 +22699,17 @@ public class Saboteur extends MiniZX {
 
                                                                                  switch(var464) {
                                                                                  case 0:
-                                                                                    break label3586;
+                                                                                    break label3578;
                                                                                  case 1:
-                                                                                    break label3898;
+                                                                                    break label3888;
                                                                                  case 2:
                                                                                     this.setNextAddress('\ubeab');
-                                                                                    break label3892;
+                                                                                    break label3882;
                                                                                  case 3:
                                                                                     this.setNextAddress('\ubfb0');
-                                                                                    break label3892;
+                                                                                    break label3882;
                                                                                  case 4:
-                                                                                    break label3895;
+                                                                                    break label3885;
                                                                                  default:
                                                                                     return;
                                                                                  }
@@ -22682,15 +22722,15 @@ public class Saboteur extends MiniZX {
 
                                                                               switch(var469) {
                                                                               case 0:
-                                                                                 break label3894;
+                                                                                 break label3884;
                                                                               case 1:
                                                                                  this.setNextAddress('\ub8d0');
-                                                                                 break label3892;
+                                                                                 break label3882;
                                                                               case 2:
                                                                                  this.setNextAddress('\ubeab');
-                                                                                 break label3892;
+                                                                                 break label3882;
                                                                               case 3:
-                                                                                 break label3897;
+                                                                                 break label3887;
                                                                               default:
                                                                                  return;
                                                                               }
@@ -22704,7 +22744,7 @@ public class Saboteur extends MiniZX {
                                                                            if(var468 != 0) {
                                                                               return;
                                                                            }
-                                                                           break label3899;
+                                                                           break label3889;
                                                                         }
 
                                                                         int var481 = this.$BDAF();
@@ -22715,7 +22755,7 @@ public class Saboteur extends MiniZX {
                                                                         if(var481 != 0) {
                                                                            return;
                                                                         }
-                                                                        break label3899;
+                                                                        break label3889;
                                                                      }
 
                                                                      int var462 = this.$C4F6();
@@ -22726,12 +22766,12 @@ public class Saboteur extends MiniZX {
                                                                      switch(var462) {
                                                                      case 0:
                                                                         this.setNextAddress('\ubeab');
-                                                                        break label3892;
+                                                                        break label3882;
                                                                      case 1:
-                                                                        break label3899;
+                                                                        break label3889;
                                                                      case 2:
                                                                         this.setNextAddress('\ubfb0');
-                                                                        break label3892;
+                                                                        break label3882;
                                                                      default:
                                                                         return;
                                                                      }
@@ -22745,9 +22785,9 @@ public class Saboteur extends MiniZX {
                                                                   switch(var478) {
                                                                   case 0:
                                                                      this.setNextAddress('\ub8d0');
-                                                                     break label3892;
+                                                                     break label3882;
                                                                   case 1:
-                                                                     break label3899;
+                                                                     break label3889;
                                                                   default:
                                                                      return;
                                                                   }
@@ -22761,9 +22801,9 @@ public class Saboteur extends MiniZX {
                                                                switch(var480) {
                                                                case 0:
                                                                   this.setNextAddress('\ub8d0');
-                                                                  break label3892;
+                                                                  break label3882;
                                                                case 1:
-                                                                  break label3899;
+                                                                  break label3889;
                                                                default:
                                                                   return;
                                                                }
@@ -22779,7 +22819,7 @@ public class Saboteur extends MiniZX {
                                                             }
 
                                                             this.setNextAddress('\ubfb0');
-                                                            break label3892;
+                                                            break label3882;
                                                          }
 
                                                          int var484 = this.$BE0D();
@@ -22790,10 +22830,10 @@ public class Saboteur extends MiniZX {
                                                          switch(var484) {
                                                          case 0:
                                                             this.setNextAddress('\ub8d0');
-                                                            break label3892;
+                                                            break label3882;
                                                          case 1:
                                                             this.setNextAddress('\ubfb0');
-                                                            break label3892;
+                                                            break label3882;
                                                          default:
                                                             return;
                                                          }
@@ -22809,7 +22849,7 @@ public class Saboteur extends MiniZX {
                                                       }
 
                                                       this.setNextAddress('\ubc10');
-                                                      break label3892;
+                                                      break label3882;
                                                    }
 
                                                    int var477 = this.$C24B();
@@ -22819,20 +22859,20 @@ public class Saboteur extends MiniZX {
 
                                                    switch(var477) {
                                                    case 0:
-                                                      break label3586;
+                                                      break label3578;
                                                    case 1:
                                                    case 6:
-                                                      break label3899;
+                                                      break label3889;
                                                    case 2:
                                                       this.setNextAddress('\ub8d0');
-                                                      break label3892;
+                                                      break label3882;
                                                    case 3:
-                                                      break label3894;
+                                                      break label3884;
                                                    case 4:
-                                                      break label3896;
+                                                      break label3886;
                                                    case 5:
                                                       this.setNextAddress('\uc2bb');
-                                                      break label3901;
+                                                      break label3891;
                                                    default:
                                                       return;
                                                    }
@@ -22845,12 +22885,12 @@ public class Saboteur extends MiniZX {
 
                                                 switch(var472) {
                                                 case 0:
-                                                   break label3899;
+                                                   break label3889;
                                                 case 1:
                                                    this.setNextAddress('\ubeab');
-                                                   break label3892;
+                                                   break label3882;
                                                 case 2:
-                                                   break label3898;
+                                                   break label3888;
                                                 default:
                                                    return;
                                                 }
@@ -22863,17 +22903,17 @@ public class Saboteur extends MiniZX {
 
                                              switch(var473) {
                                              case 0:
-                                                break label3895;
+                                                break label3885;
                                              case 1:
                                              case 5:
-                                                break label3899;
+                                                break label3889;
                                              case 2:
                                                 this.setNextAddress('\ub8d0');
-                                                break label3892;
+                                                break label3882;
                                              case 3:
-                                                break label3894;
+                                                break label3884;
                                              case 4:
-                                                break label3896;
+                                                break label3886;
                                              case 6:
                                                 this.$C4ED();
                                                 if(this.unwinding()) {
@@ -22882,7 +22922,7 @@ public class Saboteur extends MiniZX {
 
                                                 return;
                                              case 7:
-                                                break label3898;
+                                                break label3888;
                                              default:
                                                 return;
                                              }
@@ -22895,10 +22935,10 @@ public class Saboteur extends MiniZX {
 
                                           switch(var488) {
                                           case 0:
-                                             break label3892;
+                                             break label3882;
                                           case 1:
                                              this.setNextAddress('\ubeaa');
-                                             break label3892;
+                                             break label3882;
                                           default:
                                              return;
                                           }
@@ -22912,10 +22952,10 @@ public class Saboteur extends MiniZX {
                                        switch(var458) {
                                        case 0:
                                           this.setNextAddress('\ub8d0');
-                                          break label3892;
+                                          break label3882;
                                        case 1:
                                           this.setNextAddress('\ubfb0');
-                                          break label3892;
+                                          break label3882;
                                        default:
                                           return;
                                        }
@@ -22931,7 +22971,7 @@ public class Saboteur extends MiniZX {
                                     }
 
                                     this.setNextAddress('\ubfb0');
-                                    break label3892;
+                                    break label3882;
                                  }
 
                                  int var466 = this.$C16E();
@@ -22944,7 +22984,7 @@ public class Saboteur extends MiniZX {
                                  }
 
                                  this.setNextAddress('\ub8d0');
-                                 break label3892;
+                                 break label3882;
                               }
 
                               int var471 = this.$BFCC();
@@ -22957,7 +22997,7 @@ public class Saboteur extends MiniZX {
                               }
 
                               this.setNextAddress('\ubfb0');
-                              break label3892;
+                              break label3882;
                            }
 
                            int var474 = this.$C643();
@@ -22970,7 +23010,7 @@ public class Saboteur extends MiniZX {
                            }
 
                            this.setNextAddress('\ubfb0');
-                           break label3892;
+                           break label3882;
                         }
 
                         int var465 = this.$C319();
@@ -23110,82 +23150,82 @@ public class Saboteur extends MiniZX {
                   }
                }
 
-               label3913: {
-                  label3914: {
-                     label3615: {
-                        label3616: {
-                           label3617: {
-                              label3915: {
-                                 label3619: {
-                                    label3620: {
-                                       label3621: {
-                                          label3916: {
-                                             label3623: {
-                                                label3624: {
+               label3903: {
+                  label3904: {
+                     label3607: {
+                        label3608: {
+                           label3609: {
+                              label3610: {
+                                 label3905: {
+                                    label3612: {
+                                       label3613: {
+                                          label3906: {
+                                             label3615: {
+                                                label3616: {
                                                    switch(super.nextAddress) {
                                                    case 31000:
                                                       this.isNextPC(31000);
-                                                      break label3624;
+                                                      break label3616;
                                                    case 46111:
                                                       this.isNextPC('\ub41f');
-                                                      break label3623;
+                                                      break label3615;
                                                    case 46150:
                                                       this.isNextPC('\ub446');
-                                                      break label3916;
+                                                      break label3906;
                                                    case 46156:
                                                       this.isNextPC('\ub44c');
-                                                      break label3915;
+                                                      break label3610;
                                                    case 46162:
                                                       this.isNextPC('\ub452');
-                                                      break label3620;
+                                                      break label3612;
                                                    case 46168:
                                                       this.isNextPC('\ub458');
-                                                      break label3621;
+                                                      break label3613;
                                                    case 46202:
                                                       this.isNextPC('\ub47a');
-                                                      break label3616;
+                                                      break label3608;
                                                    case 46211:
                                                       this.isNextPC('\ub483');
-                                                      break label3619;
+                                                      break label3905;
                                                    case 47312:
                                                       this.isNextPC('\ub8d0');
                                                       break;
                                                    case 47415:
                                                       this.isNextPC('\ub937');
-                                                      break label3615;
+                                                      break label3607;
                                                    case 47421:
                                                       this.isNextPC('\ub93d');
-                                                      break label3914;
+                                                      break label3904;
                                                    case 47648:
                                                       this.isNextPC('\uba20');
                                                       this.setNextAddress('\uba20');
-                                                      break label3914;
+                                                      break label3904;
                                                    case 47829:
                                                       this.isNextPC('\ubad5');
                                                       this.setNextAddress('\ubad5');
-                                                      break label3914;
+                                                      break label3904;
                                                    case 48039:
                                                       this.isNextPC('\ubba7');
                                                       this.setNextAddress('\ubba7');
-                                                      break label3914;
+                                                      break label3904;
                                                    case 48144:
                                                       this.isNextPC('\ubc10');
                                                       this.setNextAddress('\ubc10');
-                                                      break label3913;
+                                                      break label3903;
                                                    case 48810:
                                                       this.isNextPC('\ubeaa');
-                                                      break label3913;
+                                                      break label3903;
                                                    case 48811:
                                                       this.isNextPC('\ubeab');
                                                       this.setNextAddress('\ubeab');
-                                                      break label3913;
+                                                      break label3903;
                                                    case 50853:
                                                       this.isNextPC('\uc6a5');
-                                                      break label3617;
+                                                      break label3609;
                                                    case 57243:
                                                       this.isNextPC('\udf9b');
                                                       this.setNextAddress('\udf9b');
-                                                      break label3913;
+                                                      break label3903;
                                                    default:
                                                       int var456 = this.$BFB0();
                                                       if(this.unwinding()) {
@@ -23204,21 +23244,21 @@ public class Saboteur extends MiniZX {
 
                                                    switch(var454) {
                                                    case 0:
-                                                      break label3620;
+                                                      break label3612;
                                                    case 1:
-                                                      break label3619;
+                                                      break label3905;
                                                    case 2:
-                                                      break label3617;
+                                                      break label3609;
                                                    case 3:
-                                                      break label3916;
+                                                      break label3906;
                                                    case 4:
-                                                      break label3621;
+                                                      break label3613;
                                                    case 5:
                                                       break;
                                                    case 6:
-                                                      break label3616;
+                                                      break label3608;
                                                    case 7:
-                                                      break label3623;
+                                                      break label3615;
                                                    default:
                                                       return;
                                                    }
@@ -23232,7 +23272,7 @@ public class Saboteur extends MiniZX {
                                                 if(var21 != 0) {
                                                    return;
                                                 }
-                                                break label3915;
+                                                break label3610;
                                              }
 
                                              int var448 = this.$B41F();
@@ -23243,7 +23283,7 @@ public class Saboteur extends MiniZX {
                                              if(var448 != 0) {
                                                 return;
                                              }
-                                             break label3615;
+                                             break label3607;
                                           }
 
                                           int var449 = this.$B446();
@@ -23254,7 +23294,7 @@ public class Saboteur extends MiniZX {
                                           if(var449 != 0) {
                                              return;
                                           }
-                                          break label3615;
+                                          break label3607;
                                        }
 
                                        int var451 = this.$B458();
@@ -23265,7 +23305,7 @@ public class Saboteur extends MiniZX {
                                        if(var451 != 0) {
                                           return;
                                        }
-                                       break label3615;
+                                       break label3607;
                                     }
 
                                     int var450 = this.$B452();
@@ -23276,7 +23316,7 @@ public class Saboteur extends MiniZX {
                                     if(var450 != 0) {
                                        return;
                                     }
-                                    break label3615;
+                                    break label3607;
                                  }
 
                                  int var453 = this.$B483();
@@ -23287,7 +23327,7 @@ public class Saboteur extends MiniZX {
                                  if(var453 != 0) {
                                     return;
                                  }
-                                 break label3615;
+                                 break label3607;
                               }
 
                               int var22 = this.$B44C();
@@ -23298,7 +23338,7 @@ public class Saboteur extends MiniZX {
                               if(var22 != 0) {
                                  return;
                               }
-                              break label3615;
+                              break label3607;
                            }
 
                            int var455 = this.$C6A5();
@@ -23309,7 +23349,7 @@ public class Saboteur extends MiniZX {
                            switch(var455) {
                            case 0:
                            case 1:
-                              break label3615;
+                              break label3607;
                            default:
                               return;
                            }
@@ -23337,18 +23377,18 @@ public class Saboteur extends MiniZX {
 
                   label2165:
                   while(true) {
-                     label3626: {
-                        label3627: {
+                     label3618: {
+                        label3619: {
                            switch(super.nextAddress) {
                            case 47648:
                               this.isNextPC('\uba20');
-                              break label3626;
+                              break label3618;
                            case 47829:
                               this.isNextPC('\ubad5');
                               break;
                            case 48039:
                               this.isNextPC('\ubba7');
-                              break label3627;
+                              break label3619;
                            default:
                               int var27 = this.$B93D();
                               if(this.unwinding()) {
@@ -23358,12 +23398,12 @@ public class Saboteur extends MiniZX {
                               switch(var27) {
                               case 0:
                               case 12:
-                                 break label3626;
+                                 break label3618;
                               case 1:
                               case 2:
                               case 3:
                               case 4:
-                                 break label3627;
+                                 break label3619;
                               case 5:
                               case 6:
                               case 7:
@@ -23422,14 +23462,14 @@ public class Saboteur extends MiniZX {
                   }
                }
 
-               label3628: {
+               label3620: {
                   switch(super.nextAddress) {
                   case 48144:
                      this.isNextPC('\ubc10');
                      break;
                   case 48811:
                      this.isNextPC('\ubeab');
-                     break label3628;
+                     break label3620;
                   case 57243:
                      this.isNextPC('\udf9b');
                      this.setNextAddress('\udf9b');
@@ -23443,7 +23483,7 @@ public class Saboteur extends MiniZX {
                      if(var447 != 0) {
                         return;
                      }
-                     break label3628;
+                     break label3620;
                   }
 
                   if(this.isNextPC('\udf9b')) {
@@ -23967,7 +24007,7 @@ public class Saboteur extends MiniZX {
                               this.wMem(29218, var441, '\udfff');
                               this.pc('\ue002', 1, 12);
                            } else {
-                              label3650: {
+                              label3642: {
                                  this.pc('\udfb1', 1, 7);
                                  int var278 = this.A();
                                  this.alu("cp", var278, 75);
@@ -24518,7 +24558,7 @@ public class Saboteur extends MiniZX {
                                              break label2082;
                                           }
                                        }
-                                       break label3650;
+                                       break label3642;
                                     }
 
                                     this.tstates(5);
@@ -25252,6 +25292,21 @@ public class Saboteur extends MiniZX {
       this.$38();
    }
 
+   public void $3D2() {
+      this.setNextAddress(978);
+      this.$3D1();
+   }
+
+   public void $3D3() {
+      this.setNextAddress(979);
+      this.$3D1();
+   }
+
+   public void $3D4() {
+      this.setNextAddress(980);
+      this.$3D1();
+   }
+
    public void $BC10() {
       this.setNextAddress('\ubc10');
       this.$F913();
@@ -25339,27 +25394,23 @@ public class Saboteur extends MiniZX {
       case 654:
          this.$28E();
          return true;
-      case 703:
-         this.$2BF();
-         return true;
-      case 798:
-         this.$31E();
-         return true;
-      case 819:
-         this.$333();
-         return true;
       case 949:
          this.$3B5();
          return true;
       case 977:
          this.$3D1();
          return true;
-      case 25225:
-         this.$6289();
+      case 978:
+         this.setNextAddress(978);
+         this.$3D1();
          return true;
-      case 29514:
-         this.setNextAddress(29514);
-         this.$F913();
+      case 979:
+         this.setNextAddress(979);
+         this.$3D1();
+         return true;
+      case 980:
+         this.setNextAddress(980);
+         this.$3D1();
          return true;
       case 29517:
          this.setNextAddress(29517);
@@ -25367,10 +25418,6 @@ public class Saboteur extends MiniZX {
          return true;
       case 29569:
          this.setNextAddress(29569);
-         this.$F913();
-         return true;
-      case 29572:
-         this.setNextAddress(29572);
          this.$F913();
          return true;
       case 29599:
@@ -25381,16 +25428,8 @@ public class Saboteur extends MiniZX {
          this.setNextAddress(29604);
          this.$F913();
          return true;
-      case 29606:
-         this.setNextAddress(29606);
-         this.$F913();
-         return true;
       case 29637:
          this.setNextAddress(29637);
-         this.$F913();
-         return true;
-      case 29639:
-         this.setNextAddress(29639);
          this.$F913();
          return true;
       case 29675:
@@ -25417,15 +25456,6 @@ public class Saboteur extends MiniZX {
          this.setNextAddress(29778);
          this.$F913();
          return true;
-      case 29810:
-         this.$7472();
-         return true;
-      case 29854:
-         this.$749E();
-         return true;
-      case 29901:
-         this.$74CD();
-         return true;
       case 31000:
          this.setNextAddress(31000);
          this.$F913();
@@ -25434,28 +25464,8 @@ public class Saboteur extends MiniZX {
          this.setNextAddress(31003);
          this.$F913();
          return true;
-      case 40004:
-         this.$9C44();
-         return true;
-      case 40284:
-         this.$9D5C();
-         return true;
-      case 40397:
-         this.$9DCD();
-         return true;
-      case 40409:
-         this.$9DD9();
-         return true;
       case 41183:
          this.setNextAddress('\ua0df');
-         this.$F913();
-         return true;
-      case 41186:
-         this.setNextAddress('\ua0e2');
-         this.$F913();
-         return true;
-      case 41189:
-         this.setNextAddress('\ua0e5');
          this.$F913();
          return true;
       case 41192:
@@ -25526,10 +25536,6 @@ public class Saboteur extends MiniZX {
          this.setNextAddress('\ua142');
          this.$F913();
          return true;
-      case 41285:
-         this.setNextAddress('\ua145');
-         this.$F913();
-         return true;
       case 41295:
          this.setNextAddress('\ua14f');
          this.$F913();
@@ -25578,10 +25584,6 @@ public class Saboteur extends MiniZX {
          this.setNextAddress('\ua1a1');
          this.$F913();
          return true;
-      case 41391:
-         this.setNextAddress('\ua1af');
-         this.$F913();
-         return true;
       case 41397:
          this.setNextAddress('\ua1b5');
          this.$F913();
@@ -25600,10 +25602,6 @@ public class Saboteur extends MiniZX {
          return true;
       case 41811:
          this.setNextAddress('\ua353');
-         this.$F913();
-         return true;
-      case 41814:
-         this.setNextAddress('\ua356');
          this.$F913();
          return true;
       case 41820:
@@ -25642,21 +25640,6 @@ public class Saboteur extends MiniZX {
          this.setNextAddress('\ua38e');
          this.$F913();
          return true;
-      case 41909:
-         this.$A3B5();
-         return true;
-      case 41937:
-         this.$A3D1();
-         return true;
-      case 41966:
-         this.$A3EE();
-         return true;
-      case 42008:
-         this.$A418();
-         return true;
-      case 42036:
-         this.$A434();
-         return true;
       case 42528:
          this.setNextAddress('\ua620');
          this.$A434();
@@ -25685,34 +25668,6 @@ public class Saboteur extends MiniZX {
          this.setNextAddress('\ua6bf');
          this.$A434();
          return true;
-      case 42843:
-         this.$A75B();
-         return true;
-      case 42869:
-         this.$A775();
-         return true;
-      case 44100:
-         this.$AC44();
-         return true;
-      case 44234:
-         this.$ACCA();
-         return true;
-      case 44753:
-         this.$AED1();
-         return true;
-      case 44784:
-         this.$AEF0();
-         return true;
-      case 45384:
-         this.$B148();
-         return true;
-      case 45421:
-         this.$B16D();
-         return true;
-      case 45423:
-         this.setNextAddress('\ub16f');
-         this.$B16D();
-         return true;
       case 45475:
          this.setNextAddress('\ub1a3');
          this.$B16D();
@@ -25729,32 +25684,13 @@ public class Saboteur extends MiniZX {
          this.setNextAddress('\ub263');
          this.$B16D();
          return true;
-      case 45737:
-         this.setNextAddress('\ub2a9');
-         this.$B16D();
-         return true;
-      case 45800:
-         this.$B2E8();
-         return true;
-      case 45822:
-         this.$B2FE();
-         return true;
-      case 45839:
-         this.$B30F();
-         return true;
       case 45928:
          this.setNextAddress('\ub368');
          this.$F913();
          return true;
-      case 45937:
-         this.$B371();
-         return true;
       case 45967:
          this.setNextAddress('\ub38f');
          this.$F913();
-         return true;
-      case 46090:
-         this.$B40A();
          return true;
       case 46111:
          this.setNextAddress('\ub41f');
@@ -25772,10 +25708,6 @@ public class Saboteur extends MiniZX {
          this.setNextAddress('\ub446');
          this.$F913();
          return true;
-      case 46156:
-         this.setNextAddress('\ub44c');
-         this.$F913();
-         return true;
       case 46162:
          this.setNextAddress('\ub452');
          this.$F913();
@@ -25783,9 +25715,6 @@ public class Saboteur extends MiniZX {
       case 46168:
          this.setNextAddress('\ub458');
          this.$F913();
-         return true;
-      case 46177:
-         this.$B461();
          return true;
       case 46202:
          this.setNextAddress('\ub47a');
@@ -25795,105 +25724,21 @@ public class Saboteur extends MiniZX {
          this.setNextAddress('\ub483');
          this.$F913();
          return true;
-      case 46217:
-         this.$B489();
-         return true;
-      case 46302:
-         this.$B4DE();
-         return true;
-      case 46330:
-         this.$B4FA();
-         return true;
       case 46386:
          this.setNextAddress('\ub532');
-         this.$F913();
-         return true;
-      case 46486:
-         this.$B596();
-         return true;
-      case 46488:
-         this.$B598();
-         return true;
-      case 46494:
-         this.$B59E();
-         return true;
-      case 46698:
-         this.setNextAddress('\ub66a');
-         this.$F913();
-         return true;
-      case 46830:
-         this.setNextAddress('\ub6ee');
          this.$F913();
          return true;
       case 46850:
          this.setNextAddress('\ub702');
          this.$F913();
          return true;
-      case 46884:
-         this.setNextAddress('\ub724');
-         this.$F913();
-         return true;
-      case 46971:
-         this.setNextAddress('\ub77b');
-         this.$F913();
-         return true;
-      case 47124:
-         this.setNextAddress('\ub814');
-         this.$F913();
-         return true;
-      case 47164:
-         this.$B83C();
-         return true;
-      case 47185:
-         this.$B851();
-         return true;
-      case 47212:
-         this.$B86C();
-         return true;
-      case 47241:
-         this.setNextAddress('\ub889');
-         this.$F913();
-         return true;
-      case 47249:
-         this.setNextAddress('\ub891');
-         this.$F913();
-         return true;
       case 47312:
          this.setNextAddress('\ub8d0');
          this.$F913();
          return true;
-      case 47415:
-         this.setNextAddress('\ub937');
-         this.$F913();
-         return true;
-      case 47421:
-         this.setNextAddress('\ub93d');
-         this.$F913();
-         return true;
-      case 47648:
-         this.setNextAddress('\uba20');
-         this.$F913();
-         return true;
-      case 47829:
-         this.setNextAddress('\ubad5');
-         this.$F913();
-         return true;
-      case 48039:
-         this.setNextAddress('\ubba7');
-         this.$F913();
-         return true;
-      case 48046:
-         this.$BBAE();
-         return true;
-      case 48059:
-         this.$BBBB();
-         return true;
       case 48084:
          this.setNextAddress('\ubbd4');
          this.$F913();
-         return true;
-      case 48095:
-         this.$BBDF();
          return true;
       case 48144:
          this.setNextAddress('\ubc10');
@@ -25911,14 +25756,6 @@ public class Saboteur extends MiniZX {
          this.setNextAddress('\ube0d');
          this.$F913();
          return true;
-      case 48739:
-         this.setNextAddress('\ube63');
-         this.$F913();
-         return true;
-      case 48753:
-         this.setNextAddress('\ube71');
-         this.$F913();
-         return true;
       case 48810:
          this.setNextAddress('\ubeaa');
          this.$F913();
@@ -25927,32 +25764,16 @@ public class Saboteur extends MiniZX {
          this.setNextAddress('\ubeab');
          this.$F913();
          return true;
-      case 48819:
-         this.setNextAddress('\ubeb3');
-         this.$F913();
-         return true;
       case 49072:
          this.setNextAddress('\ubfb0');
-         this.$F913();
-         return true;
-      case 49100:
-         this.setNextAddress('\ubfcc');
          this.$F913();
          return true;
       case 49300:
          this.setNextAddress('\uc094');
          this.$F913();
          return true;
-      case 49518:
-         this.setNextAddress('\uc16e');
-         this.$F913();
-         return true;
       case 49590:
          this.setNextAddress('\uc1b6');
-         this.$F913();
-         return true;
-      case 49702:
-         this.setNextAddress('\uc226');
          this.$F913();
          return true;
       case 49711:
@@ -25963,28 +25784,13 @@ public class Saboteur extends MiniZX {
          this.setNextAddress('\uc24b');
          this.$F913();
          return true;
-      case 49851:
-         this.setNextAddress('\uc2bb');
-         this.$F913();
-         return true;
       case 49861:
          this.setNextAddress('\uc2c5');
-         this.$F913();
-         return true;
-      case 49914:
-         this.setNextAddress('\uc2fa');
-         this.$F913();
-         return true;
-      case 49945:
-         this.setNextAddress('\uc319');
          this.$F913();
          return true;
       case 49977:
          this.setNextAddress('\uc339');
          this.$F913();
-         return true;
-      case 50066:
-         this.$C392();
          return true;
       case 50137:
          this.setNextAddress('\uc3d9');
@@ -25994,16 +25800,9 @@ public class Saboteur extends MiniZX {
          this.setNextAddress('\uc4a7');
          this.$F913();
          return true;
-      case 50384:
-         this.setNextAddress('\uc4d0');
-         this.$F913();
-         return true;
       case 50398:
          this.setNextAddress('\uc4de');
          this.$F913();
-         return true;
-      case 50408:
-         this.$C4E8();
          return true;
       case 50413:
          this.$C4ED();
@@ -26016,30 +25815,12 @@ public class Saboteur extends MiniZX {
          this.setNextAddress('\uc50d');
          this.$F913();
          return true;
-      case 50555:
-         this.$C57B();
-         return true;
       case 50592:
          this.setNextAddress('\uc5a0');
          this.$F913();
          return true;
-      case 50595:
-         this.$C5A3();
-         return true;
       case 50630:
          this.setNextAddress('\uc5c6');
-         this.$F913();
-         return true;
-      case 50692:
-         this.setNextAddress('\uc604');
-         this.$F913();
-         return true;
-      case 50723:
-         this.setNextAddress('\uc623');
-         this.$F913();
-         return true;
-      case 50755:
-         this.setNextAddress('\uc643');
          this.$F913();
          return true;
       case 50764:
@@ -26054,10 +25835,6 @@ public class Saboteur extends MiniZX {
          this.setNextAddress('\uc681');
          this.$F913();
          return true;
-      case 50831:
-         this.setNextAddress('\uc68f');
-         this.$F913();
-         return true;
       case 50853:
          this.setNextAddress('\uc6a5');
          this.$F913();
@@ -26066,72 +25843,23 @@ public class Saboteur extends MiniZX {
          this.setNextAddress('\uc6e2');
          this.$F913();
          return true;
-      case 50933:
-         this.setNextAddress('\uc6f5');
-         this.$F913();
-         return true;
       case 50956:
          this.setNextAddress('\uc70c');
          this.$F913();
-         return true;
-      case 56936:
-         this.$DE68();
-         return true;
-      case 57025:
-         this.$DEC1();
          return true;
       case 57243:
          this.setNextAddress('\udf9b');
          this.$F913();
          return true;
-      case 57300:
-         this.$DFD4();
-         return true;
-      case 57307:
-         this.$DFDB();
-         return true;
-      case 57318:
-         this.$DFE6();
-         return true;
-      case 57421:
-         this.$E04D();
-         return true;
-      case 58432:
-         this.$E440();
-         return true;
       case 58466:
          this.$E462();
-         return true;
-      case 58472:
-         this.$E468();
-         return true;
-      case 63763:
-         this.$F913();
          return true;
       case 63859:
          this.setNextAddress('\uf973');
          this.$F913();
          return true;
-      case 63905:
-         this.$F9A1();
-         return true;
-      case 63929:
-         this.$F9B9();
-         return true;
       case 63988:
          this.$F9F4();
-         return true;
-      case 63993:
-         this.$F9F9();
-         return true;
-      case 64017:
-         this.$FA11();
-         return true;
-      case 64040:
-         this.$FA28();
-         return true;
-      case 64049:
-         this.$FA31();
          return true;
       default:
          return false;

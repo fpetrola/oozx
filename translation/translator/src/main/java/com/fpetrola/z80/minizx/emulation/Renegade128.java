@@ -27257,7 +27257,7 @@ public class Renegade128 extends MiniZX {
    }
 
    public void $6CF1_body() {
-      label2092: {
+      label2096: {
          switch(super.nextAddress) {
          case 27890:
             this.isNextPC(27890);
@@ -27265,11 +27265,11 @@ public class Renegade128 extends MiniZX {
          case 28727:
             this.isNextPC(28727);
             this.setNextAddress(28727);
-            break label2092;
+            break label2096;
          case 28770:
             this.isNextPC(28770);
             this.setNextAddress(28770);
-            break label2092;
+            break label2096;
          case 28860:
             this.isNextPC(28860);
             int var376 = this.$70BC();
@@ -27282,23 +27282,23 @@ public class Renegade128 extends MiniZX {
             }
 
             this.setNextAddress(28869);
-            break label2092;
+            break label2096;
          case 28868:
             this.isNextPC(28868);
             this.setNextAddress(28868);
-            break label2092;
+            break label2096;
          case 28869:
             this.isNextPC(28869);
             this.setNextAddress(28869);
-            break label2092;
+            break label2096;
          case 28871:
             this.isNextPC(28871);
             this.setNextAddress(28871);
-            break label2092;
+            break label2096;
          case 28872:
             this.isNextPC(28872);
             this.setNextAddress(28872);
-            break label2092;
+            break label2096;
          default:
             this.pc(27889, 1, 6);
             int var377 = this.HL();
@@ -29311,44 +29311,43 @@ public class Renegade128 extends MiniZX {
                   return;
                }
             } else if(var373 != 28727) {
-               label2105: {
-                  if(var373 != -1) {
-                     this.goOnFrom(var373);
-                     if(this.unwinding()) {
-                        int[] var374 = new int[]{28727};
-                        if(this.ownAddress(var374) != 28727) {
-                           return;
-                        }
-                        break label2105;
-                     }
-                  }
+               if(var373 == -1) {
+                  return;
+               }
 
+               this.goOnFrom(var373);
+               if(!this.unwinding()) {
+                  return;
+               }
+
+               int[] var374 = new int[]{28727};
+               if(this.ownAddress(var374) != 28727) {
                   return;
                }
             }
          }
 
-         label2098: {
-            label2099: {
-               label2100: {
+         label2119: {
+            label2104: {
+               label2105: {
                   switch(super.nextAddress) {
                   case 28770:
                      this.isNextPC(28770);
                      break;
                   case 28868:
                      this.isNextPC(28868);
-                     break label2100;
+                     break label2105;
                   case 28869:
                      this.isNextPC(28869);
                      this.setNextAddress(28869);
-                     break label2100;
+                     break label2105;
                   case 28871:
                      this.isNextPC(28871);
-                     break label2098;
+                     break label2119;
                   case 28872:
                      this.isNextPC(28872);
                      this.setNextAddress(28872);
-                     break label2098;
+                     break label2119;
                   default:
                      this.pc(28727, 0, 0);
                      int var338 = this.executeMutantCode(28727);
@@ -29463,7 +29462,7 @@ public class Renegade128 extends MiniZX {
                      this.pc(28736, 1, 7);
                      if(this.flag(1, false)) {
                         this.tstates(5);
-                        break label2099;
+                        break label2104;
                      }
 
                      this.pc(28738, 1, 4);
@@ -29982,7 +29981,7 @@ public class Renegade128 extends MiniZX {
                   this.pc(28791, 1, 4);
                   this.pc(28792, 1, 4);
                   this.pc(28793, 1, 4);
-                  break label2099;
+                  break label2104;
                }
 
                int var337 = this.$70C4();
@@ -29994,7 +29993,7 @@ public class Renegade128 extends MiniZX {
                case 0:
                   this.setNextAddress(28872);
                case 1:
-                  break label2098;
+                  break label2119;
                default:
                   return;
                }
@@ -36988,7 +36987,7 @@ public class Renegade128 extends MiniZX {
       }
 
       while(true) {
-         label1164: {
+         label1163: {
             label1078:
             while(true) {
                label1076:
@@ -37028,7 +37027,7 @@ public class Renegade128 extends MiniZX {
                                  break label1076;
                               case 37551:
                                  this.isNextPC('\u92af');
-                                 break label1164;
+                                 break label1163;
                               default:
                                  this.pc('\u846d', 1, 7);
                                  int var26 = this.HL();
@@ -38254,7 +38253,7 @@ public class Renegade128 extends MiniZX {
                                        }
 
                                        if(this.HL() == '\u92af') {
-                                          break label1164;
+                                          break label1163;
                                        }
 
                                        if(this.HL() == '\u8573') {
@@ -40183,57 +40182,6 @@ public class Renegade128 extends MiniZX {
       case 16384:
          this.$b1_C000();
          return true;
-      case 16393:
-         this.$b1_C009();
-         return true;
-      case 16571:
-         this.$b1_C0BB();
-         return true;
-      case 16617:
-         this.$b1_C0E9();
-         return true;
-      case 16634:
-         this.$b1_C0FA();
-         return true;
-      case 16660:
-         this.$b1_C114();
-         return true;
-      case 16699:
-         this.$b1_C13B();
-         return true;
-      case 16712:
-         this.$b1_C148();
-         return true;
-      case 16728:
-         this.$b1_C158();
-         return true;
-      case 16745:
-         this.$b1_C169();
-         return true;
-      case 16787:
-         this.$b1_C193();
-         return true;
-      case 16871:
-         this.$b1_C1E7();
-         return true;
-      case 16888:
-         this.$b1_C1F8();
-         return true;
-      case 16899:
-         this.$b1_C203();
-         return true;
-      case 16914:
-         this.$b1_C212();
-         return true;
-      case 16925:
-         this.$b1_C21D();
-         return true;
-      case 17018:
-         this.$b1_C27A();
-         return true;
-      case 17276:
-         this.$b1_C37C();
-         return true;
       case 17294:
          this.$b1_C38E();
          return true;
@@ -40261,9 +40209,6 @@ public class Renegade128 extends MiniZX {
       case 17567:
          this.$b1_C49F();
          return true;
-      case 17573:
-         this.$b1_C4A5();
-         return true;
       case 17591:
          this.$b1_C4B7();
          return true;
@@ -40272,9 +40217,6 @@ public class Renegade128 extends MiniZX {
          return true;
       case 17646:
          this.$b1_C4EE();
-         return true;
-      case 17652:
-         this.$b1_C4F4();
          return true;
       case 17670:
          this.$b1_C506();
@@ -40293,9 +40235,6 @@ public class Renegade128 extends MiniZX {
          return true;
       case 17833:
          this.$b1_C5A9();
-         return true;
-      case 17884:
-         this.$b1_C5DC();
          return true;
       case 17908:
          this.$b1_C5F4();
@@ -40318,34 +40257,8 @@ public class Renegade128 extends MiniZX {
       case 18119:
          this.$b1_C6C7();
          return true;
-      case 20436:
-         this.$b1_CFD4();
-         return true;
-      case 20551:
-         this.$b1_D047();
-         return true;
-      case 20563:
-         this.$b1_D053();
-         return true;
-      case 23522:
-         this.$5BE2();
-         return true;
       case 24580:
          this.$6004();
-         return true;
-      case 26352:
-         this.$66F0();
-         return true;
-      case 26664:
-         this.setNextAddress(26664);
-         this.$F080();
-         return true;
-      case 27889:
-         this.$6CF1();
-         return true;
-      case 27890:
-         this.setNextAddress(27890);
-         this.$6CF1();
          return true;
       case 28727:
          this.setNextAddress(28727);
@@ -40355,64 +40268,9 @@ public class Renegade128 extends MiniZX {
          this.setNextAddress(28770);
          this.$6CF1();
          return true;
-      case 28860:
-         this.setNextAddress(28860);
-         this.$6CF1();
-         return true;
-      case 28868:
-         this.setNextAddress(28868);
-         this.$6CF1();
-         return true;
-      case 28869:
-         this.setNextAddress(28869);
-         this.$6CF1();
-         return true;
-      case 28871:
-         this.setNextAddress(28871);
-         this.$6CF1();
-         return true;
-      case 28872:
-         this.setNextAddress(28872);
-         this.$6CF1();
-         return true;
-      case 28898:
-         this.$70E2();
-         return true;
-      case 28961:
-         this.setNextAddress(28961);
-         this.$70E2();
-         return true;
-      case 28978:
-         this.$7132();
-         return true;
       case 29046:
          this.setNextAddress(29046);
          this.$7132();
-         return true;
-      case 29211:
-         this.$721B();
-         return true;
-      case 29444:
-         this.$7304();
-         return true;
-      case 29446:
-         this.$7306();
-         return true;
-      case 29476:
-         this.$7324();
-         return true;
-      case 29483:
-         this.$732B();
-         return true;
-      case 31217:
-         this.$79F1();
-         return true;
-      case 31458:
-         this.$7AE2();
-         return true;
-      case 31474:
-         this.setNextAddress(31474);
-         this.$79F1();
          return true;
       case 31771:
          this.setNextAddress(31771);
@@ -40429,9 +40287,6 @@ public class Renegade128 extends MiniZX {
          this.setNextAddress(31817);
          this.$7C46();
          return true;
-      case 31879:
-         this.$7C87();
-         return true;
       case 31939:
          this.setNextAddress(31939);
          this.$7C46();
@@ -40441,9 +40296,6 @@ public class Renegade128 extends MiniZX {
          return true;
       case 32145:
          this.$7D91();
-         return true;
-      case 32287:
-         this.$7E1F();
          return true;
       case 32785:
          this.$8011();
@@ -40476,21 +40328,6 @@ public class Renegade128 extends MiniZX {
          this.setNextAddress('\u8120');
          this.$8011();
          return true;
-      case 33143:
-         this.$8177();
-         return true;
-      case 33331:
-         this.$8233();
-         return true;
-      case 33392:
-         this.$8270();
-         return true;
-      case 33411:
-         this.$8283();
-         return true;
-      case 33539:
-         this.$8303();
-         return true;
       case 33545:
          this.setNextAddress('\u8309');
          this.$844F();
@@ -40503,42 +40340,12 @@ public class Renegade128 extends MiniZX {
          this.setNextAddress('\u8319');
          this.$844F();
          return true;
-      case 33569:
-         this.setNextAddress('\u8321');
-         this.$844F();
-         return true;
       case 33583:
          this.setNextAddress('\u832f');
          this.$844F();
          return true;
-      case 33591:
-         this.setNextAddress('\u8337');
-         this.$844F();
-         return true;
-      case 33600:
-         this.$8340();
-         return true;
-      case 33602:
-         this.$8342();
-         return true;
-      case 33629:
-         this.setNextAddress('\u835d');
-         this.$8283();
-         return true;
-      case 33677:
-         this.$838D();
-         return true;
       case 33680:
          this.setNextAddress('\u8390');
-         this.$844F();
-         return true;
-      case 33791:
-         this.$83FF();
-         return true;
-      case 33831:
-         this.$8427();
-         return true;
-      case 33871:
          this.$844F();
          return true;
       case 33901:
@@ -40548,21 +40355,12 @@ public class Renegade128 extends MiniZX {
          this.setNextAddress('\u8485');
          this.$846D();
          return true;
-      case 33930:
-         this.$848A();
-         return true;
       case 33975:
          this.setNextAddress('\u84b7');
          this.$844F();
          return true;
       case 34163:
          this.$8573();
-         return true;
-      case 34167:
-         this.$8577();
-         return true;
-      case 34180:
-         this.$8584();
          return true;
       case 34357:
          this.setNextAddress('\u8635');
@@ -40580,23 +40378,8 @@ public class Renegade128 extends MiniZX {
       case 34547:
          this.$86F3();
          return true;
-      case 34550:
-         this.$86F6();
-         return true;
-      case 34574:
-         this.$870E();
-         return true;
-      case 34590:
-         this.$871E();
-         return true;
       case 34605:
          this.$872D();
-         return true;
-      case 34608:
-         this.$8730();
-         return true;
-      case 34617:
-         this.$8739();
          return true;
       case 34625:
          this.$8741();
@@ -40604,30 +40387,14 @@ public class Renegade128 extends MiniZX {
       case 34632:
          this.$8748();
          return true;
-      case 34635:
-         this.$874B();
-         return true;
-      case 34644:
-         this.$8754();
-         return true;
-      case 34652:
-         this.$875C();
-         return true;
       case 34675:
          this.$8773();
-         return true;
-      case 34681:
-         this.setNextAddress('\u8779');
-         this.$8741();
          return true;
       case 34709:
          this.$8795();
          return true;
       case 34713:
          this.$8799();
-         return true;
-      case 34715:
-         this.$879B();
          return true;
       case 34766:
          this.$87CE();
@@ -40676,13 +40443,6 @@ public class Renegade128 extends MiniZX {
          this.setNextAddress('\u8977');
          this.$846D();
          return true;
-      case 35217:
-         this.setNextAddress('\u8991');
-         this.$846D();
-         return true;
-      case 35262:
-         this.$89BE();
-         return true;
       case 35278:
          this.$89CE();
          return true;
@@ -40695,25 +40455,12 @@ public class Renegade128 extends MiniZX {
       case 35362:
          this.$8A22();
          return true;
-      case 35371:
-         this.$8A2B();
-         return true;
       case 35383:
          this.setNextAddress('\u8a37');
          this.$8A2B();
          return true;
-      case 35453:
-         this.$8A7D();
-         return true;
       case 35570:
          this.$8AF2();
-         return true;
-      case 35601:
-         this.setNextAddress('\u8b11');
-         this.$8A7D();
-         return true;
-      case 35681:
-         this.$8B61();
          return true;
       case 35706:
          this.$8B7A();
@@ -40744,18 +40491,12 @@ public class Renegade128 extends MiniZX {
       case 35969:
          this.$8C81();
          return true;
-      case 36007:
-         this.$8CA7();
-         return true;
       case 36075:
          this.$8CEB();
          return true;
       case 36336:
          this.setNextAddress('\u8df0');
          this.$844F();
-         return true;
-      case 36522:
-         this.$8EAA();
          return true;
       case 36578:
          this.setNextAddress('\u8ee2');
@@ -40773,14 +40514,8 @@ public class Renegade128 extends MiniZX {
          this.setNextAddress('\u8f29');
          this.$846D();
          return true;
-      case 36683:
-         this.$8F4B();
-         return true;
       case 36691:
          this.$8F53();
-         return true;
-      case 36701:
-         this.$8F5D();
          return true;
       case 36702:
          this.$8F5E();
@@ -40796,34 +40531,17 @@ public class Renegade128 extends MiniZX {
          this.setNextAddress('\u8fca');
          this.$846D();
          return true;
-      case 36852:
-         this.$8FF4();
-         return true;
-      case 36946:
-         this.setNextAddress('\u9052');
-         this.$844F();
-         return true;
-      case 36982:
-         this.setNextAddress('\u9076');
-         this.$844F();
-         return true;
       case 37004:
          this.$908C();
          return true;
       case 37097:
          this.$90E9();
          return true;
-      case 37348:
-         this.$91E4();
-         return true;
       case 37403:
          this.$921B();
          return true;
       case 37438:
          this.$923E();
-         return true;
-      case 37461:
-         this.$9255();
          return true;
       case 37469:
          this.$925D();
@@ -40842,19 +40560,6 @@ public class Renegade128 extends MiniZX {
       case 37669:
          this.setNextAddress('\u9325');
          this.$92BD();
-         return true;
-      case 37682:
-         this.$9332();
-         return true;
-      case 37847:
-         this.$93D7();
-         return true;
-      case 38058:
-         this.$94AA();
-         return true;
-      case 38165:
-         this.setNextAddress('\u9515');
-         this.$9527();
          return true;
       case 38183:
          this.$9527();
@@ -40919,9 +40624,6 @@ public class Renegade128 extends MiniZX {
          this.setNextAddress('\u957c');
          this.$9527();
          return true;
-      case 38277:
-         this.$9585();
-         return true;
       case 38334:
          this.setNextAddress('\u95be');
          this.$9585();
@@ -40954,117 +40656,16 @@ public class Renegade128 extends MiniZX {
          this.setNextAddress('\u95da');
          this.$9585();
          return true;
-      case 38442:
-         this.$962A();
-         return true;
-      case 38493:
-         this.$965D();
-         return true;
-      case 38833:
-         this.$97B1();
-         return true;
       case 38943:
          this.setNextAddress('\u981f');
          this.$97B1();
          return true;
-      case 38979:
-         this.$9843();
-         return true;
-      case 38996:
-         this.$9854();
-         return true;
-      case 39027:
-         this.$9873();
-         return true;
-      case 39056:
-         this.$9890();
-         return true;
       case 39096:
          this.$98B8();
-         return true;
-      case 39149:
-         this.$98ED();
-         return true;
-      case 39180:
-         this.$990C();
-         return true;
-      case 39207:
-         this.$9927();
-         return true;
-      case 39231:
-         this.$993F();
-         return true;
-      case 39485:
-         this.$9A3D();
-         return true;
-      case 39521:
-         this.$9A61();
-         return true;
-      case 39536:
-         this.$9A70();
-         return true;
-      case 39544:
-         this.$9A78();
-         return true;
-      case 39620:
-         this.$9AC4();
-         return true;
-      case 39696:
-         this.$9B10();
-         return true;
-      case 39698:
-         this.setNextAddress('\u9b12');
-         this.$9B10();
-         return true;
-      case 39764:
-         this.$9B54();
-         return true;
-      case 39856:
-         this.$9BB0();
          return true;
       case 39857:
          this.setNextAddress('\u9bb1');
          this.$844F();
-         return true;
-      case 39862:
-         this.$9BB6();
-         return true;
-      case 39866:
-         this.$9BBA();
-         return true;
-      case 39873:
-         this.$9BC1();
-         return true;
-      case 39934:
-         this.$9BFE();
-         return true;
-      case 39940:
-         this.$9C04();
-         return true;
-      case 40000:
-         this.$9C40();
-         return true;
-      case 40156:
-         this.setNextAddress('\u9cdc');
-         this.$9C40();
-         return true;
-      case 40286:
-         this.$9D5E();
-         return true;
-      case 40306:
-         this.$9D72();
-         return true;
-      case 40355:
-         this.$9DA3();
-         return true;
-      case 40405:
-         this.$9DD5();
-         return true;
-      case 40438:
-         this.$9DF6();
-         return true;
-      case 40445:
-         this.$9DFD();
          return true;
       case 40459:
          this.$9E0B();
@@ -41073,127 +40674,30 @@ public class Renegade128 extends MiniZX {
          this.setNextAddress('\u9e2d');
          this.$8011();
          return true;
-      case 40536:
-         this.$9E58();
-         return true;
-      case 40588:
-         this.$9E8C();
-         return true;
-      case 40925:
-         this.$9FDD();
-         return true;
-      case 41054:
-         this.$A05E();
-         return true;
-      case 41067:
-         this.$A06B();
-         return true;
-      case 41074:
-         this.$A072();
-         return true;
-      case 41083:
-         this.$A07B();
-         return true;
-      case 41094:
-         this.$A086();
-         return true;
       case 41207:
          this.$A0F7();
-         return true;
-      case 41412:
-         this.$A1C4();
          return true;
       case 41455:
          this.setNextAddress('\ua1ef');
          this.$A1C4();
          return true;
-      case 41521:
-         this.$A231();
-         return true;
-      case 41524:
-         this.$A234();
-         return true;
-      case 41545:
-         this.$A249();
-         return true;
       case 41672:
          this.$A2C8();
-         return true;
-      case 41975:
-         this.$A3F7();
-         return true;
-      case 42314:
-         this.$A54A();
-         return true;
-      case 42323:
-         this.$A553();
-         return true;
-      case 43770:
-         this.$AAFA();
          return true;
       case 49159:
          this.$C007();
          return true;
-      case 53416:
-         this.$D0A8();
-         return true;
       case 55863:
          this.$DA37();
-         return true;
-      case 58083:
-         this.$E2E3();
-         return true;
-      case 58485:
-         this.$E475();
-         return true;
-      case 61164:
-         this.$EEEC();
          return true;
       case 61177:
          this.$EEF9();
          return true;
-      case 61224:
-         this.$EF28();
-         return true;
-      case 61568:
-         this.$F080();
-         return true;
       case 62466:
          this.$F402();
          return true;
-      case 62468:
-         this.$F404();
-         return true;
-      case 62470:
-         this.setNextAddress('\uf406');
-         this.$F404();
-         return true;
-      case 62474:
-         this.$F40A();
-         return true;
-      case 62475:
-         this.$F40B();
-         return true;
-      case 62476:
-         this.$F40C();
-         return true;
-      case 62487:
-         this.$F417();
-         return true;
-      case 62695:
-         this.$F4E7();
-         return true;
-      case 62721:
-         this.$F501();
-         return true;
-      case 64235:
-         this.$FAEB();
-         return true;
       case 65027:
          this.$FE03();
-         return true;
-      case 65150:
-         this.$FE7E();
          return true;
       case 65524:
          this.setNextAddress('\ufff4');
