@@ -648,48 +648,16 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
         public class JSW extends SpectrumApplication {
            public void $0() {
               while(true) {
-                 if(!this.isNextPC(2)) {
-                    super.A = 2;
-                    this.push(2);
-                    int var1 = this.SP();
-                    this.$6();
-                    if(this.unwinding()) {
-                       int[] var4 = new int[]{17};
-                       if(this.ownAddress(var4) == 17) {
-                          int var7 = this.pop();
-                          this.HL(var7);
-                          super.A = 61;
-                          super.B = 62;
-                          break;
-                       }
-
-                       int[] var5 = new int[]{2};
-                       if(this.ownAddress(var5) == -1) {
-                          int[] var6 = new int[]{2};
-                          if(!this.isOwnAddress(var6)) {
-                             return;
-                          }
-                          continue;
-                       }
-                    } else {
-                       int var2 = this.SP();
-                       if((var1 - var2 & '\\uffff') < '\\u8000') {
-                          this.pop();
-                       } else {
-                          int var3 = var1 + 2 & '\\uffff';
-                          if(var2 == var3) {
-                             return;
-                          }
-                       }
+                 this.$0_body();
+                 if(this.unwinding()) {
+                    int[] var1 = new int[]{2};
+                    if(this.isOwnAddress(var1)) {
+                       continue;
                     }
                  }
 
-                 super.C = 3;
-                 super.C = 4;
-                 break;
+                 return;
               }
-
-              super.C = 5;
            }
 
            public void $6() {
@@ -715,6 +683,47 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               } else {
                  super.E = 8;
               }
+           }
+
+           public void $0_body() {
+              label25: {
+                 if(!this.isNextPC(2)) {
+                    super.A = 2;
+                    this.push(2);
+                    int var1 = this.SP();
+                    this.$6();
+                    if(this.unwinding()) {
+                       int[] var4 = new int[]{17};
+                       if(this.ownAddress(var4) == 17) {
+                          int var6 = this.pop();
+                          this.HL(var6);
+                          super.A = 61;
+                          super.B = 62;
+                          break label25;
+                       }
+
+                       int[] var5 = new int[]{2};
+                       if(this.ownAddress(var5) == -1) {
+                          return;
+                       }
+                    } else {
+                       int var2 = this.SP();
+                       if((var1 - var2 & '\\uffff') < '\\u8000') {
+                          this.pop();
+                       } else {
+                          int var3 = var1 + 2 & '\\uffff';
+                          if(var2 == var3) {
+                             return;
+                          }
+                       }
+                    }
+                 }
+
+                 super.C = 3;
+                 super.C = 4;
+              }
+
+              super.C = 5;
            }
 
            public void $2() {
@@ -788,64 +797,17 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
         public class JSW extends SpectrumApplication {
            public void $0() {
-              label41: {
-                 while(true) {
-                    label45: {
-                       if(!this.isNextPC(2)) {
-                          super.A = 2;
-                          this.push(2);
-                          int var3 = this.SP();
-                          this.$7();
-                          if(this.unwinding()) {
-                             int[] var6 = new int[]{19};
-                             if(this.ownAddress(var6) == 19) {
-                                int var8 = this.pop();
-                                this.HL(var8);
-                                break;
-                             }
-
-                             int[] var7 = new int[]{2};
-                             if(this.ownAddress(var7) == -1) {
-                                break label45;
-                             }
-                          } else {
-                             int var4 = this.SP();
-                             if((var3 - var4 & '\\uffff') < '\\u8000') {
-                                this.pop();
-                             } else {
-                                int var5 = var3 + 2 & '\\uffff';
-                                if(var4 == var5) {
-                                   return;
-                                }
-                             }
-                          }
-                       }
-
-                       super.C = 2;
-                       this.$22();
-                       if(!this.unwinding()) {
-                          break label41;
-                       }
-
-                       int[] var1 = new int[]{19};
-                       if(this.ownAddress(var1) == 19) {
-                          this.HL(4);
-                          break;
-                       }
-                    }
-
-                    int[] var2 = new int[]{2};
-                    if(!this.isOwnAddress(var2)) {
-                       return;
+              while(true) {
+                 this.$0_body();
+                 if(this.unwinding()) {
+                    int[] var1 = new int[]{2};
+                    if(this.isOwnAddress(var1)) {
+                       continue;
                     }
                  }
 
-                 super.A = 61;
-                 super.B = 62;
+                 return;
               }
-
-              super.C = 3;
-              super.C = 5;
            }
 
            public void $7() {
@@ -879,6 +841,61 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
               super.D = 41;
               super.E = 51;
               this.unwind(19, "HL");
+           }
+
+           public void $0_body() {
+              label35: {
+                 label37: {
+                    if(!this.isNextPC(2)) {
+                       super.A = 2;
+                       this.push(2);
+                       int var2 = this.SP();
+                       this.$7();
+                       if(this.unwinding()) {
+                          int[] var5 = new int[]{19};
+                          if(this.ownAddress(var5) == 19) {
+                             int var7 = this.pop();
+                             this.HL(var7);
+                             break label37;
+                          }
+
+                          int[] var6 = new int[]{2};
+                          if(this.ownAddress(var6) == -1) {
+                             return;
+                          }
+                       } else {
+                          int var3 = this.SP();
+                          if((var2 - var3 & '\\uffff') < '\\u8000') {
+                             this.pop();
+                          } else {
+                             int var4 = var2 + 2 & '\\uffff';
+                             if(var3 == var4) {
+                                return;
+                             }
+                          }
+                       }
+                    }
+
+                    super.C = 2;
+                    this.$22();
+                    if(!this.unwinding()) {
+                       break label35;
+                    }
+
+                    int[] var1 = new int[]{19};
+                    if(this.ownAddress(var1) != 19) {
+                       return;
+                    }
+
+                    this.HL(4);
+                 }
+
+                 super.A = 61;
+                 super.B = 62;
+              }
+
+              super.C = 3;
+              super.C = 5;
            }
 
            public void $2() {
@@ -1701,58 +1718,31 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
         public class JSW extends SpectrumApplication {
            public void $0() {
-              int[] var1;
-              do {
-                 if(!this.isNextPC(18)) {
-                    this.$2();
-                    if(!this.unwinding()) {
-                       return;
-                    }
-                 } else {
-                    super.C = 20;
-                    super.D = 30;
-                    this.setNextAddress(7);
-                    this.$2();
-                    if(!this.unwinding()) {
-                       return;
+              while(true) {
+                 this.$0_body();
+                 if(this.unwinding()) {
+                    int[] var1 = new int[]{18};
+                    if(this.isOwnAddress(var1)) {
+                       continue;
                     }
                  }
 
-                 var1 = new int[]{18};
-              } while(this.isOwnAddress(var1));
-
+                 return;
+              }
            }
 
            public void $2() {
-              int[] var1;
-              do {
-                 if(this.isNextPC(7)) {
-                    this.setNextAddress(7);
+              while(true) {
+                 this.$2_body();
+                 if(this.unwinding()) {
+                    int[] var1 = new int[]{7};
+                    if(this.isOwnAddress(var1)) {
+                       continue;
+                    }
                  }
 
-                 while(true) {
-                    while(this.isNextPC(7)) {
-                       ;
-                    }
-
-                    super.A = 1;
-                    this.$8();
-                    if(this.unwinding()) {
-                       break;
-                    }
-
-                    super.B = 8;
-                    this.$12();
-                    if(this.unwinding()) {
-                       break;
-                    }
-
-                    super.C = 8;
-                 }
-
-                 var1 = new int[]{7};
-              } while(this.isOwnAddress(var1));
-
+                 return;
+              }
            }
 
            public void $8() {
@@ -1780,14 +1770,66 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
            }
 
            public void $16() {
-              int[] var1;
-              do {
-                 super.H = 1;
-                 this.SP('\\uffff');
-                 this.unwind(18);
-                 var1 = new int[]{16};
-              } while(this.ownAddress(var1) != -1);
+              while(true) {
+                 this.$16_body();
+                 if(this.unwinding()) {
+                    int[] var1 = new int[]{16};
+                    if(this.ownAddress(var1) != -1) {
+                       continue;
+                    }
+                 }
 
+                 return;
+              }
+           }
+
+           public void $0_body() {
+              if(!this.isNextPC(18)) {
+                 this.$2();
+                 if(!this.unwinding()) {
+                    ;
+                 }
+              } else {
+                 super.C = 20;
+                 super.D = 30;
+                 this.setNextAddress(7);
+                 this.$2();
+                 if(!this.unwinding()) {
+                    ;
+                 }
+              }
+           }
+
+           public void $2_body() {
+              if(this.isNextPC(7)) {
+                 this.setNextAddress(7);
+              }
+
+              while(true) {
+                 while(this.isNextPC(7)) {
+                    ;
+                 }
+
+                 super.A = 1;
+                 this.$8();
+                 if(this.unwinding()) {
+                    return;
+                 }
+
+                 super.B = 8;
+                 this.$12();
+                 if(this.unwinding()) {
+                    return;
+                 }
+
+                 super.C = 8;
+              }
+           }
+
+           public void $16_body() {
+              super.H = 1;
+              this.SP('\\uffff');
+              this.unwind(18);
            }
 
            public void $18() {
@@ -1851,29 +1893,20 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
            public void $1() {
               while(true) {
-                 if(this.isNextPC(2)) {
-                    this.setNextAddress(2);
-                 }
+                 this.$1_body();
+                 if(this.unwinding()) {
+                    int[] var1 = new int[]{1};
+                    if(this.ownAddress(var1) != -1) {
+                       continue;
+                    }
 
-                 if(!this.isNextPC(2)) {
-                    this.SP('\\ufc00');
-                 }
-
-                 super.B = 5;
-                 this.$7();
-                 if(!this.unwinding()) {
-                    this.$9();
-                    super.B = 3;
-                    return;
-                 }
-
-                 int[] var1 = new int[]{1};
-                 if(this.ownAddress(var1) == -1) {
                     int[] var2 = new int[]{2};
-                    if(!this.isOwnAddress(var2)) {
-                       return;
+                    if(this.isOwnAddress(var2)) {
+                       continue;
                     }
                  }
+
+                 return;
               }
            }
 
@@ -1889,6 +1922,23 @@ public class RoutinesTests extends ManualBytecodeGenerationTest {
 
            public void $9() {
               super.B = 4;
+           }
+
+           public void $1_body() {
+              if(this.isNextPC(2)) {
+                 this.setNextAddress(2);
+              }
+
+              if(!this.isNextPC(2)) {
+                 this.SP('\\ufc00');
+              }
+
+              super.B = 5;
+              this.$7();
+              if(!this.unwinding()) {
+                 this.$9();
+                 super.B = 3;
+              }
            }
 
            public void $2() {

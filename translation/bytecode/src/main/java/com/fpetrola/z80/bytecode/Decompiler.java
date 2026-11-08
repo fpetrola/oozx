@@ -40,7 +40,7 @@ public class Decompiler {
   private SimpleBytecodeProvider bytecodeProvider;
   /** What Fernflower reports from WARN up: why a method or the whole class could not be decompiled. */
   private final ByteArrayOutputStream log = new ByteArrayOutputStream();
-  private static final Pattern UNDECOMPILED_METHOD = Pattern.compile("Method \\$([0-9A-F]+) \\(\\)[IV] couldn't be decompiled");
+  private static final Pattern UNDECOMPILED_METHOD = Pattern.compile("Method \\$([0-9A-F]+)(?:_body)? \\(\\)[IV] couldn't be decompiled");
 
   public Decompiler() {
     saver = new SimpleResultSaverFor();

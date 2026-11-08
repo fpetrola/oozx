@@ -63,6 +63,7 @@ public class RoutineBytecodeGenerator {
   /** The instruction whose code the method emits right after each one: a fall through to any other needs a jump. */
   private final Map<Integer, Integer> emittedAfter = new HashMap<>();
   private Set<Integer> landings;
+  private Set<Integer> reentries;
   private ControlFlowStructuring structuring;
   /** The call being generated: an unwinding to its return address goes on after it. */
   public Integer resumeAddress;
@@ -112,9 +113,15 @@ public class RoutineBytecodeGenerator {
   }
 
   public void generate() {
-    mm = getMethod(routine.getEntryPoint());
+    MethodMaker method = getMethod(routine.getEntryPoint());
+    String body = createLabelName(routine.getEntryPoint()) + "_body";
+    if (landsBackInItself())
+      reentries = new TreeSet<>();
+    mm = reentries != null ? createMethod(routine.getEntryPoint(), body) : method;
     addInstructions();
     returnFromMethod();
+    if (reentries != null)
+      callBodyAgainWhileItLandsBack(method, body);
   }
 
   protected void addVariables() {
@@ -198,7 +205,7 @@ public class RoutineBytecodeGenerator {
         }
         ControlFlowStructuring.Region region = structuring.regions().get(address);
         if (region != null)
-          region.entries().forEach(entry -> dispatchRegionEntry(address, entry));
+          dispatchRegion(address, region);
 
         List<RoutineManager.CodeVariant> variants = context.routineManager.codeVariantsAt(address);
         if (!variants.isEmpty()) {
@@ -253,7 +260,9 @@ public class RoutineBytecodeGenerator {
     context.routineManager.outlined.values().stream().filter(part -> part.parent() == routine).flatMap(part -> part.exits().stream().map(RoutineManager.Outlined.Continuation::to)).filter(routine::contains).forEach(this::addLabel);
     List<Integer> dispatched = Stream.concat(entries.stream(), partEntries.values().stream().filter(part -> context.routineManager.outlined.get(part).parent() == routine).flatMap(part -> entriesOf(part).stream())).toList();
     structuring = new ControlFlowStructuring(routine, context.routineManager, Stream.concat(entries.stream(), dispatched.stream().map(address -> partEntries.values().stream().filter(part -> part.contains(address)).findFirst().map(Routine::getEntryPoint).orElse(address))).distinct().toList(), stackAnalyzer(), Stream.concat(landings().stream(), routine.getReturnPointsDropped().values().stream()).toList(), this::mayUnwindAt);
-    dispatched.forEach(address -> dispatchEntry(-1, address));
+    if (reentries != null)
+      reentries.addAll(reentriesFromUnwinding());
+    dispatchEntries(-1, reentries == null ? dispatched : Stream.concat(dispatched.stream(), reentries.stream().filter(at -> at != routine.getEntryPoint())).toList());
 
     Label label = getLabel(routine.getEntryPoint());
     if (label != null)
@@ -522,19 +531,16 @@ public class RoutineBytecodeGenerator {
     partCalls.put(part, mm.label().here());
     ControlFlowStructuring.Region region = structuring.regions().get(part.getEntryPoint());
     if (region != null)
-      region.entries().forEach(entry -> dispatchRegionEntry(part.getEntryPoint(), entry));
+      dispatchRegion(part.getEntryPoint(), region);
     RoutineManager.Outlined outlined = context.routineManager.outlined.get(part);
     Variable outcome = mm.invoke(createLabelName(part.getEntryPoint()));
     if (context.mayUnwind(part))
       afterInvoke();
     List<RoutineManager.Outlined.Continuation> exits = outlined.exits();
-    for (int i = 0; i < exits.size(); i++) {
-      RoutineManager.Outlined.Continuation goesOn = exits.get(i);
-      if (outlined.reports())
-        outcome.ifEq(i, () -> goOn(part, goesOn));
-      else
-        goOn(part, goesOn);
-    }
+    if (outlined.reports())
+      switchOn(outcome, java.util.stream.IntStream.range(0, exits.size()).boxed().toList(), i -> goOn(part, exits.get(i)));
+    else
+      exits.forEach(goesOn -> goOn(part, goesOn));
     if (outlined.reports() || exits.isEmpty())
       returnFromMethod();
   }
@@ -678,7 +684,7 @@ public class RoutineBytecodeGenerator {
     }
     if (resumeAddress != null && landings().contains(resumeAddress))
       mm.invoke("ownAddress", addresses(List.of(resumeAddress))).ifNe(-1, resumeLabel::goto_);
-    if (entriesBackFromUnwinding().isEmpty() && elsewhere().isEmpty())
+    if (leaving().isEmpty() && (reentries != null || entriesBackFromUnwinding().isEmpty()))
       returnFromMethod();
     else {
       if (unwound == null)
@@ -692,16 +698,50 @@ public class RoutineBytecodeGenerator {
     if (unwound == null)
       return;
     unwound.here();
-    if (!elsewhere().isEmpty()) {
-      Variable own = mm.invoke("ownAddress", addresses(elsewhere()));
-      elsewhere().forEach(at -> own.ifEq(at, () -> tailJump(at, -1)));
+    List<Integer> leaving = leaving();
+    if (!leaving.isEmpty()) {
+      Variable own = mm.invoke("ownAddress", addresses(leaving));
+      leaving.forEach(at -> own.ifEq(at, () -> tailJump(at, -1)));
     }
-    Set<Integer> back = entriesBackFromUnwinding();
+    if (reentries == null)
+      comeBackAt(start, entriesBackFromUnwinding());
+    returnFromMethod();
+  }
+
+  /** The landings outside this routine's family, where an unwinding that reached this frame goes on with a jump. */
+  private List<Integer> leaving() {
+    return elsewhere().stream().filter(at -> reentries == null || partContaining(at) == null).toList();
+  }
+
+  /** An unwinding that lands at one of these addresses goes on there, through the dispatch at the start. */
+  private void comeBackAt(Label start, Set<Integer> back) {
     if (back.remove(routine.getEntryPoint()))
       mm.invoke("ownAddress", addresses(List.of(routine.getEntryPoint()))).ifNe(-1, start::goto_);
     if (!back.isEmpty())
       mm.invoke("isOwnAddress", addresses(back)).ifTrue(start::goto_);
-    returnFromMethod();
+  }
+
+  /** The routine's entries back from an unwinding and the landings in its parts, all dispatched at the body's start. */
+  private Set<Integer> reentriesFromUnwinding() {
+    Set<Integer> back = entriesBackFromUnwinding();
+    elsewhere().stream().filter(at -> partContaining(at) != null).forEach(back::add);
+    return back;
+  }
+
+  /** An unwinding may land back in this routine: Fernflower cannot decompile a method where every call that may unwind also goes back to its top, so the code goes in a body that returns and the routine's method calls it again. */
+  private boolean landsBackInItself() {
+    return !routine.getReturnPointsDropped().isEmpty() || landings().stream().anyMatch(at -> routine.contains(at) || partContaining(at) != null);
+  }
+
+  private void callBodyAgainWhileItLandsBack(MethodMaker method, String body) {
+    mm = method;
+    Label again = mm.label().here();
+    Variable result = mm.invoke(body);
+    mm.invoke("unwinding").ifTrue(() -> comeBackAt(again, new TreeSet<>(reentries)));
+    if (result == null)
+      mm.return_();
+    else
+      mm.return_(result);
   }
 
   private List<Integer> elsewhere() {
@@ -750,17 +790,39 @@ public class RoutineBytecodeGenerator {
     return entries;
   }
 
-  /** An entry of a region: a part entered there is entered at any of its own entries. */
-  private void dispatchRegionEntry(int from, int entry) {
-    if (partEntries.containsKey(entry))
-      entriesOf(partEntries.get(entry)).forEach(address -> dispatchEntry(from, address));
-    else
-      dispatchEntry(from, entry);
+  /** The entries of a region: a part entered there is entered at any of its own entries. */
+  private void dispatchRegion(int from, ControlFlowStructuring.Region region) {
+    dispatchEntries(from, region.entries().stream().flatMap(entry -> partEntries.containsKey(entry) ? entriesOf(partEntries.get(entry)).stream() : Stream.of(entry)).toList());
   }
 
-  private void dispatchEntry(int from, int address) {
-    Routine part = partContaining(address);
-    mm.invoke("isNextPC", address).ifTrue(() -> goTo(from, part != null ? part.getEntryPoint() : address, address));
+  private void dispatchEntries(int from, List<Integer> addresses) {
+    java.util.function.IntConsumer enter = address -> {
+      Routine part = partContaining(address);
+      goTo(from, part != null ? part.getEntryPoint() : address, address);
+    };
+    if (addresses.stream().distinct().count() == 1)
+      mm.invoke("isNextPC", addresses.get(0)).ifTrue(() -> enter.accept(addresses.get(0)));
+    else
+      switchOn(mm.field("nextAddress"), addresses, address -> {
+        mm.invoke("isNextPC", address);
+        enter.accept(address);
+      });
+  }
+
+  /** One switch over the value: each case runs its code and goes on after the switch when the code ends; the first of repeated cases is the one that runs. */
+  private void switchOn(Variable value, List<Integer> cases, java.util.function.IntConsumer body) {
+    int[] keys = cases.stream().mapToInt(Integer::intValue).distinct().toArray();
+    if (keys.length == 0)
+      return;
+    Label after = mm.label();
+    Label[] labels = java.util.stream.IntStream.range(0, keys.length).mapToObj(i -> mm.label()).toArray(Label[]::new);
+    value.switch_(after, keys, labels);
+    for (int i = 0; i < keys.length; i++) {
+      labels[i].here();
+      body.accept(keys[i]);
+      after.goto_();
+    }
+    after.here();
   }
 
   private Variable addresses(Collection<Integer> values) {
