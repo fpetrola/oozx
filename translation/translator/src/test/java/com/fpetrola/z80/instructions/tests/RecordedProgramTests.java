@@ -4999,6 +4999,16 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void anExchangeWithTheTopThatPutsBackTheReturnAnotherExchangeTookIsThatReturn() {
+    // Movie F74A/F75B: EX (SP),IX takes F05F's return into IX, reads through it, and EX (SP),IX puts it back; the second exchange counted as data with the return's value, so RET at F076 went on at it as a jump and Java called FC55 from inside F05F every time
+    translate(
+        at(0x8000, 0xDD, 0x21, 0x34, 0x12, 0xCD, 0x00, 0x81, 0x3C, 0xFE, 0x05, 0x20, 0xF8, 0x76),
+        at(0x8100, 0xDD, 0xE3, 0xDD, 0x46, 0x00, 0xDD, 0xE3, 0xC9));
+    Assert.assertEquals(5, endValue("AF") >> 8);
+    Assert.assertEquals(Set.of(), Set.copyOf(stackAnalyzer.dataConsumedBy.get(0x8107)));
+  }
+
+  @Test
   public void anInterruptBetweenThePopAndThePushThatPutsAReturnBackDoesNotMakeItData() {
     // Sir Fred 6A6B (frame 71): CALL 6A57; POP AF; POP BC; PUSH BC; PUSH AF; BIT 0,B; RET Z. When the ISR (which calls and returns) came between POP AF and PUSH AF, the push was data, so RET Z both returned and went on at a pushed word: it called the caller's routine from inside itself
     interruptEvery = 11;

@@ -273,6 +273,11 @@ public class StackAnalyzer implements java.io.Serializable {
     if (top != null && !top.returnAddress() && top.pc() != -1)
       dataOnTopAt.put(pcValue, top.pc());
     instruction.accept(new InstructionVisitor<>() {
+      public void visitEx(Ex ex) {
+        if (readingStack)
+          takeReturn(state.getRegisterSP().read());
+      }
+
       public void visitingPop(Pop pop) {
         int sp = state.getRegisterSP().read();
         if (collecting() && returnSlots.get(sp).contains(INTERRUPT)) {
@@ -513,23 +518,27 @@ public class StackAnalyzer implements java.io.Serializable {
       }
 
       public void visitingPop(Pop pop) {
-        int slot = poppedSlot();
-        Entry entry = entries.remove(slot);
-        if (entry != null && entry.returnAddress()) {
-          consumedReturns.put(slot, entry);
-          lastPoppedReturn = new PoppedReturn(slot, entry, pcValue);
-          if (entry.pc() != -1)
-            poppedCallSites.put(entry.pc(), pcValue);
-          Frame popped = frames.get(slot);
-          if (popped != null && popped.enclosing() != null && popped.callSite() == entry.pc())
-            poppedInside.put(popped.enclosing(), entry.pc());
-        }
+        takeReturn(poppedSlot());
       }
 
       private int poppedSlot() {
         return state.getRegisterSP().read() - 2 & 0xFFFF;
       }
     });
+  }
+
+  /** A POP, or an exchange with the top (Movie F74A EX (SP),IX), takes the word at the slot. */
+  private void takeReturn(int slot) {
+    Entry entry = entries.remove(slot);
+    if (entry != null && entry.returnAddress()) {
+      consumedReturns.put(slot, entry);
+      lastPoppedReturn = new PoppedReturn(slot, entry, pcValue);
+      if (entry.pc() != -1)
+        poppedCallSites.put(entry.pc(), pcValue);
+      Frame popped = frames.get(slot);
+      if (popped != null && popped.enclosing() != null && popped.callSite() == entry.pc())
+        poppedInside.put(popped.enclosing(), entry.pc());
+    }
   }
 
   private void remember(boolean returnAddress) {
