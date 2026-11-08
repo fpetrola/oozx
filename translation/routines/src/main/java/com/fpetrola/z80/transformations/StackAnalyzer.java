@@ -45,7 +45,7 @@ import java.util.function.Function;
 import static com.fpetrola.z80.registers.RegisterName.SP;
 
 public class StackAnalyzer implements java.io.Serializable {
-  public record Entry(int value, int pc, boolean returnAddress) {
+  public record Entry(int value, int pc, boolean returnAddress) implements java.io.Serializable {
   }
 
   private transient State state;
@@ -63,6 +63,8 @@ public class StackAnalyzer implements java.io.Serializable {
   public final MultiValuedMap<Integer, Integer> pushedValues = new HashSetValuedHashMap<>();
   public final MultiValuedMap<Integer, Integer> calledThrough = new HashSetValuedHashMap<>();
   public final Set<Integer> jumpTableSites = new HashSet<>(), recordedPops = new HashSet<>(), pushesTakenByPops = new HashSet<>(), returnsPutBack = new HashSet<>();
+  /** The PUSH that put a return back, with that return: the exploration takes the push of that word for that return even when it got there without the POP. */
+  public final Map<Integer, Entry> pushesPuttingBack = new HashMap<>();
   public final Map<Integer, Integer> stackSwitches = new HashMap<>();
   private transient int[] leaving, reentered;
   private final transient Map<Integer, int[]> leftStacks = new HashMap<>();
@@ -565,8 +567,9 @@ public class StackAnalyzer implements java.io.Serializable {
   /** A PUSH of the return address the last POP took, with no call or return since (an interrupt in between is neither: Sir Fred 6A70-6A73), where it took it or below (with what was pushed since under it: Turbo Esprit A79E-A7A3), puts that return back, and that POP took no return: Sir Fred 5E40-5E42, whose return a later POP takes for good. */
   private Entry returnPutBack(Entry pushed, int sp) {
     if (lastPoppedReturn == null || (lastPoppedReturn.slot() - sp & 0xffff) >= 0x8000 || lastPoppedReturn.entry().value() != pushed.value())
-      return pushed;
+      return !collecting() && pushesPuttingBack.containsKey(pushed.pc()) && pushesPuttingBack.get(pushed.pc()).value() == pushed.value() ? pushesPuttingBack.get(pushed.pc()) : pushed;
     returnsPutBack.add(lastPoppedReturn.pop());
+    pushesPuttingBack.put(pushed.pc(), lastPoppedReturn.entry());
     return lastPoppedReturn.entry();
   }
 
@@ -615,6 +618,7 @@ public class StackAnalyzer implements java.io.Serializable {
     calledThrough.clear();
     jumpTableSites.clear();
     returnsPutBack.clear();
+    pushesPuttingBack.clear();
     poppedBeforeInterrupt.clear();
     pushesTakenByPops.clear();
     abandoningRets.clear();
@@ -638,6 +642,7 @@ public class StackAnalyzer implements java.io.Serializable {
     recordedPops.addAll(recorded.recordedPops);
     pushesTakenByPops.addAll(recorded.pushesTakenByPops);
     returnsPutBack.addAll(recorded.returnsPutBack);
+    pushesPuttingBack.putAll(recorded.pushesPuttingBack);
     stackSwitches.putAll(recorded.stackSwitches);
     dataConsumedBy.putAll(recorded.dataConsumedBy);
     dataOnTopAt.putAll(recorded.dataOnTopAt);

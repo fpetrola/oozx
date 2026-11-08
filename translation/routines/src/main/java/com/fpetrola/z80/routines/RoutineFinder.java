@@ -148,7 +148,7 @@ public class RoutineFinder {
 
         boolean listened = this.stackAnalyzer.listenEvents(new StackListener() {
           public boolean returnAddressPopped(int pcValue, int returnAddress, int callAddress) {
-            if (stackAnalyzer.callContinuations.containsKey(callAddress) || !routineManager.isCalledFrom(currentRoutine, callAddress))
+            if (stackAnalyzer.callContinuations.containsKey(callAddress) || !routineManager.isCalledFrom(currentRoutine, callAddress) && stackAnalyzer.pushesPuttingBack.values().stream().noneMatch(putBack -> putBack.pc() == callAddress))
               return false;
             Routine returnRoutine = routineManager.findRoutineAt(callAddress);
             if (lastPc != -1) {

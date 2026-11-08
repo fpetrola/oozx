@@ -4999,6 +4999,29 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void thePopThatTakesAReturnPutBackForGoodEndsTheCallEvenOutsideTheCallee() {
+    // Sir Fred 8ECB CALL 9504 (frame 6548): 951E POP HL takes 8ECE, JP NZ 9531 goes back to the main loop at 8206, or CC65 PUSH HL puts it back, CALL CC52, CC6B POP HL takes it for good and a chain of JPs ends at JP 8206; CC65-CC6C is another routine's code, so the finder took no return at CC6B and every pass nested the main loop deeper in Java
+    translate(
+        at(0x8000, 0x04, 0x78, 0xFE, 0x20, 0x28, 0x0A, 0xCD, 0x00, 0x81, 0x0C, 0x18, 0xF4),
+        at(0x8010, 0x76),
+        at(0x8020, 0x14, 0xCD, 0x00, 0x82, 0xC9),
+        at(0x8100, 0x78, 0xE6, 0x03, 0xC8, 0xE1, 0xCB, 0x40, 0xC2, 0x00, 0x82, 0xC3, 0x00, 0x80),
+        at(0x8200, 0xE5, 0xCD, 0x00, 0x83, 0xE1, 0x14, 0xC3, 0x00, 0x80),
+        at(0x8300, 0x1C, 0xC9));
+    Assert.assertEquals(0x20, endValue("BC") >> 8);
+  }
+
+  @Test
+  public void aReturnASpyPutsBackAndAnExchangeMovesPastInlineDataIsAShiftedReturn() {
+    // Emlyn 631D CALL 5D78: POP HL; PUSH HL reads the return in place, EX (SP),HL at 5D7D swaps it for the address past the inline bytes and RET goes on there (frame 2338): with the push a put-back and the exchange no taker, nobody took the return and Java returned to the inline bytes' caller
+    translate(
+        at(0x8000, 0xCD, 0x00, 0x81, 0x07, 0x04, 0x78, 0xFE, 0x04, 0x20, 0xF6, 0x76),
+        at(0x8100, 0xE1, 0xE5, 0xCD, 0x00, 0x82, 0xE3, 0xC9),
+        at(0x8200, 0x4E, 0x23, 0xC9));
+    Assert.assertEquals(0x0407, endValue("BC"));
+  }
+
+  @Test
   public void anExchangeWithTheTopThatPutsBackTheReturnAnotherExchangeTookIsThatReturn() {
     // Movie F74A/F75B: EX (SP),IX takes F05F's return into IX, reads through it, and EX (SP),IX puts it back; the second exchange counted as data with the return's value, so RET at F076 went on at it as a jump and Java called FC55 from inside F05F every time
     translate(
