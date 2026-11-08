@@ -169,6 +169,31 @@ public class GameBytecodeCreationTests {
   }
 
   @Test
+  public void testTranslateLordsOfMidnightToJava() {
+    translateRecording("LordsOfMidnight", "/home/fernando/detodo/spectrum/rzx-top/6604/midnight_ice_crown.rzx");
+  }
+
+  @Test
+  public void testTranslateAntAttackToJava() {
+    translateRecording("AntAttack", "/home/fernando/detodo/spectrum/rzx-top/210/antattack.rzx");
+  }
+
+  @Test
+  public void testTranslateMovieToJava() {
+    translateRecording("Movie", "/home/fernando/detodo/spectrum/rzx-top/3300/movie.rzx");
+  }
+
+  @Test
+  public void testTranslateSaboteurToJava() {
+    translateRecording("Saboteur", "/home/fernando/detodo/spectrum/rzx-top/4293/saboteur_level8.rzx");
+  }
+
+  @Test
+  public void testTranslateBruceLeeToJava() {
+    translateRecording("BruceLee", "/home/fernando/detodo/spectrum/rzx-top/718/bruce.rzx");
+  }
+
+  @Test
   public void testTranslateRenegadeToJava() {
     translateRecording("Renegade", "/home/fernando/detodo/spectrum/rzx-top/4082/renegade48-random.rzx");
   }
