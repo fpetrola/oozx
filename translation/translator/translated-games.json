@@ -129,6 +129,24 @@
       "recording": "/home/fernando/detodo/spectrum/rzx-top/3972/quaz.rzx",
       "entry": "B720"
     },
+    "lordsofmidnight": {
+      "title": "The Lords of Midnight",
+      "type": "LordsOfMidnight",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/6604/midnight_ice_crown.rzx",
+      "entry": "61DD"
+    },
+    "saboteur": {
+      "title": "Saboteur!",
+      "type": "Saboteur",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/4293/saboteur_level8.rzx",
+      "entry": "E462"
+    },
+    "brucelee": {
+      "title": "Bruce Lee",
+      "type": "BruceLee",
+      "recording": "/home/fernando/detodo/spectrum/rzx-top/718/bruce.rzx",
+      "entry": "962E"
+    },
     "jetsetwilly": {
       "title": "Jet Set Willy",
       "type": "JetSetWilly",
