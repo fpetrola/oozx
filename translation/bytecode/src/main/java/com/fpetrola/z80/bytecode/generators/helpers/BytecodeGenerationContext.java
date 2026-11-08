@@ -35,6 +35,8 @@ public class BytecodeGenerationContext {
   public Map<Integer, MethodMaker> methods;
   /** Addresses a method's start dispatches to: each gets an entry method, for whoever reaches it by address at run time. */
   public final java.util.Set<Integer> dispatchedEntries = new java.util.TreeSet<>();
+  /** Where code left to the emulator jumps or calls: the run time goes there by address. */
+  public final java.util.Set<Integer> emulatedTargets = new java.util.TreeSet<>();
   public Register pc;
   public SymbolicExecutionAdapter symbolicExecutionAdapter;
   public GameData gameData;

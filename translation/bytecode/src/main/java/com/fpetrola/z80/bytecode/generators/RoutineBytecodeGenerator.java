@@ -283,6 +283,8 @@ public class RoutineBytecodeGenerator {
   }
 
   private void executeMutantCode(int address, Instruction instruction) {
+    if (RoutineManager.fixedJumpTarget(instruction) != -1)
+      context.emulatedTargets.add(RoutineManager.fixedJumpTarget(instruction));
     Variable executedUpTo = mm.invoke("executeMutantCode", address);
     afterInvoke();
     int next = Space.next(address, instruction.getLength());

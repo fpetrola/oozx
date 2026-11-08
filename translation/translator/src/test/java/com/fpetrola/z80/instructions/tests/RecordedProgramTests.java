@@ -6741,6 +6741,18 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aMutantCallRunByTheEmulatorFindsItsTargetByAddress() {
+    // Head over Heels 9200: CALL 8D18 runs in the emulator, which calls 8D18 through runTranslated; 05370a5f4 left 8D18 out of it and the lockstep stopped at frame 8166
+    fallsBackToTheEmulator = true;
+    translate(
+        at(0x8000, 0xCD, 0x20, 0x80, 0xAF, 0x28, 0x03, 0x32, 0x20, 0x80, 0x76, 0x18, 0xFD),
+        at(0x8020, 0xCD, 0x30, 0x80, 0xC9),
+        at(0x8030, 0x04, 0xC9));
+    Assert.assertTrue(stackAnalyzer.codeVersions.mutant().contains(0x8020));
+    Assert.assertEquals(0x01, endValue("B"));
+  }
+
+  @Test
   public void comingBackFromTheStackUsedAsStorageAboveAReturnDropsIt() {
     // Rainbow Islands E6CC: after POPping graphics with SP at 5B02, LD SP,FDDB lands on the return of CALL E5E3 at FEE4, above the return of the inner call, and the RET goes back to FEE7
     ignoresMemory(0xFE00, 0xFF00);

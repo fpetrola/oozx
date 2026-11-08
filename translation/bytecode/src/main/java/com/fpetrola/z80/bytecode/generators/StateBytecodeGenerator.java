@@ -143,7 +143,7 @@ public class StateBytecodeGenerator {
       }
     });
 
-    java.util.stream.Stream.concat(routineManager.externalEntries.stream(), bytecodeGenerationContext.dispatchedEntries.stream()).distinct().forEach(entry -> {
+    java.util.stream.Stream.of(routineManager.externalEntries, bytecodeGenerationContext.dispatchedEntries, bytecodeGenerationContext.emulatedTargets).flatMap(Set::stream).distinct().forEach(entry -> {
       Routine owner = routineManager.findRoutineAt(entry);
       if (owner != null && owner.getEntryPoint() != entry && !bytecodeGenerationContext.methods.containsKey(entry)) {
         MethodMaker entryMethod = new RoutineBytecodeGenerator(bytecodeGenerationContext, owner).getMethod(entry);
@@ -154,6 +154,7 @@ public class StateBytecodeGenerator {
 
     MethodMaker runTranslated = classMaker.addMethod(boolean.class, "runTranslated", int.class).protected_();
     Set<Integer> enteredFromOutside = new HashSet<>(routineManager.externalEntries);
+    enteredFromOutside.addAll(bytecodeGenerationContext.emulatedTargets);
     enteredFromOutside.addAll(symbolicExecutionAdapter.getStackAnalyzer().dynamicInvocation.values());
     routines.forEach(routine -> {
       enteredFromOutside.addAll(routineManager.landingsOf(routine, symbolicExecutionAdapter.getStackAnalyzer(), bytecodeGenerationContext.ancestorJumps()));
