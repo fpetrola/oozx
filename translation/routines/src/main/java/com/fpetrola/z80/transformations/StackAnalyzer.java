@@ -65,6 +65,7 @@ public class StackAnalyzer implements java.io.Serializable {
   public final Set<Integer> jumpTableSites = new HashSet<>(), recordedPops = new HashSet<>(), pushesTakenByPops = new HashSet<>(), returnsPutBack = new HashSet<>();
   /** The PUSH that put a return back, with that return: the exploration takes the push of that word for that return even when it got there without the POP. */
   public final Map<Integer, Entry> pushesPuttingBack = new HashMap<>();
+  private final Set<Integer> jumpingFar = new HashSet<>();
   public final Map<Integer, Integer> stackSwitches = new HashMap<>();
   private transient int[] leaving, reentered;
   private final transient Map<Integer, int[]> leftStacks = new HashMap<>();
@@ -432,8 +433,12 @@ public class StackAnalyzer implements java.io.Serializable {
       lastEvent = l -> l.jumpUsingRet(ret, pcValue, targets);
   }
 
+  /** A jump with a call's return taken goes on past the call's inline data when it lands near the return; a call whose taken return also jumps far (Movie E894: E909 and E9EF) is a jump table. */
   private boolean returningShifted(Instruction instruction, int target, Entry consumedReturn) {
-    Integer continuation = collecting() ? ((target - consumedReturn.value() & 0xffff) < 256 ? target : null) : callContinuations.get(consumedReturn.pc());
+    boolean near = (target - consumedReturn.value() & 0xffff) < 256;
+    if (collecting() && !near && jumpingFar.add(consumedReturn.pc()) && callContinuations.containsKey(consumedReturn.pc()))
+      jumpTableAt(consumedReturn.pc());
+    Integer continuation = collecting() ? (near ? target : null) : callContinuations.get(consumedReturn.pc());
     if (continuation == null || !learnContinuation(pcValue, consumedReturn.pc(), continuation))
       return false;
     if (consumedReturn.pc() == -1)
@@ -444,7 +449,7 @@ public class StackAnalyzer implements java.io.Serializable {
 
   private boolean learnContinuation(int returnPc, int callSite, int continuation) {
     Integer known = callContinuations.get(callSite);
-    if (known != null && known != continuation || returnsConsumedBy.containsValue(callSite))
+    if (known != null && known != continuation || returnsConsumedBy.containsValue(callSite) || jumpingFar.contains(callSite))
       jumpTableAt(callSite);
     if (jumpTableSites.contains(callSite))
       return false;
@@ -619,6 +624,7 @@ public class StackAnalyzer implements java.io.Serializable {
     jumpTableSites.clear();
     returnsPutBack.clear();
     pushesPuttingBack.clear();
+    jumpingFar.clear();
     poppedBeforeInterrupt.clear();
     pushesTakenByPops.clear();
     abandoningRets.clear();

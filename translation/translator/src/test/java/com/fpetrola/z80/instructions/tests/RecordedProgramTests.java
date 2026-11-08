@@ -4999,6 +4999,19 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void aJumpThatTakesTheReturnAndGoesBothNearItAndFarFromItIsAJumpTable() {
+    // Movie E894 CALL E7E4: POP HL takes E897, JP (HL) goes to E909/E906 (near the return) or E9EF (far); the near targets made E894 a shifted return to E909 and E9EF became a call inside the call, so its RET (E947) went back into E7F2 instead of to E7F2's caller (frame 4167)
+    translate(
+        at(0x8000, 0x06, 0x00, 0xCD, 0x10, 0x80, 0x04, 0x78, 0xFE, 0x06, 0x20, 0xF7, 0x76),
+        at(0x8010, 0xCD, 0x00, 0x81),
+        at(0x8020, 0x14, 0xC9),
+        at(0x8100, 0xE1, 0xCB, 0x40, 0x21, 0x20, 0x80, 0x28, 0x03, 0x21, 0x00, 0x83, 0xE9),
+        at(0x8300, 0x1C, 0xC9));
+    Assert.assertEquals(0x0303, endValue("DE"));
+    Assert.assertTrue(stackAnalyzer.jumpTableSites.contains(0x8010));
+  }
+
+  @Test
   public void thePopThatTakesAReturnPutBackForGoodEndsTheCallEvenOutsideTheCallee() {
     // Sir Fred 8ECB CALL 9504 (frame 6548): 951E POP HL takes 8ECE, JP NZ 9531 goes back to the main loop at 8206, or CC65 PUSH HL puts it back, CALL CC52, CC6B POP HL takes it for good and a chain of JPs ends at JP 8206; CC65-CC6C is another routine's code, so the finder took no return at CC6B and every pass nested the main loop deeper in Java
     translate(
