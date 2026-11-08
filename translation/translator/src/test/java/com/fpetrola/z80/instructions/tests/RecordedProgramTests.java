@@ -4470,6 +4470,11 @@ public class RecordedProgramTests {
               int var2 = this.SP();
               if((var1 - var2 & 0xFFFF) < 0x8000) {
                  this.pop();
+              } else {
+                 int var3 = var1 + 2 & 0xFFFF;
+                 if(var2 == var3) {
+                    return;
+                 }
               }
 
               this.setNextAddress(0x8300);
@@ -4957,6 +4962,40 @@ public class RecordedProgramTests {
     Routine loop = routineManager.topParent(routineManager.findRoutineAt(0x8100));
     Assert.assertEquals(loop, routineManager.topParent(routineManager.findRoutineAt(0x8300)));
     Assert.assertEquals(loop, routineManager.topParent(routineManager.findRoutineAt(0x8310)));
+  }
+
+  @Test
+  public void aReturnPutBackInItsOwnSlotIsTheReturnTheNextPopTakes() {
+    // Sir Fred 5E3C (frame 3279): POP HL takes the return of EA0B's call, RET Z stays, PUSH HL puts it back in the same slot; then either RET Z returns to EA0E, or the code goes on, calls B760 and POP HL takes the return again at 5E55 and goes on in the main loop: the call ends there. The push counted as data, so that POP was no return taken and Java stayed inside the call for the rest of the game
+    translate(listing("""
+        8000  06 00  LD B, 0x00
+        8002  CD 00 81  CALL 0x8100
+        8005  76  HALT
+        8006  18 FD  JR 0x8005
+        8100  04  INC B
+        8101  78  LD A, B
+        8102  FE 10  CP A, 0x10
+        8104  C8  RET Z
+        8105  CD 00 82  CALL 0x8200
+        8108  0C  INC C
+        8109  C3 00 81  JP 0x8100
+        8200  78  LD A, B
+        8201  E6 03  AND A, 0x03
+        8203  E1  POP HL
+        8204  D8  RET C
+        8205  E5  PUSH HL
+        8206  FE 01  CP A, 0x01
+        8208  C0  RET NZ
+        8209  CD 00 83  CALL 0x8300
+        820C  E1  POP HL
+        820D  1C  INC E
+        820E  C3 00 81  JP 0x8100
+        8300  14  INC D
+        8301  C9  RET
+        """));
+    Assert.assertEquals(0x100B, endValue("BC"));
+    Assert.assertEquals(0x0404, endValue("DE"));
+    Assert.assertEquals(java.util.Set.of(0x820C), new java.util.HashSet<>(stackAnalyzer.poppedCallSites.get(0x8105)).stream().filter(pop -> pop == 0x820C).collect(java.util.stream.Collectors.toSet()));
   }
 
   @Test

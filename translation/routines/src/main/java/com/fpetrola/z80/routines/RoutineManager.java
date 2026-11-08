@@ -781,9 +781,9 @@ public class RoutineManager {
   public record RetExit(Exit kind, int continuation) {
   }
 
-  /** A CALL pushes its return address for real when a POP takes it outside the routine's own return points, or when a plan needs it on the stack (layout, non-local returns). */
+  /** A CALL pushes its return address for real when a POP takes it outside the routine's own return points or puts it back, or when a plan needs it on the stack (layout, non-local returns). */
   public boolean pushesReturnAddress(int callSite, Routine routine, StackAnalyzer stackAnalyzer) {
-    return stackAnalyzer.poppedCallSites.containsKey(callSite) && !routine.getReturnPoints().containsKey(callSite) || pushedReturnSites.contains(callSite)
+    return stackAnalyzer.poppedCallSites.containsKey(callSite) && (!routine.getReturnPoints().containsKey(callSite) || stackAnalyzer.poppedCallSites.get(callSite).stream().anyMatch(stackAnalyzer.returnsPutBack::contains)) || pushedReturnSites.contains(callSite)
         || stackAnalyzer.returnsConsumedBy.entries().stream().anyMatch(e -> e.getValue() == callSite && takesAReturnPushedBack(e.getKey(), stackAnalyzer));
   }
 

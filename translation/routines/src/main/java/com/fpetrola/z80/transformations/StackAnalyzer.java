@@ -91,7 +91,8 @@ public class StackAnalyzer implements java.io.Serializable {
   private final transient List<Integer> simulatedCallsPcs = new ArrayList<>();
   private final transient Map<Integer, Entry> entries = new HashMap<>();
   private final transient Map<Integer, Entry> consumedReturns = new HashMap<>();
-  private transient Map.Entry<Integer, Entry> lastPoppedReturn;
+  private transient PoppedReturn lastPoppedReturn;
+  private record PoppedReturn(int slot, Entry entry, int pop) {}
   public record Frame(int callSite, Frame enclosing) {
   }
 
@@ -280,7 +281,7 @@ public class StackAnalyzer implements java.io.Serializable {
           recordedPops.add(pcValue);
           pushesTakenByPops.add(entry.pc());
         }
-        if (entry != null && entry.returnAddress() && entry.pc() != -1 && !returnsPutBack.contains(entry.pc()) && (!recordedPops.contains(pcValue) || poppedCallSites.containsValue(pcValue)))
+        if (entry != null && entry.returnAddress() && entry.pc() != -1 && !returnsPutBack.contains(pcValue) && (!recordedPops.contains(pcValue) || poppedCallSites.containsValue(pcValue)))
           lastEvent = l -> l.returnAddressPopped(pcValue, entry.value(), entry.pc());
       }
 
@@ -512,7 +513,7 @@ public class StackAnalyzer implements java.io.Serializable {
         Entry entry = entries.remove(slot);
         if (entry != null && entry.returnAddress()) {
           consumedReturns.put(slot, entry);
-          lastPoppedReturn = Map.entry(slot, entry);
+          lastPoppedReturn = new PoppedReturn(slot, entry, pcValue);
           if (entry.pc() != -1)
             poppedCallSites.put(entry.pc(), pcValue);
           Frame popped = frames.get(slot);
@@ -548,13 +549,12 @@ public class StackAnalyzer implements java.io.Serializable {
       layoutCallSites.add(entry.pc());
   }
 
-  /** A PUSH of the return address the last POP took, with no call or return since and below where it took it, puts that return back with what was pushed since under it: Turbo Esprit A79E-A7A3. */
+  /** A PUSH of the return address the last POP took, with no call or return since, where it took it or below (with what was pushed since under it: Turbo Esprit A79E-A7A3), puts that return back, and that POP took no return: Sir Fred 5E40-5E42, whose return a later POP takes for good. */
   private Entry returnPutBack(Entry pushed, int sp) {
-    int above = lastPoppedReturn == null ? 0 : lastPoppedReturn.getKey() - sp & 0xffff;
-    if (above == 0 || above >= 0x8000 || lastPoppedReturn.getValue().value() != pushed.value())
+    if (lastPoppedReturn == null || (lastPoppedReturn.slot() - sp & 0xffff) >= 0x8000 || lastPoppedReturn.entry().value() != pushed.value())
       return pushed;
-    returnsPutBack.add(lastPoppedReturn.getValue().pc());
-    return lastPoppedReturn.getValue();
+    returnsPutBack.add(lastPoppedReturn.pop());
+    return lastPoppedReturn.entry();
   }
 
   private Frame enclosingFrame(int from) {
