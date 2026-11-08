@@ -756,6 +756,7 @@ public class RoutineManager {
     spans = Map.of();
     interiors.clear();
     bankedOnly.clear();
+    planned = false;
   }
 
   public void removeRoutine(Routine routine) {

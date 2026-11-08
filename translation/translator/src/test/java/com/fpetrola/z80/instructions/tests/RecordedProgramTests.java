@@ -86,6 +86,15 @@ public class RecordedProgramTests {
   private String image;
   private int[] memory;
 
+  private String translateWithMethodBytes(int methodBytes, int[]... chunks) {
+    System.setProperty("translation.methodBytes", String.valueOf(methodBytes));
+    try {
+      return translate(chunks);
+    } finally {
+      System.clearProperty("translation.methodBytes");
+    }
+  }
+
   private String translate(int[]... chunks) {
     explore(chunks);
     String java = base.generateAndDecompile(image, routineManager.getRoutines(), ".", "Program", base.symbolicExecutionAdapter);
@@ -1579,7 +1588,7 @@ public class RecordedProgramTests {
   @Test
   public void aPartOfALoopBodyThatBreaksOrContinuesReportsWhichToTheLoop() {
     int[] first = IntStream.range(0, 400).flatMap(i -> IntStream.of(0x32, 0x02, 0x90)).toArray(), second = IntStream.range(0, 300).flatMap(i -> IntStream.of(0x32, 0x03, 0x90)).toArray();
-    translate(with(listing("""
+    translateWithMethodBytes(1500, with(listing("""
         8000  3A 00 90  LD A, (0x9000)
         8003  3C  INC A
         8004  32 00 90  LD (0x9000), A
@@ -5685,28 +5694,23 @@ public class RecordedProgramTests {
   @Test
   public void aLoopTooBigForOneJavaMethodStaysAStateMachine() {
     // Target: Batman D537: 160 members with 458 exits among them; folded, the head's call blocks go past the 64 KB a Java method can hold (cojen: Code limit reached). Until the loop can be folded into nested heads, such a loop stays a state machine; the limit here is lowered to make this small loop too big
-    System.setProperty("translation.methodBytes", "8");
-    try {
-      String java = translate(listing("""
-          8000  CD 00 81  CALL 0x8100
-          8003  CD 00 82  CALL 0x8200
-          8006  76  HALT
-          8100  04  INC B
-          8101  78  LD A, B
-          8102  FE 08  CP A, 0x08
-          8104  C8  RET Z
-          8105  C3 00 82  JP 0x8200
-          8200  0C  INC C
-          8201  79  LD A, C
-          8202  FE 08  CP A, 0x08
-          8204  C8  RET Z
-          8205  C3 00 81  JP 0x8100
-          """));
-      Assert.assertEquals(0x0808, endValue("BC"));
-      Assert.assertTrue(java.contains("public int runJumps(int var1)"));
-    } finally {
-      System.clearProperty("translation.methodBytes");
-    }
+    String java = translateWithMethodBytes(8, listing("""
+        8000  CD 00 81  CALL 0x8100
+        8003  CD 00 82  CALL 0x8200
+        8006  76  HALT
+        8100  04  INC B
+        8101  78  LD A, B
+        8102  FE 08  CP A, 0x08
+        8104  C8  RET Z
+        8105  C3 00 82  JP 0x8200
+        8200  0C  INC C
+        8201  79  LD A, C
+        8202  FE 08  CP A, 0x08
+        8204  C8  RET Z
+        8205  C3 00 81  JP 0x8100
+        """));
+    Assert.assertEquals(0x0808, endValue("BC"));
+    Assert.assertTrue(java.contains("public int runJumps(int var1)"));
   }
 
   @Test
@@ -8378,27 +8382,22 @@ public class RecordedProgramTests {
   @Test
   public void aPartWithAJumpIntoTheOperandOfOneOfItsInstructionsIsTakenOutOnce() {
     // Batman {9F73:C6FE} (1030-batman10 to 13): outline started a run of a part wherever addressBefore found no member, and addressBefore answers the instruction of length 1 to 4 that ends right before; after a jump into the second byte of LD A,n that byte is an instruction too, the run through the LD had already moved it, and the parent was asked to split there again (NoSuchElementException in Routine.split)
-    System.setProperty("translation.methodBytes", "80");
-    try {
-      translate(with(listing("""
-          8000  06 01  LD B, 0x01
-          8002  CD 00 81  CALL 0x8100
-          8005  4F  LD C, A
-          8006  06 02  LD B, 0x02
-          8008  CD 00 81  CALL 0x8100
-          800B  57  LD D, A
-          800C  76  HALT
-          800D  18 FD  JR 0x800C
-          8114  78  LD A, B
-          8115  FE 01  CP A, 0x01
-          8117  28 01  JR Z, 0x811A
-          8119  3E AF  LD A, 0xAF
-          """), at(0x8100, IntStream.range(0, 20).map(i -> 0x1C).toArray()), at(0x811B, IntStream.concat(IntStream.range(0, 60).map(i -> 0x23), IntStream.of(0xC9)).toArray())));
-      Assert.assertEquals(0x0200, endValue("BC"));
-      Assert.assertEquals(0xAF28, endValue("DE"));
-    } finally {
-      System.clearProperty("translation.methodBytes");
-    }
+    translateWithMethodBytes(80, with(listing("""
+        8000  06 01  LD B, 0x01
+        8002  CD 00 81  CALL 0x8100
+        8005  4F  LD C, A
+        8006  06 02  LD B, 0x02
+        8008  CD 00 81  CALL 0x8100
+        800B  57  LD D, A
+        800C  76  HALT
+        800D  18 FD  JR 0x800C
+        8114  78  LD A, B
+        8115  FE 01  CP A, 0x01
+        8117  28 01  JR Z, 0x811A
+        8119  3E AF  LD A, 0xAF
+        """), at(0x8100, IntStream.range(0, 20).map(i -> 0x1C).toArray()), at(0x811B, IntStream.concat(IntStream.range(0, 60).map(i -> 0x23), IntStream.of(0xC9)).toArray())));
+    Assert.assertEquals(0x0200, endValue("BC"));
+    Assert.assertEquals(0xAF28, endValue("DE"));
   }
 
   @Test
@@ -8410,7 +8409,7 @@ public class RecordedProgramTests {
     second[0] = 0x8800;
     Arrays.fill(second, 1, 2001, 0x3C);
     System.arraycopy(new int[]{0x06, 0x01, 0x76, 0x18, 0xFD}, 0, second, 2001, 5);
-    translate(first, second);
+    translateWithMethodBytes(1500, first, second);
     Routine routine = routineManager.findRoutineAt(START);
     Assert.assertEquals(routines(), 2, routineManager.outlined.size());
     Assert.assertTrue(routineManager.outlined.values().stream().allMatch(part -> part.parent() == routine && part.exits().size() <= 1 && !part.leaves()));

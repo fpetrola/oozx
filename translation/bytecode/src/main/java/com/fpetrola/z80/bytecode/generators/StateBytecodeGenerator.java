@@ -197,7 +197,7 @@ public class StateBytecodeGenerator {
 
   /** Z80 bytes a method takes at most (-Dtranslation.methodBytes); a part's call block in a head counts as {@link #PART_BYTES} plus {@link #EXIT_BYTES} per exit. */
   private static int maxRoutineBytes() {
-    return Integer.getInteger("translation.methodBytes", 1500);
+    return Integer.getInteger("translation.methodBytes", 4000);
   }
 
   private static final int PART_BYTES = 4, EXIT_BYTES = 2;

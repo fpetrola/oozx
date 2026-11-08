@@ -31,13 +31,23 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public interface BytecodeGeneration {
   default String getDecompiledSource(String className, String targetFolder, State state, boolean translation, SymbolicExecutionAdapter symbolicExecutionAdapter, String base64Memory, GameData gameData) {
     for (int attempt = 0; ; attempt++) {
       StateBytecodeGenerator bytecodeGenerator = getBytecodeGenerator(className, state, translation, symbolicExecutionAdapter, base64Memory, gameData);
       Decompiler decompiler = new Decompiler();
-      bytecodeGenerator.getBytecode().forEach((key, value) -> decompiler.addClass(value, createFile(key, targetFolder, value)));
+      Map<String, byte[]> bytecode;
+      try {
+        bytecode = bytecodeGenerator.getBytecode();
+      } catch (IllegalStateException tooLarge) {
+        if (!"Code limit reached".equals(tooLarge.getMessage()) || attempt == 5 || !bytecodeGenerator.splitBiggestRoutine())
+          throw tooLarge;
+        System.out.println("CODE LIMIT (attempt " + attempt + "): the biggest routine is cut");
+        continue;
+      }
+      bytecode.forEach((key, value) -> decompiler.addClass(value, createFile(key, targetFolder, value)));
       if (Boolean.getBoolean("translation.skipDecompile"))
         return "";
       String source = decompiler.decompile();
