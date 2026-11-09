@@ -14,4 +14,4 @@ JSpeccy.xml
 **/target/**
 dependency-reduced-pom.xml
 .profileconfig.json
-
+.ide
