@@ -24,6 +24,7 @@ import com.fpetrola.z80.instructions.impl.Call;
 import com.fpetrola.z80.instructions.impl.Ret;
 import com.fpetrola.z80.opcodes.references.ConditionAlwaysTrue;
 import com.fpetrola.z80.instructions.impl.Ld;
+import com.fpetrola.z80.instructions.impl.Pop;
 import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.opcodes.references.Memory16BitReference;
 import com.fpetrola.z80.registers.Register;
@@ -195,13 +196,13 @@ public class RoutineManager {
     return routinesPlanned && instructions.get(abandon.closedCall()) instanceof Call call && caller != null && findRoutineAt(ret) == caller && findRoutineAt(call.getJumpAddress()) != caller;
   }
 
-  /** Every call whose return a virtual POP took catches the unwinding after that POP, whichever routine the exploration was in when it saw the POP (Sir Fred 8202 ends three chains); the POP of a rewritten call's return is virtual, since the call that ran may be another version. */
+  /** Every call whose return a virtual POP took catches the unwinding after that POP, whichever routine the exploration was in when it saw the POP (Sir Fred 8202 ends three chains); the recording makes a POP virtual when the call that ran may be another version, or when it takes for good a return another POP put back, which the exploration may have reached only with data (Sir Fred CC6B). */
   public void planPoppedReturns(StackAnalyzer stackAnalyzer) {
     stackAnalyzer.poppedCallSites.entries().stream().filter(e -> instructions.get(e.getKey()) instanceof Call && instructions.containsKey(e.getValue()) && findRoutineAt(e.getValue()) != null).forEach(e -> {
-      boolean rewritten = stackAnalyzer.codeVersions.isVersioned(e.getKey());
-      if (rewritten)
+      boolean recorded = stackAnalyzer.codeVersions.isVersioned(e.getKey()) || instructions.get(e.getValue()) instanceof Pop && !stackAnalyzer.returnsPutBack.contains(e.getValue()) && stackAnalyzer.poppedCallSites.get(e.getKey()).stream().anyMatch(stackAnalyzer.returnsPutBack::contains);
+      if (recorded)
         findRoutineAt(e.getValue()).getVirtualPop().put(e.getValue(), e.getValue());
-      if (rewritten || isVirtualPop(e.getValue()) && !stackAnalyzer.callContinuations.containsKey(e.getKey()))
+      if (recorded || isVirtualPop(e.getValue()) && !stackAnalyzer.callContinuations.containsKey(e.getKey()))
         addReturnPoint(e.getKey(), addressAfter(e.getValue()));
     });
   }
@@ -222,9 +223,7 @@ public class RoutineManager {
     MultiValuedMap<Integer, Integer> points = new HashSetValuedHashMap<>();
     instructions.forEach((address, instruction) -> {
       if (instruction instanceof Call call && routine.contains(address))
-        points.putAll(address, returnPoints.get(call.getJumpAddress()));
-      if (instruction instanceof Call && routine.contains(address))
-        points.putAll(address, siteReturnPoints.get(address));
+        points.putAll(address, returnPointsOf(address, call));
     });
     return points;
   }
@@ -430,10 +429,10 @@ public class RoutineManager {
     return !callersWhoseReturnIsTaken(routine, -1, stackAnalyzer).isEmpty();
   }
 
-  /** The routines holding the calls whose return a POP in this routine (or falling into it) takes and that this routine has not pushed back on its way to {@code site}: their frames are the ones a jump there goes back to. */
+  /** The routines holding the calls whose return a POP in this routine (or falling into it) takes and that this routine has not pushed back after that POP on its way to {@code site}: their frames are the ones a jump there goes back to. */
   public java.util.Set<Routine> callersWhoseReturnIsTaken(Routine routine, int site, StackAnalyzer stackAnalyzer) {
     return stackAnalyzer.poppedCallSites.entries().stream().filter(e -> routineGoneOnAt(e.getValue()) == routine && getInstructionAt(e.getKey()) != null)
-        .filter(e -> stackAnalyzer.pushedValues.entries().stream().noneMatch(push -> push.getValue() == addressAfter(e.getKey()) && reachesWithin(routine, push.getKey(), site)))
+        .filter(e -> stackAnalyzer.pushedValues.entries().stream().noneMatch(push -> push.getValue() == addressAfter(e.getKey()) && (!routine.contains(e.getValue()) || reachesWithin(routine, e.getValue(), push.getKey())) && reachesWithin(routine, push.getKey(), site)))
         .map(e -> findRoutineAt(e.getKey())).filter(java.util.Objects::nonNull).collect(java.util.stream.Collectors.toSet());
   }
 
@@ -503,12 +502,18 @@ public class RoutineManager {
     return seen;
   }
 
+  /** How control goes from routine to routine, with a call going on at its return points when a POP left the callee's frame. */
   private Map<Routine, java.util.Set<Routine>> flow(StackAnalyzer stackAnalyzer, boolean withCalls) {
     Map<Routine, java.util.Set<Routine>> next = new HashMap<>();
-    edges(stackAnalyzer, withCalls, (from, target) -> {
+    java.util.function.BiConsumer<Routine, Integer> edge = (from, target) -> {
       Routine to = enteredAt(from, target);
       if (to != null && to != from && !(outlined.containsKey(from) && outlined.get(from).parent() == to) && (withCalls || !linkedByOutlining(from, to)))
         next.computeIfAbsent(from, k -> new java.util.HashSet<>()).add(to);
+    };
+    edges(stackAnalyzer, withCalls, edge);
+    instructions.forEach((address, instruction) -> {
+      if (instruction instanceof Call call && findRoutineAt(address) != null)
+        returnPointsOf(address, call).forEach(point -> edge.accept(findRoutineAt(address), point));
     });
     return next;
   }
@@ -517,6 +522,13 @@ public class RoutineManager {
   private Routine enteredAt(Routine from, int target) {
     Routine to = routineGoneOnAt(target);
     return to != null && outlined.containsKey(to) && topParent(to) != topParent(from) ? topParent(to) : to;
+  }
+
+  /** Where the Java of a call goes on when the callee's frame was left by a POP that took its return. */
+  private java.util.Set<Integer> returnPointsOf(int site, Call call) {
+    java.util.Set<Integer> points = new java.util.HashSet<>(returnPoints.get(call.getJumpAddress()));
+    points.addAll(siteReturnPoints.get(site));
+    return points;
   }
 
   private void edges(StackAnalyzer stackAnalyzer, boolean withCalls, java.util.function.BiConsumer<Routine, Integer> edge) {

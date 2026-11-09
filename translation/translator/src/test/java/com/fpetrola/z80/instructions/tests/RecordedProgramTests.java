@@ -5288,6 +5288,41 @@ public class RecordedProgramTests {
   }
 
   @Test
+  public void thePopThatTakesAReturnPutBackForGoodEndsTheCallWhenTheExplorationReachedThePushOnlyWithData() {
+    // Sir Fred CC6B (frame 6548): the exploration reached CC65 PUSH HL with data in HL (here the 0 the program leaves in 9000), so it never saw CC6B take 8ECE for good; only the recording did, and every pass nested the main loop deeper in Java
+    translate(listing("""
+        8000  04  INC B
+        8001  78  LD A, B
+        8002  FE 20  CP A, 0x20
+        8004  28 0A  JR Z, 0x8010
+        8006  CD 00 81  CALL 0x8100
+        8009  0C  INC C
+        800A  18 F4  JR 0x8000
+        8010  21 00 00  LD HL, 0x0000
+        8013  22 00 90  LD (0x9000), HL
+        8016  76  HALT
+        8017  18 FD  JR 0x8016
+        8100  78  LD A, B
+        8101  E6 03  AND A, 0x03
+        8103  C8  RET Z
+        8104  E1  POP HL
+        8105  22 00 90  LD (0x9000), HL
+        8108  CB 40  BIT 0, B
+        810A  C2 00 82  JP NZ, 0x8200
+        810D  C3 00 80  JP 0x8000
+        8200  2A 00 90  LD HL, (0x9000)
+        8203  E5  PUSH HL
+        8204  CD 00 83  CALL 0x8300
+        8207  E1  POP HL
+        8208  14  INC D
+        8209  C3 00 80  JP 0x8000
+        8300  1C  INC E
+        8301  C9  RET
+        """));
+    Assert.assertEquals(0x20, endValue("BC") >> 8);
+  }
+
+  @Test
   public void aReturnASpyPutsBackAndAnExchangeMovesPastInlineDataIsAShiftedReturn() {
     // Emlyn 631D CALL 5D78: POP HL; PUSH HL reads the return in place, EX (SP),HL at 5D7D swaps it for the address past the inline bytes and RET goes on there (frame 2338): with the push a put-back and the exchange no taker, nobody took the return and Java returned to the inline bytes' caller
     translate(

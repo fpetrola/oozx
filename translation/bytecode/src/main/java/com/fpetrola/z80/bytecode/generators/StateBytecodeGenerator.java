@@ -221,7 +221,8 @@ public class StateBytecodeGenerator {
           System.out.println("LOOP kept as runJumps " + cycle.members().stream().map(m -> Helper.formatAddress(m.getEntryPoint())).toList() + " jumps back to an ancestor");
         return;
       }
-      Routine head = cycle.members().stream().max(Comparator.comparingInt((Routine member) -> callSites.get(member.getEntryPoint()).size()).thenComparingLong(member -> cycle.entries().values().stream().filter(member::contains).count()).thenComparing(Comparator.comparingInt(Routine::getEntryPoint).reversed())).get();
+      Set<Routine> left = cycle.members().stream().flatMap(member -> routineManager.returnPointsOfCallsIn(member).keySet().stream()).map(site -> routineManager.getInstructionAt(site) instanceof com.fpetrola.z80.instructions.impl.Call call ? routineManager.findRoutineAt(call.getJumpAddress()) : null).collect(java.util.stream.Collectors.toSet());
+      Routine head = cycle.members().stream().filter(member -> !left.contains(member) || cycle.members().stream().allMatch(left::contains)).max(Comparator.comparingInt((Routine member) -> callSites.get(member.getEntryPoint()).size()).thenComparingLong(member -> cycle.entries().values().stream().filter(member::contains).count()).thenComparing(Comparator.comparingInt(Routine::getEntryPoint).reversed())).get();
       Map<Routine, ControlFlowStructuring.Outline> wholes = new LinkedHashMap<>();
       cycle.members().stream().filter(member -> member != head).forEach(task -> wholes.put(task, new ControlFlowStructuring(task, routineManager, List.of(), stackAnalyzer, Set.of(), node -> false).whole()));
       int bytes = size(head) + wholes.values().stream().mapToInt(whole -> PART_BYTES + EXIT_BYTES * whole.exits().size()).sum();

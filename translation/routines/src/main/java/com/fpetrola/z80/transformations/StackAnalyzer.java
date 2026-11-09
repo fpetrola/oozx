@@ -142,6 +142,7 @@ public class StackAnalyzer implements java.io.Serializable {
     stackWritten.set(sp, sp + 2);
     if (lastPoppedReturn != null)
       poppedBeforeInterrupt.put(sp, lastPoppedReturn);
+    lastPoppedReturn = null;
   }
 
   /** Stack bytes read by address come from whichever calls were stacked above them when written: every call whose return went there keeps it. */
