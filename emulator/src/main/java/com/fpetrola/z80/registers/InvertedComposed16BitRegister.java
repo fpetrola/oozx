@@ -18,14 +18,13 @@
 
 package com.fpetrola.z80.registers;
 
-public class InvertedComposed16BitRegister implements RegisterPair {
+public class InvertedComposed16BitRegister extends NamedRegister implements RegisterPair {
   private final Register high;
   private final Register low;
-  private final String name;
   protected int data;
 
   public InvertedComposed16BitRegister(String name, RegisterName registerH, RegisterName registerL) {
-    this.name = name;
+    super(name);
     this.low = new Register() {
       public int read() {
         return data & 0xFF;
@@ -86,10 +85,6 @@ public class InvertedComposed16BitRegister implements RegisterPair {
 
   public void decrement() {
     data = (data - 1) & 0xFFFF;
-  }
-
-  public String getName() {
-    return name;
   }
 
   public int read() {

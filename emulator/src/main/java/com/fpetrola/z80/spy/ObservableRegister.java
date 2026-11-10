@@ -18,21 +18,19 @@
 
 package com.fpetrola.z80.spy;
 
-import com.fpetrola.z80.registers.Register;
+import com.fpetrola.z80.registers.NamedRegister;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ObservableRegister implements Register {
+public abstract class ObservableRegister extends NamedRegister {
     protected List<RegisterWriteListener> registerWriteListeners = new ArrayList<>();
     protected List<RegisterReadListener> registerReadListeners = new ArrayList<>();
 
     protected boolean listening = false;
 
-    private String name;
-
     public ObservableRegister(String name) {
-        this.name = name;
+        super(name);
     }
 
     public int reading(int value) {
@@ -55,14 +53,6 @@ public abstract class ObservableRegister implements Register {
     public void decrementing(int value) {
         if (listening)
             registerWriteListeners.forEach(l -> l.writingRegister(value - 1, true));
-    }
-
-    public String toString() {
-        return name;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public Object clone() throws CloneNotSupportedException {

@@ -69,25 +69,8 @@ public class UnrolledRegisterBank extends RegisterBank {
   protected int VIRTUAL;
   protected int regRBit7;
 
-  /** What every register of the bank says about itself: its name, which is also how it prints. */
-  abstract static class Named implements Register {
-    private final String name;
-
-    Named(String name) {
-      this.name = name;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public String toString() {
-      return name;
-    }
-  }
-
   /** A pair over two registers of the bank, which it hands out as its high and low halves. */
-  abstract static class Pair extends Named implements RegisterPair {
+  abstract static class Pair extends NamedRegister implements RegisterPair {
     private final Register high;
     private final Register low;
 
@@ -106,7 +89,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  public final class ARegister extends Named {
+  public final class ARegister extends NamedRegister {
     public ARegister() {
       super("A");
     }
@@ -128,7 +111,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class FRegister extends Named {
+  final class FRegister extends NamedRegister {
 
     public FRegister() {
       super("F");
@@ -151,7 +134,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class BRegister extends Named {
+  final class BRegister extends NamedRegister {
 
     public BRegister() {
       super("B");
@@ -174,7 +157,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class CRegister extends Named {
+  final class CRegister extends NamedRegister {
 
     public CRegister() {
       super("C");
@@ -197,7 +180,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class DRegister extends Named {
+  final class DRegister extends NamedRegister {
 
     public DRegister() {
       super("D");
@@ -220,7 +203,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class ERegister extends Named {
+  final class ERegister extends NamedRegister {
 
     public ERegister() {
       super("E");
@@ -243,7 +226,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class HRegister extends Named {
+  final class HRegister extends NamedRegister {
 
     public HRegister() {
       super("H");
@@ -266,7 +249,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class LRegister extends Named {
+  final class LRegister extends NamedRegister {
 
     public LRegister() {
       super("L");
@@ -289,7 +272,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class IRegister extends Named {
+  final class IRegister extends NamedRegister {
 
     public IRegister() {
       super("I");
@@ -337,7 +320,7 @@ public class UnrolledRegisterBank extends RegisterBank {
 
   }
 
-  final class AxRegister extends Named {
+  final class AxRegister extends NamedRegister {
 
     public AxRegister() {
       super("A'");
@@ -360,7 +343,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class FxRegister extends Named {
+  final class FxRegister extends NamedRegister {
 
     public FxRegister() {
       super("F'");
@@ -383,7 +366,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class BxRegister extends Named {
+  final class BxRegister extends NamedRegister {
 
     public BxRegister() {
       super("B'");
@@ -406,7 +389,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class CxRegister extends Named {
+  final class CxRegister extends NamedRegister {
 
     public CxRegister() {
       super("C'");
@@ -429,7 +412,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class DxRegister extends Named {
+  final class DxRegister extends NamedRegister {
 
     public DxRegister() {
       super("D'");
@@ -452,7 +435,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class ExRegister extends Named {
+  final class ExRegister extends NamedRegister {
 
     public ExRegister() {
       super("E'");
@@ -475,7 +458,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class HxRegister extends Named {
+  final class HxRegister extends NamedRegister {
 
     public HxRegister() {
       super("H'");
@@ -498,7 +481,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class LxRegister extends Named {
+  final class LxRegister extends NamedRegister {
 
     public LxRegister() {
       super("L'");
@@ -521,7 +504,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class IXHRegister extends Named {
+  final class IXHRegister extends NamedRegister {
 
     public IXHRegister() {
       super("IXH");
@@ -544,7 +527,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class IXLRegister extends Named {
+  final class IXLRegister extends NamedRegister {
 
     public IXLRegister() {
       super("IXL");
@@ -567,7 +550,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class IYHRegister extends Named {
+  final class IYHRegister extends NamedRegister {
 
     public IYHRegister() {
       super("IYH");
@@ -590,7 +573,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class IYLRegister extends Named {
+  final class IYLRegister extends NamedRegister {
 
     public IYLRegister() {
       super("IYL");
@@ -892,7 +875,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class PCRegister extends Named {
+  final class PCRegister extends NamedRegister {
 
     public PCRegister() {
       super("PC");
@@ -915,7 +898,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class SPRegister extends Named {
+  final class SPRegister extends NamedRegister {
 
     public SPRegister() {
       super("SP");
@@ -938,7 +921,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class MEMPTRRegister extends Named {
+  final class MEMPTRRegister extends NamedRegister {
 
     public MEMPTRRegister() {
       super("MEMPTR");
@@ -961,7 +944,7 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 
-  final class VirtualRegister extends Named {
+  final class VirtualRegister extends NamedRegister {
 
     public VirtualRegister() {
       super("VIRTUAL");
