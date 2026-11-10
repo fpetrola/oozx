@@ -43,8 +43,8 @@ public class MediaSlot extends JPanel {
   private final JButton eject;
   private final FileNameExtensionFilter filter;
   private final Consumer<File> onInsert;
-  private JToggleButton flip;
-  private JToggleButton protect;
+  private final JToggleButton flip;
+  private final JToggleButton protect;
 
   public MediaSlot(String kind, String icon, FileNameExtensionFilter filter, Consumer<File> onInsert,
                    Runnable onEject) {
@@ -55,6 +55,8 @@ public class MediaSlot extends JPanel {
     setOpaque(false);
     insert = Widgets.iconButton(icon, "Insert", "Insert a " + kind);
     eject = Widgets.iconButton("23CF.svg", "Eject", "Take the " + kind + " out");
+    flip = Widgets.iconToggle("slot-flip.svg", "Flip", "Turn the " + kind + " over");
+    protect = Widgets.iconToggle("slot-lock.svg", "Protect", "Write-protect the " + kind);
     insert.addActionListener(e -> Widgets.openFile(this, "Insert a " + kind, filter, onInsert));
     eject.addActionListener(e -> onEject.run());
     led.setVisible(false);
@@ -94,7 +96,6 @@ public class MediaSlot extends JPanel {
 
   /** Turned over, which is how a single-sided drive reads the other side. */
   public MediaSlot withFlip(Consumer<Boolean> onFlip) {
-    flip = Widgets.iconToggle("slot-flip.svg", "Flip", "Turn the " + kind + " over");
     flip.addActionListener(e -> onFlip.accept(flip.isSelected()));
     add(flip);
     Widgets.tighten(this);
@@ -103,7 +104,6 @@ public class MediaSlot extends JPanel {
 
   /** The write-protect tab. */
   public MediaSlot withWriteProtect(Consumer<Boolean> onProtect) {
-    protect = Widgets.iconToggle("slot-lock.svg", "Protect", "Write-protect the " + kind);
     protect.addActionListener(e -> onProtect.accept(protect.isSelected()));
     add(protect);
     Widgets.tighten(this);
@@ -115,16 +115,16 @@ public class MediaSlot extends JPanel {
     holding.setText(name == null ? "no " + kind : name);
     holding.setEnabled(name != null);
     eject.setEnabled(name != null);
-    if (flip != null) flip.setEnabled(name != null);
-    if (protect != null) protect.setEnabled(name != null);
+    flip.setEnabled(name != null);
+    protect.setEnabled(name != null);
   }
 
   public void showFlipped(boolean flipped) {
-    if (flip != null) flip.setSelected(flipped);
+    flip.setSelected(flipped);
   }
 
   public void showProtected(boolean writeProtected) {
-    if (protect != null) protect.setSelected(writeProtected);
+    protect.setSelected(writeProtected);
   }
 
   public void led(boolean on) {

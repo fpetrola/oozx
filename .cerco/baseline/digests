@@ -376,7 +376,7 @@ fb9ae827b91232f3f3c477ee1c336a0fe9c860796b84ba06056e33780a5f6b8a	machine/devices
 8d613bcf209985b4a008bf062bbc87b3191d71f2cd55298124786ea484e011be	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Look.java
 30cc7aadd27de249d929c434619f3ab8439809b1b821316bd458e89eabf4a866	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/MachineFrame.java
 23f551ccde66d15b928bf5715127a71b3d4a41a2eb6bafbb432f2a79cfe5c042	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/MachineTool.java
-4c7e9d97b53d3302ac33d11a57fb18e7e3b7373552af77f9851080e9fb5a7932	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/MediaSlot.java
+3d946863e2188d1b46b6b4710735e19d77a5274af30a6ba332b4b8f8648b138e	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/MediaSlot.java
 60b4afeb990a71a3d8606c0c199bef8a617ac5f8102834fe227f671ac4c69a44	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Opens.java
 4dc4014683f4438a79584236711fbad5853dce287698f28f1d9af906df90ddad	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Session.java
 358f7f81ea06dd4f7f63d09e88452cd3d6290330f12278996e2e88800a639676	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/WhatGameThisIs.java
