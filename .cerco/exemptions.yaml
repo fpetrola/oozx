@@ -1,0 +1,6 @@
+exemptions:
+  - rule: no-instanceof
+    target: machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/MachineFrame.java
+    reason: puente para los reproductores ya publicados (DockFrame, RzxFrame, CassetteFrame), que solo implementan Opens; se va cuando sobreescriban player()
+    category: migration
+    budget: 2

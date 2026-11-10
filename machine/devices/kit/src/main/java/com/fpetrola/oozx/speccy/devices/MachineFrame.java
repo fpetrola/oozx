@@ -41,6 +41,14 @@ public abstract class MachineFrame extends AttachedFrame {
     return machine;
   }
 
+  /**
+   * The player this window is, when it opens files. A player says so by overriding this; the type test is the
+   * bridge for the players already published, which only implement Opens.
+   */
+  public java.util.Optional<Opens> player() {
+    return this instanceof Opens player ? java.util.Optional.of(player) : java.util.Optional.empty();
+  }
+
   /** It changed hands: from one machine to another, from none to one, or from one to none. */
   protected void machineChanged(Speccy was, Speccy now) {
   }

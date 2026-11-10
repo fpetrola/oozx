@@ -48,10 +48,6 @@
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.done()|instanceof List<?>
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.done()|instanceof java.io.File
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.machineBeingUsed()|instanceof AttachedFrame
-1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.openFor(java.io.File)|instanceof Opens
-2	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.opensFor(java.io.File)|instanceof Opens
-1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.playInto(MachineFrame, String, java.util.concurrent.Callable)|instanceof Opens
-1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.playingInto(JInternalFrame)|instanceof Opens
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.setScreenDefault(String, String)|instanceof SpeccyScreen
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.somebodyIsWriting()|instanceof Dialog
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.somebodyIsWriting()|instanceof JComboBox<?>
@@ -71,7 +67,6 @@
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/peripherals/PeripheralRegistry.java|com.fpetrola.oozx.speccy.peripherals.PeripheralRegistry.activateType(Class, boolean)|instanceof Pluggable
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.bringBack(Session, List)|instanceof JInternalFrame
 2	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.keep(Session, JInternalFrame, File, int)|instanceof EmulatorWindow
-1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/MachineFrame.java|com.fpetrola.oozx.speccy.devices.MachineFrame.attachmentChanged()|instanceof EmulatorWindow
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/peripherals/MockEmulatorCore.java|com.fpetrola.oozx.speccy.peripherals.MockEmulatorCore.setScreenOption(String, Object)|instanceof com.fpetrola.oozx.speccy.screen.SpeccyScreen
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotLoader.java|com.fpetrola.emulation.helpers.snapshots.SnapshotLoader.setupFromSpectrumState(RegistersSetter, State, SpectrumState)|instanceof MockedMemory
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenContext.java|com.fpetrola.oozx.speccy.screen.ScreenContext.readablePixels(BufferedImage)|instanceof DataBufferInt

@@ -28,6 +28,7 @@ import com.google.inject.Inject;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -96,8 +97,25 @@ public class WhatIsPluggedIn {
     return equipment.stream().sorted(Comparator.comparing(Equipment::name)).toList();
   }
 
+  /** Quien abre este archivo: el primero, en el orden del menu, que dice que lo abre. */
+  public Optional<Equipment> opening(java.io.File file) {
+    return equipment().stream().filter(kind -> kind.opens(file)).findFirst();
+  }
+
+  public Optional<Equipment> equipment(String name) {
+    return equipment.stream().filter(kind -> kind.name().equals(name)).findFirst();
+  }
+
   public List<DeskEquipment> deskWindows() {
     return List.copyOf(deskWindows);
+  }
+
+  public Optional<DeskEquipment> deskWindowNamed(String name) {
+    return deskWindows.stream().filter(kind -> kind.name().equals(name)).findFirst();
+  }
+
+  public Optional<DeskEquipment> deskWindowAt(String path) {
+    return deskWindows.stream().filter(kind -> kind.path().equals(path)).findFirst();
   }
 
   public List<ScreenEffect> effects() {

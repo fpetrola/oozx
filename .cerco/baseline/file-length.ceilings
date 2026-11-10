@@ -3,7 +3,7 @@
 532	emulator/src/main/java/com/fpetrola/z80/instructions/cache/InstructionCloner.java|file
 470	emulator/src/main/java/com/fpetrola/z80/instructions/factory/DefaultInstructionFactory.java|file
 970	emulator/src/main/java/com/fpetrola/z80/registers/UnrolledRegisterBank.java|file
-1710	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|file
+1688	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|file
 416	machine/core/src/main/java/com/fpetrola/oozx/config/RomFiles.java|file
 884	machine/core/src/main/java/com/fpetrola/oozx/speccy/config/OOZxConfiguration.java|file
 853	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotZ80.java|file

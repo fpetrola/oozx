@@ -9,10 +9,8 @@
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.choose(String)|return null
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.chooseRecording()|return null
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.machineBeingUsed()|return null
-1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.openFor(java.io.File)|return null
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.openableRecording(java.io.File)|return null
-1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.opensFor(java.io.File)|return null
-2	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.playingInto(JInternalFrame)|return null
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.playingInto(JInternalFrame)|return null
 1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/DefaultCommandHandler.java|com.fpetrola.oozx.speccy.bridge.DefaultCommandHandler.pollCommand()|return null
 1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/EmulatorCommand.java|com.fpetrola.oozx.speccy.bridge.EmulatorCommand.execute(LibretroCore)|return null
 1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/If1Page.java|com.fpetrola.oozx.speccy.bridge.If1Page.execute(LibretroCore)|return null

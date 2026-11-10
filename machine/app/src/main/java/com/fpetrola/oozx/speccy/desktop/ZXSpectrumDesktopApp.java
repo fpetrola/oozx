@@ -414,7 +414,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     if (file.isFile() && file.getName().toLowerCase().endsWith(".zip")) {
       decided("Could not open " + DownloadAndUnzip.nameOf(path) + ".",
           () -> openableRecording(file), this::open);
-    } else if (opensFor(file) != null) {
+    } else if (has.opening(file).isPresent()) {
       open(new Chosen(file, null, null));
     } else {
       loadInNewEmulator(path);
@@ -431,12 +431,9 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
    * abre es de una maquina, que cuando tampoco sabe abrirlo ofrece traer lo que falta.
    */
   private void open(Chosen chosen, boolean mayAsk) {
-    Opens player = opensFor(chosen.file());
-    if (player == null) {
-      loadInNewEmulator(chosen.file().getAbsolutePath());
-      return;
-    }
-    player.open(chosen.file(), chosen.source(), chosen.entry());
+    opensFor(chosen.file()).flatMap(MachineFrame::player).ifPresentOrElse(
+        player -> player.open(chosen.file(), chosen.source(), chosen.entry()),
+        () -> loadInNewEmulator(chosen.file().getAbsolutePath()));
   }
 
   private void saveState() {
@@ -728,14 +725,14 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
   public String nameOf(javax.swing.JComponent window) {
     String path = workbench.nameOf(window);
     if (path != null) return path.equals(pluginsWindow.path()) ? PLUGINS
-        : has.deskWindows().stream().filter(kind -> kind.path().equals(path)).map(DeskEquipment::name).findFirst().orElse(path);
+        : has.deskWindowAt(path).map(DeskEquipment::name).orElse(path);
     return equipment.keySet().stream().filter(name -> equipment.get(name).contains(window)).findFirst().orElse(null);
   }
 
   @Override
   public JInternalFrame window(String name) {
     String path = PLUGINS.equals(name) ? pluginsWindow.path()
-        : has.deskWindows().stream().filter(kind -> kind.name().equals(name)).map(DeskEquipment::path).findFirst().orElse(name);
+        : has.deskWindowNamed(name).map(DeskEquipment::path).orElse(name);
     javax.swing.JComponent window = workbench.window(path);
     return window instanceof JInternalFrame frame ? frame : equipment(name);
   }
@@ -780,15 +777,10 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     if (machine == null) {
       return null;
     }
-    for (java.util.List<MachineFrame> open : equipment.values()) {
-      for (MachineFrame window : open) {
-        if (!window.isClosed() && window.getMachineWindow() == machine
-            && window instanceof Opens playing && playing.cameFrom() != null) {
-          return playing;
-        }
-      }
-    }
-    return null;
+    return equipment.values().stream().flatMap(java.util.List::stream)
+        .filter(window -> !window.isClosed() && window.getMachineWindow() == machine)
+        .flatMap(window -> window.player().stream()).filter(playing -> playing.cameFrom() != null)
+        .findFirst().orElse(null);
   }
 
   @Override
@@ -984,11 +976,8 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
   private void playInto(MachineFrame asking, String whenItFails,
                         java.util.concurrent.Callable<Chosen> decide) {
     decided(whenItFails, decide, chosen -> {
-      if (asking instanceof Opens itsOwn) {
-        itsOwn.open(chosen.file(), chosen.source(), chosen.entry());
-      } else {
-        open(chosen);
-      }
+      java.util.Optional.ofNullable(asking).flatMap(MachineFrame::player).ifPresentOrElse(
+          itsOwn -> itsOwn.open(chosen.file(), chosen.source(), chosen.entry()), () -> open(chosen));
     });
   }
 
@@ -1214,7 +1203,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
           somethingWasPluggedIn();
           // Lo que llego puede ser una ventana que lo abre, como el reproductor de grabaciones,
           // y no una maquina que arranca con el: se lo vuelve a abrir por donde entra todo.
-          if (has.equipment().stream().anyMatch(kind -> kind.opens(file))) {
+          if (has.opening(file).isPresent()) {
             open(new Chosen(file, null, null));
             whenDone.run();
           } else {
@@ -1252,25 +1241,14 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
    * window, which is the point of there being more than one.
    */
   /** Whoever opens this kind of file, opened but not yet given it. */
-  private Opens opensFor(java.io.File file) {
-    for (Equipment kind : has.equipment()) {
-      if (kind.opens(file)) {
-        MachineFrame window = show(kind, open -> open instanceof Opens holds && holds.empty());
-        return window instanceof Opens holds ? holds : null;
-      }
-    }
-    return null;
+  private java.util.Optional<MachineFrame> opensFor(java.io.File file) {
+    return has.opening(file).map(kind -> show(kind, open -> open.player().filter(Opens::empty).isPresent()));
   }
 
   public MachineFrame openFor(java.io.File file) {
-    for (Equipment kind : has.equipment()) {
-      if (kind.opens(file)) {
-        MachineFrame window = show(kind, open -> open instanceof Opens holds && holds.empty());
-        ((Opens) window).open(file);
-        return window;
-      }
-    }
-    return null;
+    java.util.Optional<MachineFrame> window = opensFor(file);
+    window.flatMap(MachineFrame::player).ifPresent(player -> player.open(file));
+    return window.orElse(null);
   }
 
   /**
@@ -1371,7 +1349,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
 
   @Override
   public MachineFrame equipment(String name) {
-    return has.equipment().stream().filter(kind -> kind.name().equals(name)).findFirst().map(this::another).orElse(null);
+    return has.equipment(name).map(this::another).orElse(null);
   }
 
   @Override
