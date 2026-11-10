@@ -160,14 +160,17 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
   }
 
   public void pauseEmulation() {
-    speccy.loop.setPaused(!speccy.loop.isPaused());
-    notifyPauseStateChange(speccy.loop.isPaused());
+    paused(!isPaused());
   }
 
   @Override
   public void resumeEmulation() {
-    speccy.loop.setPaused(false);
-    notifyPauseStateChange(speccy.loop.isPaused());
+    paused(false);
+  }
+
+  private void paused(boolean paused) {
+    speccy.loop.setPaused(paused);
+    notifyPauseStateChange(paused);
   }
 
   public void setGeneralOption(String option, Object value) {
@@ -186,8 +189,7 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
       speccy.sound.output.enabled = !(boolean) value;
 //          speccy.timer.estimateReset();
     } else if (option.equals("pause")) {
-      speccy.loop.setPaused((boolean) value);
-      notifyPauseStateChange(speccy.loop.isPaused());
+      paused((boolean) value);
     } else {
       // Anything this one has no opinion on goes to the core it overrides, which is where
       // the options that are about the panel rather than the machine are answered. Without
