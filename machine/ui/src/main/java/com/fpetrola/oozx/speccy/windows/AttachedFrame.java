@@ -54,7 +54,28 @@ public abstract class AttachedFrame extends JInternalFrame {
    * Bottom by default because that is where it belongs: the controls for a picture go under the
    * picture, the same width, the way the transport bar of anything else does.
    */
-  public enum Dock { FREE, BOTTOM, TOP, LEFT, RIGHT }
+  /** Where a window sits against its machine: free of it, or along one of its edges. */
+  public enum Dock {
+    FREE(null), BOTTOM(Edge.BOTTOM), TOP(Edge.TOP), LEFT(Edge.LEFT), RIGHT(Edge.RIGHT);
+
+    /** The four edges, in the order a tie between them goes. */
+    static final List<Dock> SIDES = List.of(BOTTOM, TOP, RIGHT, LEFT);
+    private final Edge edge;
+
+    Dock(Edge edge) {
+      this.edge = edge;
+    }
+
+    /** Along the top or the bottom, where a window runs the machine's width. */
+    public boolean flat() {
+      return edge != null && edge.flat();
+    }
+
+    /** The edge of the machine it sits on; FREE sits on none. */
+    public Edge edge() {
+      return edge;
+    }
+  }
 
   /** The subclass's buttons go here before it calls {@link #assemble}. */
   protected final JPanel controls = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
@@ -341,7 +362,7 @@ public abstract class AttachedFrame extends JInternalFrame {
     }
     Rectangle m = machineWindow.getBounds();
     int tall = compact ? compactHeight() : Math.max(compactHeight(), chosenHeight);
-    boolean flat = dock == Dock.TOP || dock == Dock.BOTTOM;
+    boolean flat = dock.flat();
     // Along the top or the bottom it takes the machine's width, which is the whole point of
     // putting it there: the controls for a picture, the width of the picture. Against a side it
     // keeps the height it has - stretching a toolbar down a machine turns it into a column of
@@ -352,15 +373,11 @@ public abstract class AttachedFrame extends JInternalFrame {
     int[] mine = share(machineWindow, dock);
     boolean alone = sharing(machineWindow, dock).size() < 2;
     int along = alone && !flat ? getHeight() : mine[1] - mine[0];
-    switch (dock) {
-      // Overlapped by the two borders that meet, or the frames sit a seam apart: each draws
-      // its own edge and the gap between the picture and the buttons is the sum of the two.
-      case BOTTOM -> setBounds(mine[0], m.y + m.height - seam(), along, tall);
-      case TOP -> setBounds(mine[0], Math.max(0, m.y - tall + seam()), along, tall);
-      case LEFT -> setBounds(Math.max(0, m.x - getWidth() + sideSeam()), mine[0], getWidth(), along);
-      case RIGHT -> setBounds(m.x + m.width - sideSeam(), mine[0], getWidth(), along);
-      default -> { }
-    }
+    int thick = flat ? tall : getWidth();
+    // Overlapped by the two borders that meet, or the frames sit a seam apart: each draws its own
+    // edge and the gap between the picture and the buttons is the sum of the two.
+    Edge edge = dock.edge();
+    setBounds(edge.laid(mine[0], Math.max(0, edge.rest(m, thick, seamOn(machineWindow, dock))), along, thick));
     placedAt = getBounds();
     keepWithMachine();
     resettle(machineWindow, dock);
@@ -389,18 +406,14 @@ public abstract class AttachedFrame extends JInternalFrame {
     }
   }
 
-  /** The two borders that meet where the frames touch, which is what to overlap by. */
-  private int seam() {
-    return seamWith(machineWindow);
+  /** The two borders that meet where the frames touch on that edge, which is what to overlap by. */
+  private int seamOn(JInternalFrame machine, Dock side) {
+    if (machine == null) {
+      return 0;
+    }
+    return side.flat() ? machine.getInsets().bottom + getInsets().top : machine.getInsets().left + getInsets().right;
   }
 
-  private int seamWith(JInternalFrame machine) {
-    return machine == null ? 0 : machine.getInsets().bottom + getInsets().top;
-  }
-
-  private int sideSeam() {
-    return machineWindow == null ? 0 : machineWindow.getInsets().left + getInsets().right;
-  }
 
   private void released(AWTEvent event) {
     if (event.getID() == java.awt.event.MouseEvent.MOUSE_RELEASED && dragging) {
@@ -473,9 +486,8 @@ public abstract class AttachedFrame extends JInternalFrame {
    */
   private int[] share(JInternalFrame machine, Dock side) {
     Rectangle m = machine.getBounds();
-    boolean flat = side == Dock.TOP || side == Dock.BOTTOM;
-    int start = flat ? m.x : m.y;
-    int length = flat ? m.width : m.height;
+    int start = side.edge().along(m);
+    int length = side.edge().run(m);
     List<AttachedFrame> sharing = sharing(machine, side);
     int mine = sharing.indexOf(this);
     int each = length / sharing.size();
@@ -592,24 +604,17 @@ public abstract class AttachedFrame extends JInternalFrame {
       }
       Rectangle me = AttachedFrame.this.getBounds();
       Dock side = nearestSideOf(machine, me);
+      if (side == Dock.FREE) {
+        return;
+      }
+      Edge edge = side.edge();
       int[] offered = share(machine, side);
       Graphics2D pen = (Graphics2D) g.create();
       // The machine's edge is lit only along the share on offer, which is where this window will
       // end up; this window's own facing edge is lit end to end.
-      edge(pen, machine.getBounds(), side, offered[0], offered[1]);
-      boolean flat = side == Dock.TOP || side == Dock.BOTTOM;
-      edge(pen, me, facing(side), flat ? me.x : me.y, flat ? me.x + me.width : me.y + me.height);
+      light(pen, machine.getBounds(), edge, offered[0], offered[1]);
+      light(pen, me, edge.facing(), edge.along(me), edge.along(me) + edge.run(me));
       pen.dispose();
-    }
-
-    private Dock facing(Dock side) {
-      return switch (side) {
-        case BOTTOM -> Dock.TOP;
-        case TOP -> Dock.BOTTOM;
-        case LEFT -> Dock.RIGHT;
-        case RIGHT -> Dock.LEFT;
-        default -> Dock.FREE;
-      };
     }
 
     /**
@@ -617,20 +622,14 @@ public abstract class AttachedFrame extends JInternalFrame {
      * pixels rather than a stroked line, which put half its width outside the frame and, with
      * rounded ends, ran past the corners as well.
      */
-    private void edge(Graphics2D pen, Rectangle r, Dock side, int from, int to) {
-      if (side == Dock.FREE || to <= from) {
+    private void light(Graphics2D pen, Rectangle r, Edge side, int from, int to) {
+      if (to <= from) {
         return;
       }
       int[] alpha = {235, 130, 70, 30};
       for (int inward = 0; inward < alpha.length; inward++) {
         pen.setColor(new Color(110, 190, 255, alpha[inward]));
-        switch (side) {
-          case BOTTOM -> pen.fillRect(from, r.y + r.height - 1 - inward, to - from, 1);
-          case TOP -> pen.fillRect(from, r.y + inward, to - from, 1);
-          case RIGHT -> pen.fillRect(r.x + r.width - 1 - inward, from, 1, to - from);
-          case LEFT -> pen.fillRect(r.x + inward, from, 1, to - from);
-          default -> { }
-        }
+        pen.fill(side.laid(from, side.line(r, inward), to - from, 1));
       }
     }
   }
@@ -661,8 +660,8 @@ public abstract class AttachedFrame extends JInternalFrame {
     // the window - a seam inside the edge - the next look found it exactly a seam away and let
     // go again. With the seam at 24 and the reach at 24, "closer than" was never true and the
     // window attached and detached in the same breath: it moved into place and never held.
-    for (Dock side : new Dock[] {Dock.BOTTOM, Dock.TOP, Dock.RIGHT, Dock.LEFT}) {
-      if (overlapsFor(side, m, me)) {
+    for (Dock side : Dock.SIDES) {
+      if (side.edge().alongside(m, me)) {
         int away = distanceTo(machine, me, side);
         if (away < closest) {
           closest = away;
@@ -671,13 +670,6 @@ public abstract class AttachedFrame extends JInternalFrame {
       }
     }
     return nearest;
-  }
-
-  /** Only the sides it actually lies alongside count; the others are near by arithmetic alone. */
-  private static boolean overlapsFor(Dock side, Rectangle m, Rectangle me) {
-    return side == Dock.BOTTOM || side == Dock.TOP
-        ? me.x < m.x + m.width && m.x < me.x + me.width
-        : me.y < m.y + m.height && m.y < me.y + me.height;
   }
 
   /**
@@ -689,16 +681,11 @@ public abstract class AttachedFrame extends JInternalFrame {
    * into place and never held.
    */
   private int distanceTo(JInternalFrame machine, Rectangle me, Dock side) {
-    Rectangle m = machine.getBounds();
-    int seam = machine.getInsets().bottom + getInsets().top;
-    int sideSeam = machine.getInsets().left + getInsets().right;
-    return switch (side) {
-      case BOTTOM -> Math.abs(me.y - (m.y + m.height - seam));
-      case TOP -> Math.abs(me.y - (m.y - me.height + seam));
-      case RIGHT -> Math.abs(me.x - (m.x + m.width - sideSeam));
-      case LEFT -> Math.abs(me.x - (m.x - me.width + sideSeam));
-      default -> Integer.MAX_VALUE;
-    };
+    if (side == Dock.FREE) {
+      return Integer.MAX_VALUE;
+    }
+    Edge edge = side.edge();
+    return Math.abs(edge.across(me) - edge.rest(machine.getBounds(), edge.thickness(me), seamOn(machine, side)));
   }
 
 
@@ -731,7 +718,7 @@ public abstract class AttachedFrame extends JInternalFrame {
    */
   public void takeMachine(JInternalFrame machine) {
     // The machine keeps the size it was made at; the controls are the ones that fit under it.
-    machine.setLocation(getX(), Math.max(0, getY() - machine.getHeight() + seamWith(machine)));
+    machine.setLocation(getX(), Math.max(0, getY() - machine.getHeight() + seamOn(machine, Dock.TOP)));
     setSize(machine.getWidth(), getHeight());
     attachTo(machine);
   }
@@ -761,7 +748,7 @@ public abstract class AttachedFrame extends JInternalFrame {
     // not as "which side would it clip onto": a window that has never been attached still says
     // BOTTOM, and taking that as attached sent it to place(), which returns at once with no
     // machine, so nothing resized at all.
-    boolean machineSetsTheHeight = isAttached() && (dock == Dock.TOP || dock == Dock.BOTTOM);
+    boolean machineSetsTheHeight = isAttached() && dock.flat();
     if (!machineSetsTheHeight) {
       setSize(getWidth(), wanted ? compactHeight() : Math.max(compactHeight(), chosenHeight));
       placedAt = getBounds();

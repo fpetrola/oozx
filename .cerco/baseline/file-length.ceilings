@@ -7,7 +7,7 @@
 416	machine/core/src/main/java/com/fpetrola/oozx/config/RomFiles.java|file
 884	machine/core/src/main/java/com/fpetrola/oozx/speccy/config/OOZxConfiguration.java|file
 853	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotZ80.java|file
-821	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/AttachedFrame.java|file
+808	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/AttachedFrame.java|file
 659	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/InstructionsBytecodeGenerator.java|file
 956	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|file
 440	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/VariableDelegator.java|file
