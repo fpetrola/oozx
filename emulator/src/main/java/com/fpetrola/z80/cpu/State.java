@@ -126,6 +126,19 @@ public class State {
     return this.halted;
   }
 
+  /** HALT: the CPU stays on its own address until an interrupt wakes it. */
+  public void halt() {
+    setHalted(true);
+  }
+
+  /** An accepted interrupt or NMI wakes a halted CPU, which then returns past the HALT. */
+  public void wake() {
+    if (halted) {
+      setHalted(false);
+      getPc().increment();
+    }
+  }
+
   public void enableInterrupt() {
     iff1 = iff2 = true;
     interruptShadow = 2;

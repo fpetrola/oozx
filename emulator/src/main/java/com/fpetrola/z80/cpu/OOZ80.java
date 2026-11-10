@@ -87,13 +87,8 @@ public class OOZ80 implements Z80Cpu {
   }
 
   private void doInt() {
+    state.wake();
     Register pc = state.getPc();
-
-    if (state.isHalted()) {
-      state.setHalted(false);
-      pc.increment();
-    }
-
     state.getRegisterR().increment();
     Push.doPush(pc.read(), state.getRegisterSP(), state.getMemory());
     state.setIff1(false);
@@ -117,11 +112,8 @@ public class OOZ80 implements Z80Cpu {
    * IFF1 copied into IFF2 and cleared, PC pushed, and off to 0x0066.
    */
   public void nmi() {
+    state.wake();
     Register pc = state.getPc();
-    if (state.isHalted()) {
-      state.setHalted(false);
-      pc.increment();
-    }
     state.getRegisterR().increment();
     Push.doPush(pc.read(), state.getRegisterSP(), state.getMemory());
     state.setIff2(state.isIff1());

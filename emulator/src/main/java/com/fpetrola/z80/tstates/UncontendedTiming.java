@@ -76,8 +76,8 @@ public class UncontendedTiming {
     for (RegisterName pointer : new RegisterName[]{RegisterName.DE, RegisterName.HL, RegisterName.IX, RegisterName.IY})
       state.getRegister(pointer).write(DATA);
     state.getRegisterSP().write(0xFF00);
+    state.wake();
     state.getPc().write(SCRATCH);
-    state.setHalted(false);
     state.clock.setTStates(0);
     scratch.execute();
     return state.clock.getTStates();

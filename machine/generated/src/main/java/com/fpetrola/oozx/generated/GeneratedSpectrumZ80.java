@@ -1,4 +1,4 @@
-// Written by the build from the model, not by hand. Model: 229a98c72cbfbedd
+// Written by the build from the model, not by hand. Model: b0a352a299943576
 
 package com.fpetrola.oozx.generated;
 
@@ -1451,7 +1451,7 @@ static final int[] SZ53 = new int[0x100];
       }
       case 0x76: {
           if (!state.isHalted()) {
-              state.setHalted(true);
+              state.halt();
               _nextPC159 = PC;
           }
           PC = _nextPC159 == -1 ? (PC + 1) & 0xFFFF : _nextPC159;
@@ -7764,7 +7764,7 @@ static final int[] SZ53 = new int[0x100];
       }
       case 0x76: {
           if (!state.isHalted()) {
-              state.setHalted(true);
+              state.halt();
               _nextPC871 = PC;
           }
           PC = _nextPC871 == -1 ? (PC + 2) & 0xFFFF : _nextPC871;
@@ -19365,7 +19365,7 @@ static final int[] SZ53 = new int[0x100];
       }
       case 0x76: {
           if (!state.isHalted()) {
-              state.setHalted(true);
+              state.halt();
               _nextPC2223 = PC;
           }
           PC = _nextPC2223 == -1 ? (PC + 2) & 0xFFFF : _nextPC2223;
