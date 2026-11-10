@@ -1,0 +1,35 @@
+# cerco baseline v1 no-type-code: count, key
+1	emulator/src/main/java/com/fpetrola/z80/instructions/cache/InstructionCloner.java|com.fpetrola.z80.instructions.cache.InstructionCloner.clone(Instruction)|"clone not supported for: " + instruction.getClass()
+2	emulator/src/main/java/com/fpetrola/z80/opcodes/references/ExecutionPoint.java|com.fpetrola.z80.opcodes.references.ExecutionPoint.equals(Object)|getClass() != o.getClass()
+1	emulator/src/main/java/com/fpetrola/z80/registers/DefaultRegisterBankFactory.java|com.fpetrola.z80.registers.DefaultRegisterBankFactory.compose(String, Register, Register)|h.getClass() == Plain8BitRegister.class
+1	emulator/src/main/java/com/fpetrola/z80/registers/DefaultRegisterBankFactory.java|com.fpetrola.z80.registers.DefaultRegisterBankFactory.compose(String, Register, Register)|l.getClass() == Plain8BitRegister.class
+2	emulator/src/main/java/com/fpetrola/z80/tstates/Event.java|com.fpetrola.z80.tstates.Event.equals(Object)|getClass() != o.getClass()
+2	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/TStateUpdate.java|com.fpetrola.oozx.speccy.bridge.TStateUpdate.equals(Object)|getClass() != o.getClass()
+1	machine/core/src/main/java/com/fpetrola/oozx/config/RomFiles.java|com.fpetrola.oozx.config.RomFiles.keyOf(Object)|c = device.getClass()
+1	machine/core/src/main/java/com/fpetrola/oozx/config/RomsOfItsOwn.java|com.fpetrola.oozx.config.RomsOfItsOwn.open(String)|getClass().getResourceAsStream("/roms/" + rom)
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/machine/Machine.java|com.fpetrola.oozx.speccy.modules.machine.Machine.model(Class)|m.getClass() == type
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/peripherals/AbstractPeripheral.java|com.fpetrola.oozx.speccy.peripherals.AbstractPeripheral.fitsOn(SpectrumMachine)|machine.onBoard().contains(getClass())
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/peripherals/PeripheralRegistry.java|com.fpetrola.oozx.speccy.peripherals.PeripheralRegistry.register(Peripheral)|registry.put(peripheral.getClass(), new Registration(peripheral))
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/peripherals/PeripheralRegistry.java|com.fpetrola.oozx.speccy.peripherals.PeripheralRegistry.update()|activateType(device.peripheral.getClass(), wanted)
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.bringBack(Session, List)|"EMULATOR".equals(state.getType())
+3	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotFactory.java|com.fpetrola.emulation.helpers.snapshots.SnapshotFactory.formats()|already.add(one.getClass())
+1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotFile.java|com.fpetrola.emulation.helpers.snapshots.SnapshotFile.fresh()|getClass().getDeclaredConstructor()
+1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/Scalers.java|com.fpetrola.oozx.speccy.screen.Scalers.all()|written.contains(one.getClass())
+1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenContext.java|com.fpetrola.oozx.speccy.screen.ScreenContext.readablePixels(BufferedImage)|image.getType() == BufferedImage.TYPE_INT_ARGB
+1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenContext.java|com.fpetrola.oozx.speccy.screen.ScreenContext.readablePixels(BufferedImage)|image.getType() == BufferedImage.TYPE_INT_RGB
+1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/Block.java|com.fpetrola.z80.blocks.Block.split(int)|split(address, "split", getBlockType().getClass())
+2	translation/blocks/src/main/java/com/fpetrola/z80/blocks/UnknownBlockType.java|com.fpetrola.z80.blocks.UnknownBlockType.getAppropriatedBlockFor(int, int, BlockType)|type.getClass().isAssignableFrom(foundBlock.getClass())
+1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/ranges/RangeHandler.java|com.fpetrola.z80.blocks.ranges.RangeHandler.chainedJoin(Block, int)|type1 = startBlock.getBlockType().getClass()
+1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/ranges/RangeHandler.java|com.fpetrola.z80.blocks.ranges.RangeHandler.chainedJoin(Block, int)|type2 = rangeHandler.nextBlock.getBlockType().getClass()
+2	translation/blocks/src/main/java/com/fpetrola/z80/blocks/references/BlockRelation.java|com.fpetrola.z80.blocks.references.BlockRelation.equals(Object)|getClass() != o.getClass()
+2	translation/blocks/src/main/java/com/fpetrola/z80/blocks/references/ReferenceVersion.java|com.fpetrola.z80.blocks.references.ReferenceVersion.equals(Object)|getClass() != o.getClass()
+2	translation/blocks/src/main/java/com/fpetrola/z80/metadata/DataStructureInstance.java|com.fpetrola.z80.metadata.DataStructureInstance.equals(Object)|getClass() != o.getClass()
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/InstructionsBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.InstructionsBytecodeGenerator.visitingRet(Ret)|exit.kind() == RoutineManager.Exit.RETURN
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.returnsOfCallsInTakenByNonLocalReturns(Routine, StackAnalyzer)|exitOf(e.getKey(), stackAnalyzer).kind() == Exit.NON_LOCAL
+1	translation/routines/src/main/java/com/fpetrola/z80/se/Z80InstructionDriver.java|com.fpetrola.z80.se.Z80InstructionDriver.countExecutedInstructionsOfType(Class)|instructionType.isAssignableFrom(i.getClass())
+1	translation/se/src/main/java/com/fpetrola/z80/se/RoutineExecution.java|com.fpetrola.z80.se.RoutineExecution.findActionOfType(Class)|type.isAssignableFrom(addressAction1.getClass())
+1	translation/translator/src/main/java/com/fpetrola/z80/base/TwoZ80Driver.java|com.fpetrola.z80.base.TwoZ80Driver.assertTypeAndCast(Class, Object)|assertEquals(expected, i1.getClass())
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/InstructionTransformerBase.java|com.fpetrola.z80.transformations.InstructionTransformerBase.visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction)|parameterizedBinaryAluInstruction.getClass().getConstructors()
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/InstructionTransformerBase.java|com.fpetrola.z80.transformations.InstructionTransformerBase.visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction)|parameterizedUnaryAluInstruction.getClass().getConstructors()
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/TransformerInstructionExecutor.java|com.fpetrola.z80.transformations.TransformerInstructionExecutor.isConcrete(Instruction)|c.isAssignableFrom(cloned.getClass())
+2	translation/virtual/src/main/java/com/fpetrola/z80/transformations/VirtualComposed16BitRegister.java|com.fpetrola.z80.transformations.VirtualComposed16BitRegister.equals(Object)|getClass() != o.getClass()

@@ -1,0 +1,122 @@
+# cerco baseline v1 no-null-return: count, key
+1	emulator/src/main/java/com/fpetrola/z80/base/InstructionVisitor.java|com.fpetrola.z80.base.InstructionVisitor.getResult()|return null
+1	emulator/src/main/java/com/fpetrola/z80/cpu/OOZ80.java|com.fpetrola.z80.cpu.OOZ80.execute(int)|return null
+1	emulator/src/main/java/com/fpetrola/z80/instructions/cache/InstructionCache.java|com.fpetrola.z80.instructions.cache.InstructionCache.getCacheEntryAt(int)|return null
+3	emulator/src/main/java/com/fpetrola/z80/opcodes/decoder/table/UnprefixedTableOpCodeGenerator.java|com.fpetrola.z80.opcodes.decoder.table.UnprefixedTableOpCodeGenerator.getOpcode()|return null
+1	emulator/src/main/java/com/fpetrola/z80/registers/RegisterBank.java|com.fpetrola.z80.registers.RegisterBank.get(RegisterName)|return null
+1	emulator/src/main/java/com/fpetrola/z80/spy/ComplexInstructionSpy.java|com.fpetrola.z80.spy.ComplexInstructionSpy.getFetchedAt(int)|return null
+1	emulator/src/main/java/com/fpetrola/z80/spy/ComplexInstructionSpy.java|com.fpetrola.z80.spy.ComplexInstructionSpy.getLastExecutionPoint()|return null
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.choose(String)|return null
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.chooseRecording()|return null
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.getActiveEmulator()|return null
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.machineBeingUsed()|return null
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.openFor(java.io.File)|return null
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.openableRecording(java.io.File)|return null
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.opensFor(java.io.File)|return null
+2	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.playingInto(JInternalFrame)|return null
+1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/DefaultCommandHandler.java|com.fpetrola.oozx.speccy.bridge.DefaultCommandHandler.pollCommand()|return null
+1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/EmulatorCommand.java|com.fpetrola.oozx.speccy.bridge.EmulatorCommand.execute(LibretroCore)|return null
+1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/If1Page.java|com.fpetrola.oozx.speccy.bridge.If1Page.execute(LibretroCore)|return null
+1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/LocalLibretroCore.java|com.fpetrola.oozx.speccy.bridge.LocalLibretroCore.retro_get_memory_map_read(int)|return null
+1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/LocalLibretroCore.java|com.fpetrola.oozx.speccy.bridge.LocalLibretroCore.retro_tstates_history()|return null
+1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/SetMachineModel.java|com.fpetrola.oozx.speccy.bridge.SetMachineModel.execute(LibretroCore)|return null
+1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/SetRegisterValue.java|com.fpetrola.oozx.speccy.bridge.SetRegisterValue.execute(LibretroCore)|return null
+1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/TStatesHistoryInit.java|com.fpetrola.oozx.speccy.bridge.TStatesHistoryInit.execute(LibretroCore)|return null
+1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/WriteMemoryCommand.java|com.fpetrola.oozx.speccy.bridge.WriteMemoryCommand.execute(LibretroCore)|return null
+1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/WritePortCommand.java|com.fpetrola.oozx.speccy.bridge.WritePortCommand.execute(LibretroCore)|return null
+1	machine/core/src/main/java/com/fpetrola/oozx/EmulatorControl.java|com.fpetrola.oozx.EmulatorControl.packedState()|return null
+1	machine/core/src/main/java/com/fpetrola/oozx/config/RomFiles.java|com.fpetrola.oozx.config.RomFiles.chosenSet(Object)|return null
+1	machine/core/src/main/java/com/fpetrola/oozx/config/RomFiles.java|com.fpetrola.oozx.config.RomFiles.fetched(String)|return null
+1	machine/core/src/main/java/com/fpetrola/oozx/config/RomFiles.java|com.fpetrola.oozx.config.RomFiles.packaged(String)|return null
+2	machine/core/src/main/java/com/fpetrola/oozx/plugins/BesideTheGame.java|com.fpetrola.oozx.plugins.BesideTheGame.whoWouldSay(String)|return null
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/config/OOZxConfiguration.java|com.fpetrola.oozx.speccy.config.OOZxConfiguration.compressAndEncode(byte[])|return null
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/config/OOZxConfiguration.java|com.fpetrola.oozx.speccy.config.OOZxConfiguration.decodeAndDecompress(String)|return null
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/config/OOZxConfiguration.java|com.fpetrola.oozx.speccy.config.OOZxConfiguration.packSnapshot(byte[])|return null
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/config/OOZxConfiguration.java|com.fpetrola.oozx.speccy.config.OOZxConfiguration.unpackSnapshot(String)|return null
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/SpectrumMachine.java|com.fpetrola.oozx.speccy.machine.SpectrumMachine.snapshotModel()|return null
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/StartsAMachineOn.java|com.fpetrola.oozx.speccy.machine.StartsAMachineOn.Going.wrong()|return null
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/StartsAMachineOn.java|com.fpetrola.oozx.speccy.machine.StartsAMachineOn.machineFor(File)|return null
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.choose(String)|return null
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.configuration()|return null
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.coreOf(java.awt.Component)|return null
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.equipment(String)|return null
+2	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.keep(Session, JInternalFrame, File, int)|return null
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.machineFrom(File)|return null
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.nameOf(javax.swing.JComponent)|return null
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.show(com.fpetrola.oozx.Speccy, String, MachineFrame)|return null
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.window(String)|return null
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/EmulatorWindow.java|com.fpetrola.oozx.speccy.devices.EmulatorWindow.game()|return null
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/MachineTool.java|com.fpetrola.oozx.speccy.devices.MachineTool.key()|return null
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/MachineTool.java|com.fpetrola.oozx.speccy.devices.MachineTool.menuItem(EmulatorWindow)|return null
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/MachineTool.java|com.fpetrola.oozx.speccy.devices.MachineTool.status(EmulatorWindow)|return null
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Opens.java|com.fpetrola.oozx.speccy.devices.Opens.cameFrom()|return null
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Opens.java|com.fpetrola.oozx.speccy.devices.Opens.entryInside()|return null
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Opens.java|com.fpetrola.oozx.speccy.devices.Opens.label()|return null
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Session.java|com.fpetrola.oozx.speccy.devices.Session.bringBack(java.util.Map)|return null
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/WhatGameThisIs.java|com.fpetrola.oozx.speccy.devices.WhatGameThisIs.gameIn(String)|return null
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/peripherals/MockEmulatorCore.java|com.fpetrola.oozx.speccy.peripherals.MockEmulatorCore.getKeyListener()|return null
+2	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/input/Input.java|com.fpetrola.oozx.speccy.modules.input.Input.Setup.Keys.pushes(InputKey, boolean)|return null
+1	machine/media/snapshot/src/main/java/com/fpetrola/oozx/speccy/media/snapshot/ASnapshotStartsAMachine.java|com.fpetrola.oozx.speccy.media.snapshot.ASnapshotStartsAMachine.start(Speccy, File)|return null
+1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/MemoryState.java|com.fpetrola.emulation.helpers.snapshots.MemoryState.getLecPageRam(int)|return null
+1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotFactory.java|com.fpetrola.emulation.helpers.snapshots.SnapshotFactory.getSnapshot(File)|return null
+1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenProfile.java|com.fpetrola.oozx.speccy.screen.ScreenProfile.matching(ScreenSettings, List)|return null
+1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/TvScreen.java|com.fpetrola.oozx.speccy.screen.TvScreen.directPixels(BufferedImage)|return null
+1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/TvScreen.java|com.fpetrola.oozx.speccy.screen.TvScreen.weightsFor(double)|return null
+1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/Block.java|com.fpetrola.z80.blocks.Block.createBlock(int, int, String, Class)|return null
+1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/Block.java|com.fpetrola.z80.blocks.Block.getAppropriatedBlockFor(int, int, BlockType)|return null
+1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/Block.java|com.fpetrola.z80.blocks.Block.getBlockType()|return null
+1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/Block.java|com.fpetrola.z80.blocks.Block.getBlocksManager()|return null
+1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/Block.java|com.fpetrola.z80.blocks.Block.getCallType()|return null
+1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/Block.java|com.fpetrola.z80.blocks.Block.getName()|return null
+1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/Block.java|com.fpetrola.z80.blocks.Block.getReferencesHandler()|return null
+1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/Block.java|com.fpetrola.z80.blocks.Block.joinBlocksBetween(Block, int)|return null
+1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/Block.java|com.fpetrola.z80.blocks.Block.replaceType(BlockType)|return null
+1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/Block.java|com.fpetrola.z80.blocks.Block.split(int, String, Class)|return null
+1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/BlocksManager.java|com.fpetrola.z80.blocks.BlocksManager.findBlockByName(String)|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.addAnnotation(Object, boolean)|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.aget(Object)|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.alength()|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.box()|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.cast(Object)|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.clear()|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.com()|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.condy(String, Object[])|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.div(Object)|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.eq(Object)|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.field(String)|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.ge(Object)|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.gt(Object)|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.indy(String, Object[])|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.instanceOf(Object)|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.invoke(Object, String, Object[], Object[])|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.invoke(String, Object[])|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.le(Object)|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.lt(Object)|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.makerType()|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.methodHandle(Object, String, Object[])|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.mul(Object)|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.name()|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.name(String)|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.ne(Object)|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.neg()|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.not()|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.rem(Object)|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.set(Object)|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.setExact(Object)|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.shl(Object)|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.shr(Object)|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.signature(Object[])|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.unbox()|return null
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.ushr(Object)|return null
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/Routine.java|com.fpetrola.z80.routines.Routine.findRoutineAt(int)|return null
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.findRoutineAt(int)|return null
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.plantedContinuation(int, StackAnalyzer)|return null
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.routineGoneOnAt(int)|return null
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineVisitor.java|com.fpetrola.z80.routines.RoutineVisitor.getResult()|return null
+1	translation/routines/src/main/java/com/fpetrola/z80/transformations/StackAnalyzer.java|com.fpetrola.z80.transformations.StackAnalyzer.enclosingFrame(int)|return null
+1	translation/routines/src/main/java/com/fpetrola/z80/transformations/StackAnalyzer.java|com.fpetrola.z80.transformations.StackAnalyzer.trampolineRegister(int)|return null
+1	translation/se/src/main/java/com/fpetrola/z80/se/RoutineExecutorHandler.java|com.fpetrola.z80.se.RoutineExecutorHandler.getCurrentRoutineExecution()|return null
+2	translation/translator/src/main/java/com/fpetrola/z80/bytecode/RealCodeBytecodeCreationBase.java|com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase.copiesOf(int, int, int, List, int)|return null
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/InitialVirtualRegister.java|com.fpetrola.z80.transformations.InitialVirtualRegister.getCurrentPreviousVersion()|return null
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/InitialVirtualRegister.java|com.fpetrola.z80.transformations.InitialVirtualRegister.getDependants()|return null
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/TransformerInstructionFetcher.java|com.fpetrola.z80.transformations.TransformerInstructionFetcher.fetchNextInstruction()|return null

@@ -1,0 +1,2 @@
+# cerco baseline v1 no-constant-holder: count, key
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/SpecPlus3Constants.java|com.fpetrola.oozx.speccy.machine.SpecPlus3Constants

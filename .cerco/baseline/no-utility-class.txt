@@ -1,0 +1,8 @@
+# cerco baseline v1 no-utility-class: count, key
+1	emulator/src/main/java/com/fpetrola/z80/helpers/Helper.java|com.fpetrola.z80.helpers.Helper
+1	emulator/src/main/java/com/fpetrola/z80/minizx/emulation/Helper.java|com.fpetrola.z80.minizx.emulation.Helper
+1	emulator/src/main/java/com/fpetrola/z80/transformations/Base64Utils.java|com.fpetrola.z80.transformations.Base64Utils
+1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/BlocksManager.java|com.fpetrola.z80.blocks.BlocksManager
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/examples/SnapshotHelper.java|com.fpetrola.z80.bytecode.examples.SnapshotHelper
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager
+1	translation/translator/src/main/java/io/korhner/asciimg/utils/ArrayUtils.java|io.korhner.asciimg.utils.ArrayUtils

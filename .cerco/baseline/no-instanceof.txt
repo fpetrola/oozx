@@ -1,0 +1,303 @@
+# cerco baseline v1 no-instanceof: count, key
+1	emulator/src/main/java/com/fpetrola/z80/base/ToStringInstructionVisitor.java|com.fpetrola.z80.base.ToStringInstructionVisitor.visitingConditionalInstruction(ConditionalInstruction)|instanceof Ret
+1	emulator/src/main/java/com/fpetrola/z80/cpu/CachedInstructionFetcher.java|com.fpetrola.z80.cpu.CachedInstructionFetcher.fetchNextInstruction()|instanceof AbstractInstruction
+1	emulator/src/main/java/com/fpetrola/z80/cpu/DefaultInstructionExecutor.java|com.fpetrola.z80.cpu.DefaultInstructionExecutor.execute(Instruction)|instanceof RepeatingInstruction
+1	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.After.throughBcDeOrNn(IndirectMemory8BitReference)|instanceof Memory16BitReference
+1	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.After.throughBcDeOrNn(IndirectMemory8BitReference)|instanceof Register
+1	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.After.visitEx(Ex)|instanceof IndirectMemory16BitReference
+1	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.After.visitEx(Ex)|instanceof Register
+1	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.After.visitOut(Out)|instanceof Memory8BitReference
+1	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.After.visitOut(Out)|instanceof Out.OutPortOpcodeReference
+1	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.After.visitOut(Out)|instanceof Register
+1	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.After.visitingConditionalInstruction(ConditionalInstruction)|instanceof Call
+1	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.After.visitingConditionalInstruction(ConditionalInstruction)|instanceof JP
+1	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.After.visitingConditionalInstruction(ConditionalInstruction)|instanceof Register
+2	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.After.visitingLd(Ld)|instanceof IndirectMemory16BitReference
+2	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.After.visitingLd(Ld)|instanceof IndirectMemory8BitReference
+1	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.Before.visitRepeatingInstruction(RepeatingInstruction)|instanceof Indr
+1	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.Before.visitRepeatingInstruction(RepeatingInstruction)|instanceof Inir
+1	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.Before.visitRepeatingInstruction(RepeatingInstruction)|instanceof Outdr
+1	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.Before.visitRepeatingInstruction(RepeatingInstruction)|instanceof Outir
+1	emulator/src/main/java/com/fpetrola/z80/cpu/MultiOpcodeFetcher.java|com.fpetrola.z80.cpu.MultiOpcodeFetcher.wrapInstructions(Instruction[], int, Register, FetchedInstructionWrapper[], int, boolean, Memory)|instanceof DefaultFetchNextOpcodeInstruction
+1	emulator/src/main/java/com/fpetrola/z80/cpu/MultiOpcodeFetcher.java|com.fpetrola.z80.cpu.MultiOpcodeFetcher.wrapInstructions(Instruction[], int, Register, FetchedInstructionWrapper[], int, boolean, Memory)|instanceof Ld
+1	emulator/src/main/java/com/fpetrola/z80/cpu/MultiOpcodeFetcher.java|com.fpetrola.z80.cpu.MultiOpcodeFetcher.wrapInstructions(Instruction[], int, Register, FetchedInstructionWrapper[], int, boolean, Memory)|instanceof Memory8BitReference
+1	emulator/src/main/java/com/fpetrola/z80/cpu/OOZ80.java|com.fpetrola.z80.cpu.OOZ80.execute()|instanceof EI
+1	emulator/src/main/java/com/fpetrola/z80/cpu/SpyInstructionExecutor.java|com.fpetrola.z80.cpu.SpyInstructionExecutor.updatePC(Instruction)|instanceof AbstractInstruction
+2	emulator/src/main/java/com/fpetrola/z80/instructions/cache/InstructionCache.java|com.fpetrola.z80.instructions.cache.InstructionCache.cacheInstruction(int, Instruction)|instanceof AbstractInstruction
+1	emulator/src/main/java/com/fpetrola/z80/instructions/cache/InstructionCloner.java|com.fpetrola.z80.instructions.cache.InstructionCloner.clone(ConditionPredicate)|instanceof FlipFLopConditionFlag.FlipFlopPredicate
+1	emulator/src/main/java/com/fpetrola/z80/instructions/cache/InstructionCloner.java|com.fpetrola.z80.instructions.cache.InstructionCloner.clone(Instruction)|instanceof AbstractInstruction
+1	emulator/src/main/java/com/fpetrola/z80/instructions/impl/BIT.java|com.fpetrola.z80.instructions.impl.BIT.execute()|instanceof IndirectMemory8BitReference
+1	emulator/src/main/java/com/fpetrola/z80/instructions/impl/BIT.java|com.fpetrola.z80.instructions.impl.BIT.execute()|instanceof MemoryPlusRegister8BitReference
+1	emulator/src/main/java/com/fpetrola/z80/instructions/impl/In.java|com.fpetrola.z80.instructions.impl.In.In(OpcodeReference, ImmutableOpcodeReference, ImmutableOpcodeReference, ImmutableOpcodeReference, Register, IO)|instanceof Register
+1	emulator/src/main/java/com/fpetrola/z80/instructions/impl/LdOperation.java|com.fpetrola.z80.instructions.impl.LdOperation.execute()|instanceof MemoryPlusRegister8BitReference
+1	emulator/src/main/java/com/fpetrola/z80/instructions/impl/LdOperation.java|com.fpetrola.z80.instructions.impl.LdOperation.execute()|instanceof TargetInstruction
+1	emulator/src/main/java/com/fpetrola/z80/instructions/impl/Out.java|com.fpetrola.z80.instructions.impl.Out.OutPortOpcodeReference.getRead()|instanceof Register
+1	emulator/src/main/java/com/fpetrola/z80/opcodes/decoder/table/IndexerRegisterTableOpCodeGenerator.java|com.fpetrola.z80.opcodes.decoder.table.IndexerRegisterTableOpCodeGenerator.isHL(ImmutableOpcodeReference)|instanceof MemoryPlusRegister8BitReference
+1	emulator/src/main/java/com/fpetrola/z80/opcodes/decoder/table/TableOpCodeGenerator.java|com.fpetrola.z80.opcodes.decoder.table.TableOpCodeGenerator.replaceLowHigh(OpcodeReference, RegisterName, RegisterName)|instanceof Register
+2	emulator/src/main/java/com/fpetrola/z80/opcodes/references/ExecutionPoint.java|com.fpetrola.z80.opcodes.references.ExecutionPoint.equals(Object)|getClass()==
+1	emulator/src/main/java/com/fpetrola/z80/opcodes/references/IndirectMemory16BitReference.java|com.fpetrola.z80.opcodes.references.IndirectMemory16BitReference.IndirectMemory16BitReference(ImmutableOpcodeReference, Memory)|instanceof Register
+2	emulator/src/main/java/com/fpetrola/z80/registers/DefaultRegisterBankFactory.java|com.fpetrola.z80.registers.DefaultRegisterBankFactory.compose(String, Register, Register)|getClass()==
+1	emulator/src/main/java/com/fpetrola/z80/spy/InstructionSpy.java|com.fpetrola.z80.spy.InstructionSpy.wrapBank(RegisterBank)|instanceof Composed16BitRegister<?>
+1	emulator/src/main/java/com/fpetrola/z80/transformations/InstructionFetcherForTest.java|com.fpetrola.z80.transformations.InstructionFetcherForTest.updatePC(Instruction)|instanceof AbstractInstruction
+2	emulator/src/main/java/com/fpetrola/z80/tstates/Event.java|com.fpetrola.z80.tstates.Event.equals(Object)|getClass()==
+1	emulator/src/main/java/com/fpetrola/z80/tstates/PhaseProcessor.java|com.fpetrola.z80.tstates.PhaseProcessor.isImmediate(ImmutableOpcodeReference)|instanceof Memory8BitReference
+1	emulator/src/main/java/com/fpetrola/z80/tstates/PhaseProcessor.java|com.fpetrola.z80.tstates.PhaseProcessor.isIndexed(OpcodeReferenceBase)|instanceof MemoryPlusRegister8BitReference
+1	emulator/src/main/java/com/fpetrola/z80/tstates/PhaseProcessor.java|com.fpetrola.z80.tstates.PhaseProcessor.isIndirectHL(TargetInstruction)|instanceof IndirectMemory8BitReference
+1	emulator/src/main/java/com/fpetrola/z80/tstates/PhaseProcessor.java|com.fpetrola.z80.tstates.PhaseProcessor.isIndirectHL(TargetInstruction)|instanceof Register
+1	emulator/src/main/java/com/fpetrola/z80/tstates/PhaseProcessor.java|com.fpetrola.z80.tstates.PhaseProcessor.isLdSP(Ld)|instanceof Register
+1	emulator/src/main/java/com/fpetrola/z80/tstates/PhaseProcessor.java|com.fpetrola.z80.tstates.PhaseProcessor.visitEx(Ex)|instanceof IndirectMemory16BitReference
+1	emulator/src/main/java/com/fpetrola/z80/tstates/PhaseProcessor.java|com.fpetrola.z80.tstates.PhaseProcessor.visitingLd(Ld)|instanceof LdAI
+1	emulator/src/main/java/com/fpetrola/z80/tstates/PhaseProcessor.java|com.fpetrola.z80.tstates.PhaseProcessor.visitingLd(Ld)|instanceof LdAR
+1	emulator/src/main/java/com/fpetrola/z80/tstates/PhaseProcessor.java|com.fpetrola.z80.tstates.PhaseProcessor.visitingRet(Ret)|instanceof ConditionAlwaysTrue
+1	emulator/src/main/java/com/fpetrola/z80/tstates/PhaseProcessorBase.java|com.fpetrola.z80.tstates.PhaseProcessorBase.afterExecution(Instruction)|instanceof JumpInstruction
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.EmulatorInternalFrame.emptied(java.awt.Container)|instanceof java.awt.Container
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.EmulatorInternalFrame.quickMenu()|instanceof SpeccyScreen
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.coreOf(java.awt.Component)|instanceof EmulatorInternalFrame
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.done()|instanceof List<?>
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.done()|instanceof java.io.File
+2	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.getActiveEmulator()|instanceof EmulatorInternalFrame
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.machineBeingUsed()|instanceof AttachedFrame
+2	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.machineBeingUsed()|instanceof EmulatorInternalFrame
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.machineOf(JInternalFrame)|instanceof EmulatorInternalFrame
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.openFor(java.io.File)|instanceof Opens
+2	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.opensFor(java.io.File)|instanceof Opens
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.playInto(MachineFrame, String, java.util.concurrent.Callable)|instanceof Opens
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.playingInto(JInternalFrame)|instanceof Opens
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.putMachinesAway()|instanceof EmulatorInternalFrame
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.refillMachineToolBars()|instanceof EmulatorInternalFrame
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.setScreenDefault(String, String)|instanceof EmulatorInternalFrame
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.setScreenDefault(String, String)|instanceof SpeccyScreen
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.somebodyIsWriting()|instanceof Dialog
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.somebodyIsWriting()|instanceof JComboBox<?>
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.somebodyIsWriting()|instanceof javax.swing.text.JTextComponent
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.window(String)|instanceof JInternalFrame
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.working(boolean)|instanceof javax.swing.RootPaneContainer
+1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/LocalLibretroCore.java|com.fpetrola.oozx.speccy.bridge.LocalLibretroCore.sourceOf(MemoryPart)|instanceof Ram
+1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/LocalLibretroCore.java|com.fpetrola.oozx.speccy.bridge.LocalLibretroCore.sourceOf(MemoryPart)|instanceof Rom
+2	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/OOSpectrumConnector.java|com.fpetrola.oozx.speccy.bridge.OOSpectrumConnector.queueDriving(DefaultCommandHandler, LibretroCore)|instanceof ContinueExecutionCommand
+2	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/TStateUpdate.java|com.fpetrola.oozx.speccy.bridge.TStateUpdate.equals(Object)|getClass()==
+1	machine/core/src/main/java/com/fpetrola/oozx/config/RomFiles.java|com.fpetrola.oozx.config.RomFiles.download(String, String, Consent)|instanceof InterruptedException
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/media/DownloadAndUnzip.java|com.fpetrola.oozx.speccy.media.DownloadAndUnzip.cannotReach(URL, IOException)|instanceof java.net.SocketTimeoutException
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/media/DownloadAndUnzip.java|com.fpetrola.oozx.speccy.media.DownloadAndUnzip.cannotReach(URL, IOException)|instanceof java.net.UnknownHostException
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/media/DownloadAndUnzip.java|com.fpetrola.oozx.speccy.media.DownloadAndUnzip.downloadFile(URL)|instanceof HttpURLConnection
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/machine/Machine.java|com.fpetrola.oozx.speccy.modules.machine.Machine.model(Class)|getClass()==
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/memory/DecodedMemoryBus.java|com.fpetrola.oozx.speccy.modules.memory.DecodedMemoryBus.Covering.cover(MappedMemory, int)|instanceof Storage
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/peripherals/PeripheralRegistry.java|com.fpetrola.oozx.speccy.peripherals.PeripheralRegistry.activateType(Class, boolean)|instanceof Pluggable
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.bringBack(Session, List)|instanceof JInternalFrame
+2	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.keep(Session, JInternalFrame, File, int)|instanceof EmulatorWindow
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/MachineFrame.java|com.fpetrola.oozx.speccy.devices.MachineFrame.attachmentChanged()|instanceof EmulatorWindow
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/peripherals/MockEmulatorCore.java|com.fpetrola.oozx.speccy.peripherals.MockEmulatorCore.setScreenOption(String, Object)|instanceof com.fpetrola.oozx.speccy.screen.SpeccyScreen
+1	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/input/Input.java|com.fpetrola.oozx.speccy.modules.input.Input.keyrelease(InputEventKey)|instanceof RecreatedLayout
+1	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/input/Input.java|com.fpetrola.oozx.speccy.modules.input.Input.layoutFromConfig()|instanceof RecreatedLayout
+1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotLoader.java|com.fpetrola.emulation.helpers.snapshots.SnapshotLoader.setupFromSpectrumState(RegistersSetter, State, SpectrumState)|instanceof MockedMemory
+1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenContext.java|com.fpetrola.oozx.speccy.screen.ScreenContext.readablePixels(BufferedImage)|instanceof DataBufferInt
+1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenSettings.java|com.fpetrola.oozx.speccy.screen.ScreenSettings.settings()|instanceof Scaler
+1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenSettings.java|com.fpetrola.oozx.speccy.screen.ScreenSettings.steps(ScreenEffect.When)|instanceof Scaler
+1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/TvScreen.java|com.fpetrola.oozx.speccy.screen.TvScreen.directPixels(BufferedImage)|instanceof java.awt.image.DataBufferInt
+1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/AttachedFrame.java|com.fpetrola.oozx.speccy.windows.AttachedFrame.machinesAround()|instanceof JInternalFrame
+1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/AttachedFrame.java|com.fpetrola.oozx.speccy.windows.AttachedFrame.machinesAround()|instanceof MachineWindow
+1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/AttachedFrame.java|com.fpetrola.oozx.speccy.windows.AttachedFrame.previewSnap()|instanceof JLayeredPane
+1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/AttachedFrame.java|com.fpetrola.oozx.speccy.windows.AttachedFrame.sharing(JInternalFrame, Dock)|instanceof AttachedFrame
+1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/KnobRows.java|com.fpetrola.oozx.speccy.windows.KnobRows.asDouble(Object)|instanceof Number
+1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/DefaultBlock.java|com.fpetrola.z80.blocks.DefaultBlock.joinBlocksBetween(Block, int)|instanceof UnknownBlockType
+1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/GenerateTestSourceInstructionVisitor.java|com.fpetrola.z80.blocks.GenerateTestSourceInstructionVisitor.visitingConditionalInstruction(ConditionalInstruction)|instanceof JR
+1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/ranges/RangeHandler.java|com.fpetrola.z80.blocks.ranges.RangeHandler.joinAdjacentIfRequired(int, Instruction, Block)|instanceof Call
+1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/ranges/RangeHandler.java|com.fpetrola.z80.blocks.ranges.RangeHandler.joinAdjacentIfRequired(int, Instruction, Block)|instanceof CodeBlockType
+2	translation/blocks/src/main/java/com/fpetrola/z80/blocks/ranges/VerifyRangeHandler.java|com.fpetrola.z80.blocks.ranges.VerifyRangeHandler.doVerify(List)|instanceof NullBlock
+2	translation/blocks/src/main/java/com/fpetrola/z80/blocks/references/BlockRelation.java|com.fpetrola.z80.blocks.references.BlockRelation.equals(Object)|getClass()==
+2	translation/blocks/src/main/java/com/fpetrola/z80/blocks/references/ReferenceVersion.java|com.fpetrola.z80.blocks.references.ReferenceVersion.equals(Object)|getClass()==
+1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/references/ReferencesHandler.java|com.fpetrola.z80.blocks.references.ReferencesHandler.isDataBlock(int)|instanceof DataBlockType
+2	translation/blocks/src/main/java/com/fpetrola/z80/metadata/DataStructureInstance.java|com.fpetrola.z80.metadata.DataStructureInstance.equals(Object)|getClass()==
+1	translation/blocks/src/main/java/com/fpetrola/z80/spy/AbstractInstructionSpy.java|com.fpetrola.z80.spy.AbstractInstructionSpy.enableIfReturningFromRoutine(Instruction)|instanceof ConditionAlwaysTrue
+1	translation/blocks/src/main/java/com/fpetrola/z80/spy/AbstractInstructionSpy.java|com.fpetrola.z80.spy.AbstractInstructionSpy.enableIfReturningFromRoutine(Instruction)|instanceof Ret
+1	translation/blocks/src/main/java/com/fpetrola/z80/spy/AbstractInstructionSpy.java|com.fpetrola.z80.spy.AbstractInstructionSpy.processToBase(Instruction)|instanceof DefaultFetchNextOpcodeInstruction
+1	translation/blocks/src/main/java/com/fpetrola/z80/spy/WrapperInstructionSpy.java|com.fpetrola.z80.spy.WrapperInstructionSpy.wrapRegister(Register)|instanceof ObservableRegister
+1	translation/blocks/src/main/java/com/fpetrola/z80/spy/WriteOpcodeReference.java|com.fpetrola.z80.spy.WriteOpcodeReference.sameReference(SpyReference)|instanceof ReadOpcodeReference
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/DefaultZ80InstructionDriver.java|com.fpetrola.z80.bytecode.DefaultZ80InstructionDriver.mem()|instanceof MemorySpy
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/ControlFlowStructuring.java|com.fpetrola.z80.bytecode.generators.ControlFlowStructuring.ControlFlowStructuring(Routine, RoutineManager, Collection, StackAnalyzer, Collection, Predicate)|instanceof Call
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/ControlFlowStructuring.java|com.fpetrola.z80.bytecode.generators.ControlFlowStructuring.exitsOf(int, Set)|instanceof Ret
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/InstructionsBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.InstructionsBytecodeGenerator.createIfs(Instruction, Runnable)|instanceof ConditionFlag
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/InstructionsBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.InstructionsBytecodeGenerator.createIfs(Instruction, Runnable)|instanceof ConditionalInstruction
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/InstructionsBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.InstructionsBytecodeGenerator.createIfs(Instruction, Runnable)|instanceof DJNZ
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/InstructionsBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.InstructionsBytecodeGenerator.visitEx(Ex)|instanceof Register
+2	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/InstructionsBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.InstructionsBytecodeGenerator.visitIn(In)|instanceof java.lang.Integer
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/InstructionsBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.InstructionsBytecodeGenerator.visitOut(Out)|instanceof java.lang.Integer
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/InstructionsBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.InstructionsBytecodeGenerator.visitingJP(JP)|instanceof Register
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/InstructionsBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.InstructionsBytecodeGenerator.visitingLd(Ld)|instanceof Register
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/OpcodeReferenceVisitor.java|com.fpetrola.z80.bytecode.generators.OpcodeReferenceVisitor.addressOf(ImmutableOpcodeReference)|instanceof Memory16BitReference
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.executeMutantCode(int, Instruction)|instanceof Call
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.generateInstruction(int, Instruction, int)|instanceof RepeatingInstruction
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.getExistingVariable(Register)|instanceof VariableDelegator
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.getRealVariable(S)|instanceof VariableDelegator
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.invokePc(int)|instanceof AbstractInstruction
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.invokePc(int, int)|instanceof RepeatingInstruction
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.loadPoppedReturnAddress(int, int)|instanceof Pop
+2	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.stopUnwindingHere()|instanceof ConditionAlwaysTrue
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.stopUnwindingHere()|instanceof JP
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.stopUnwindingHere()|instanceof Pop
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.stopUnwindingHere()|instanceof Ret
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.throwAtVirtualPop(int)|instanceof Ld
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.throwAtVirtualPop(int)|instanceof Pop
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.visitInstruction(int, Instruction)|instanceof Call
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/StateBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.StateBytecodeGenerator.foldJumpCyclesIntoTheirHeads()|instanceof com.fpetrola.z80.instructions.impl.Call
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/VariableHandlingInstructionVisitor.java|com.fpetrola.z80.bytecode.generators.VariableHandlingInstructionVisitor.createResult()|instanceof Variable
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/WriteArrayVariable.java|com.fpetrola.z80.bytecode.generators.helpers.WriteArrayVariable.set(Object)|instanceof Integer
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/CodeVersions.java|com.fpetrola.z80.routines.CodeVersions.decode(int, int[])|instanceof ConditionalInstruction<?>
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/CodeVersions.java|com.fpetrola.z80.routines.CodeVersions.decode(int, int[])|instanceof Ret
+2	translation/routines/src/main/java/com/fpetrola/z80/routines/CodeVersions.java|com.fpetrola.z80.routines.CodeVersions.fixedStoreTargets(int, Instruction, int[])|instanceof IndirectMemory16BitReference
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/CodeVersions.java|com.fpetrola.z80.routines.CodeVersions.fixedStoreTargets(int, Instruction, int[])|instanceof IndirectMemory8BitReference
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/CodeVersions.java|com.fpetrola.z80.routines.CodeVersions.fixedStoreTargets(int, Instruction, int[])|instanceof Ld
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/CodeVersions.java|com.fpetrola.z80.routines.CodeVersions.fixedStoreTargets(int, Instruction, int[])|instanceof Memory16BitReference
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/CodeVersions.java|com.fpetrola.z80.routines.CodeVersions.kindOf(int, List)|instanceof JumpInstruction
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/Routine.java|com.fpetrola.z80.routines.Routine.addInstructionAt(Instruction, int)|instanceof UnknownBlockType
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/Routine.java|com.fpetrola.z80.routines.Routine.optimize()|instanceof CodeBlockType
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.alreadyProcessed(Instruction, int)|instanceof Call
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.alreadyProcessed(Instruction, int)|instanceof Ret
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.checkBeforeExecution(Instruction)|instanceof Ld
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.checkBeforeExecution(Instruction)|instanceof Register
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.checkExecution(Instruction)|instanceof Call
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.checkExecution(Instruction)|instanceof ConditionalInstruction<?>
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.checkExecution(Instruction)|instanceof JP
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.checkExecution(Instruction)|instanceof RST
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.checkExecution(Instruction)|instanceof Ret
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.claimFallThrough(Routine, int)|instanceof ConditionAlwaysTrue
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.claimFallThrough(Routine, int)|instanceof ConditionalInstruction<?>
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.followOwnerOf(int)|instanceof Call
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.instructionBefore(int)|instanceof Call
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.instructionBefore(int)|instanceof Ret
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.jumpUsingRet(Ret, int, Set)|instanceof Call
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.jumpsToNewCodeAfterStackReset(Instruction)|instanceof JP
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.simulatedCall(int, int, Set, int)|instanceof JP
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.updateCallers(Instruction, int)|instanceof Call
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.updateCallers(Instruction, int)|instanceof ConditionalInstruction<?>
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.updateCallers(Instruction, int)|instanceof Ret
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.callSitesByTarget()|instanceof Call
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.callSitesByTarget()|instanceof com.fpetrola.z80.instructions.impl.RST
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.continuation(int, StackAnalyzer)|instanceof Call
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.fallsThrough(Instruction)|instanceof Call
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.fallsThrough(Instruction)|instanceof ConditionAlwaysTrue
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.fallsThrough(Instruction)|instanceof ConditionalInstruction<?>
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.fixedJumpTarget(Instruction)|instanceof ConditionalInstruction<?>
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.fixedJumpTarget(Instruction)|instanceof Ret
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.fixedJumpTarget(Instruction)|instanceof com.fpetrola.z80.registers.Register
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.flow(StackAnalyzer, boolean)|instanceof Call
+2	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.goesOnAt(int, Routine, StackAnalyzer, boolean)|instanceof Call
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.goesOnAt(int, Routine, StackAnalyzer, boolean)|instanceof ConditionalInstruction<?>
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.goesOnAt(int, Routine, StackAnalyzer, boolean)|instanceof Register
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.goesOnAt(int, Routine, StackAnalyzer, boolean)|instanceof Ret
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.isCalledFrom(Routine, int)|instanceof Call
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.isReturnPointOfCallFromOutside(Routine, int)|instanceof Call
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.jumpsTo(Instruction, int)|instanceof Call
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.leavesJavaFrames(int, StackAnalyzer.AbandoningRet, StackAnalyzer, boolean)|instanceof Call
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.ownDataLeftForOthers(int, Routine, StackAnalyzer)|instanceof Push
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.ownDataLeftForOthers(int, Routine, StackAnalyzer)|instanceof Ret
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.planEntries(StackAnalyzer)|instanceof Ld
+2	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.planNonLocalReturns(StackAnalyzer, java.util.Set)|instanceof Call
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.planNonLocalReturns(StackAnalyzer, java.util.Set)|instanceof Ret
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.planPoppedReturns(StackAnalyzer)|instanceof Call
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.planPoppedReturns(StackAnalyzer)|instanceof Pop
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.plantedContinuation(int, StackAnalyzer)|instanceof Ld
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.plantedContinuation(int, StackAnalyzer)|instanceof Memory16BitReference
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.plantedContinuation(int, StackAnalyzer)|instanceof Push
+2	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.plantedContinuation(int, StackAnalyzer)|instanceof Register
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.reachesWithin(Routine, int, int)|instanceof Call
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.returnPointsOfCallsIn(Routine)|instanceof Call
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.returnsOfCallsInTakenByNonLocalReturns(Routine, StackAnalyzer)|instanceof Call
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.spanOf(int, Instruction)|instanceof Call
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.unwindsAt(Routine, int, Instruction, StackAnalyzer)|instanceof ConditionalInstruction<?>
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.unwindsAt(Routine, int, Instruction, StackAnalyzer)|instanceof Ret
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.unwindsAt(Routine, int, Instruction, StackAnalyzer)|instanceof com.fpetrola.z80.registers.Register
+1	translation/routines/src/main/java/com/fpetrola/z80/transformations/ExecutionTracker.java|com.fpetrola.z80.transformations.ExecutionTracker.visiting(CodeBlockType)|instanceof ConditionalInstruction
+1	translation/routines/src/main/java/com/fpetrola/z80/transformations/StackAnalyzer.java|com.fpetrola.z80.transformations.StackAnalyzer.beforeExecution(Instruction)|instanceof Ex
+1	translation/routines/src/main/java/com/fpetrola/z80/transformations/StackAnalyzer.java|com.fpetrola.z80.transformations.StackAnalyzer.beforeExecution(Instruction)|instanceof Pop
+1	translation/routines/src/main/java/com/fpetrola/z80/transformations/StackAnalyzer.java|com.fpetrola.z80.transformations.StackAnalyzer.beforeExecution(Instruction)|instanceof Register
+1	translation/routines/src/main/java/com/fpetrola/z80/transformations/StackAnalyzer.java|com.fpetrola.z80.transformations.StackAnalyzer.beforeExecution(Instruction)|instanceof Ret
+1	translation/routines/src/main/java/com/fpetrola/z80/transformations/StackAnalyzer.java|com.fpetrola.z80.transformations.StackAnalyzer.placeOf(Object)|instanceof IndirectMemory16BitReference
+2	translation/routines/src/main/java/com/fpetrola/z80/transformations/StackAnalyzer.java|com.fpetrola.z80.transformations.StackAnalyzer.placeOf(Object)|instanceof Memory16BitReference
+1	translation/routines/src/main/java/com/fpetrola/z80/transformations/StackAnalyzer.java|com.fpetrola.z80.transformations.StackAnalyzer.visitEx(Ex)|instanceof Register
+1	translation/routines/src/main/java/com/fpetrola/z80/transformations/StackAnalyzer.java|com.fpetrola.z80.transformations.StackAnalyzer.visitingJP(JP)|instanceof Register
+3	translation/routines/src/main/java/com/fpetrola/z80/transformations/StackAnalyzer.java|com.fpetrola.z80.transformations.StackAnalyzer.visitingLd(Ld)|instanceof Register
+2	translation/routines/src/main/java/com/fpetrola/z80/transformations/StackAnalyzer.java|com.fpetrola.z80.transformations.StackAnalyzer.visitingRet(Ret)|instanceof RetN
+1	translation/se/src/main/java/com/fpetrola/z80/se/JumpUsingRetAddressAction.java|com.fpetrola.z80.se.JumpUsingRetAddressAction.JumpUsingRetAddressAction(Instruction, int, Set, RoutineExecutorHandler)|instanceof ConditionAlwaysTrue
+1	translation/se/src/main/java/com/fpetrola/z80/se/JumpUsingRetAddressAction.java|com.fpetrola.z80.se.JumpUsingRetAddressAction.JumpUsingRetAddressAction(Instruction, int, Set, RoutineExecutorHandler)|instanceof ConditionalInstruction<?>
+1	translation/se/src/main/java/com/fpetrola/z80/se/RoutineExecution.java|com.fpetrola.z80.se.RoutineExecution.createAddressAction(Instruction, boolean, int)|instanceof Call
+1	translation/se/src/main/java/com/fpetrola/z80/se/RoutineExecution.java|com.fpetrola.z80.se.RoutineExecution.createAddressAction(Instruction, boolean, int)|instanceof JP
+1	translation/se/src/main/java/com/fpetrola/z80/se/RoutineExecution.java|com.fpetrola.z80.se.RoutineExecution.createAddressAction(Instruction, boolean, int)|instanceof Register
+1	translation/se/src/main/java/com/fpetrola/z80/se/RoutineExecution.java|com.fpetrola.z80.se.RoutineExecution.createAddressAction(Instruction, boolean, int)|instanceof Ret
+1	translation/se/src/main/java/com/fpetrola/z80/se/RoutineExecution.java|com.fpetrola.z80.se.RoutineExecution.retInstructionAction()|instanceof BasicAddressAction
+1	translation/se/src/main/java/com/fpetrola/z80/se/RoutineExecutorHandler.java|com.fpetrola.z80.se.RoutineExecutorHandler.findCallerOf(int)|instanceof Call
+1	translation/se/src/main/java/com/fpetrola/z80/se/SymbolicExecutionAdapter.java|com.fpetrola.z80.se.SymbolicExecutionAdapter.beforeExecution(Instruction)|instanceof ConditionAlwaysTrue
+2	translation/se/src/main/java/com/fpetrola/z80/se/SymbolicExecutionAdapter.java|com.fpetrola.z80.se.SymbolicExecutionAdapter.beforeExecution(Instruction)|instanceof ConditionalInstruction<?>
+1	translation/se/src/main/java/com/fpetrola/z80/se/SymbolicExecutionAdapter.java|com.fpetrola.z80.se.SymbolicExecutionAdapter.executeAllCode(Z80InstructionDriver, Register)|instanceof RST
+1	translation/se/src/main/java/com/fpetrola/z80/se/SymbolicExecutionAdapter.java|com.fpetrola.z80.se.SymbolicExecutionAdapter.isTailCallToRom(int)|instanceof ConditionAlwaysTrue
+1	translation/se/src/main/java/com/fpetrola/z80/se/SymbolicExecutionAdapter.java|com.fpetrola.z80.se.SymbolicExecutionAdapter.isTailCallToRom(int)|instanceof JP
+1	translation/se/src/main/java/com/fpetrola/z80/se/SymbolicExecutionAdapter.java|com.fpetrola.z80.se.SymbolicExecutionAdapter.jumpUsingRet(Ret, int, Set)|instanceof JumpUsingRetAddressAction
+1	translation/se/src/main/java/com/fpetrola/z80/se/SymbolicExecutionAdapter.java|com.fpetrola.z80.se.SymbolicExecutionAdapter.returnShifted(Instruction, int, int, int)|instanceof JP
+1	translation/se/src/main/java/com/fpetrola/z80/se/actions/AddressActionDelegate.java|com.fpetrola.z80.se.actions.AddressActionDelegate.processBranch(Instruction)|instanceof ConditionAlwaysTrue
+1	translation/se/src/main/java/com/fpetrola/z80/se/actions/AddressActionDelegate.java|com.fpetrola.z80.se.actions.AddressActionDelegate.processBranch(Instruction)|instanceof ConditionalInstruction<?>
+1	translation/se/src/main/java/com/fpetrola/z80/se/instructions/SEInstructionFactory.java|com.fpetrola.z80.se.instructions.SEInstructionFactory.execute()|instanceof IndirectMemory8BitReference
+1	translation/se/src/main/java/com/fpetrola/z80/se/instructions/SEInstructionFactory.java|com.fpetrola.z80.se.instructions.SEInstructionFactory.execute()|instanceof MemoryPlusRegister8BitReference
+2	translation/se/src/main/java/com/fpetrola/z80/se/instructions/SEInstructionFactory.java|com.fpetrola.z80.se.instructions.SEInstructionFactory.execute()|instanceof Register
+1	translation/translator/src/main/java/com/fpetrola/z80/bytecode/examples/RemoteZ80Translator.java|com.fpetrola.z80.bytecode.examples.RemoteZ80Translator.Forks.exploreUntakenBranch(OOZ80, ConditionalInstruction, int, int, StackAnalyzer, int)|instanceof Call
+1	translation/translator/src/main/java/com/fpetrola/z80/bytecode/examples/RemoteZ80Translator.java|com.fpetrola.z80.bytecode.examples.RemoteZ80Translator.Forks.exploreUntakenBranch(OOZ80, ConditionalInstruction, int, int, StackAnalyzer, int)|instanceof ConditionalInstruction
+1	translation/translator/src/main/java/com/fpetrola/z80/bytecode/examples/RemoteZ80Translator.java|com.fpetrola.z80.bytecode.examples.RemoteZ80Translator.Forks.exploreUntakenBranch(OOZ80, ConditionalInstruction, int, int, StackAnalyzer, int)|instanceof Halt
+1	translation/translator/src/main/java/com/fpetrola/z80/bytecode/examples/RemoteZ80Translator.java|com.fpetrola.z80.bytecode.examples.RemoteZ80Translator.Forks.exploreUntakenBranch(OOZ80, ConditionalInstruction, int, int, StackAnalyzer, int)|instanceof JP
+1	translation/translator/src/main/java/com/fpetrola/z80/bytecode/examples/RemoteZ80Translator.java|com.fpetrola.z80.bytecode.examples.RemoteZ80Translator.Forks.exploreUntakenBranch(OOZ80, ConditionalInstruction, int, int, StackAnalyzer, int)|instanceof Register
+3	translation/translator/src/main/java/com/fpetrola/z80/bytecode/examples/RemoteZ80Translator.java|com.fpetrola.z80.bytecode.examples.RemoteZ80Translator.Forks.exploreUntakenBranch(OOZ80, ConditionalInstruction, int, int, StackAnalyzer, int)|instanceof Ret
+1	translation/translator/src/main/java/com/fpetrola/z80/bytecode/examples/RemoteZ80Translator.java|com.fpetrola.z80.bytecode.examples.RemoteZ80Translator.instructionFetchedAt(int, Instruction)|instanceof JP
+1	translation/translator/src/main/java/com/fpetrola/z80/bytecode/examples/RemoteZ80Translator.java|com.fpetrola.z80.bytecode.examples.RemoteZ80Translator.instructionFetchedAt(int, Instruction)|instanceof Register
+1	translation/translator/src/main/java/com/fpetrola/z80/bytecode/examples/RemoteZ80Translator.java|com.fpetrola.z80.bytecode.examples.RemoteZ80Translator.instructionFetchedAt(int, Instruction)|instanceof Ret
+1	translation/translator/src/main/java/com/fpetrola/z80/bytecode/examples/RemoteZ80Translator.java|com.fpetrola.z80.bytecode.examples.RemoteZ80Translator.isUntakenBranchCandidate(Instruction)|instanceof ConditionAlwaysTrue
+1	translation/translator/src/main/java/com/fpetrola/z80/bytecode/examples/RemoteZ80Translator.java|com.fpetrola.z80.bytecode.examples.RemoteZ80Translator.isUntakenBranchCandidate(Instruction)|instanceof ConditionalInstruction<?>
+1	translation/translator/src/main/java/com/fpetrola/z80/bytecode/examples/RemoteZ80Translator.java|com.fpetrola.z80.bytecode.examples.RemoteZ80Translator.isUntakenBranchCandidate(Instruction)|instanceof Register
+1	translation/translator/src/main/java/com/fpetrola/z80/bytecode/examples/RemoteZ80Translator.java|com.fpetrola.z80.bytecode.examples.RemoteZ80Translator.isUntakenBranchCandidate(Instruction)|instanceof Ret
+1	translation/translator/src/main/java/com/fpetrola/z80/minizx/SpectrumApplication.java|com.fpetrola.z80.minizx.SpectrumApplication.executeMutantCode(int)|instanceof Call
+1	translation/translator/src/main/java/com/fpetrola/z80/minizx/SpectrumApplication.java|com.fpetrola.z80.minizx.SpectrumApplication.executeMutantCode(int)|instanceof Halt
+1	translation/translator/src/main/java/com/fpetrola/z80/minizx/SpectrumApplication.java|com.fpetrola.z80.minizx.SpectrumApplication.executeMutantCode(int)|instanceof Ret
+1	translation/translator/src/main/java/com/fpetrola/z80/minizx/SpectrumApplication.java|com.fpetrola.z80.minizx.SpectrumApplication.loadState(State)|instanceof MockedMemory
+1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/EmulatedMiniZX.java|com.fpetrola.z80.minizx.emulation.EmulatedMiniZX.afterExecution(Instruction)|instanceof MockedMemory
+1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/EmulatedMiniZX.java|com.fpetrola.z80.minizx.emulation.EmulatedMiniZX.afterExecution(Instruction)|instanceof Out
+1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/PlayTranslatedGame.java|com.fpetrola.z80.minizx.emulation.PlayTranslatedGame.main(String[])|instanceof com.fpetrola.z80.minizx.StackException
+1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/finders/MemoryRangesFinder.java|com.fpetrola.z80.minizx.emulation.finders.MemoryRangesFinder.afterExecution(Instruction)|instanceof TargetSourceInstruction<?>
+1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/finders/MemoryRangesFinder.java|com.fpetrola.z80.minizx.emulation.finders.MemoryRangesFinder.getAccessedAddress(ImmutableOpcodeReference)|instanceof IndirectMemory16BitReference
+1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/finders/MemoryRangesFinder.java|com.fpetrola.z80.minizx.emulation.finders.MemoryRangesFinder.getAccessedAddress(ImmutableOpcodeReference)|instanceof IndirectMemory8BitReference
+1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/finders/MemoryRangesFinder.java|com.fpetrola.z80.minizx.emulation.finders.MemoryRangesFinder.getAccessedAddress(ImmutableOpcodeReference)|instanceof MemoryPlusRegister8BitReference
+1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/finders/MemoryRangesFinder.java|com.fpetrola.z80.minizx.emulation.finders.MemoryRangesFinder.isMemoryAccess(ImmutableOpcodeReference)|instanceof IndirectMemory16BitReference
+1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/finders/MemoryRangesFinder.java|com.fpetrola.z80.minizx.emulation.finders.MemoryRangesFinder.isMemoryAccess(ImmutableOpcodeReference)|instanceof IndirectMemory8BitReference
+1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/finders/MemoryRangesFinder.java|com.fpetrola.z80.minizx.emulation.finders.MemoryRangesFinder.isMemoryAccess(ImmutableOpcodeReference)|instanceof MemoryPlusRegister8BitReference
+2	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/finders/StructureFinder.java|com.fpetrola.z80.minizx.emulation.finders.StructureFinder.afterExecution(Instruction)|instanceof IndirectMemory8BitReference
+1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/finders/StructureFinder.java|com.fpetrola.z80.minizx.emulation.finders.StructureFinder.afterExecution(Instruction)|instanceof Ld
+2	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/finders/StructureFinder.java|com.fpetrola.z80.minizx.emulation.finders.StructureFinder.afterExecution(Instruction)|instanceof MemoryPlusRegister8BitReference
+1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/finders/StructureFinder.java|com.fpetrola.z80.minizx.emulation.finders.StructureFinder.findPaths(ImmutableOpcodeReference)|instanceof Ld
+1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/finders/StructureFinder.java|com.fpetrola.z80.minizx.emulation.finders.StructureFinder.findPaths(ImmutableOpcodeReference)|instanceof Pop
+1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/finders/Z80Rewinder.java|com.fpetrola.z80.minizx.emulation.finders.Z80Rewinder.createStateDelta(OOZ80)|instanceof RepeatingInstruction
+1	translation/translator/src/main/java/com/fpetrola/z80/routines/InputOutputDetector.java|com.fpetrola.z80.routines.InputOutputDetector.addReturnValues(VirtualRegister)|instanceof Virtual8BitsRegister
+1	translation/translator/src/main/java/com/fpetrola/z80/routines/InputOutputDetector.java|com.fpetrola.z80.routines.InputOutputDetector.addReturnValues(VirtualRegister)|instanceof VirtualComposed16BitRegister
+1	translation/translator/src/main/java/com/fpetrola/z80/routines/InputOutputDetector.java|com.fpetrola.z80.routines.InputOutputDetector.visitRegister(Register)|instanceof VirtualRegister
+1	translation/translator/src/main/java/io/korhner/asciimg/utils/GifDecoder.java|io.korhner.asciimg.utils.GifDecoder.read(InputStream)|instanceof BufferedInputStream
+1	translation/virtual/src/main/java/com/fpetrola/z80/bytecode/VirtualRegistersRegistersSetter.java|com.fpetrola.z80.bytecode.VirtualRegistersRegistersSetter.getRegister(RegisterName)|instanceof RegisterPair
+1	translation/virtual/src/main/java/com/fpetrola/z80/bytecode/generators/VirtualRoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.VirtualRoutineBytecodeGenerator.getExistingVariable(VirtualRegister)|instanceof VariableDelegator
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/ByteCodeGeneratorVisitorLevel1.java|com.fpetrola.z80.transformations.ByteCodeGeneratorVisitorLevel1.visitingLd(Ld)|instanceof Register
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/InstructionActionExecutor.java|com.fpetrola.z80.transformations.InstructionActionExecutor.executeAction(Object)|instanceof IndirectMemory16BitReference
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/InstructionActionExecutor.java|com.fpetrola.z80.transformations.InstructionActionExecutor.executeAction(Object)|instanceof IndirectMemory8BitReference
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/InstructionActionExecutor.java|com.fpetrola.z80.transformations.InstructionActionExecutor.executeAction(Object)|instanceof MemoryPlusRegister8BitReference
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/InstructionActionExecutor.java|com.fpetrola.z80.transformations.InstructionActionExecutor.executeAction(Object)|instanceof VirtualRegister
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/InstructionActionExecutor.java|com.fpetrola.z80.transformations.InstructionActionExecutor.visitRegister(Register)|instanceof VirtualRegister
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/TransformerInstructionExecutor.java|com.fpetrola.z80.transformations.TransformerInstructionExecutor.execute(Instruction)|instanceof RepeatingInstruction
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/Virtual8BitsRegister.java|com.fpetrola.z80.transformations.Virtual8BitsRegister.isComposed()|instanceof BitOperation
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/Virtual8BitsRegister.java|com.fpetrola.z80.transformations.Virtual8BitsRegister.isComposed()|instanceof In
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/Virtual8BitsRegister.java|com.fpetrola.z80.transformations.Virtual8BitsRegister.isComposed()|instanceof Ld
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/Virtual8BitsRegister.java|com.fpetrola.z80.transformations.Virtual8BitsRegister.isComposed()|instanceof ParameterizedBinaryAluInstruction
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/Virtual8BitsRegister.java|com.fpetrola.z80.transformations.Virtual8BitsRegister.isComposed()|instanceof ParameterizedUnaryAluInstruction
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/Virtual8BitsRegister.java|com.fpetrola.z80.transformations.Virtual8BitsRegister.isComposed()|instanceof Push
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/Virtual8BitsRegister.java|com.fpetrola.z80.transformations.Virtual8BitsRegister.isComposed()|instanceof RepeatingInstruction
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/Virtual8BitsRegister.java|com.fpetrola.z80.transformations.Virtual8BitsRegister.isComposed()|instanceof VirtualAssignmentInstruction
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/Virtual8BitsRegister.java|com.fpetrola.z80.transformations.Virtual8BitsRegister.isInitialized()|instanceof Ld
+2	translation/virtual/src/main/java/com/fpetrola/z80/transformations/VirtualComposed16BitRegister.java|com.fpetrola.z80.transformations.VirtualComposed16BitRegister.equals(Object)|getClass()==
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/VirtualComposed16BitRegister.java|com.fpetrola.z80.transformations.VirtualComposed16BitRegister.isLdTarget(IVirtual8BitsRegister)|instanceof Ld
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/VirtualRegister.java|com.fpetrola.z80.transformations.VirtualRegister.computeDominators(List, Block)|instanceof CodeBlockType
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/VirtualRegister.java|com.fpetrola.z80.transformations.VirtualRegister.getPrevious(Block)|instanceof CodeBlockType
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/VirtualRegister.java|com.fpetrola.z80.transformations.VirtualRegister.hasNoPrevious()|instanceof InitialVirtualRegister
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/VirtualRegisterFactory.java|com.fpetrola.z80.transformations.VirtualRegisterFactory.buildVirtualRegister(Instruction, Register, VirtualRegisterBuilder)|instanceof IVirtual8BitsRegister
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/VirtualRegisterFactory.java|com.fpetrola.z80.transformations.VirtualRegisterFactory.buildVirtualRegister(Instruction, Register, VirtualRegisterBuilder)|instanceof Ld
+1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/VirtualRegisterFactory.java|com.fpetrola.z80.transformations.VirtualRegisterFactory.createVirtualRegister(Instruction, Register, VirtualFetcher, Instruction)|instanceof RegisterPair

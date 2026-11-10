@@ -245,6 +245,18 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>com.fpetrola</groupId>
+                <artifactId>cerco-maven-plugin</artifactId>
+                <version>0.2.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>dev.crystal.plugins</groupId>
                 <artifactId>framework-maven-plugin</artifactId>
                 <version>0.1.0-SNAPSHOT</version>
