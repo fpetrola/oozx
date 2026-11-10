@@ -72,7 +72,7 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
    */
   @Override
   public String getCurrentModel() {
-    return speccy.machine.current == null ? super.getCurrentModel() : speccy.machine.current.getName();
+    return speccy.machine.running().map(com.fpetrola.oozx.speccy.machine.Spectrum::getName).orElseGet(super::getCurrentModel);
   }
 
   /** The processors this build has, and moving this machine onto one, which it does between instructions. */
@@ -94,14 +94,13 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
   /** The ROM sets this machine can be run on, asked of the machine that is in. */
   @Override
   public java.util.List<String> getRomSets() {
-    return speccy.machine.current == null ? java.util.List.of()
-        : java.util.List.copyOf(speccy.roms.setsFor(speccy.machine.current).keySet());
+    return speccy.machine.running().map(machine -> java.util.List.copyOf(speccy.roms.setsFor(machine).keySet()))
+        .orElse(java.util.List.of());
   }
 
   @Override
   public String getRomSet() {
-    String running = speccy.machine.current == null ? null : speccy.roms.chosenSet(speccy.machine.current);
-    return running == null ? "" : running;
+    return speccy.machine.running().map(speccy.roms::chosenSet).orElse("");
   }
 
   /**
@@ -113,15 +112,16 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
    */
   @Override
   public void setRomSet(String set) {
-    com.fpetrola.oozx.speccy.machine.Spectrum machine = speccy.machine.current;
-    if (machine == null || set == null || set.equals(getRomSet())) return;
-    java.util.List<String> before = speccy.roms.running(machine);
-    speccy.roms.chooseSet(machine, set);
-    if (!com.fpetrola.oozx.speccy.desktop.RomNotShippedDialog.readyFor(speccy.roms, machine)) {
-      speccy.roms.runOn(machine, before);
-      return;
-    }
-    speccy.select(machine);
+    if (set == null || set.equals(getRomSet())) return;
+    speccy.machine.running().ifPresent(machine -> {
+      java.util.List<String> before = speccy.roms.running(machine);
+      speccy.roms.chooseSet(machine, set);
+      if (com.fpetrola.oozx.speccy.desktop.RomNotShippedDialog.readyFor(speccy.roms, machine)) {
+        speccy.select(machine);
+      } else {
+        speccy.roms.runOn(machine, before);
+      }
+    });
   }
 
   /** The machines this build has, so the list is not a copy of them that can go stale. */
@@ -294,7 +294,7 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
         // Also reached when the machine announces itself, which is the machine saying it already
         // is this. Selecting it again from there resets the machine that just started, and the
         // reset announces itself, and so on.
-        if (speccy.machine.current != null && model.equals(speccy.machine.current.getName())) {
+        if (speccy.machine.running().map(com.fpetrola.oozx.speccy.machine.Spectrum::getName).filter(model::equals).isPresent()) {
           return;
         }
         speccy.machine.model(model).ifPresent(type -> {

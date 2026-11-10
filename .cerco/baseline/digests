@@ -232,7 +232,7 @@ fbe5ab6f1fabbe4e762ea3692f42bc8d5172cbe444771a3bcbbdf24314f58580	emulator/src/ma
 db5c9b0ceae6f900fbe96fd0d4ede9088a1301f1226d098307c25dd203b85ab7	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/SwingKeyboard.java
 90e1c1c07e16b59b5dac39e084b3213844d9f74d55464f85b5f2ecd19b3f493e	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/WhatIsPluggedIn.java
 bff66e47a7ee9a2bbbe413fb9bd85cdfcb28523918e8b35f870ddbb9e47052bd	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java
-cfa61a6a82ee5456356397b444050cf4c06b4fc70f1c51b58f38678dda74f8b5	machine/app/src/main/java/com/fpetrola/oozx/speccy/peripherals/SpeccyEmulatorCore.java
+fcafe35d57f63ef18dd460a7f187c4e8d35ce0eb18c25a0d7ca698a23b389b75	machine/app/src/main/java/com/fpetrola/oozx/speccy/peripherals/SpeccyEmulatorCore.java
 291c00fab4c402ddc0e11ce8a270673fb96bf5e61148423674a9d8b87922f296	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/BridgeCommand.java
 21858b97b3dcbcd2c5814882c1948858dcce091bfdb546462d5d24fb6c199d84	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/BridgeResponse.java
 6334ed5a94b1c00c9ce9d36beede29b288a714afade8bdc485b40cfd4f6fdd24	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/CommandData.java
@@ -303,7 +303,7 @@ cf825c7bb705f62bc05998a9b272e586d9ccd4bd5d7d0f025acb1153a7a7d571	machine/core/sr
 a287ccc0b9abd0223ca3fe65d7419e9d49e6b5d4fe78fefbcfac5c45b0fa2266	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/keyboard/KeyMatrix.java
 7276f1ff498b407e8d6e23ddcf62b5db2b819a8fab08efc97784ebeea5c336d3	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/keyboard/SpectrumKey.java
 6299f9efdff442314baed7961e0610a344df73c7863e8984027457ee4dfed01d	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/machine/DefaultMachine.java
-b2186e9b3a56b36fd533a4162ae1c51b438c2213fdfe17e392bcd09d9fc0fe3b	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/machine/Machine.java
+959569697d03f06e0880adad81226caa6308240dcbc2d9a198db049b3cad2d5c	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/machine/Machine.java
 7ce72ea234c24015bfdb662c8377877fb10bcfdd31c9e683d27968259bc30b81	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/machine/MachineChangeListener.java
 b258c187e3916b7c1fcb21d59a3905dc7e96d106ecac10e4274bbea59d09bf53	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/memory/DecodedMemoryBus.java
 6fb2eeb396825633da91296b0bee7b6d979beb5c9bc29b2a34f037d3dba1a172	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/memory/MappedMemory.java
@@ -412,7 +412,7 @@ d237ca83c83c3f9f80257cafa7a945fa2f9d94178a198c7cdf7fa2ff6fecf978	machine/machine
 64160bd46d7129b7e731940e82749302fd4e72e276b1d40f97d082598ab0d069	machine/media/snapshot/src/main/java/com/fpetrola/oozx/speccy/media/snapshot/ASnapshotStartsAMachine.java
 b644abc1021998458b21ab4a492b4cebe53a18db995dd1bee112bbe610e5b7b6	machine/media/snapshot/src/main/java/com/fpetrola/oozx/speccy/media/snapshot/SnapshotMedia.java
 76d6b10f337f1d2a7c8856137674378b0d2c0bce282de2ef3b8c27585c501d1a	machine/media/snapshot/src/main/java/com/fpetrola/oozx/speccy/modules/snapshot/RestoredFromASnapshot.java
-8495b6c9efaecbb7f84a2504279a5fecfc4012011e67e0e7caf3362794f56f3c	machine/media/snapshot/src/main/java/com/fpetrola/oozx/speccy/modules/snapshot/Snapshots.java
+c3fb97403682fd35e121d8ff6107d68586fef1448264fdf50d8f3325a71becc6	machine/media/snapshot/src/main/java/com/fpetrola/oozx/speccy/modules/snapshot/Snapshots.java
 6f96b53ff54958809b847bd8dbe8565b4c9238e2383aa8ee3ebc4d3155b1c966	machine/spectrum/src/main/java/com/fpetrola/emulation/SnapshotUnicodePacker.java
 78ec4f0c80442362f040110c9427db3c0699af7ee93c7ba934a20baf0922fa26	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/machine/JoystickModel.java
 8ff6b2a0a2d3bbb43514e9f5e1738371c670b1515e214711164b429eaa4d0326	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/machine/MachineTypes.java

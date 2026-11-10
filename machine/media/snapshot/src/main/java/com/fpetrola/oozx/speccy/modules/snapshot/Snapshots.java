@@ -276,7 +276,7 @@ public class Snapshots extends AbstractPeripheral {
    */
   private void selectMachineFor(SpectrumState snapshot) {
     MachineTypes wanted = snapshot.getSpectrumModel();
-    if (machine.current != null && machine.current.snapshotModel() == wanted) {
+    if (machine.running().filter(running -> running.snapshotModel() == wanted).isPresent()) {
       return;
     }
     machine.forSnapshotModel(wanted).ifPresentOrElse(type -> {
@@ -284,7 +284,7 @@ public class Snapshots extends AbstractPeripheral {
       machine.select(type);
     }, () -> TellsThePerson.thisBuildCannot(("This snapshot was taken on a %s, and this build carries no machine that runs its code. "
         + "It was loaded into the %s that was already running, where it will most likely show nothing at all.").formatted(
-        wanted.getLongModelName(), machine.current == null ? "machine" : machine.current.getName()), wanted.name()));
+        wanted.getLongModelName(), machine.running().map(com.fpetrola.oozx.speccy.machine.Spectrum::getName).orElse("machine")), wanted.name()));
   }
 
   /**

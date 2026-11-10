@@ -91,6 +91,11 @@ public class Machine implements com.fpetrola.oozx.speccy.parts.Visitable {
   }
 
   /** The model this build has by that name, if it has one. */
+  /** The machine this is now, or none before the first one is selected. */
+  public Optional<Spectrum> running() {
+    return Optional.ofNullable(current);
+  }
+
   public java.util.Optional<Spectrum> model(String name) {
     return machineTypes.stream().filter(model -> model.getName().equals(name)).findFirst();
   }
