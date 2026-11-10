@@ -156,6 +156,21 @@ public class Speccy {
     peripheralRegistry.accept(visitor);
   }
 
+  /** Becomes that model, between two frames: what changes the machine is done on its own loop. */
+  public void select(SpectrumMachine type) {
+    loop.later(() -> machine.select(type));
+  }
+
+  /** The reset button, pressed between two frames. */
+  public void reset() {
+    loop.later(() -> machine.reset(true));
+  }
+
+  /** Runs at that speed from the next frame on. */
+  public void changeSpeed(int emulationSpeed) {
+    loop.later(() -> timer.changeSpeed(emulationSpeed));
+  }
+
   public boolean isAlive() {
     return session.isAlive();
   }

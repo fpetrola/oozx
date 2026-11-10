@@ -88,7 +88,7 @@ public abstract class DeviceFrame<P extends Peripheral & Pluggable> extends Mach
       chosen.add(chooser.getSelectedFile().getPath());
     }
     machine().roms.runOn(device, chosen);
-    machine().loop.later(() -> machine().machine.reset(true));
+    machine().reset();
   }
 
   @Override

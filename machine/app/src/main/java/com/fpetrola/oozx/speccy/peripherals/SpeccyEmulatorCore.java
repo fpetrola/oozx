@@ -121,7 +121,7 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
       speccy.roms.runOn(machine, before);
       return;
     }
-    speccy.loop.later(() -> speccy.machine.select(machine));
+    speccy.select(machine);
   }
 
   /** The machines this build has, so the list is not a copy of them that can go stale. */
@@ -210,7 +210,7 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
    */
   @Override
   public void resetEmulation() {
-    speccy.loop.later(() -> speccy.machine.reset(true));
+    speccy.reset();
     notifyStateChange("Reset");
   }
 
@@ -221,7 +221,7 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
   }
 
   public void changeSpeed1(int emulationSpeed) {
-    speccy.loop.later(() -> speccy.timer.changeSpeed(emulationSpeed));
+    speccy.changeSpeed(emulationSpeed);
     notifyTurboModeChange(turbo);
     notifyEmulationSpeedChange(emulationSpeed);
   }
@@ -306,7 +306,7 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
               // machine became a 48K on the way, said so, and every box showing the model flicked
               // to "Spectrum 48K" and back - and selecting a machine already clears the
               // peripherals, the clock and the timetable, so the trip bought nothing.
-              speccy.loop.later(() -> speccy.machine.select(type));
+              speccy.select(type);
             });
       }
 
