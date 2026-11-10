@@ -19,6 +19,7 @@ Composed16BitRegister.update8Bits borrowed the half's mode from outside (read th
 back) for every write of a pair while listening. A write nobody hears is an operation of the observable register,
 which owns both the switch and the listeners; it was spelled as three calls on its switch by the one class that
 needed it. It is now `writeUnheard(int)` on ObservableRegister.
+model: protocol-by-convention
 
 ## Context
 

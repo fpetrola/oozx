@@ -20,6 +20,7 @@ pauses the loop does only the first half and nobody hears it: Cpu.stopHere for a
 restores a machine paused, the debugger plugin. The announcement was not part of the change, so it lived with each
 caller. The three copies are now one `paused(boolean)` in SpeccyEmulatorCore; the loop itself still does not announce,
 which is the part of the model still missing.
+model: protocol-by-convention
 
 ## Context
 

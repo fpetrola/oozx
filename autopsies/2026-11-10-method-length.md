@@ -20,6 +20,7 @@ close, and a machine's own window asked the desk for its machine by handing over
 what the key already held. Now EmulatorCore answers `machine()` (none for the defaults' core and for test cores),
 SpeccyEmulatorCore gives its own, the window asks its core, and the map, the registration in the launcher and in
 show(), and machineOf are gone; OOSpectrumLauncher.init lost a line and came under its length ceiling.
+model: knowledge-without-one-owner
 
 ## Context
 

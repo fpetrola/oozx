@@ -13,6 +13,7 @@ instruction, but the model had no place for it, so the CPU loop recognised EI by
 behind it has no owner at all: a flag `pendingEI` lives in State, the CPU loop reads it and switches it off, the
 snapshot code copies it, and nothing in normal execution ever switches it on - EI.execute only sets iff1/iff2. The
 type test was guarding a state machine that only exists half-written, spread over four classes.
+model: dispatch-from-outside
 
 ## Context
 

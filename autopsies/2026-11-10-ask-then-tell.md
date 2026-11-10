@@ -21,6 +21,7 @@ by one although State.resetInterrupt already did exactly that (DI uses it), and 
 protocol of the flip-flops lived in three callers and only one of them reused what State had. Now State owns
 `takeNMI()`, `enterNMI()` and `leaveNMI()`, doInt calls `resetInterrupt()`, and what the INT and NMI acceptance
 share (wake from HALT, R incremented, PC pushed) is one `accept()` in OOZ80 instead of two copies.
+model: behaviour-not-on-owner
 
 ## Context
 

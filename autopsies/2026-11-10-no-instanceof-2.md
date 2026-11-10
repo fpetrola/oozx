@@ -26,6 +26,7 @@ the machines put away at exit, the window behind a core, and twice "the machine 
 two different answers (getActiveEmulator: selected or first visible; machineBeingUsed: selected or the machine the
 selected window is clipped onto), so a tool shortcut and a key could reach different machines. The desk now keeps
 its machines in a list, joined and left in onTheDesk, and has one machineBeingUsed for tools, keys and equipment.
+model: structure-walked-from-outside
 
 ## Context
 

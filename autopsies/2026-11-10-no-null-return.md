@@ -17,6 +17,7 @@ Same fix as 2026-11-10-no-instanceof-2, seen by no-null-return: the null came fr
 machine in use, which walked the desk's frames, tested each for EmulatorInternalFrame, cast it after the test and
 returned null when there was none. With the desk keeping its machines and answering one machineBeingUsed, the
 method is gone: the list already holds the right type, so there is nothing to cast, and its one null went with it.
+model: structure-walked-from-outside
 
 ## Context
 

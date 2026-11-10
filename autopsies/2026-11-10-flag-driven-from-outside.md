@@ -26,6 +26,7 @@ third caller, the scratch machine that prices instructions in UncontendedTiming,
 Each caller asked State whether it was halted and then told it what to be, so the transition belonged to whoever
 needed it and nobody owned it. State now has halt() and wake(): wake does both halves of leaving HALT, so neither
 interrupt path can forget the PC step.
+model: state-without-an-object
 
 ## Context
 

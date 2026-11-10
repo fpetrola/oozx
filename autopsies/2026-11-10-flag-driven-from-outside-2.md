@@ -22,6 +22,7 @@ with bare setters because State had no operation for the transitions. On a maska
 copying it to IFF2; and before taking an NMI it cleared the latch it had just read. Three transitions of the
 interrupt flip-flops and the NMI latch, each written by the CPU loop instead of being named by the state that holds
 them. They are now `resetInterrupt()`, `enterNMI()` and `takeNMI()` on State.
+model: behaviour-not-on-owner
 
 ## Context
 
