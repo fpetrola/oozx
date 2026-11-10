@@ -82,4 +82,12 @@ public abstract class ObservableRegister extends NamedRegister {
     public boolean isListening() {
         return listening;
     }
+
+    /** A write its listeners do not hear, for a half whose pair already told its own. */
+    public void writeUnheard(int value) {
+        boolean heard = listening;
+        listening = false;
+        write(value);
+        listening = heard;
+    }
 }

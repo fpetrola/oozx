@@ -67,11 +67,7 @@ public class Composed16BitRegister<R extends Register> extends ObservableRegiste
     }
 
     private void update8Bits(int value, R register) {
-        ObservableRegister Register8Bits = (ObservableRegister) register;
-        boolean listening = Register8Bits.isListening();
-        Register8Bits.setListening(false);
-        Register8Bits.write(value);
-        Register8Bits.setListening(listening);
+        ((ObservableRegister) register).writeUnheard(value);
     }
 
     public R getHigh() {
