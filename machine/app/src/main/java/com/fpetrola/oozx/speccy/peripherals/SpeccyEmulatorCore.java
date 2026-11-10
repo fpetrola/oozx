@@ -41,6 +41,11 @@ import java.io.File;
 public class SpeccyEmulatorCore extends MockEmulatorCore {
   private final Speccy speccy;
 
+  @Override
+  public java.util.Optional<Speccy> machine() {
+    return java.util.Optional.of(speccy);
+  }
+
   public SpeccyEmulatorCore(Speccy speccy) {
     super(new SpeccyScreen(speccy.picture.pixels, com.fpetrola.oozx.speccy.modules.display.Picture.STRIDE));
     this.speccy = speccy;

@@ -87,7 +87,7 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
   }
 
   public com.fpetrola.oozx.Speccy machine() {
-    return parentApp.machineOf(this);
+    return emulatorCore.machine().orElse(null);
   }
 
   /** The toolbar's small change lives below this now; these keep the name every caller here uses. */
@@ -869,34 +869,19 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     playRecording(label, url, null);
   }
 
-  /** The machine behind each core, forgotten when its window closes. */
-  private final java.util.Map<EmulatorCore, com.fpetrola.oozx.Speccy> machinesByCore =
-      new java.util.HashMap<>();
-
   /** The machines' windows on the desk, among everything else it holds. */
   private final List<EmulatorInternalFrame> machines = new ArrayList<>();
-
-  /** The emulator behind a window, for a peripheral that has to reach the machine it is clipped to. */
-  public void registerMachine(EmulatorCore core, com.fpetrola.oozx.Speccy speccy) {
-    machinesByCore.put(core, speccy);
-  }
 
   /**
    * Lo que se cerro deja de estar anotado.
    * <p>
-   * Una maquina cerrada seguia en este mapa, y una ventana de un plugin en el de lo que hay
-   * abierto, asi que nada de eso se moria: ni la maquina, ni sus perifericos, ni el plugin que
-   * trajo la ventana, ni el cargador de ese plugin. Sacar un plugin no podia funcionar porque
-   * algo cerrado seguia usandolo.
+   * Una ventana de un plugin cerrada seguia en el mapa de lo que hay abierto, asi que no se
+   * moria ni ella, ni el plugin que la trajo, ni el cargador de ese plugin: sacar un plugin no
+   * podia funcionar porque algo cerrado seguia usandolo.
    */
-  private void forgetWhatIsClosed(EmulatorCore closed) {
-    machinesByCore.remove(closed);
+  private void forgetWhatIsClosed() {
     equipment.values().forEach(open -> open.removeIf(JInternalFrame::isClosed));
     equipment.values().removeIf(java.util.List::isEmpty);
-  }
-
-  public com.fpetrola.oozx.Speccy machineOf(JInternalFrame window) {
-    return machine(window).map(emulator -> machinesByCore.get(emulator.emulatorCore)).orElse(null);
   }
 
   /** The core behind a machine's window, for a window that configures whichever it is clipped onto. */
@@ -1027,7 +1012,6 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     com.fpetrola.oozx.speccy.peripherals.SpeccyEmulatorCore core =
         new com.fpetrola.oozx.speccy.peripherals.SpeccyEmulatorCore(machine);
     machine.control = core;
-    registerMachine(core, machine);
     EmulatorInternalFrame window = createNewEmulator(core);
     window.setTitle(title);
     // Put the picture straight above the controls that were already on screen, so the pair comes
@@ -1553,7 +1537,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
         machines.remove(frame);
         core.finishEmulation();
         frame.stopsBeingTold();
-        forgetWhatIsClosed(core);
+        forgetWhatIsClosed();
         WhatIsPluggedIn.theOne().tools().forEach(tool -> tool.closed(frame));
         frame.letGoOfTheMachine();
         frame.removeInternalFrameListener(this);

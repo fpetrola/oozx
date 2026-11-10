@@ -26,6 +26,11 @@ import java.util.List;
 
 /** A machine as a window has it: everything you can do to one, plus the picture and the keys. */
 public interface EmulatorCore extends EmulatorControl {
+
+  /** The machine this core drives; none for one that only stands for the defaults or for a test. */
+  default java.util.Optional<com.fpetrola.oozx.Speccy> machine() {
+    return java.util.Optional.empty();
+  }
   JComponent getPanel();
 
   /**

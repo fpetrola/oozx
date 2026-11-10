@@ -3,7 +3,6 @@
 79	emulator/src/main/java/com/fpetrola/z80/opcodes/decoder/table/UnprefixedTableOpCodeGenerator.java|com.fpetrola.z80.opcodes.decoder.table.UnprefixedTableOpCodeGenerator.getOpcode()
 47	emulator/src/main/java/com/fpetrola/z80/registers/InvertedComposed16BitRegister.java|com.fpetrola.z80.registers.InvertedComposed16BitRegister.InvertedComposed16BitRegister(String, RegisterName, RegisterName)
 80	emulator/src/main/java/com/fpetrola/z80/registers/RegisterBank.java|com.fpetrola.z80.registers.RegisterBank.get(RegisterName)
-41	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java|com.fpetrola.oozx.speccy.desktop.OOSpectrumLauncher.init()
 46	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.EmulatorInternalFrame.EmulatorInternalFrame(EmulatorCore, int, int, ZXSpectrumDesktopApp, Desk.Game)
 47	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.ZXSpectrumDesktopApp(java.util.function.BiFunction, Function)
 58	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.createNewEmulator(EmulatorCore, String, Desk.Game)

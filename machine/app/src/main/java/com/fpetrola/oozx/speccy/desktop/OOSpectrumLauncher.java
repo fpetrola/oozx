@@ -54,11 +54,10 @@ public class OOSpectrumLauncher {
 
     ZXSpectrumDesktopApp[] appHolder = new ZXSpectrumDesktopApp[1];
 
-    // Both ways of building a machine end here, so it is known however it was built.
+    // Both ways of building a machine end here, so its core drives it however it was built.
     java.util.function.Function<Speccy, EmulatorCore> known = speccy -> {
       EmulatorCore core = new com.fpetrola.oozx.speccy.peripherals.SpeccyEmulatorCore(speccy);
       speccy.control = core;
-      appHolder[0].registerMachine(core, speccy);
       return core;
     };
 
