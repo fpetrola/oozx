@@ -247,7 +247,7 @@
             <plugin>
                 <groupId>com.fpetrola</groupId>
                 <artifactId>cerco-maven-plugin</artifactId>
-                <version>0.6.0</version>
+                <version>0.7.0</version>
                 <executions>
                     <execution>
                         <goals>
