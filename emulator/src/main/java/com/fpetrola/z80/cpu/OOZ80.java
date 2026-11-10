@@ -49,8 +49,7 @@ public class OOZ80 implements Z80Cpu {
 
   @Override
   public void execute() {
-    if (state.isActiveNMI()) {
-      state.setActiveNMI(false);
+    if (state.takeNMI()) {
       nmi();
       return;
     }
@@ -87,12 +86,8 @@ public class OOZ80 implements Z80Cpu {
   }
 
   private void doInt() {
-    state.wake();
-    Register pc = state.getPc();
-    state.getRegisterR().increment();
-    Push.doPush(pc.read(), state.getRegisterSP(), state.getMemory());
-    state.setIff1(false);
-    state.setIff2(false);
+    Register pc = accept();
+    state.resetInterrupt();
 
     int value;
     if (state.getInterruptionMode() == IM2) {
@@ -112,13 +107,18 @@ public class OOZ80 implements Z80Cpu {
    * IFF1 copied into IFF2 and cleared, PC pushed, and off to 0x0066.
    */
   public void nmi() {
+    Register pc = accept();
+    state.enterNMI();
+    pc.write(0x0066);
+  }
+
+  /** What taking any interrupt does first: out of HALT, R counts the acknowledge, PC pushed. */
+  private Register accept() {
     state.wake();
     Register pc = state.getPc();
     state.getRegisterR().increment();
     Push.doPush(pc.read(), state.getRegisterSP(), state.getMemory());
-    state.setIff2(state.isIff1());
-    state.setIff1(false);
-    pc.write(0x0066);
+    return pc;
   }
 
   public void update() {

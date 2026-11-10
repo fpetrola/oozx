@@ -158,6 +158,23 @@ public class State {
     iff1 = iff2 = false;
   }
 
+  /** The NMI pin is an edge: latched until the CPU takes it, between two instructions, once. */
+  public boolean takeNMI() {
+    boolean taken = activeNMI;
+    activeNMI = false;
+    return taken;
+  }
+
+  /** An NMI keeps IFF1 in IFF2 for RETN to bring back, and masks INT meanwhile. */
+  public void enterNMI() {
+    iff2 = iff1;
+    iff1 = false;
+  }
+
+  public void leaveNMI() {
+    iff1 = iff2;
+  }
+
   public String toString() {
     return "registers=" + registers + ", halted=" + halted + ", iff1=" + isIff1() + ", iff2=" + isIff2();
   }

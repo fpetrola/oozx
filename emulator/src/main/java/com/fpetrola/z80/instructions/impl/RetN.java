@@ -32,7 +32,7 @@ public class RetN extends Ret {
   }
 
   public void execute() {
-    state.setIff1(state.isIff2());
+    state.leaveNMI();
     super.execute();
   }
 }

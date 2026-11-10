@@ -1,4 +1,4 @@
-// Written by the build from the model, not by hand. Model: b0a352a299943576
+// Written by the build from the model, not by hand. Model: 90dddff636c8dcf9
 
 package com.fpetrola.oozx.generated;
 
@@ -16228,7 +16228,7 @@ static final int[] SZ53 = new int[0x100];
       }
       case 0x45: {
           int _nextPC1812;
-          state.setIff1(state.isIff2());
+          state.leaveNMI();
           int jumpAddress2_3688;
           int wordNumber1_3690 = read(SP, 0);
           int wordNumber_3691 = read((SP + 1) & 0xFFFF, 0);
@@ -16332,7 +16332,7 @@ static final int[] SZ53 = new int[0x100];
       }
       case 0x4D: {
           int _nextPC1824;
-          state.setIff1(state.isIff2());
+          state.leaveNMI();
           int jumpAddress2_3729;
           int wordNumber1_3731 = read(SP, 0);
           int wordNumber_3732 = read((SP + 1) & 0xFFFF, 0);
@@ -16442,7 +16442,7 @@ static final int[] SZ53 = new int[0x100];
       }
       case 0x55: {
           int _nextPC1836;
-          state.setIff1(state.isIff2());
+          state.leaveNMI();
           int jumpAddress2_3768;
           int wordNumber1_3770 = read(SP, 0);
           int wordNumber_3771 = read((SP + 1) & 0xFFFF, 0);
@@ -16553,7 +16553,7 @@ static final int[] SZ53 = new int[0x100];
       }
       case 0x5D: {
           int _nextPC1849;
-          state.setIff1(state.isIff2());
+          state.leaveNMI();
           int jumpAddress2_3816;
           int wordNumber1_3818 = read(SP, 0);
           int wordNumber_3819 = read((SP + 1) & 0xFFFF, 0);
@@ -16662,7 +16662,7 @@ static final int[] SZ53 = new int[0x100];
       }
       case 0x65: {
           int _nextPC1862;
-          state.setIff1(state.isIff2());
+          state.leaveNMI();
           int jumpAddress2_3862;
           int wordNumber1_3864 = read(SP, 0);
           int wordNumber_3865 = read((SP + 1) & 0xFFFF, 0);
@@ -16782,7 +16782,7 @@ static final int[] SZ53 = new int[0x100];
       }
       case 0x6D: {
           int _nextPC1875;
-          state.setIff1(state.isIff2());
+          state.leaveNMI();
           int jumpAddress2_3914;
           int wordNumber1_3916 = read(SP, 0);
           int wordNumber_3917 = read((SP + 1) & 0xFFFF, 0);
@@ -16897,7 +16897,7 @@ static final int[] SZ53 = new int[0x100];
       }
       case 0x75: {
           int _nextPC1888;
-          state.setIff1(state.isIff2());
+          state.leaveNMI();
           int jumpAddress2_3962;
           int wordNumber1_3964 = read(SP, 0);
           int wordNumber_3965 = read((SP + 1) & 0xFFFF, 0);
@@ -16996,7 +16996,7 @@ static final int[] SZ53 = new int[0x100];
       }
       case 0x7D: {
           int _nextPC1900;
-          state.setIff1(state.isIff2());
+          state.leaveNMI();
           int jumpAddress2_4001;
           int wordNumber1_4003 = read(SP, 0);
           int wordNumber_4004 = read((SP + 1) & 0xFFFF, 0);

@@ -1,10 +1,6 @@
 # cerco baseline v1 flag-driven-from-outside: count, key
-1	emulator/src/main/java/com/fpetrola/z80/cpu/OOZ80.java|com.fpetrola.z80.cpu.OOZ80.doInt()|state.setIff1(false)
-1	emulator/src/main/java/com/fpetrola/z80/cpu/OOZ80.java|com.fpetrola.z80.cpu.OOZ80.doInt()|state.setIff2(false)
-1	emulator/src/main/java/com/fpetrola/z80/cpu/OOZ80.java|com.fpetrola.z80.cpu.OOZ80.execute()|state.setActiveNMI(false)
 1	emulator/src/main/java/com/fpetrola/z80/cpu/OOZ80.java|com.fpetrola.z80.cpu.OOZ80.interruption()|getState().setINTLine(false)
 1	emulator/src/main/java/com/fpetrola/z80/cpu/OOZ80.java|com.fpetrola.z80.cpu.OOZ80.interruption()|getState().setINTLine(true)
-1	emulator/src/main/java/com/fpetrola/z80/cpu/OOZ80.java|com.fpetrola.z80.cpu.OOZ80.nmi()|state.setIff1(false)
 1	emulator/src/main/java/com/fpetrola/z80/registers/Composed16BitRegister.java|com.fpetrola.z80.registers.Composed16BitRegister.update8Bits(int, R)|Register8Bits.setListening(false)
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/peripherals/SpeccyEmulatorCore.java|com.fpetrola.oozx.speccy.peripherals.SpeccyEmulatorCore.resumeEmulation()|speccy.loop.setPaused(false)
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotLoader.java|com.fpetrola.emulation.helpers.snapshots.SnapshotLoader.setZ80State(RegistersSetter, Z80State)|registersBase.setFlagQ(false)

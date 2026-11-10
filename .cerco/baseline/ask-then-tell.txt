@@ -1,3 +1,2 @@
 # cerco baseline v1 ask-then-tell: count, key
-1	emulator/src/main/java/com/fpetrola/z80/cpu/OOZ80.java|com.fpetrola.z80.cpu.OOZ80.execute()|state.setActiveNMI(false)
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotZ80.java|com.fpetrola.emulation.helpers.snapshots.SnapshotZ80.loadFromStream()|z80.setRegPC((z80Header2[0] & 0xff) | (z80Header2[1] << 8))
