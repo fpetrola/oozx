@@ -1,0 +1,2 @@
+# cerco baseline v1 notified-by-caller: count, key
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/peripherals/SpeccyEmulatorCore.java|com.fpetrola.oozx.speccy.peripherals.SpeccyEmulatorCore.paused(boolean)|speccy.loop.setPaused(paused)

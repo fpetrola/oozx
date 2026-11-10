@@ -21,5 +21,6 @@ no-switch
 no-type-code
 no-type-keyed-map
 no-utility-class
+notified-by-caller
 parseable
 property-shuffle
