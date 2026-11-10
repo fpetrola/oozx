@@ -25,7 +25,6 @@ public interface Z80Cpu {
 
   void interruption();
 
-  void endInterruption();
 
   InstructionFetcher getInstructionFetcher();
 

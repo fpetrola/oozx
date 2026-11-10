@@ -124,7 +124,7 @@ public class Cpu implements com.fpetrola.oozx.speccy.parts.Visitable {
      * The line was pulled by the machine and is still down for as long as it said.
      */
     private void takeInterruptIfTheLineIsStillDown() {
-        if (getOoz80().getState().isIff1() && zxClock.getTStates() < interruptLength) {
+        if (getOoz80().getState().acceptsInterrupt() && zxClock.getTStates() < interruptLength) {
             zxClock.acknowledge(7);
             getOoz80().interruption();
             whenTaken.forEach(Runnable::run);
@@ -252,7 +252,12 @@ public class Cpu implements com.fpetrola.oozx.speccy.parts.Visitable {
 
     private final class RetriggeredInterrupt extends Task {
 
+        /** Still in the shadow of the EI: tried again after the instruction it shadows. */
         public void run(long due) {
+            if (getOoz80().getState().isPendingEI()) {
+                scheduler.schedule(this, zxClock.getTStates() + 1);
+                return;
+            }
             takeInterruptIfTheLineIsStillDown();
         }
     }

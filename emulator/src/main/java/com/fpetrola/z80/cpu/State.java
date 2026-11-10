@@ -90,7 +90,8 @@ public class State {
   private boolean iff2;
   private boolean intLine;
   private boolean activeNMI;
-  private boolean pendingEI;
+  /** Instructions still to run before an interrupt can be taken: EI asks for the one after it too. */
+  private int interruptShadow;
   private boolean flagQ;
   private boolean pinReset;
 
@@ -127,6 +128,17 @@ public class State {
 
   public void enableInterrupt() {
     iff1 = iff2 = true;
+    interruptShadow = 2;
+  }
+
+  /** One instruction has run, so the shadow an EI casts is one instruction shorter. */
+  public void instructionRan() {
+    interruptShadow = Math.max(0, interruptShadow - 1);
+  }
+
+  /** Whether an interrupt on the line is taken now: enabled, and not in the shadow of an EI. */
+  public boolean acceptsInterrupt() {
+    return iff1 && interruptShadow == 0;
   }
 
   public void resetInterrupt() {
@@ -185,12 +197,14 @@ public class State {
     this.activeNMI = activeNMI;
   }
 
+  /** Whether the instruction about to run is the one after an EI, which no interrupt may come before. */
   public boolean isPendingEI() {
-    return pendingEI;
+    return interruptShadow > 0;
   }
 
+  /** As a snapshot says it, between two instructions: pending means only the next one is still shadowed. */
   public void setPendingEI(boolean pendingEI) {
-    this.pendingEI = pendingEI;
+    interruptShadow = pendingEI ? 1 : 0;
   }
 
   public boolean isFlagQ() {

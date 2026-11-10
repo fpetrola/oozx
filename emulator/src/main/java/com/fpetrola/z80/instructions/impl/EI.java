@@ -33,11 +33,6 @@ public class EI extends AbstractInstruction {
     state.enableInterrupt();
   }
 
-  /** Interrupts come back after the instruction that follows, so a RET right after EI returns before one lands. */
-  public boolean defersInterrupts() {
-    return true;
-  }
-
   public void accept(InstructionVisitor<?> visitor) {
     visitor.visitEI(this);
   }

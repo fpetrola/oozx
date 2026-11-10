@@ -54,21 +54,17 @@ public class OOZ80 implements Z80Cpu {
       nmi();
       return;
     }
-    if (state.isIntLine() && state.isIff1() && !state.isPendingEI())
+    if (state.isIntLine() && state.acceptsInterrupt())
       interruption();
 
-    Instruction instruction;
     try {
-      instruction = execute(1);
+      execute(1);
     } catch (Exception e) {
       e.printStackTrace();
       System.out.println("Invalid instruction");
       throw new RuntimeException(e);
     }
-    if (state.isPendingEI() && !instruction.defersInterrupts()) {
-      state.setPendingEI(false);
-      endInterruption();
-    }
+    state.instructionRan();
   }
 
   public Instruction execute(int cycles) {
@@ -131,10 +127,6 @@ public class OOZ80 implements Z80Cpu {
     state.setIff2(state.isIff1());
     state.setIff1(false);
     pc.write(0x0066);
-  }
-
-  @Override
-  public void endInterruption() {
   }
 
   public void update() {

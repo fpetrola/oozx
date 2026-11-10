@@ -43,9 +43,4 @@ public interface Instruction {
 
   default void setRDelta(int rdelta) {
   }
-
-  /** Whether an interrupt has to wait one more instruction after this one, which is what EI asks for. */
-  default boolean defersInterrupts() {
-    return false;
-  }
 }
