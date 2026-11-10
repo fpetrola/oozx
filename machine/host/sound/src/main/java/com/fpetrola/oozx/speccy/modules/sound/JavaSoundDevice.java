@@ -18,9 +18,9 @@
 package com.fpetrola.oozx.speccy.modules.sound;
 
 import javax.sound.sampled.*;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * The system's audio line, through javax.sound.sampled: the same on every platform.
@@ -28,11 +28,10 @@ import java.util.Arrays;
 public class JavaSoundDevice implements SoundCard {
 
   private SourceDataLine line;
-  private AudioFormat format;
   private int channels;
   private int frameSize;
-  private boolean verbose = false;
-  private static boolean firstInit = true;
+  private boolean verbose;
+  private boolean firstOpen = true;
   private boolean dropWhenAhead;
   private byte[] audioBytes = new byte[0];
 
@@ -51,115 +50,96 @@ public class JavaSoundDevice implements SoundCard {
    * @return 0 on success, 1 on failure
    */
   public int open(String device, int[] freqPtr, int[] stereoPtr) {
-    int freq = freqPtr[0];
-    int stereo = stereoPtr[0];
-    this.verbose = device != null && device.contains("verbose");
-
-    if (verbose && firstInit) {
+    LineOptions options = new LineOptions(device);
+    verbose = options.verbose();
+    if (verbose && firstOpen) {
       System.out.println("JavaSoundDevice: Iniciando con device='" + device + "'");
     }
-
     try {
-      int bufferFrames = 0;
-      int numPeriods = 3;
-      int availMin = 0;
-
-      if (device != null && !device.isEmpty()) {
-        String[] parts = device.split(",");
-        for (String part : parts) {
-          part = part.trim();
-          if (part.startsWith("buffer=")) {
-            try {
-              bufferFrames = Integer.parseInt(part.substring(7));
-            } catch (NumberFormatException e) {
-              System.err.println("Bad ALSA buffer size, using default");
-            }
-          } else if (part.startsWith("frames=")) {
-            try {
-              numPeriods = Integer.parseInt(part.substring(7));
-            } catch (NumberFormatException e) {
-              System.err.println("Bad ALSA frames, using default (3)");
-            }
-          } else if (part.startsWith("avail=")) {
-            try {
-              availMin = Integer.parseInt(part.substring(6));
-            } catch (NumberFormatException e) {
-              System.err.println("Bad ALSA avail_min, using default");
-            }
-          } else if (part.equals("verbose")) {
-            this.verbose = true;
-          } else if (!part.isEmpty() && !part.startsWith("'")) {
-            device = part;
-          }
-        }
-      }
-
-      channels = stereo != 0 ? 2 : 1;
-      frameSize = channels * 2;
-
-      format = new AudioFormat(
-          AudioFormat.Encoding.PCM_SIGNED,
-          freq,
-          16,
-          channels,
-          frameSize,
-          freq,
-          false // little-endian
-      );
-
-      int periodSize;
-      if (bufferFrames > 0) {
-        periodSize = bufferFrames / numPeriods;
-      } else {
-        float hz = 100.0f; // ALSA also caps latency at 100 Hz here
-        periodSize = freq / (int) hz;
-      }
-
-      int bufferSizeInFrames = periodSize * numPeriods;
-      int bufferSizeInBytes = bufferSizeInFrames * frameSize;
-
-      DataLine.Info info = new DataLine.Info(SourceDataLine.class, format, bufferSizeInBytes);
-      if (!AudioSystem.isLineSupported(info)) {
-        channels = channels == 2 ? 1 : 2;
-        stereoPtr[0] = channels - 1;
-        frameSize = channels * 2;
-        format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, freq, 16, channels, frameSize, freq, false);
-        info = new DataLine.Info(SourceDataLine.class, format, bufferSizeInBytes);
-        if (!AudioSystem.isLineSupported(info)) {
-          System.err.println("Formato no soportado: " + freq + " Hz, " + (stereo != 0 ? "stereo" : "mono"));
-          return 1;
-        }
-      }
-
-      // The line this replaces is let go of first. Opening a second one over the field left the
-      // first one open, and a machine change opens one every time.
-      close();
-      line = (SourceDataLine) AudioSystem.getLine(info);
-      line.open(format, bufferSizeInBytes);
-      line.start();
-
-      float actualRate = line.getFormat().getSampleRate();
-      if (firstInit && Math.abs(actualRate - freq) > 1) {
-        System.out.printf("Frecuencia %d Hz no soportada. Usando %.0f Hz.\n", freq, actualRate);
-        freqPtr[0] = (int) actualRate;
-      }
-
-      if (verbose && firstInit) {
-        System.out.printf("JavaSound: %d Hz, %s, buffer=%d bytes (%d frames, %d periods)\n",
-            (int) actualRate, channels == 2 ? "stereo" : "mono",
-            bufferSizeInBytes, bufferSizeInFrames, numPeriods);
-      }
-
-      firstInit = false;
-      return 0;
-
+      return open(options, freqPtr, stereoPtr);
     } catch (LineUnavailableException e) {
       System.err.println("No se pudo abrir la línea de audio: " + e.getMessage());
       return 1;
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       System.err.println("Error inicializando JavaSound: " + e.getMessage());
       e.printStackTrace();
       return 1;
+    }
+  }
+
+  private int open(LineOptions options, int[] freqPtr, int[] stereoPtr) throws LineUnavailableException {
+    int freq = freqPtr[0];
+    int numPeriods = options.number("frames", 3);
+    int bufferFrames = options.number("buffer", 0);
+    int periodSize = bufferFrames > 0 ? bufferFrames / numPeriods : freq / 100; // ALSA also caps latency at 100 Hz
+    int bufferSizeInFrames = periodSize * numPeriods;
+    Optional<AudioFormat> supported = supportedFormat(freq, stereoPtr, bufferSizeInFrames);
+    if (supported.isEmpty()) {
+      System.err.println("Formato no soportado: " + freq + " Hz, " + (stereoPtr[0] != 0 ? "stereo" : "mono"));
+      return 1;
+    }
+    AudioFormat format = supported.get();
+    int bufferSizeInBytes = bufferSizeInFrames * frameSize;
+    // The line this replaces is let go of first. Opening a second one over the field left the
+    // first one open, and a machine change opens one every time.
+    close();
+    line = AudioSystem.getSourceDataLine(format);
+    line.open(format, bufferSizeInBytes);
+    line.start();
+    float actualRate = line.getFormat().getSampleRate();
+    if (firstOpen && Math.abs(actualRate - freq) > 1) {
+      System.out.printf("Frecuencia %d Hz no soportada. Usando %.0f Hz.\n", freq, actualRate);
+      freqPtr[0] = (int) actualRate;
+    }
+    if (verbose && firstOpen) {
+      System.out.printf("JavaSound: %d Hz, %s, buffer=%d bytes (%d frames, %d periods)\n",
+          (int) actualRate, channels == 2 ? "stereo" : "mono", bufferSizeInBytes, bufferSizeInFrames, numPeriods);
+    }
+    firstOpen = false;
+    return 0;
+  }
+
+  /** The format asked for, or the other channel count when the line takes only that; empty when neither. */
+  private Optional<AudioFormat> supportedFormat(int freq, int[] stereoPtr, int bufferSizeInFrames) {
+    int asked = stereoPtr[0] != 0 ? 2 : 1;
+    for (int tried : new int[] {asked, 3 - asked}) {
+      channels = tried;
+      frameSize = channels * 2;
+      AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, freq, 16, channels, frameSize, freq, false);
+      if (AudioSystem.isLineSupported(new DataLine.Info(SourceDataLine.class, format, bufferSizeInFrames * frameSize))) {
+        stereoPtr[0] = channels - 1;
+        return Optional.of(format);
+      }
+    }
+    return Optional.empty();
+  }
+
+  /** What the device string carries besides a name: "buffer=", "frames=" and "verbose", comma separated. */
+  private static final class LineOptions {
+    private final Map<String, String> values = new HashMap<>();
+    private boolean verbose;
+
+    LineOptions(String device) {
+      String text = device == null ? "" : device;
+      for (String part : text.split(",")) {
+        String[] pair = part.trim().split("=", 2);
+        verbose |= pair[0].equals("verbose");
+        values.put(pair[0], pair.length == 2 ? pair[1] : "");
+      }
+    }
+
+    boolean verbose() {
+      return verbose;
+    }
+
+    int number(String name, int fallback) {
+      String value = values.getOrDefault(name, "");
+      try {
+        return value.isEmpty() ? fallback : Integer.parseInt(value);
+      } catch (NumberFormatException e) {
+        System.err.println("Bad ALSA " + name + " '" + value + "' (" + e.getMessage() + "), using " + fallback);
+        return fallback;
+      }
     }
   }
 

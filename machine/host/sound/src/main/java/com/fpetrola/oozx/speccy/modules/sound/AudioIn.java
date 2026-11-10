@@ -61,7 +61,7 @@ public class AudioIn {
    * It is a rule of thumb, not a fact about sound cards, which is why the list keeps the rest
    * and why {@link #peak} exists: whoever is watching can see in a second which one hears.
    */
-  public static List<String> inputs() {
+  public List<String> inputs() {
     DataLine.Info records = new DataLine.Info(TargetDataLine.class, FORMAT);
     DataLine.Info plays = new DataLine.Info(SourceDataLine.class, FORMAT);
     List<String> onlyRecords = new ArrayList<>();
@@ -86,12 +86,11 @@ public class AudioIn {
    */
   public void open(String input) throws LineUnavailableException {
     close();
-    DataLine.Info wanted = new DataLine.Info(TargetDataLine.class, FORMAT);
     List<String> available = inputs();
     if (input == null && available.isEmpty()) {
       throw new LineUnavailableException("this computer offers no input to record from");
     }
-    line = (TargetDataLine) mixerNamed(input == null ? available.get(0) : input).getLine(wanted);
+    line = AudioSystem.getTargetDataLine(FORMAT, mixerNamed(input == null ? available.get(0) : input));
     line.open(FORMAT);
     line.start();
     written = 0;
@@ -114,9 +113,17 @@ public class AudioIn {
       out.open(FORMAT);
       out.start();
       monitor = out;
-    } else if (!wanted && monitor != null) {
-      monitor.stop();
-      monitor.close();
+    }
+    if (!wanted) {
+      stopHearing();
+    }
+  }
+
+  private void stopHearing() {
+    SourceDataLine out = monitor;
+    if (out != null) {
+      out.stop();
+      out.close();
       monitor = null;
     }
   }
@@ -127,11 +134,7 @@ public class AudioIn {
 
   public void close() {
     listening = false;
-    try {
-      hear(false);
-    } catch (LineUnavailableException impossible) {
-      monitor = null;
-    }
+    stopHearing();
     if (line != null) {
       line.stop();
       line.close();
@@ -195,10 +198,10 @@ public class AudioIn {
     return at(written - 1) > 0;
   }
 
-  private static Mixer mixerNamed(String name) throws LineUnavailableException {
+  private static Mixer.Info mixerNamed(String name) throws LineUnavailableException {
     for (Mixer.Info info : AudioSystem.getMixerInfo()) {
       if (info.getName().equals(name)) {
-        return AudioSystem.getMixer(info);
+        return info;
       }
     }
     throw new LineUnavailableException("no input called " + name);
