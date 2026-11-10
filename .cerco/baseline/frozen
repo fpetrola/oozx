@@ -1,5 +1,6 @@
 2026-11-09
 file-length
+flag-driven-from-outside
 method-length
 no-cast
 no-cloned-methods
