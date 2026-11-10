@@ -20,7 +20,6 @@
 1	emulator/src/main/java/com/fpetrola/z80/cpu/MultiOpcodeFetcher.java|com.fpetrola.z80.cpu.MultiOpcodeFetcher.wrapInstructions(Instruction[], int, Register, FetchedInstructionWrapper[], int, boolean, Memory)|instanceof DefaultFetchNextOpcodeInstruction
 1	emulator/src/main/java/com/fpetrola/z80/cpu/MultiOpcodeFetcher.java|com.fpetrola.z80.cpu.MultiOpcodeFetcher.wrapInstructions(Instruction[], int, Register, FetchedInstructionWrapper[], int, boolean, Memory)|instanceof Ld
 1	emulator/src/main/java/com/fpetrola/z80/cpu/MultiOpcodeFetcher.java|com.fpetrola.z80.cpu.MultiOpcodeFetcher.wrapInstructions(Instruction[], int, Register, FetchedInstructionWrapper[], int, boolean, Memory)|instanceof Memory8BitReference
-1	emulator/src/main/java/com/fpetrola/z80/cpu/OOZ80.java|com.fpetrola.z80.cpu.OOZ80.execute()|instanceof EI
 1	emulator/src/main/java/com/fpetrola/z80/instructions/cache/InstructionCloner.java|com.fpetrola.z80.instructions.cache.InstructionCloner.clone(ConditionPredicate)|instanceof FlipFLopConditionFlag.FlipFlopPredicate
 1	emulator/src/main/java/com/fpetrola/z80/instructions/impl/BIT.java|com.fpetrola.z80.instructions.impl.BIT.execute()|instanceof IndirectMemory8BitReference
 1	emulator/src/main/java/com/fpetrola/z80/instructions/impl/BIT.java|com.fpetrola.z80.instructions.impl.BIT.execute()|instanceof MemoryPlusRegister8BitReference

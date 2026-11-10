@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.cpu;
 
-import com.fpetrola.z80.instructions.impl.EI;
 import com.fpetrola.z80.instructions.impl.Push;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.registers.Register;
@@ -66,7 +65,7 @@ public class OOZ80 implements Z80Cpu {
       System.out.println("Invalid instruction");
       throw new RuntimeException(e);
     }
-    if (state.isPendingEI() && !(instruction instanceof EI)) {
+    if (state.isPendingEI() && !instruction.defersInterrupts()) {
       state.setPendingEI(false);
       endInterruption();
     }
