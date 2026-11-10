@@ -20,7 +20,7 @@
 365	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotZ80.java|com.fpetrola.emulation.helpers.snapshots.SnapshotZ80.loadFromStream()
 162	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotZ80.java|com.fpetrola.emulation.helpers.snapshots.SnapshotZ80.writeSnapshotData()
 41	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenProfile.java|com.fpetrola.oozx.speccy.screen.ScreenProfile.presets()
-107	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenSettings.java|com.fpetrola.oozx.speccy.screen.ScreenSettings.settings()
+105	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenSettings.java|com.fpetrola.oozx.speccy.screen.ScreenSettings.settings()
 64	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/TvScreen.java|com.fpetrola.oozx.speccy.screen.TvScreen.apply(BufferedImage, Scratch)
 76	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/AttachedFrame.java|com.fpetrola.oozx.speccy.windows.AttachedFrame.assemble(JComponent)
 88	translation/blocks/src/main/java/com/fpetrola/z80/blocks/references/DTW.java|com.fpetrola.z80.blocks.references.DTW.compute(float[], float[])

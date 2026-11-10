@@ -42,6 +42,12 @@ public interface Scaler extends ScreenEffect {
    */
   BufferedImage scale(BufferedImage picture, int width, int height, ScreenContext context);
 
+  /** A scaler is not stacked but picked: it arrives among the scalers. */
+  @Override
+  default void arriveAt(WaysOfDrawing ways) {
+    ways.scaler(this);
+  }
+
   @Override
   default BufferedImage apply(BufferedImage picture, ScreenContext context) {
     return scale(picture, context.targetWidth(), context.targetHeight(), context);

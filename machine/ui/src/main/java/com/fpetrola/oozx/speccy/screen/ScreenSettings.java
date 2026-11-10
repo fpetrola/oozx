@@ -51,22 +51,21 @@ public class ScreenSettings {
    * and nothing about jars or where they were found. Whoever runs the desk says what there is,
    * and says it again when that changes.
    */
-  private static volatile List<ScreenEffect> waysOfDrawing = List.of();
+  private static volatile WaysOfDrawing waysOfDrawing = new WaysOfDrawing(List.of());
 
   /** Said by whoever found them. What is here now is what there is, and nothing older. */
   public static void thereAre(List<ScreenEffect> ways) {
-    waysOfDrawing = ways == null ? List.of() : List.copyOf(ways);
+    waysOfDrawing = new WaysOfDrawing(ways == null ? List.of() : ways);
   }
 
   /** The ones that are a whole way of making a windowful, which is picked rather than stacked. */
   public static List<Scaler> scalers() {
-    return waysOfDrawing.stream().filter(Scaler.class::isInstance).map(Scaler.class::cast).toList();
+    return waysOfDrawing.scalers();
   }
 
   /** The steps for that side of the scaler. A scaler is picked, so it is not one of these. */
   private static List<ScreenEffect> steps(ScreenEffect.When when) {
-    return waysOfDrawing.stream()
-        .filter(step -> !(step instanceof Scaler) && step.when() == when).toList();
+    return waysOfDrawing.steps().stream().filter(step -> step.when() == when).toList();
   }
 
   private TvScreen tv = TvScreen.RGB_MONITOR;
@@ -99,9 +98,7 @@ public class ScreenSettings {
    */
   public List<Knob> settings() {
     List<Knob> all = new ArrayList<>();
-    // What a way of drawing brought with it, offered beside the knobs written here: an effect
-    // that arrived is built with nothing, so its knobs are the only way it is configured.
-    waysOfDrawing.stream().filter(way -> !(way instanceof Scaler)).forEach(way -> all.addAll(way.knobs()));
+    waysOfDrawing.steps().forEach(step -> all.addAll(step.knobs()));
 
     all.add(Knob.choice("scaler", "Scaler",
         "How 256 by 192 becomes a windowful. Repeating pixels is exact and uneven at odd sizes; "

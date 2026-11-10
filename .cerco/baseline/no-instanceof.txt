@@ -75,8 +75,6 @@
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/peripherals/MockEmulatorCore.java|com.fpetrola.oozx.speccy.peripherals.MockEmulatorCore.setScreenOption(String, Object)|instanceof com.fpetrola.oozx.speccy.screen.SpeccyScreen
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotLoader.java|com.fpetrola.emulation.helpers.snapshots.SnapshotLoader.setupFromSpectrumState(RegistersSetter, State, SpectrumState)|instanceof MockedMemory
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenContext.java|com.fpetrola.oozx.speccy.screen.ScreenContext.readablePixels(BufferedImage)|instanceof DataBufferInt
-1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenSettings.java|com.fpetrola.oozx.speccy.screen.ScreenSettings.settings()|instanceof Scaler
-1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenSettings.java|com.fpetrola.oozx.speccy.screen.ScreenSettings.steps(ScreenEffect.When)|instanceof Scaler
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/TvScreen.java|com.fpetrola.oozx.speccy.screen.TvScreen.directPixels(BufferedImage)|instanceof java.awt.image.DataBufferInt
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/AttachedFrame.java|com.fpetrola.oozx.speccy.windows.AttachedFrame.machinesAround()|instanceof JInternalFrame
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/AttachedFrame.java|com.fpetrola.oozx.speccy.windows.AttachedFrame.machinesAround()|instanceof MachineWindow

@@ -78,6 +78,11 @@ public interface ScreenEffect {
     return java.util.List.of();
   }
 
+  /** Takes its place among the ways of drawing that arrived: a step, stacked on its side of the scaler. */
+  default void arriveAt(WaysOfDrawing ways) {
+    ways.step(this);
+  }
+
   /** Whether this is doing anything at all, so a pipeline can leave it out rather than run it. */
   default boolean isTransparent() {
     return false;
