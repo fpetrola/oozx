@@ -1,9 +1,6 @@
 # cerco baseline v1 no-ignored-result: count, key
 1	emulator/src/main/java/com/fpetrola/z80/registers/Register.java|com.fpetrola.z80.registers.Register.accept(InstructionVisitor)|instructionVisitor.visitRegister(this)
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/peripherals/EmulatorCore.java|com.fpetrola.oozx.speccy.peripherals.EmulatorCore.get(String)|isTurboMode()
-1	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/input/Input.java|com.fpetrola.oozx.speccy.modules.input.Input.doJoystick(InputEventJoystick, boolean)|joystick.press(which, Joystick.JoystickButton.JOYSTICK_BUTTON_FIRE,...
-1	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/input/Input.java|com.fpetrola.oozx.speccy.modules.input.Input.doJoystick(InputEventJoystick, boolean)|joystick.press(which, button, press)
-1	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/input/Input.java|com.fpetrola.oozx.speccy.modules.input.Input.keyrelease(InputEventKey)|asJoystick(event.spectrumKey, false)
 1	machine/media/snapshot/src/main/java/com/fpetrola/oozx/speccy/modules/snapshot/Snapshots.java|com.fpetrola.oozx.speccy.modules.snapshot.Snapshots.save(String)|SnapshotSaver.setupSnapshotWithState(registersOf(state()), fileName...
 1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.leaveWithOwnData(int)|goOnAt(continuation, site, pushes.size() == 1)
 1	translation/se/src/main/java/com/fpetrola/z80/se/SymbolicExecutionAdapter.java|com.fpetrola.z80.se.SymbolicExecutionAdapter.executeAllCode(Z80InstructionDriver, Register)|this.stackAnalyzer.listenEvents(new SEStackListener(this))

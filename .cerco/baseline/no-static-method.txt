@@ -81,7 +81,6 @@
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/ula/ContentionTable.java|com.fpetrola.oozx.speccy.modules.ula.ContentionTable.within(int)
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/ports/BusArbiter.java|com.fpetrola.oozx.speccy.ports.BusArbiter.settle(PortHandler[], int, DecodedPortBus.FloatingBus)
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.isRunBy(Desk)
-1	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/AudioIn.java|com.fpetrola.oozx.speccy.modules.sound.AudioIn.inputs()
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/SnapshotUnicodePacker.java|com.fpetrola.emulation.SnapshotUnicodePacker.packToUnicodeString(byte[])
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/SnapshotUnicodePacker.java|com.fpetrola.emulation.SnapshotUnicodePacker.unpackFromUnicodeString(String)
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotFactory.java|com.fpetrola.emulation.helpers.snapshots.SnapshotFactory.alsoRead(java.util.function.Supplier)

@@ -55,7 +55,6 @@
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Session.java|com.fpetrola.oozx.speccy.devices.Session.bringBack(java.util.Map)|return null
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/WhatGameThisIs.java|com.fpetrola.oozx.speccy.devices.WhatGameThisIs.gameIn(String)|return null
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/peripherals/MockEmulatorCore.java|com.fpetrola.oozx.speccy.peripherals.MockEmulatorCore.getKeyListener()|return null
-2	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/input/Input.java|com.fpetrola.oozx.speccy.modules.input.Input.Setup.Keys.pushes(InputKey, boolean)|return null
 1	machine/media/snapshot/src/main/java/com/fpetrola/oozx/speccy/media/snapshot/ASnapshotStartsAMachine.java|com.fpetrola.oozx.speccy.media.snapshot.ASnapshotStartsAMachine.start(Speccy, File)|return null
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/MemoryState.java|com.fpetrola.emulation.helpers.snapshots.MemoryState.getLecPageRam(int)|return null
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotFactory.java|com.fpetrola.emulation.helpers.snapshots.SnapshotFactory.getSnapshot(File)|return null

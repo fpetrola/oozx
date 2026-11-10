@@ -12,8 +12,6 @@
 1	machine/core/src/main/java/com/fpetrola/oozx/config/RomFiles.java|com.fpetrola.oozx.config.RomFiles.ofTheBuild
 1	machine/core/src/main/java/com/fpetrola/oozx/config/RomFiles.java|com.fpetrola.oozx.config.RomFiles.workedOutFrom
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.Where.desk
-1	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/JavaSoundDevice.java|com.fpetrola.oozx.speccy.modules.sound.JavaSoundDevice.firstInit
-1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/joystickinput/JoystickRaw.java|com.fpetrola.emulation.helpers.joystickinput.JoystickRaw.helperLoaded
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotFactory.java|com.fpetrola.emulation.helpers.snapshots.SnapshotFactory.arrived
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotFactory.java|com.fpetrola.emulation.helpers.snapshots.SnapshotFactory.onThePath
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenSettings.java|com.fpetrola.oozx.speccy.screen.ScreenSettings.defaults

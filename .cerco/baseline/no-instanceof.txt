@@ -87,8 +87,6 @@
 2	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.keep(Session, JInternalFrame, File, int)|instanceof EmulatorWindow
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/MachineFrame.java|com.fpetrola.oozx.speccy.devices.MachineFrame.attachmentChanged()|instanceof EmulatorWindow
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/peripherals/MockEmulatorCore.java|com.fpetrola.oozx.speccy.peripherals.MockEmulatorCore.setScreenOption(String, Object)|instanceof com.fpetrola.oozx.speccy.screen.SpeccyScreen
-1	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/input/Input.java|com.fpetrola.oozx.speccy.modules.input.Input.keyrelease(InputEventKey)|instanceof RecreatedLayout
-1	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/input/Input.java|com.fpetrola.oozx.speccy.modules.input.Input.layoutFromConfig()|instanceof RecreatedLayout
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotLoader.java|com.fpetrola.emulation.helpers.snapshots.SnapshotLoader.setupFromSpectrumState(RegistersSetter, State, SpectrumState)|instanceof MockedMemory
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenContext.java|com.fpetrola.oozx.speccy.screen.ScreenContext.readablePixels(BufferedImage)|instanceof DataBufferInt
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenSettings.java|com.fpetrola.oozx.speccy.screen.ScreenSettings.settings()|instanceof Scaler

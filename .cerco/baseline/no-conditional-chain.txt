@@ -8,7 +8,6 @@
 1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/LocalLibretroCore.java|com.fpetrola.oozx.speccy.bridge.LocalLibretroCore.retro_get_register_data(String)|if-chain
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/media/DownloadAndUnzip.java|com.fpetrola.oozx.speccy.media.DownloadAndUnzip.scoreOf(String)|if-chain
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/display/Display.java|com.fpetrola.oozx.speccy.modules.display.Display.plotUpToTheBeam()|if-chain
-1	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/JavaSoundDevice.java|com.fpetrola.oozx.speccy.modules.sound.JavaSoundDevice.open(String, int[], int[])|if-chain
 1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/references/DTW.java|com.fpetrola.z80.blocks.references.DTW.compute(float[], float[])|if-chain
 1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/InstructionsBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.InstructionsBytecodeGenerator.createIfs(Instruction, Runnable)|if-chain
 1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/InstructionsBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.InstructionsBytecodeGenerator.invokeDynamicCall(boolean, Set, Variable)|if-chain
