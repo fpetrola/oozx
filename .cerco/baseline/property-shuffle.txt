@@ -1,0 +1,2 @@
+# cerco baseline v1 property-shuffle: count, key
+1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotZ80.java|com.fpetrola.emulation.helpers.snapshots.SnapshotZ80.loadFromStream()|spectrum.setEnabledAY(spectrum.isEnabledAYon48k())

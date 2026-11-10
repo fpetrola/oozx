@@ -22,3 +22,4 @@ no-type-code
 no-type-keyed-map
 no-utility-class
 parseable
+property-shuffle
