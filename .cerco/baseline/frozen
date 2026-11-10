@@ -3,6 +3,7 @@ ask-then-tell
 borrowed-mode
 file-length
 flag-driven-from-outside
+key-holds-value
 method-length
 no-cast
 no-cloned-methods
