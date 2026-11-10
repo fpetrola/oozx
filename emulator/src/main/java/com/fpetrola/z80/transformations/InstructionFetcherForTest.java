@@ -20,7 +20,6 @@ package com.fpetrola.z80.transformations;
 
 import com.fpetrola.z80.cpu.InstructionExecutor;
 import com.fpetrola.z80.cpu.InstructionFetcher;
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.registers.Register;
@@ -50,9 +49,7 @@ public class InstructionFetcherForTest implements InstructionFetcher {
   }
 
   protected void updatePC(Instruction instruction) {
-    int nextPC = -1;
-    if (instruction instanceof AbstractInstruction jumpInstruction)
-      nextPC = jumpInstruction.getNextPC();
+    int nextPC = instruction.getNextPC();
 
     if (nextPC == -1) {
       nextPC = (pc.read() + 1) & 0xFFFF;

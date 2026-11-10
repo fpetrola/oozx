@@ -20,7 +20,6 @@ package com.fpetrola.z80.cpu;
 
 import com.fpetrola.z80.instructions.cache.InstructionCache;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.opcodes.references.OpcodeConditions;
 import com.fpetrola.z80.registers.RegisterName;
@@ -44,8 +43,7 @@ public class CachedInstructionFetcher extends DefaultInstructionFetcher {
       return cacheEntry.getInstruction();
     int rBefore = registerR.read();
     Instruction fetched = super.fetchNextInstruction();
-    if (fetched instanceof AbstractInstruction abstractInstruction)
-      abstractInstruction.setRDelta((registerR.read() - rBefore) & 0x7F);
+    fetched.setRDelta((registerR.read() - rBefore) & 0x7F);
     instructionCache.cacheInstruction(pcValue, fetched);
     return instructionCache.getCacheEntryAt(pcValue).getInstruction();
   }

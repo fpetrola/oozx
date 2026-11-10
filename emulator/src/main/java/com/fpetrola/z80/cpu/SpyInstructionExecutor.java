@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.cpu;
 
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.registers.Register;
 import com.fpetrola.z80.spy.InstructionSpy;
@@ -59,7 +58,7 @@ public class SpyInstructionExecutor implements InstructionExecutor {
   }
 
   private void updatePC(Instruction instruction) {
-    int nextPC = instruction instanceof AbstractInstruction abstractInstruction ? abstractInstruction.getNextPC() : -1;
+    int nextPC = instruction.getNextPC();
     if (nextPC == -1)
       nextPC = (pc.read() + instruction.getLength()) & 0xFFFF;
 

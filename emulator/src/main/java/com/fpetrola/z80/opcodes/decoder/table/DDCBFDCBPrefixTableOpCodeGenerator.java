@@ -19,7 +19,6 @@
 package com.fpetrola.z80.opcodes.decoder.table;
 
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.memory.Memory;
@@ -53,7 +52,7 @@ public class DDCBFDCBPrefixTableOpCodeGenerator extends TableOpCodeGenerator {
       case 3:
         result = z != 6 ? i.LdOperation(getTarget(r[z]), i.SET(iRRn(ixy, true, 2), y)) : i.SET(iRRn(ixy, true, 2), y);
     }
-    ((AbstractInstruction) result).setLength(result.getLength() + 1);
+    result.incrementLengthBy(1);
     return result;
   }
 

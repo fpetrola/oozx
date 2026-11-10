@@ -24,9 +24,7 @@ import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference;
 import com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference;
-import com.fpetrola.z80.registers.Composed16BitRegister;
 import com.fpetrola.z80.registers.Register;
-import com.fpetrola.z80.registers.RegisterBank;
 
 public interface InstructionSpy {
   default void addExecutionListeners(InstructionExecutor defaultInstructionExecutor) {
@@ -40,19 +38,6 @@ public interface InstructionSpy {
       }
     });
   }
-
-  default RegisterBank wrapBank(RegisterBank bank) {
-    bank.getAll().forEach(r -> {
-      if (r instanceof Composed16BitRegister<?> composed16BitRegister) {
-        wrapRegister((Register) composed16BitRegister.getLow());
-        wrapRegister((Register) composed16BitRegister.getHigh());
-      } else {
-        wrapRegister((Register) r);
-      }
-    });
-    return bank;
-  }
-
 
   default Memory wrapMemory(Memory aMemory) {
     return aMemory;

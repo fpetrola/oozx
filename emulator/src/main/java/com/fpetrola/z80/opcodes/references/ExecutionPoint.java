@@ -22,7 +22,7 @@ import com.fpetrola.z80.instructions.types.Instruction;
 
 import java.util.Objects;
 
-public class ExecutionPoint implements Comparable {
+public class ExecutionPoint implements Comparable<ExecutionPoint> {
   public long executionNumber;
   public Instruction instruction;
   public int pc;
@@ -43,8 +43,8 @@ public class ExecutionPoint implements Comparable {
   }
 
   @Override
-  public int compareTo(Object o) {
-    return (int) (executionNumber - ((ExecutionPoint) o).executionNumber);
+  public int compareTo(ExecutionPoint o) {
+    return Long.compare(executionNumber, o.executionNumber);
   }
 
   @Override

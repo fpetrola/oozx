@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.cpu;
 
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.types.RepeatingInstruction;
 import com.fpetrola.z80.registers.Register;
@@ -54,7 +53,7 @@ public class DefaultInstructionExecutor implements InstructionExecutor {
 
     executionListener.afterExecution(instruction);
 
-    int nextPC = ((AbstractInstruction) instruction).getNextPC();
+    int nextPC = instruction.getNextPC();
     if (nextPC == -1) {
       nextPC = (pc.read() + instruction.getLength()) & 0xFFFF;
     }

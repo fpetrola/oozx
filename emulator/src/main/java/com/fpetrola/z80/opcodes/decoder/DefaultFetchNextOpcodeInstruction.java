@@ -49,7 +49,7 @@ public class DefaultFetchNextOpcodeInstruction extends AbstractInstruction imple
     this.memoryForOpcodes = memoryForOpcodes;
     for (Instruction instruction : table) {
       if (instruction != null)
-        ((AbstractInstruction) instruction).setLength(instruction.getLength() + 1);
+        instruction.incrementLengthBy(1);
     }
     this.incPc = incPc;
     this.registerR = state.getRegister(RegisterName.R);

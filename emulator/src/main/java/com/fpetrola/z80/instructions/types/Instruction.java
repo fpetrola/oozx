@@ -26,4 +26,21 @@ public interface Instruction {
   int getLength();
 
   void accept(InstructionVisitor<?> visitor);
+
+  /** Where the machine goes once this has run, or -1 when it just goes on to the next one. */
+  default int getNextPC() {
+    return -1;
+  }
+
+  /** Grows by the bytes a prefix or an operand adds to the opcode. One with no bytes of its own stays empty. */
+  default void incrementLengthBy(int by) {
+  }
+
+  /** How far fetching this moved R, which a cached copy has to move it again by. */
+  default int getRDelta() {
+    return 0;
+  }
+
+  default void setRDelta(int rdelta) {
+  }
 }

@@ -18,7 +18,6 @@
 
 package com.fpetrola.z80.instructions.cache;
 
-import com.fpetrola.z80.instructions.types.AbstractInstruction;
 import com.fpetrola.z80.instructions.types.Instruction;
 import com.fpetrola.z80.instructions.factory.InstructionFactory;
 import com.fpetrola.z80.memory.Memory;
@@ -106,8 +105,6 @@ public class InstructionCache {
 
   public void cacheInstruction(int pcValue, Instruction instruction) {
     Instruction clone = instructionCloner.clone(instruction);
-    if (instruction instanceof AbstractInstruction original && clone instanceof AbstractInstruction copy)
-      copy.setRDelta(original.getRDelta());
     opcodesCache.set(pcValue, new CacheEntry(clone));
     new InstructionCacheInvalidator(pcValue, clone.getLength()).set();
   }
