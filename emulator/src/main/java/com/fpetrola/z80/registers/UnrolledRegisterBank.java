@@ -69,9 +69,46 @@ public class UnrolledRegisterBank extends RegisterBank {
   protected int VIRTUAL;
   protected int regRBit7;
 
-  public final class ARegister implements Register {
-    public ARegister() {
+  /** What every register of the bank says about itself: its name, which is also how it prints. */
+  abstract static class Named implements Register {
+    private final String name;
 
+    Named(String name) {
+      this.name = name;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public String toString() {
+      return name;
+    }
+  }
+
+  /** A pair over two registers of the bank, which it hands out as its high and low halves. */
+  abstract static class Pair extends Named implements RegisterPair {
+    private final Register high;
+    private final Register low;
+
+    Pair(String name, Register high, Register low) {
+      super(name);
+      this.high = high;
+      this.low = low;
+    }
+
+    public Register getHigh() {
+      return high;
+    }
+
+    public Register getLow() {
+      return low;
+    }
+  }
+
+  public final class ARegister extends Named {
+    public ARegister() {
+      super("A");
     }
 
     public int read() {
@@ -89,20 +126,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       A = (A - 1) & 0xFF;
     }
-
-    public String getName() {
-      return "A";
-    }
-
-    public String toString() {
-      return "A";
-    }
   }
 
-  final class FRegister implements Register {
+  final class FRegister extends Named {
 
     public FRegister() {
-
+      super("F");
     }
 
     public int read() {
@@ -120,20 +149,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       F = (F - 1) & 0xFF;
     }
-
-    public String getName() {
-      return "F";
-    }
-
-    public String toString() {
-      return "F";
-    }
   }
 
-  final class BRegister implements Register {
+  final class BRegister extends Named {
 
     public BRegister() {
-
+      super("B");
     }
 
     public int read() {
@@ -151,20 +172,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       B = (B - 1) & 0xFF;
     }
-
-    public String getName() {
-      return "B";
-    }
-
-    public String toString() {
-      return "B";
-    }
   }
 
-  final class CRegister implements Register {
+  final class CRegister extends Named {
 
     public CRegister() {
-
+      super("C");
     }
 
     public int read() {
@@ -182,20 +195,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       C = (C - 1) & 0xFF;
     }
-
-    public String getName() {
-      return "C";
-    }
-
-    public String toString() {
-      return "C";
-    }
   }
 
-  final class DRegister implements Register {
+  final class DRegister extends Named {
 
     public DRegister() {
-
+      super("D");
     }
 
     public int read() {
@@ -213,20 +218,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       D = (D - 1) & 0xFF;
     }
-
-    public String getName() {
-      return "D";
-    }
-
-    public String toString() {
-      return "D";
-    }
   }
 
-  final class ERegister implements Register {
+  final class ERegister extends Named {
 
     public ERegister() {
-
+      super("E");
     }
 
     public int read() {
@@ -244,20 +241,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       E = (E - 1) & 0xFF;
     }
-
-    public String getName() {
-      return "E";
-    }
-
-    public String toString() {
-      return "E";
-    }
   }
 
-  final class HRegister implements Register {
+  final class HRegister extends Named {
 
     public HRegister() {
-
+      super("H");
     }
 
     public int read() {
@@ -275,20 +264,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       H = (H - 1) & 0xFF;
     }
-
-    public String getName() {
-      return "H";
-    }
-
-    public String toString() {
-      return "H";
-    }
   }
 
-  final class LRegister implements Register {
+  final class LRegister extends Named {
 
     public LRegister() {
-
+      super("L");
     }
 
     public int read() {
@@ -306,20 +287,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       L = (L - 1) & 0xFF;
     }
-
-    public String getName() {
-      return "L";
-    }
-
-    public String toString() {
-      return "L";
-    }
   }
 
-  final class IRegister implements Register {
+  final class IRegister extends Named {
 
     public IRegister() {
-
+      super("I");
     }
 
     public int read() {
@@ -336,14 +309,6 @@ public class UnrolledRegisterBank extends RegisterBank {
 
     public void decrement() {
       I = (I - 1) & 0xFF;
-    }
-
-    public String getName() {
-      return "I";
-    }
-
-    public String toString() {
-      return "I";
     }
   }
 
@@ -372,10 +337,10 @@ public class UnrolledRegisterBank extends RegisterBank {
 
   }
 
-  final class AxRegister implements Register {
+  final class AxRegister extends Named {
 
     public AxRegister() {
-
+      super("A'");
     }
 
     public int read() {
@@ -393,20 +358,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       _AF = (_AF - 0x100) & 0xFFFF;
     }
-
-    public String getName() {
-      return "A'";
-    }
-
-    public String toString() {
-      return "A'";
-    }
   }
 
-  final class FxRegister implements Register {
+  final class FxRegister extends Named {
 
     public FxRegister() {
-
+      super("F'");
     }
 
     public int read() {
@@ -424,20 +381,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       _AF = (_AF - 1) & 0xFFFF;
     }
-
-    public String getName() {
-      return "F'";
-    }
-
-    public String toString() {
-      return "F'";
-    }
   }
 
-  final class BxRegister implements Register {
+  final class BxRegister extends Named {
 
     public BxRegister() {
-
+      super("B'");
     }
 
     public int read() {
@@ -455,20 +404,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       _BC = (_BC - 0x100) & 0xFFFF;
     }
-
-    public String getName() {
-      return "B'";
-    }
-
-    public String toString() {
-      return "B'";
-    }
   }
 
-  final class CxRegister implements Register {
+  final class CxRegister extends Named {
 
     public CxRegister() {
-
+      super("C'");
     }
 
     public int read() {
@@ -486,20 +427,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       _BC = (_BC - 1) & 0xFFFF;
     }
-
-    public String getName() {
-      return "C'";
-    }
-
-    public String toString() {
-      return "C'";
-    }
   }
 
-  final class DxRegister implements Register {
+  final class DxRegister extends Named {
 
     public DxRegister() {
-
+      super("D'");
     }
 
     public int read() {
@@ -517,20 +450,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       _DE = (_DE - 0x100) & 0xFFFF;
     }
-
-    public String getName() {
-      return "D'";
-    }
-
-    public String toString() {
-      return "D'";
-    }
   }
 
-  final class ExRegister implements Register {
+  final class ExRegister extends Named {
 
     public ExRegister() {
-
+      super("E'");
     }
 
     public int read() {
@@ -548,20 +473,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       _DE = (_DE - 1) & 0xFFFF;
     }
-
-    public String getName() {
-      return "E'";
-    }
-
-    public String toString() {
-      return "E'";
-    }
   }
 
-  final class HxRegister implements Register {
+  final class HxRegister extends Named {
 
     public HxRegister() {
-
+      super("H'");
     }
 
     public int read() {
@@ -579,20 +496,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       _HL = (_HL - 0x100) & 0xFFFF;
     }
-
-    public String getName() {
-      return "H'";
-    }
-
-    public String toString() {
-      return "H'";
-    }
   }
 
-  final class LxRegister implements Register {
+  final class LxRegister extends Named {
 
     public LxRegister() {
-
+      super("L'");
     }
 
     public int read() {
@@ -610,20 +519,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       _HL = (_HL - 1) & 0xFFFF;
     }
-
-    public String getName() {
-      return "L'";
-    }
-
-    public String toString() {
-      return "L'";
-    }
   }
 
-  final class IXHRegister implements Register {
+  final class IXHRegister extends Named {
 
     public IXHRegister() {
-
+      super("IXH");
     }
 
     public int read() {
@@ -641,20 +542,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       IX = (IX - 0x100) & 0xFFFF;
     }
-
-    public String getName() {
-      return "IXH";
-    }
-
-    public String toString() {
-      return "IXH";
-    }
   }
 
-  final class IXLRegister implements Register {
+  final class IXLRegister extends Named {
 
     public IXLRegister() {
-
+      super("IXL");
     }
 
     public int read() {
@@ -672,20 +565,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       IX = (IX - 1) & 0xFFFF;
     }
-
-    public String getName() {
-      return "IXL";
-    }
-
-    public String toString() {
-      return "IXL";
-    }
   }
 
-  final class IYHRegister implements Register {
+  final class IYHRegister extends Named {
 
     public IYHRegister() {
-
+      super("IYH");
     }
 
     public int read() {
@@ -703,20 +588,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       IY = (IY - 0x100) & 0xFFFF;
     }
-
-    public String getName() {
-      return "IYH";
-    }
-
-    public String toString() {
-      return "IYH";
-    }
   }
 
-  final class IYLRegister implements Register {
+  final class IYLRegister extends Named {
 
     public IYLRegister() {
-
+      super("IYL");
     }
 
     public int read() {
@@ -734,25 +611,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       IY = (IY - 1) & 0xFFFF;
     }
-
-    public String getName() {
-      return "IYL";
-    }
-
-    public String toString() {
-      return "IYL";
-    }
   }
 
-  final class AFRegister implements RegisterPair {
-
-    private final Register high;
-    private final Register low;
+  final class AFRegister extends Pair {
 
     public AFRegister(Register high, Register low) {
-
-      this.high = high;
-      this.low = low;
+      super("AF", high, low);
     }
 
     public int read() {
@@ -775,33 +639,12 @@ public class UnrolledRegisterBank extends RegisterBank {
       if (F == 0xFF)
         A = (A - 1) & 0xFF;
     }
-
-    public Register getHigh() {
-      return high;
-    }
-
-    public Register getLow() {
-      return low;
-    }
-
-    public String getName() {
-      return "AF";
-    }
-
-    public String toString() {
-      return "AF";
-    }
   }
 
-  final class BCRegister implements RegisterPair {
-
-    private final Register high;
-    private final Register low;
+  final class BCRegister extends Pair {
 
     public BCRegister(Register high, Register low) {
-
-      this.high = high;
-      this.low = low;
+      super("BC", high, low);
     }
 
     public int read() {
@@ -824,33 +667,12 @@ public class UnrolledRegisterBank extends RegisterBank {
       if (C == 0xFF)
         B = (B - 1) & 0xFF;
     }
-
-    public Register getHigh() {
-      return high;
-    }
-
-    public Register getLow() {
-      return low;
-    }
-
-    public String getName() {
-      return "BC";
-    }
-
-    public String toString() {
-      return "BC";
-    }
   }
 
-  final class DERegister implements RegisterPair {
-
-    private final Register high;
-    private final Register low;
+  final class DERegister extends Pair {
 
     public DERegister(Register high, Register low) {
-
-      this.high = high;
-      this.low = low;
+      super("DE", high, low);
     }
 
     public int read() {
@@ -873,33 +695,12 @@ public class UnrolledRegisterBank extends RegisterBank {
       if (E == 0xFF)
         D = (D - 1) & 0xFF;
     }
-
-    public Register getHigh() {
-      return high;
-    }
-
-    public Register getLow() {
-      return low;
-    }
-
-    public String getName() {
-      return "DE";
-    }
-
-    public String toString() {
-      return "DE";
-    }
   }
 
-  final class HLRegister implements RegisterPair {
-
-    private final Register high;
-    private final Register low;
+  final class HLRegister extends Pair {
 
     public HLRegister(Register high, Register low) {
-
-      this.high = high;
-      this.low = low;
+      super("HL", high, low);
     }
 
     public int read() {
@@ -922,33 +723,12 @@ public class UnrolledRegisterBank extends RegisterBank {
       if (L == 0xFF)
         H = (H - 1) & 0xFF;
     }
-
-    public Register getHigh() {
-      return high;
-    }
-
-    public Register getLow() {
-      return low;
-    }
-
-    public String getName() {
-      return "HL";
-    }
-
-    public String toString() {
-      return "HL";
-    }
   }
 
-  final class IRRegister implements RegisterPair {
-
-    private final Register high;
-    private final Register low;
+  final class IRRegister extends Pair {
 
     public IRRegister(Register high, Register low) {
-
-      this.high = high;
-      this.low = low;
+      super("IR", high, low);
     }
 
     public int read() {
@@ -956,49 +736,28 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
 
     private int getR() {
-      return low.read();
+      return getLow().read();
     }
 
     public void write(int value) {
       I = (value >>> 8) & 0xFF;
-      low.write(value);
+      getLow().write(value);
     }
 
     /** R counts on its own seven bits and never carries into I, so the pair moves when R does. */
     public void increment() {
-      low.increment();
+      getLow().increment();
     }
 
     public void decrement() {
-      low.decrement();
-    }
-
-    public Register getHigh() {
-      return high;
-    }
-
-    public Register getLow() {
-      return low;
-    }
-
-    public String getName() {
-      return "IR";
-    }
-
-    public String toString() {
-      return "IR";
+      getLow().decrement();
     }
   }
 
-  final class AFxRegister implements RegisterPair {
-
-    private final Register high;
-    private final Register low;
+  final class AFxRegister extends Pair {
 
     public AFxRegister(Register high, Register low) {
-
-      this.high = high;
-      this.low = low;
+      super("AF'", high, low);
     }
 
     public int read() {
@@ -1016,33 +775,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       _AF = (_AF - 1) & 0xFFFF;
     }
-
-    public Register getHigh() {
-      return high;
-    }
-
-    public Register getLow() {
-      return low;
-    }
-
-    public String getName() {
-      return "AF'";
-    }
-
-    public String toString() {
-      return "AF'";
-    }
   }
 
-  final class BCxRegister implements RegisterPair {
-
-    private final Register high;
-    private final Register low;
+  final class BCxRegister extends Pair {
 
     public BCxRegister(Register high, Register low) {
-
-      this.high = high;
-      this.low = low;
+      super("BC'", high, low);
     }
 
     public int read() {
@@ -1060,33 +798,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       _BC = (_BC - 1) & 0xFFFF;
     }
-
-    public Register getHigh() {
-      return high;
-    }
-
-    public Register getLow() {
-      return low;
-    }
-
-    public String getName() {
-      return "BC'";
-    }
-
-    public String toString() {
-      return "BC'";
-    }
   }
 
-  final class DExRegister implements RegisterPair {
-
-    private final Register high;
-    private final Register low;
+  final class DExRegister extends Pair {
 
     public DExRegister(Register high, Register low) {
-
-      this.high = high;
-      this.low = low;
+      super("DE'", high, low);
     }
 
     public int read() {
@@ -1104,33 +821,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       _DE = (_DE - 1) & 0xFFFF;
     }
-
-    public Register getHigh() {
-      return high;
-    }
-
-    public Register getLow() {
-      return low;
-    }
-
-    public String getName() {
-      return "DE'";
-    }
-
-    public String toString() {
-      return "DE'";
-    }
   }
 
-  final class HLxRegister implements RegisterPair {
-
-    private final Register high;
-    private final Register low;
+  final class HLxRegister extends Pair {
 
     public HLxRegister(Register high, Register low) {
-
-      this.high = high;
-      this.low = low;
+      super("HL'", high, low);
     }
 
     public int read() {
@@ -1148,33 +844,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       _HL = (_HL - 1) & 0xFFFF;
     }
-
-    public Register getHigh() {
-      return high;
-    }
-
-    public Register getLow() {
-      return low;
-    }
-
-    public String getName() {
-      return "HL'";
-    }
-
-    public String toString() {
-      return "HL'";
-    }
   }
 
-  final class IXRegister implements RegisterPair {
-
-    private final Register high;
-    private final Register low;
+  final class IXRegister extends Pair {
 
     public IXRegister(Register high, Register low) {
-
-      this.high = high;
-      this.low = low;
+      super("IX", high, low);
     }
 
     public int read() {
@@ -1192,33 +867,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       IX = (IX - 1) & 0xFFFF;
     }
-
-    public Register getHigh() {
-      return high;
-    }
-
-    public Register getLow() {
-      return low;
-    }
-
-    public String getName() {
-      return "IX";
-    }
-
-    public String toString() {
-      return "IX";
-    }
   }
 
-  final class IYRegister implements RegisterPair {
-
-    private final Register high;
-    private final Register low;
+  final class IYRegister extends Pair {
 
     public IYRegister(Register high, Register low) {
-
-      this.high = high;
-      this.low = low;
+      super("IY", high, low);
     }
 
     public int read() {
@@ -1236,28 +890,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       IY = (IY - 1) & 0xFFFF;
     }
-
-    public Register getHigh() {
-      return high;
-    }
-
-    public Register getLow() {
-      return low;
-    }
-
-    public String getName() {
-      return "IY";
-    }
-
-    public String toString() {
-      return "IY";
-    }
   }
 
-  final class PCRegister implements Register {
+  final class PCRegister extends Named {
 
     public PCRegister() {
-
+      super("PC");
     }
 
     public int read() {
@@ -1275,20 +913,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       PC = (PC - 1) & 0xFFFF;
     }
-
-    public String getName() {
-      return "PC";
-    }
-
-    public String toString() {
-      return "PC";
-    }
   }
 
-  final class SPRegister implements Register {
+  final class SPRegister extends Named {
 
     public SPRegister() {
-
+      super("SP");
     }
 
     public int read() {
@@ -1306,20 +936,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       SP = (SP - 1) & 0xFFFF;
     }
-
-    public String getName() {
-      return "SP";
-    }
-
-    public String toString() {
-      return "SP";
-    }
   }
 
-  final class MEMPTRRegister implements Register {
+  final class MEMPTRRegister extends Named {
 
     public MEMPTRRegister() {
-
+      super("MEMPTR");
     }
 
     public int read() {
@@ -1337,20 +959,12 @@ public class UnrolledRegisterBank extends RegisterBank {
     public void decrement() {
       MEMPTR = (MEMPTR - 1) & 0xFFFF;
     }
-
-    public String getName() {
-      return "MEMPTR";
-    }
-
-    public String toString() {
-      return "MEMPTR";
-    }
   }
 
-  final class VirtualRegister implements Register {
+  final class VirtualRegister extends Named {
 
     public VirtualRegister() {
-
+      super("VIRTUAL");
     }
 
     public int read() {
@@ -1367,14 +981,6 @@ public class UnrolledRegisterBank extends RegisterBank {
 
     public void decrement() {
       VIRTUAL = (VIRTUAL - 1) & 0xFFFF;
-    }
-
-    public String getName() {
-      return "VIRTUAL";
-    }
-
-    public String toString() {
-      return "VIRTUAL";
     }
   }
 }
