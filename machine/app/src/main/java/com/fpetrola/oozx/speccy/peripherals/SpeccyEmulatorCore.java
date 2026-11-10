@@ -127,7 +127,7 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
   /** The machines this build has, so the list is not a copy of them that can go stale. */
   @Override
   public java.util.List<String> getMachineModels() {
-    return speccy.machine.getMachineTypes().stream().map(com.fpetrola.oozx.speccy.machine.SpectrumMachine::getName).toList();
+    return speccy.machine.modelNames();
   }
 
 
@@ -297,17 +297,16 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
         if (speccy.machine.current != null && model.equals(speccy.machine.current.getName())) {
           return;
         }
-        speccy.machine.getMachineTypes().stream().filter(m -> m.getName().equals(model)).findFirst()
-            .ifPresent(type -> {
-              // Whatever this machine needs is brought here and now, where a question can be asked:
-              // by the time the emulator's own thread builds it, everything it reads is on this disk.
-              if (!com.fpetrola.oozx.speccy.desktop.RomNotShippedDialog.readyFor(speccy.roms, type)) return;
-              // Straight to the one asked for. Passing through the default first meant the
-              // machine became a 48K on the way, said so, and every box showing the model flicked
-              // to "Spectrum 48K" and back - and selecting a machine already clears the
-              // peripherals, the clock and the timetable, so the trip bought nothing.
-              speccy.select(type);
-            });
+        speccy.machine.model(model).ifPresent(type -> {
+          // Whatever this machine needs is brought here and now, where a question can be asked:
+          // by the time the emulator's own thread builds it, everything it reads is on this disk.
+          if (!com.fpetrola.oozx.speccy.desktop.RomNotShippedDialog.readyFor(speccy.roms, type)) return;
+          // Straight to the one asked for. Passing through the default first meant the
+          // machine became a 48K on the way, said so, and every box showing the model flicked
+          // to "Spectrum 48K" and back - and selecting a machine already clears the
+          // peripherals, the clock and the timetable, so the trip bought nothing.
+          speccy.select(type);
+        });
       }
 
       @Override

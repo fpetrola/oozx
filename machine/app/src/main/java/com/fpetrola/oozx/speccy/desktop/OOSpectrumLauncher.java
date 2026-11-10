@@ -179,13 +179,11 @@ public class OOSpectrumLauncher {
     if (wanted == null) {
       return;
     }
-    speccy.machine.getMachineTypes().stream()
-        .filter(type -> type.getName().equals(wanted))
-        .findFirst().ifPresent(type -> {
-          if (!RomNotShippedDialog.readyFor(dev.plugdesk.app.Configuration.shared().of(com.fpetrola.oozx.config.RomFiles.class), type)) return;
-          speccy.machine.selectDefault();
-          speccy.machine.select(type);
-        });
+    speccy.machine.model(wanted).ifPresent(type -> {
+      if (!RomNotShippedDialog.readyFor(dev.plugdesk.app.Configuration.shared().of(com.fpetrola.oozx.config.RomFiles.class), type)) return;
+      speccy.machine.selectDefault();
+      speccy.machine.select(type);
+    });
   }
 
   /** A machine from a session kept in the settings, however it was kept. */

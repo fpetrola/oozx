@@ -63,8 +63,7 @@ public class DefaultsCore extends MockEmulatorCore {
 
   @Override
   public java.util.List<String> getMachineModels() {
-    return build().machine.getMachineTypes().stream()
-        .map(com.fpetrola.oozx.speccy.machine.SpectrumMachine::getName).toList();
+    return build().machine.modelNames();
   }
 
   /**

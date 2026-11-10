@@ -90,6 +90,16 @@ public class Machine implements com.fpetrola.oozx.speccy.parts.Visitable {
         .orElseThrow(() -> new IllegalArgumentException("no " + type.getSimpleName() + " on this emulator")));
   }
 
+  /** The model this build has by that name, if it has one. */
+  public java.util.Optional<Spectrum> model(String name) {
+    return machineTypes.stream().filter(model -> model.getName().equals(name)).findFirst();
+  }
+
+  /** The names of the models this build has, so a list of them is never a copy that can go stale. */
+  public List<String> modelNames() {
+    return machineTypes.stream().map(Spectrum::getName).toList();
+  }
+
   public List<Spectrum> getMachineTypes() {
     return machineTypes;
   }
