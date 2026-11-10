@@ -18,6 +18,7 @@
 package com.fpetrola.oozx.speccy.screen;
 
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 
 /**
  * The effects that are not scalers: what a tube did to the picture, and what someone wants done
@@ -103,7 +104,30 @@ public final class ScreenEffects {
    */
   public static class ShadowMask implements ScreenEffect {
     /** Which pattern the phosphors were in. */
-    public enum Pattern { NONE, APERTURE_GRILLE, SLOT_MASK }
+    public enum Pattern {
+      NONE {
+        @Override
+        boolean drawn() {
+          return false;
+        }
+      },
+      APERTURE_GRILLE,
+      /** Offset every other pair of rows, which is what makes it look like dots rather than stripes. */
+      SLOT_MASK {
+        @Override
+        int shiftAt(int y) {
+          return (y / 2) % 2;
+        }
+      };
+
+      boolean drawn() {
+        return true;
+      }
+
+      int shiftAt(int y) {
+        return 0;
+      }
+    }
 
     private final Pattern pattern;
     private final double depth;
@@ -118,7 +142,7 @@ public final class ScreenEffects {
     }
 
     public boolean isTransparent() {
-      return pattern == Pattern.NONE || depth <= 0;
+      return !pattern.drawn() || depth <= 0;
     }
 
     public BufferedImage apply(BufferedImage picture, ScreenContext context) {
@@ -126,9 +150,7 @@ public final class ScreenEffects {
       int[] pixels = ScreenContext.pixelsOf(picture);
       int width = picture.getWidth(), height = picture.getHeight();
       for (int y = 0; y < height; y++) {
-        // A grille runs the whole height; a slot mask is offset every other pair of rows, which
-        // is what makes the second look like dots rather than stripes.
-        int shift = pattern == Pattern.SLOT_MASK && (y / 2) % 2 == 1 ? 1 : 0;
+        int shift = pattern.shiftAt(y);
         int row = y * width;
         for (int x = 0; x < width; x++) {
           int rgb = pixels[row + x];
@@ -188,21 +210,40 @@ public final class ScreenEffects {
 
   /** What the colours are turned into on the way out: for old eyes, dark rooms, or an old tube. */
   public static class Tint implements ScreenEffect {
-    /** Which way the colours are pushed. */
+    /** Which way the colours are pushed: each channel becomes so much of the brightness plus so much of itself. */
     public enum Shade {
-      NONE("None"), GREEN("Green phosphor"), AMBER("Amber phosphor"),
-      GREY("Black and white"), SEPIA("Sepia"), WARM("Warm (less blue)");
+      NONE("None", NOTHING, ALL),
+      GREEN("Green phosphor", new double[] {0.20, 1, 0.25}, NOTHING),
+      AMBER("Amber phosphor", new double[] {1, 0.75, 0.10}, NOTHING),
+      GREY("Black and white", ALL, NOTHING),
+      SEPIA("Sepia", new double[] {1.07, 0.93, 0.72}, NOTHING),
+      WARM("Warm (less blue)", NOTHING, new double[] {1, 1, 0.80});
 
       private final String label;
+      private final double[] ofLuma;
+      private final double[] ofItself;
 
-      Shade(String label) {
+      Shade(String label, double[] ofLuma, double[] ofItself) {
         this.label = label;
+        this.ofLuma = ofLuma;
+        this.ofItself = ofItself;
       }
 
       public String label() {
         return label;
       }
+
+      boolean keepsTheColours() {
+        return Arrays.equals(ofLuma, NOTHING) && Arrays.equals(ofItself, ALL);
+      }
+
+      double pushed(int channel, double itself, double luma) {
+        return luma * ofLuma[channel] + itself * ofItself[channel];
+      }
     }
+
+    private static final double[] NOTHING = {0, 0, 0};
+    private static final double[] ALL = {1, 1, 1};
 
     private final Shade shade;
     private final double brightness;
@@ -219,23 +260,16 @@ public final class ScreenEffects {
     }
 
     public boolean isTransparent() {
-      return shade == Shade.NONE && brightness == 1 && saturation == 1;
+      return shade.keepsTheColours() && brightness == 1 && saturation == 1;
     }
 
     public BufferedImage apply(BufferedImage picture, ScreenContext context) {
       int[] pixels = ScreenContext.pixelsOf(picture);
       for (int i = 0; i < pixels.length; i++) {
         int rgb = pixels[i];
-        double r = (rgb >> 16) & 0xFF, g = (rgb >> 8) & 0xFF, b = rgb & 0xFF;
-        double luma = 0.299 * r + 0.587 * g + 0.114 * b;
-        switch (shade) {
-          case GREEN -> { r = luma * 0.20; g = luma; b = luma * 0.25; }
-          case AMBER -> { r = luma; g = luma * 0.75; b = luma * 0.10; }
-          case GREY -> { r = luma; g = luma; b = luma; }
-          case SEPIA -> { r = luma * 1.07; g = luma * 0.93; b = luma * 0.72; }
-          case WARM -> b *= 0.80;
-          case NONE -> { }
-        }
+        double red = (rgb >> 16) & 0xFF, green = (rgb >> 8) & 0xFF, blue = rgb & 0xFF;
+        double luma = 0.299 * red + 0.587 * green + 0.114 * blue;
+        double r = shade.pushed(0, red, luma), g = shade.pushed(1, green, luma), b = shade.pushed(2, blue, luma);
         if (saturation != 1) {
           double mid = 0.299 * r + 0.587 * g + 0.114 * b;
           r = mid + (r - mid) * saturation;

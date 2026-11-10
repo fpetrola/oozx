@@ -25,7 +25,6 @@
 2	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotZ80.java|com.fpetrola.emulation.helpers.snapshots.SnapshotZ80.loadFromStream()|switch(z80Header2[2] & 0xff)
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotZ80.java|com.fpetrola.emulation.helpers.snapshots.SnapshotZ80.writeSnapshotData()|switch(spectrum.getJoystick())
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotZ80.java|com.fpetrola.emulation.helpers.snapshots.SnapshotZ80.writeSnapshotData()|switch(spectrum.getSpectrumModel())
-1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenEffects.java|com.fpetrola.oozx.speccy.screen.ScreenEffects.Tint.apply(BufferedImage, ScreenContext)|switch(shade)
 1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/InstructionsBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.InstructionsBytecodeGenerator.visitingRet(Ret)|switch(exit.kind())
 1	translation/translator/src/main/java/com/fpetrola/z80/minizx/SpectrumApplication.java|com.fpetrola.z80.minizx.SpectrumApplication.popInto(String)|switch(pair)
 1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/Batman.java|com.fpetrola.z80.minizx.emulation.Batman.runJumps(int)|switch(var2)
