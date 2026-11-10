@@ -1,0 +1,30 @@
+{
+  "hooks" : {
+    "PreToolUse" : [ {
+      "matcher" : "Bash",
+      "hooks" : [ {
+        "type" : "command",
+        "command" : "\"/home/fernando/.sdkman/candidates/java/25.3.4+1.r25-graal/bin/java\" -cp \"/home/fernando/.m2/repository/com/fpetrola/cerco-maven-plugin/0.5.0/cerco-maven-plugin-0.5.0.jar\" com.fpetrola.cerco.hooks.HookMain guard",
+        "timeout" : 20
+      } ]
+    } ],
+    "PostToolUse" : [ {
+      "matcher" : "Edit|Write|MultiEdit|Bash",
+      "hooks" : [ {
+        "type" : "command",
+        "command" : "\"/home/fernando/.sdkman/candidates/java/25.3.4+1.r25-graal/bin/java\" -cp \"/home/fernando/.m2/repository/com/fpetrola/cerco-maven-plugin/0.5.0/cerco-maven-plugin-0.5.0.jar\" com.fpetrola.cerco.hooks.HookMain quick --mvn \"/usr/share/maven/bin/mvn\"",
+        "timeout" : 240
+      } ]
+    } ],
+    "Stop" : [ {
+      "hooks" : [ {
+        "type" : "command",
+        "command" : "\"/home/fernando/.sdkman/candidates/java/25.3.4+1.r25-graal/bin/java\" -cp \"/home/fernando/.m2/repository/com/fpetrola/cerco-maven-plugin/0.5.0/cerco-maven-plugin-0.5.0.jar\" com.fpetrola.cerco.hooks.HookMain audit --mvn \"/usr/share/maven/bin/mvn\"",
+        "timeout" : 900
+      } ]
+    } ]
+  },
+  "permissions" : {
+    "deny" : [ "Edit(.cerco/**)", "Edit(.claude/settings.json)", "Bash(*-Dcerco.skip*)" ]
+  }
+}
