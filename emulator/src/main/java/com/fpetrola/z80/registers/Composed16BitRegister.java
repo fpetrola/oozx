@@ -108,10 +108,6 @@ public class Composed16BitRegister<R extends Register> extends ObservableRegiste
         }
     }
 
-    public int getLength() {
-        return 0;
-    }
-
     public void addRegisterWriteListener(RegisterWriteListener memoryWriteListener) {
         super.addRegisterWriteListener(memoryWriteListener);
         ObservableRegister high1 = (ObservableRegister) getHigh();

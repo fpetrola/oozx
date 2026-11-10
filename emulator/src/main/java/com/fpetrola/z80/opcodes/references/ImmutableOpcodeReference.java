@@ -23,7 +23,10 @@ import com.fpetrola.z80.base.InstructionVisitor;
 public interface ImmutableOpcodeReference extends OpcodeReferenceBase {
   int read();
 
-  int getLength();
+  /** The bytes of the instruction this reference reads from the opcode stream: none, unless it is an operand. */
+  default int getLength() {
+    return 0;
+  }
 
   default void accept(InstructionVisitor instructionVisitor) {
     instructionVisitor.visitImmutableOpcodeReference(this);

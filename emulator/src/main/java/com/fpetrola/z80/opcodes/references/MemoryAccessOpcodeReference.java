@@ -40,11 +40,6 @@ public class MemoryAccessOpcodeReference implements OpcodeReference {
   }
 
   @Override
-  public int getLength() {
-    return 0;
-  }
-
-  @Override
   public void write(int value) {
     this.mem.write(c.read(), value);
   }

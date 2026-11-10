@@ -26,10 +26,6 @@ public class NullOpcodeReference implements OpcodeReference {
     return -1;
   }
 
-  public int getLength() {
-    return 0;
-  }
-
   public void write(int value) {
   }
 

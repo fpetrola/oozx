@@ -42,7 +42,6 @@ public class Plain8BitRegister extends ObservableRegister implements Register {
         this.data = and;
     }
 
-
     public void increment() {
         incrementing(data);
         this.data = data + 1;
@@ -53,7 +52,4 @@ public class Plain8BitRegister extends ObservableRegister implements Register {
         this.data = (data - 1) & 0xFF;
     }
 
-    public int getLength() {
-        return 0;
-    }
 }

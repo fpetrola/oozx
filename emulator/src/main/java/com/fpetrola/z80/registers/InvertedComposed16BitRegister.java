@@ -31,10 +31,6 @@ public class InvertedComposed16BitRegister implements RegisterPair {
         return data & 0xFF;
       }
 
-      public int getLength() {
-        return 0;
-      }
-
       public void write(int value) {
         data = (data & 0xFF00) | (value & 0xFF);
       }
@@ -73,9 +69,6 @@ public class InvertedComposed16BitRegister implements RegisterPair {
         return registerH.name();
       }
 
-      public int getLength() {
-        return 0;
-      }
     };
   }
 
@@ -101,10 +94,6 @@ public class InvertedComposed16BitRegister implements RegisterPair {
 
   public int read() {
     return data;
-  }
-
-  public int getLength() {
-    return 0;
   }
 
   public void write(int value) {

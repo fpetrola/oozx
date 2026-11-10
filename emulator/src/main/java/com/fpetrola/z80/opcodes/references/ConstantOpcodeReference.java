@@ -31,10 +31,6 @@ public class ConstantOpcodeReference implements ImmutableOpcodeReference {
     return value;
   }
 
-  public int getLength() {
-    return 0;
-  }
-
   public String toString() {
     return value + "";
   }

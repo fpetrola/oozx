@@ -52,7 +52,4 @@ public class Plain16BitRegister extends ObservableRegister {
         data = (data - 1) & 0xFFFF;
     }
 
-    public int getLength() {
-        return 0;
-    }
 }

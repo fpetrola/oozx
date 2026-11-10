@@ -90,10 +90,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       A = (A - 1) & 0xFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "A";
     }
@@ -104,7 +100,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class FRegister implements Register {
-
 
     public FRegister() {
 
@@ -126,10 +121,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       F = (F - 1) & 0xFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "F";
     }
@@ -140,7 +131,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class BRegister implements Register {
-
 
     public BRegister() {
 
@@ -162,10 +152,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       B = (B - 1) & 0xFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "B";
     }
@@ -176,7 +162,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class CRegister implements Register {
-
 
     public CRegister() {
 
@@ -198,10 +183,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       C = (C - 1) & 0xFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "C";
     }
@@ -212,7 +193,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class DRegister implements Register {
-
 
     public DRegister() {
 
@@ -234,10 +214,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       D = (D - 1) & 0xFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "D";
     }
@@ -248,7 +224,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class ERegister implements Register {
-
 
     public ERegister() {
 
@@ -270,10 +245,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       E = (E - 1) & 0xFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "E";
     }
@@ -284,7 +255,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class HRegister implements Register {
-
 
     public HRegister() {
 
@@ -306,10 +276,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       H = (H - 1) & 0xFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "H";
     }
@@ -320,7 +286,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class LRegister implements Register {
-
 
     public LRegister() {
 
@@ -342,10 +307,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       L = (L - 1) & 0xFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "L";
     }
@@ -356,7 +317,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class IRegister implements Register {
-
 
     public IRegister() {
 
@@ -376,10 +336,6 @@ public class UnrolledRegisterBank extends RegisterBank {
 
     public void decrement() {
       I = (I - 1) & 0xFF;
-    }
-
-    public int getLength() {
-      return 0;
     }
 
     public String getName() {
@@ -414,13 +370,9 @@ public class UnrolledRegisterBank extends RegisterBank {
       return R;
     }
 
-    public int getLength() {
-      return 0;
-    }
   }
 
   final class AxRegister implements Register {
-
 
     public AxRegister() {
 
@@ -442,10 +394,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       _AF = (_AF - 0x100) & 0xFFFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "A'";
     }
@@ -456,7 +404,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class FxRegister implements Register {
-
 
     public FxRegister() {
 
@@ -478,10 +425,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       _AF = (_AF - 1) & 0xFFFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "F'";
     }
@@ -492,7 +435,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class BxRegister implements Register {
-
 
     public BxRegister() {
 
@@ -514,10 +456,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       _BC = (_BC - 0x100) & 0xFFFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "B'";
     }
@@ -528,7 +466,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class CxRegister implements Register {
-
 
     public CxRegister() {
 
@@ -550,10 +487,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       _BC = (_BC - 1) & 0xFFFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "C'";
     }
@@ -564,7 +497,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class DxRegister implements Register {
-
 
     public DxRegister() {
 
@@ -586,10 +518,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       _DE = (_DE - 0x100) & 0xFFFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "D'";
     }
@@ -600,7 +528,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class ExRegister implements Register {
-
 
     public ExRegister() {
 
@@ -622,10 +549,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       _DE = (_DE - 1) & 0xFFFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "E'";
     }
@@ -636,7 +559,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class HxRegister implements Register {
-
 
     public HxRegister() {
 
@@ -658,10 +580,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       _HL = (_HL - 0x100) & 0xFFFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "H'";
     }
@@ -672,7 +590,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class LxRegister implements Register {
-
 
     public LxRegister() {
 
@@ -694,10 +611,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       _HL = (_HL - 1) & 0xFFFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "L'";
     }
@@ -708,7 +621,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class IXHRegister implements Register {
-
 
     public IXHRegister() {
 
@@ -730,10 +642,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       IX = (IX - 0x100) & 0xFFFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "IXH";
     }
@@ -744,7 +652,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class IXLRegister implements Register {
-
 
     public IXLRegister() {
 
@@ -766,10 +673,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       IX = (IX - 1) & 0xFFFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "IXL";
     }
@@ -780,7 +683,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class IYHRegister implements Register {
-
 
     public IYHRegister() {
 
@@ -802,10 +704,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       IY = (IY - 0x100) & 0xFFFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "IYH";
     }
@@ -816,7 +714,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class IYLRegister implements Register {
-
 
     public IYLRegister() {
 
@@ -836,10 +733,6 @@ public class UnrolledRegisterBank extends RegisterBank {
 
     public void decrement() {
       IY = (IY - 1) & 0xFFFF;
-    }
-
-    public int getLength() {
-      return 0;
     }
 
     public String getName() {
@@ -891,10 +784,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       return low;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "AF";
     }
@@ -942,10 +831,6 @@ public class UnrolledRegisterBank extends RegisterBank {
 
     public Register getLow() {
       return low;
-    }
-
-    public int getLength() {
-      return 0;
     }
 
     public String getName() {
@@ -997,10 +882,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       return low;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "DE";
     }
@@ -1048,10 +929,6 @@ public class UnrolledRegisterBank extends RegisterBank {
 
     public Register getLow() {
       return low;
-    }
-
-    public int getLength() {
-      return 0;
     }
 
     public String getName() {
@@ -1104,10 +981,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       return low;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "IR";
     }
@@ -1150,10 +1023,6 @@ public class UnrolledRegisterBank extends RegisterBank {
 
     public Register getLow() {
       return low;
-    }
-
-    public int getLength() {
-      return 0;
     }
 
     public String getName() {
@@ -1200,10 +1069,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       return low;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "BC'";
     }
@@ -1246,10 +1111,6 @@ public class UnrolledRegisterBank extends RegisterBank {
 
     public Register getLow() {
       return low;
-    }
-
-    public int getLength() {
-      return 0;
     }
 
     public String getName() {
@@ -1296,10 +1157,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       return low;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "HL'";
     }
@@ -1342,10 +1199,6 @@ public class UnrolledRegisterBank extends RegisterBank {
 
     public Register getLow() {
       return low;
-    }
-
-    public int getLength() {
-      return 0;
     }
 
     public String getName() {
@@ -1392,10 +1245,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       return low;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "IY";
     }
@@ -1406,7 +1255,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class PCRegister implements Register {
-
 
     public PCRegister() {
 
@@ -1428,10 +1276,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       PC = (PC - 1) & 0xFFFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "PC";
     }
@@ -1442,7 +1286,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class SPRegister implements Register {
-
 
     public SPRegister() {
 
@@ -1464,10 +1307,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       SP = (SP - 1) & 0xFFFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "SP";
     }
@@ -1478,7 +1317,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class MEMPTRRegister implements Register {
-
 
     public MEMPTRRegister() {
 
@@ -1500,10 +1338,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       MEMPTR = (MEMPTR - 1) & 0xFFFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "MEMPTR";
     }
@@ -1514,7 +1348,6 @@ public class UnrolledRegisterBank extends RegisterBank {
   }
 
   final class VirtualRegister implements Register {
-
 
     public VirtualRegister() {
 
@@ -1536,10 +1369,6 @@ public class UnrolledRegisterBank extends RegisterBank {
       VIRTUAL = (VIRTUAL - 1) & 0xFFFF;
     }
 
-    public int getLength() {
-      return 0;
-    }
-
     public String getName() {
       return "VIRTUAL";
     }
@@ -1549,5 +1378,4 @@ public class UnrolledRegisterBank extends RegisterBank {
     }
   }
 }
-
 
