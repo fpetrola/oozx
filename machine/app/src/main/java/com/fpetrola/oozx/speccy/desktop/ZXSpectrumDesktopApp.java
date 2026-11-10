@@ -357,7 +357,6 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
 }
 
 
-// --- UPDATED: ZXSpectrumDesktopApp with Game Browser ---
 public class ZXSpectrumDesktopApp extends JPanel implements Desk {
   /** Builds a machine for a file; the second argument names the machine, or is null for automatic. */
   private final java.util.function.BiFunction<String, String, EmulatorCore> mockCore;
@@ -441,7 +440,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
   }
 
   private void saveState() {
-    EmulatorInternalFrame active = getActiveEmulator();
+    EmulatorInternalFrame active = machineBeingUsed();
     if (active == null) {
       JOptionPane.showMessageDialog(this, "No hay emulador activo para guardar estado.", "Save State", JOptionPane.WARNING_MESSAGE);
       return;
@@ -475,26 +474,13 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     has.deskWindows().stream().filter(offering).findFirst().ifPresent(this::show);
     has.equipment().stream().filter(offering).findFirst().ifPresent(this::show);
     has.tools().stream().filter(offering).findFirst().ifPresent(tool -> {
-      EmulatorInternalFrame machine = getActiveEmulator();
+      EmulatorInternalFrame machine = machineBeingUsed();
       if (machine != null) tool.use(machine);
     });
   }
 
-  private EmulatorInternalFrame getActiveEmulator() {
-    JInternalFrame selected = desktop.getSelectedFrame();
-    if (selected instanceof EmulatorInternalFrame) {
-      return (EmulatorInternalFrame) selected;
-    }
-    for (JInternalFrame f : desktop.getAllFrames()) {
-      if (f instanceof EmulatorInternalFrame && f.isVisible()) {
-        return (EmulatorInternalFrame) f;
-      }
-    }
-    return null;
-  }
-
   private EmulatorInternalFrame getActiveEmulatorOrCreateNew() {
-    EmulatorInternalFrame frame = getActiveEmulator();
+    EmulatorInternalFrame frame = machineBeingUsed();
     if (frame == null) {
       EmulatorCore core = mockCore.apply("", null);
       knownMachines = core.getMachineModels();
@@ -640,7 +626,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     for (com.fpetrola.oozx.speccy.devices.MachineTool tool : has.tools()) {
       if (tool.key() == null) continue;
       offers.add(new Offering("Emulator/" + dev.plugdesk.desk.Action.step(tool.tooltip()), List.of(tool.key()), 200, null, null, () -> {
-        EmulatorInternalFrame active = getActiveEmulator();
+        EmulatorInternalFrame active = machineBeingUsed();
         if (active != null) tool.use(active);
       }));
     }
@@ -712,10 +698,8 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     config.setScreenDefaults(defaults);
     config.save();
     ScreenSettings.setDefaults(defaults);
-    for (JInternalFrame frame : desktop.getAllFrames()) {
-      if (frame instanceof EmulatorInternalFrame emulator
-          && emulator.emulatorCore != null
-          && emulator.emulatorCore.getPanel() instanceof SpeccyScreen screen) {
+    for (EmulatorInternalFrame emulator : machines) {
+      if (emulator.emulatorCore != null && emulator.emulatorCore.getPanel() instanceof SpeccyScreen screen) {
         screen.getScreenSettings().apply(Map.of(key, value));
       }
     }
@@ -765,7 +749,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     String source = game != null && game.file() != null ? game.file() : loadedPath;
     // A machine started from a recording has neither: it was not opened from a search and it
     // has no file of its own, so the thing worth keeping is the recording driving it.
-    Opens playing = playingInto(getActiveEmulator());
+    Opens playing = playingInto(machineBeingUsed());
     if (source == null && playing != null) {
       keepRecording(playing.cameFrom(), playing.entryInside(), playing.label());
       return;
@@ -885,16 +869,13 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     playRecording(label, url, null);
   }
 
-  // ... (rest of the methods: createNewEmulator, cascadeWindows, tileWindows remain unchanged)
-
-  /**
-   * The deck belonging to each machine. Weak so a closed emulator can be collected; the browser
-   * looks a tape up from whichever emulator is in front rather than being tied to one.
-   */
+  /** The machine behind each core, forgotten when its window closes. */
   private final java.util.Map<EmulatorCore, com.fpetrola.oozx.Speccy> machinesByCore =
       new java.util.HashMap<>();
 
-  /** The deck inside a machine's window, or null when that window is not a machine. */
+  /** The machines' windows on the desk, among everything else it holds. */
+  private final List<EmulatorInternalFrame> machines = new ArrayList<>();
+
   /** The emulator behind a window, for a peripheral that has to reach the machine it is clipped to. */
   public void registerMachine(EmulatorCore core, com.fpetrola.oozx.Speccy speccy) {
     machinesByCore.put(core, speccy);
@@ -915,14 +896,23 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
   }
 
   public com.fpetrola.oozx.Speccy machineOf(JInternalFrame window) {
-    return window instanceof EmulatorInternalFrame emulator
-        ? machinesByCore.get(emulator.emulatorCore) : null;
+    return machine(window).map(emulator -> machinesByCore.get(emulator.emulatorCore)).orElse(null);
   }
 
   /** The core behind a machine's window, for a window that configures whichever it is clipped onto. */
   @Override
   public EmulatorCore coreOf(java.awt.Component window) {
-    return window instanceof EmulatorInternalFrame emulator ? emulator.emulatorCore : null;
+    return machine(window).map(emulator -> emulator.emulatorCore).orElse(null);
+  }
+
+  private java.util.Optional<EmulatorInternalFrame> machine(java.awt.Component window) {
+    return machines.stream().filter(machine -> machine == window).findFirst();
+  }
+
+  /** The machines from the one in front to the one at the back; an iconified one counts as the furthest back. */
+  private List<EmulatorInternalFrame> machinesFrontToBack() {
+    return machines.stream().sorted(java.util.Comparator.comparingInt(
+        (EmulatorInternalFrame machine) -> machine.isIcon() ? Integer.MAX_VALUE : desktop.getIndexOf(machine))).toList();
   }
 
   /**
@@ -1329,9 +1319,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
   }
 
   private void refillMachineToolBars() {
-    for (JInternalFrame frame : desktop.getAllFrames()) {
-      if (frame instanceof EmulatorInternalFrame machine) machine.refillTools();
-    }
+    machines.forEach(EmulatorInternalFrame::refillTools);
   }
 
 
@@ -1494,17 +1482,18 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     }
   }
 
-  /** The machine in front, or the machine whatever is in front is clipped onto. */
+  /**
+   * The machine whatever is in front stands for: itself, the machine it is clipped onto, or with
+   * neither the machine nearest the front. Tools, keys and equipment all ask this one question.
+   */
   private EmulatorInternalFrame machineBeingUsed() {
-    JInternalFrame selected = desktop == null ? null : desktop.getSelectedFrame();
-    if (selected instanceof EmulatorInternalFrame machine && !machine.isClosed()) {
-      return machine;
-    }
-    if (selected instanceof AttachedFrame clipped && clipped.isAttached()
-        && clipped.getMachineWindow() instanceof EmulatorInternalFrame machine) {
-      return machine;
-    }
-    return null;
+    if (desktop == null) return null;
+    JInternalFrame selected = desktop.getSelectedFrame();
+    JInternalFrame used = selected instanceof AttachedFrame clipped && clipped.isAttached()
+        ? clipped.getMachineWindow() : selected;
+    List<EmulatorInternalFrame> frontToBack = machinesFrontToBack();
+    return frontToBack.stream().filter(machine -> machine == used && !machine.isClosed()).findFirst()
+        .or(() -> frontToBack.stream().filter(JInternalFrame::isVisible).findFirst()).orElse(null);
   }
 
   /**
@@ -1528,7 +1517,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
         60 + (desktop.getAllFrames().length * 20) % 160);
     desktop.add(window);
     window.setVisible(true);
-    window.setMachineWindow(getActiveEmulator());
+    window.setMachineWindow(machineBeingUsed());
     window.toFront();
     return window;
   }
@@ -1556,6 +1545,22 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     }
   }
 
+  /** A machine's window joins the machines on the desk, and leaves them and lets its machine go when closed. */
+  private void onTheDesk(EmulatorInternalFrame frame, EmulatorCore core) {
+    machines.add(frame);
+    frame.addInternalFrameListener(new InternalFrameAdapter() {
+      public void internalFrameClosed(InternalFrameEvent e) {
+        machines.remove(frame);
+        core.finishEmulation();
+        frame.stopsBeingTold();
+        forgetWhatIsClosed(core);
+        WhatIsPluggedIn.theOne().tools().forEach(tool -> tool.closed(frame));
+        frame.letGoOfTheMachine();
+        frame.removeInternalFrameListener(this);
+      }
+    });
+  }
+
   public EmulatorInternalFrame createNewEmulator(EmulatorCore core1) {
     return createNewEmulator(core1, (String) null);
   }
@@ -1580,16 +1585,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     int x = (emulatorCount * 30) % 400;
     int y = (emulatorCount * 30) % 300;
     EmulatorInternalFrame frame = new EmulatorInternalFrame(core, x, y, this, game);
-    frame.addInternalFrameListener(new InternalFrameAdapter() {
-      public void internalFrameClosed(InternalFrameEvent e) {
-        core1.finishEmulation();
-        frame.stopsBeingTold();
-        forgetWhatIsClosed(core1);
-        WhatIsPluggedIn.theOne().tools().forEach(tool -> tool.closed(frame));
-        frame.letGoOfTheMachine();
-        frame.removeInternalFrameListener(this);
-      }
-    });
+    onTheDesk(frame, core);
 
     // Focusable so that clicking the picture still raises its window; the keys themselves no
     // longer depend on it holding the focus - see typeIntoTheMachineInFront.
@@ -1704,8 +1700,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
       return () -> { };
     }
     List<OOZxConfiguration.WindowState> were = new ArrayList<>();
-    for (JInternalFrame frame : backToFront()) {
-      if (!(frame instanceof EmulatorInternalFrame machine)) continue;
+    for (EmulatorInternalFrame machine : machinesFrontToBack().reversed()) {
       OOZxConfiguration.WindowState state = keep(session(), machine, away, were.size());
       if (state == null) continue;
       were.add(state);

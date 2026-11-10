@@ -31,8 +31,6 @@
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.createNewEmulator(EmulatorCore, String, Desk.Game)|(Timer) e.getSource()
 2	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.done()|(EmulatorCore) got
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.done()|(List<dev.plugdesk.app.Releases.Board>) brings
-1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.getActiveEmulator()|(EmulatorInternalFrame) f
-1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.getActiveEmulator()|(EmulatorInternalFrame) selected
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.openFor(java.io.File)|(Opens) window
 1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/TStateUpdate.java|com.fpetrola.oozx.speccy.bridge.TStateUpdate.equals(Object)|(TStateUpdate) o
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/machine/Machine.java|com.fpetrola.oozx.speccy.modules.machine.Machine.model(Class)|type.cast(getMachineTypes().stream().filter(m -> m.getClass() == ty...

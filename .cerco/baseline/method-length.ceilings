@@ -6,7 +6,7 @@
 41	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java|com.fpetrola.oozx.speccy.desktop.OOSpectrumLauncher.init()
 46	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.EmulatorInternalFrame.EmulatorInternalFrame(EmulatorCore, int, int, ZXSpectrumDesktopApp, Desk.Game)
 47	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.ZXSpectrumDesktopApp(java.util.function.BiFunction, Function)
-67	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.createNewEmulator(EmulatorCore, String, Desk.Game)
+58	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.createNewEmulator(EmulatorCore, String, Desk.Game)
 50	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.load(String, Desk.Game, Runnable, boolean)
 45	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.offers()
 45	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/OOSpectrumConnector.java|com.fpetrola.oozx.speccy.bridge.OOSpectrumConnector.init(LibretroCore, LibretroCore.bridge_command)
