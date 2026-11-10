@@ -21,7 +21,7 @@
  */
 package com.fpetrola.emulation.helpers.snapshots;
 
-import com.fpetrola.emulation.helpers.machine.Keyboard.JoystickModel;
+import com.fpetrola.emulation.helpers.machine.JoystickModel;
 import com.fpetrola.emulation.helpers.machine.MachineTypes;
 
 /**

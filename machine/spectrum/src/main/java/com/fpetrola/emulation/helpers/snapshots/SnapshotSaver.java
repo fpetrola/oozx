@@ -22,7 +22,7 @@ import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.transformations.Base64Utils;
 import com.fpetrola.emulation.SnapshotUnicodePacker;
-import com.fpetrola.emulation.helpers.machine.Keyboard;
+import com.fpetrola.emulation.helpers.machine.JoystickModel;
 import com.fpetrola.emulation.helpers.machine.MachineTypes;
 import z80core.IntMode;
 
@@ -51,7 +51,7 @@ public class SnapshotSaver {
       spectrumState.setAY8912State(new AY8912State());
       // No joystick is ever plugged into a machine to remember; NONE is the answer the
       // format still requires an entry for.
-      spectrumState.setJoystick(com.fpetrola.emulation.helpers.machine.Keyboard.JoystickModel.NONE);
+      spectrumState.setJoystick(JoystickModel.NONE);
       spectrumState.setTstates(state.clock.getTStates());
 
       SnapshotFile snapshot = SnapshotFactory.getSnapshot(file);
@@ -145,7 +145,7 @@ public class SnapshotSaver {
     spectrumState.setAY8912State(new AY8912State());
     spectrumState.setTstates(state.clock.getTStates());
 
-    spectrumState.setJoystick(Keyboard.JoystickModel.NONE);
+    spectrumState.setJoystick(JoystickModel.NONE);
 
     SnapshotZ80 snapshot = new SnapshotZ80();
     return snapshot.saveToBytes(spectrumState);
