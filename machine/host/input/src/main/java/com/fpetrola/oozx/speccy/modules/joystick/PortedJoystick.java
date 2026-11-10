@@ -51,14 +51,13 @@ public final class PortedJoystick implements JoystickKind {
     reads = atRest;
   }
 
-  public boolean push(Direction direction, boolean pushed) {
+  public void push(Direction direction, boolean pushed) {
     byte bit = bits[direction.ordinal()];
     if (pushed == pushRaises) {
       reads |= bit;
     } else {
       reads &= ~bit;
     }
-    return true;
   }
 
   public byte reads() {

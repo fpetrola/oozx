@@ -36,4 +36,9 @@ public interface KeyLayout {
   default boolean releasedByPressing(Input.InputKey key) {
     return false;
   }
+
+  /** Whether letting go of a key of the host lets go of it on the Spectrum: not on a keyboard that releases by pressing. */
+  default boolean releasedByLettingGo() {
+    return true;
+  }
 }

@@ -23,8 +23,12 @@ package com.fpetrola.oozx.speccy.modules.joystick;
  * machine's own keyboard - which is why this is a kind and not a flag.
  */
 public interface JoystickKind {
-  /** @return whether this took the push, so whoever pushed does not also send it to the keyboard */
-  boolean push(Direction direction, boolean pushed);
+  /** Whether a push is this one's to take, so whoever pushed does not also send it to the keyboard. */
+  default boolean takesPushes() {
+    return true;
+  }
+
+  void push(Direction direction, boolean pushed);
 
   /** What its port reads, for the kinds that have one. */
   default byte reads() {

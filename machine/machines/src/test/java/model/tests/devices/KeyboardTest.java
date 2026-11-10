@@ -19,6 +19,7 @@ package model.tests.devices;
 
 import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.modules.input.Input;
+import com.fpetrola.oozx.speccy.modules.input.InputSetup;
 import com.fpetrola.oozx.speccy.modules.joystick.Joystick;
 import com.fpetrola.oozx.speccy.modules.keyboard.SpectrumKey;
 import model.harness.MachineTest;
@@ -194,7 +195,7 @@ class KeyboardTest extends MachineTest {
   @Test
   void theArrowsCanBeAskedToCarryCapsShift() {
     Speccy speccy = silentMachine();
-    Input.of(speccy).setup.arrowsShifted = true;
+    Input.of(speccy).setup().setArrowsShifted(true);
     type(speccy, Input.InputKey.INPUT_KEY_Left, true);
     assertEquals(KEYS & ~0x10, speccy.ports.read(0xF7FE) & KEYS, "left is 5");
     assertEquals(KEYS & ~0x01, speccy.ports.read(0xFEFE) & KEYS, "and caps shift is held with it");
@@ -208,8 +209,8 @@ class KeyboardTest extends MachineTest {
   @Test
   void aKeyGivenToTheJoystickDoesNotReachTheMatrix() {
     Speccy speccy = silentMachine();
-    Input.of(speccy).setup.keyboard.output = Joystick.JoystickType.JOYSTICK_TYPE_CURSOR;
-    Input.of(speccy).setup.keyboard.left = Input.InputKey.INPUT_KEY_z;
+    Input.of(speccy).setup().keyboard().setOutput(Joystick.JoystickType.JOYSTICK_TYPE_CURSOR);
+    Input.of(speccy).setup().keyboard().setLeft(Input.InputKey.INPUT_KEY_z);
     speccy.peripheralRegistry.update();
 
     type(speccy, Input.InputKey.INPUT_KEY_z, true);
@@ -230,7 +231,7 @@ class KeyboardTest extends MachineTest {
   @Test
   void theArrowsAndSpaceStandInForAPadThatIsNotThere() {
     Speccy speccy = silentMachine();
-    Input.of(speccy).setup.keyboard.standInForAPad(true);
+    Input.of(speccy).setup().keyboard().standInForAPad(true);
     Input.of(speccy).joystick().kempstonRead(0x1F);
 
     type(speccy, Input.InputKey.INPUT_KEY_Left, true);
@@ -239,7 +240,7 @@ class KeyboardTest extends MachineTest {
     assertEquals(KEYS, speccy.ports.read(0xF7FE) & KEYS, "and 5 never went down");
     assertEquals(KEYS, speccy.ports.read(0x7FFE) & KEYS, "nor space");
 
-    Input.of(speccy).setup.keyboard.standInForAPad(false);
+    Input.of(speccy).setup().keyboard().standInForAPad(false);
     type(speccy, Input.InputKey.INPUT_KEY_space, true);
     assertEquals(KEYS & ~0x01, speccy.ports.read(0x7FFE) & KEYS, "with a pad there, space is the machine's again");
   }
@@ -251,7 +252,7 @@ class KeyboardTest extends MachineTest {
   @Test
   void spaceIsTheMachinesUntilSomethingActuallyReadsTheKempston() {
     Speccy speccy = silentMachine();
-    Input.of(speccy).setup.keyboard.standInForAPad(true);
+    Input.of(speccy).setup().keyboard().standInForAPad(true);
 
     type(speccy, Input.InputKey.INPUT_KEY_space, true);
     assertEquals(KEYS & ~0x01, speccy.ports.read(0x7FFE) & KEYS, "nothing reads the joystick, so space is a key");
@@ -267,7 +268,7 @@ class KeyboardTest extends MachineTest {
   @Test
   void aKeySomebodyChoseIsTheJoysticksEvenWithNothingReadingThePort() {
     Speccy speccy = silentMachine();
-    Input.of(speccy).setup.keyboard.fire = Input.InputKey.INPUT_KEY_a;
+    Input.of(speccy).setup().keyboard().setFire(Input.InputKey.INPUT_KEY_a);
 
     type(speccy, Input.InputKey.INPUT_KEY_a, true);
     assertEquals(0x10, Input.of(speccy).joystick().kempstonReads() & 0xFF, "A was chosen as fire, so it fires");
@@ -275,9 +276,11 @@ class KeyboardTest extends MachineTest {
   }
 
   private static void type(Speccy speccy, Input.InputKey key, boolean down) {
-    Input.of(speccy).event(new Input.InputEvent(
-        down ? Input.InputEventType.INPUT_EVENT_KEYPRESS : Input.InputEventType.INPUT_EVENT_KEYRELEASE,
-        new Input.InputEventKey(key, key)));
+    if (down) {
+      Input.of(speccy).press(key);
+    } else {
+      Input.of(speccy).release(key);
+    }
   }
 
   /**
@@ -289,14 +292,14 @@ class KeyboardTest extends MachineTest {
     Path file = Files.createTempFile("oozx", ".json");
     Files.writeString(file, "{\"input\": {\"arrowsShifted\": true, \"keyboard\": {\"output\": \"JOYSTICK_TYPE_CURSOR\"}}}");
     Speccy speccy = silentMachine(binder -> binder.bind(Configuration.class).toInstance(new Configuration(file.toFile())));
-    Input.Setup setup = Input.of(speccy).setup;
-    assertTrue(setup.arrowsShifted);
-    assertEquals(Joystick.JoystickType.JOYSTICK_TYPE_CURSOR, setup.keyboard.output);
-    setup.keyboard.fire = Input.InputKey.INPUT_KEY_space;
-    Input.Setup.Keys onlyUp = new Input.Setup.Keys();
-    onlyUp.up = Input.InputKey.INPUT_KEY_q;
+    InputSetup setup = Input.of(speccy).setup();
+    assertTrue(setup.arrowsShifted());
+    assertEquals(Joystick.JoystickType.JOYSTICK_TYPE_CURSOR, setup.keyboard().getOutput());
+    setup.keyboard().setFire(Input.InputKey.INPUT_KEY_space);
+    InputSetup.Keys onlyUp = new InputSetup.Keys();
+    onlyUp.setUp(Input.InputKey.INPUT_KEY_q);
     setup.setKeyboard(onlyUp);
-    assertEquals(Input.InputKey.INPUT_KEY_q, setup.keyboard.up);
-    assertNull(setup.keyboard.fire, "a key the keyboard given did not name is not the one the machine had");
+    assertEquals(Input.InputKey.INPUT_KEY_q, setup.keyboard().getUp());
+    assertNull(setup.keyboard().getFire(), "a key the keyboard given did not name is not the one the machine had");
   }
 }

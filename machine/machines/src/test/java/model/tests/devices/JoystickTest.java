@@ -42,7 +42,7 @@ class JoystickTest extends MachineTest {
 
   private static Speccy on(JoystickType type) {
     Speccy speccy = MachineTest.silentMachine();
-    Input.of(speccy).setup.keyboard.output = type;
+    Input.of(speccy).setup().keyboard().setOutput(type);
     return speccy;
   }
 
@@ -122,9 +122,9 @@ class JoystickTest extends MachineTest {
   @Test
   void aJoystickThatIsNotThereTakesNothing() {
     Speccy speccy = on(JoystickType.JOYSTICK_TYPE_NONE);
-    assertFalse(Input.of(speccy).joystick().press(Input.of(speccy).joystick().JOYSTICK_KEYBOARD, JoystickButton.JOYSTICK_BUTTON_UP, true),
+    assertFalse(Input.of(speccy).joystick().takes(Input.of(speccy).joystick().JOYSTICK_KEYBOARD),
         "with no joystick, the key is not the joystick's");
-    assertTrue(Input.of(speccy).joystick().press(0, JoystickButton.JOYSTICK_BUTTON_UP, true),
+    assertTrue(Input.of(speccy).joystick().takes(0),
         "a pad with nothing chosen answers as a Kempston, which is what it did");
   }
 
@@ -132,8 +132,8 @@ class JoystickTest extends MachineTest {
   @Test
   void thePadsAndTheKeyboardAreThreeDifferentSockets() {
     Speccy speccy = MachineTest.silentMachine();
-    Input.of(speccy).setup.joystick1.output = JoystickType.JOYSTICK_TYPE_KEMPSTON;
-    Input.of(speccy).setup.joystick2.output = JoystickType.JOYSTICK_TYPE_CURSOR;
+    Input.of(speccy).setup().joystick1().setOutput(JoystickType.JOYSTICK_TYPE_KEMPSTON);
+    Input.of(speccy).setup().joystick2().setOutput(JoystickType.JOYSTICK_TYPE_CURSOR);
 
     Input.of(speccy).joystick().press(0, JoystickButton.JOYSTICK_BUTTON_FIRE, true);
     assertEquals(0x10, Input.of(speccy).joystick().kempstonRead(0x1F).value() & 0xFF, "the first pad is a Kempston");

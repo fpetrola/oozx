@@ -262,41 +262,29 @@ public class SwingKeyboard implements KeyListener {
         return unicodeKeysymsHash.getOrDefault(uiKeysym, Input.InputKey.INPUT_KEY_NONE);
     }
 
-    private void getKeysyms(Input.InputEvent event, int keycode, char keyChar) {
-        // Map keycode to Speccy keysym
+    /** The key as the Spectrum should see it, and as the host's character says it, NONE where neither knows it. */
+    private record Keysyms(Input.InputKey nativeKey, Input.InputKey spectrumKey) {
+    }
+
+    private Keysyms keysymsOf(int keycode, char keyChar) {
         Input.InputKey speccyKeysym = keysyms.getOrDefault(keycode, Input.InputKey.INPUT_KEY_NONE);
-
-        // Map character (Unicode) to Speccy keysym for ASCII characters
         Input.InputKey unicodeKeysym = keyChar <= 0x7F ? unicodeKeysymsRemap(keyChar) : Input.InputKey.INPUT_KEY_NONE;
-
-        // Set native_key and spectrum_key
-        event.types = new Input.InputEventKey(
-            unicodeKeysym != Input.InputKey.INPUT_KEY_NONE ? unicodeKeysym : speccyKeysym,
-            speccyKeysym
-        );
+        return new Keysyms(unicodeKeysym != Input.InputKey.INPUT_KEY_NONE ? unicodeKeysym : speccyKeysym, speccyKeysym);
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-
-        Input.InputEvent speccyEvent = new Input.InputEvent(Input.InputEventType.INPUT_EVENT_KEYPRESS, null);
-        getKeysyms(speccyEvent, e.getKeyCode(), e.getKeyChar());
-
-        // Only process if we have a valid keysym
-        if (((Input.InputEventKey) speccyEvent.types).nativeKey != Input.InputKey.INPUT_KEY_NONE ||
-            ((Input.InputEventKey) speccyEvent.types).spectrumKey != Input.InputKey.INPUT_KEY_NONE) {
-            input.event(speccyEvent);
+        Keysyms keys = keysymsOf(e.getKeyCode(), e.getKeyChar());
+        if (keys.nativeKey() != Input.InputKey.INPUT_KEY_NONE || keys.spectrumKey() != Input.InputKey.INPUT_KEY_NONE) {
+            input.press(keys.spectrumKey());
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        Input.InputEvent speccyEvent = new Input.InputEvent(Input.InputEventType.INPUT_EVENT_KEYRELEASE, null);
-        getKeysyms(speccyEvent, e.getKeyCode(), e.getKeyChar());
-
-        // Only process if we have a valid keysym
-        if (((Input.InputEventKey) speccyEvent.types).spectrumKey != Input.InputKey.INPUT_KEY_NONE) {
-            input.event(speccyEvent);
+        Keysyms keys = keysymsOf(e.getKeyCode(), e.getKeyChar());
+        if (keys.spectrumKey() != Input.InputKey.INPUT_KEY_NONE) {
+            input.release(keys.spectrumKey());
         }
     }
 

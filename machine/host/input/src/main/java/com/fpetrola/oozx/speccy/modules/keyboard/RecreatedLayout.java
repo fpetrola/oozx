@@ -148,4 +148,9 @@ public class RecreatedLayout implements KeyLayout {
   public boolean releasedByPressing(InputKey key) {
     return letGo;
   }
+
+  @Override
+  public boolean releasedByLettingGo() {
+    return false;
+  }
 }

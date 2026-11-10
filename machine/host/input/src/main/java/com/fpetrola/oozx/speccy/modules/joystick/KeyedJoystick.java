@@ -35,13 +35,12 @@ public final class KeyedJoystick implements JoystickKind {
     this.keys = keys;
   }
 
-  public boolean push(Direction direction, boolean pushed) {
+  public void push(Direction direction, boolean pushed) {
     SpectrumKey key = keys[direction.ordinal()];
     if (pushed) {
       keyboard.press(key);
     } else {
       keyboard.release(key);
     }
-    return true;
   }
 }

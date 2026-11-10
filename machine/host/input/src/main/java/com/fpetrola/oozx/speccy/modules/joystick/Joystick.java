@@ -17,7 +17,7 @@
 
 package com.fpetrola.oozx.speccy.modules.joystick;
 
-import com.fpetrola.oozx.speccy.modules.input.Input;
+import com.fpetrola.oozx.speccy.modules.input.InputSetup;
 import com.fpetrola.oozx.speccy.modules.keyboard.Keyboard;
 import com.fpetrola.oozx.speccy.modules.keyboard.SpectrumKey;
 import com.fpetrola.oozx.speccy.ports.BusAnswer;
@@ -65,12 +65,12 @@ public class Joystick {
   /** When the machine last read each joystick that has a port of its own. */
   private final Map<JoystickType, Long> lastRead = new java.util.concurrent.ConcurrentHashMap<>();
   private final Keyboard keyboard;
-  private final Input.Setup setup;
+  private final InputSetup setup;
   /** One per kind, made once: what a Kempston reads is the same whichever socket it is in. */
   private final Map<JoystickType, JoystickKind> kinds = new EnumMap<>(JoystickType.class);
 
   @Inject
-  public Joystick(Keyboard keyboard, Input.Setup setup) {
+  public Joystick(Keyboard keyboard, InputSetup setup) {
     this.keyboard = keyboard;
     this.setup = setup;
     kinds.put(JoystickType.JOYSTICK_TYPE_NONE, new NoJoystick());
@@ -88,22 +88,22 @@ public class Joystick {
 
   /** What is plugged into that socket, which is a setting; a pad with nothing chosen is the one the game reads. */
   private JoystickKind in(int socket) {
-    JoystickType type = switch (socket) {
-      case 0 -> setup.joystick1.output;
-      case 1 -> setup.joystick2.output;
-      case JOYSTICK_KEYBOARD -> setup.keyboard.output;
-      default -> null;
-    };
+    JoystickType type = setup.sticks().get(socket).getOutput();
     if (type == null) {
       type = inUse() != null ? inUse() : JoystickType.JOYSTICK_TYPE_KEMPSTON;
     }
     return kinds.get(type);
   }
 
-  /** @return whether the joystick took the push, so whoever pushed does not send it on */
-  public boolean press(int socket, JoystickButton button, boolean pushed) {
-    JoystickKind kind = socket == 0 || socket == 1 || socket == JOYSTICK_KEYBOARD ? in(socket) : null;
-    return kind != null && kind.push(Direction.values()[button.ordinal()], pushed);
+  /** Whether what is plugged into that socket takes pushes, so whoever pushes does not send them on. */
+  public boolean takes(int socket) {
+    return socket >= 0 && socket < setup.sticks().size() && in(socket).takesPushes();
+  }
+
+  public void press(int socket, JoystickButton button, boolean pushed) {
+    if (takes(socket)) {
+      in(socket).push(Direction.values()[button.ordinal()], pushed);
+    }
   }
 
   /** The machine reading its Kempston port, which is also what says the joystick is being used. */

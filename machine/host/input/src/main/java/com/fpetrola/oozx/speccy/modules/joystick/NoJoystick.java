@@ -19,7 +19,10 @@ package com.fpetrola.oozx.speccy.modules.joystick;
 
 /** Nothing plugged into that socket: a push is not its to take. */
 public final class NoJoystick implements JoystickKind {
-  public boolean push(Direction direction, boolean pushed) {
+  public boolean takesPushes() {
     return false;
+  }
+
+  public void push(Direction direction, boolean pushed) {
   }
 }

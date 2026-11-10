@@ -31,17 +31,19 @@ import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.peripherals.AbstractPeripheral;
 import java.util.List;
+import java.util.Optional;
 
 /** The person at the machine: what they type and what they hold, as the machine's keys and joysticks. */
 @Singleton
 public class Input extends AbstractPeripheral {
   private final Joystick joystick;
   private final Keyboard keyboard;
-  /** Handed out because what the person is doing reaches the machine through here, and windows set it. */
-  public final Setup setup;
+  private final InputSetup setup;
+  /** Which setting the keyboard's layout was made from, so a change of setting changes the layout. */
+  private boolean recreatedLayout;
 
   @Inject
-  public Input(Joystick joystick, Keyboard keyboard, Setup setup) {
+  public Input(Joystick joystick, Keyboard keyboard, InputSetup setup) {
     super(List.of());
     this.joystick = joystick;
     this.keyboard = keyboard;
@@ -54,7 +56,7 @@ public class Input extends AbstractPeripheral {
 
   /** The one at that emulator, which a window or a device reaches the way it reaches any device. */
   public static Input of(Speccy speccy) {
-    return (Input) speccy.peripheralRegistry.find(Input.class);
+    return speccy.peripheralRegistry.anyThatIs(Input.class);
   }
 
   public Keyboard keyboard() {
@@ -65,11 +67,9 @@ public class Input extends AbstractPeripheral {
     return joystick;
   }
 
-  public enum InputEventType {
-    INPUT_EVENT_KEYPRESS,
-    INPUT_EVENT_KEYRELEASE,
-    INPUT_EVENT_JOYSTICK_PRESS,
-    INPUT_EVENT_JOYSTICK_RELEASE
+  /** Handed out because what the person is doing reaches the machine through here, and windows set it. */
+  public InputSetup setup() {
+    return setup;
   }
 
   public enum InputKey {
@@ -241,54 +241,32 @@ public class Input extends AbstractPeripheral {
     }
   }
 
-  public static class InputEventKey {
-    public InputKey nativeKey;
-    public InputKey spectrumKey;
-
-    public InputEventKey(InputKey nativeKey, InputKey spectrumKey) {
-      this.nativeKey = nativeKey;
-      this.spectrumKey = spectrumKey;
+  /** A key of the host going down. */
+  public void press(InputKey key) {
+    if (asJoystick(key, true)) {
+      return;
+    }
+    layoutFromConfig();
+    keyboard.layout().pressed(key);
+    if (keyboard.layout().releasedByPressing(key)) {
+      sendKeyboardRelease(key);
+    } else {
+      sendKeyboardPress(key);
     }
   }
 
-  public class InputEventJoystick {
-    public int which;
-    public InputKey button;
-
-    public InputEventJoystick(int which, InputKey button) {
-      this.which = which;
-      this.button = button;
+  /** A key of the host coming up. A keyboard that lets go of a key by pressing it again has nothing to do here. */
+  public void release(InputKey key) {
+    if (keyboard.layout().releasedByLettingGo()) {
+      sendKeyboardRelease(key);
     }
-  }
-
-  public static class InputEvent {
-    public InputEventType type;
-    /** One of two, told apart by the type: an InputEventKey or an InputEventJoystick. */
-    public Object types;
-
-    public InputEvent(InputEventType type, Object types) {
-      this.type = type;
-      this.types = types;
-    }
-  }
-
-  public int event(InputEvent event) {
-    switch (event.type) {
-      case INPUT_EVENT_KEYPRESS:
-        return keypress((InputEventKey) event.types);
-      case INPUT_EVENT_KEYRELEASE:
-        return keyrelease((InputEventKey) event.types);
-      case INPUT_EVENT_JOYSTICK_PRESS:
-        return doJoystick((InputEventJoystick) event.types, true);
-      case INPUT_EVENT_JOYSTICK_RELEASE:
-        return doJoystick((InputEventJoystick) event.types, false);
-      default:
-        return 1;
-    }
+    setup.keyboard().pushes(key, true)
+        .filter(button -> joystick.takes(joystick.JOYSTICK_KEYBOARD))
+        .ifPresent(button -> joystick.press(joystick.JOYSTICK_KEYBOARD, button, false));
   }
 
   private boolean useShiftedArrowKeys(InputKey keysym) {
-    return setup.arrowsShifted &&
+    return setup.arrowsShifted() &&
         (keysym == InputKey.INPUT_KEY_Up || keysym == InputKey.INPUT_KEY_Down ||
             keysym == InputKey.INPUT_KEY_Left || keysym == InputKey.INPUT_KEY_Right);
   }
@@ -309,202 +287,17 @@ public class Input extends AbstractPeripheral {
 
   /** The keyboard being typed on, as the setting has it: a PC's, or a Recreated ZX. */
   private void layoutFromConfig() {
-    boolean recreated = keyboard.layout() instanceof RecreatedLayout;
-    if (recreated != setup.recreatedSpectrum) {
-      keyboard.layout(setup.recreatedSpectrum ? new RecreatedLayout() : new PcLayout());
+    if (recreatedLayout != setup.recreatedSpectrum()) {
+      recreatedLayout = setup.recreatedSpectrum();
+      keyboard.layout(recreatedLayout ? new RecreatedLayout() : new PcLayout());
     }
   }
 
   /** @return whether the key was the joystick's and the machine's own keyboard should not see it */
   private boolean asJoystick(InputKey key, boolean press) {
-    Joystick.JoystickButton button = setup.keyboard.pushes(key, !press || joystick.inUse() != null);
-    return button != null && joystick.press(joystick.JOYSTICK_KEYBOARD, button, press);
-  }
-
-  private int keypress(InputEventKey event) {
-    if (asJoystick(event.spectrumKey, true)) return 0;
-
-    layoutFromConfig();
-    keyboard.layout().pressed(event.spectrumKey);
-    if (keyboard.layout().releasedByPressing(event.spectrumKey)) {
-      sendKeyboardRelease(event.spectrumKey);
-    } else {
-      sendKeyboardPress(event.spectrumKey);
-    }
-
-    return 0;
-  }
-
-  private int keyrelease(InputEventKey event) {
-    // A keyboard that lets go of a key by being pressed again has nothing to do here.
-    if (!(keyboard.layout() instanceof RecreatedLayout)) {
-      sendKeyboardRelease(event.spectrumKey);
-    }
-
-    asJoystick(event.spectrumKey, false);
-    return 0;
-  }
-
-  /** What a fire button was set to hit, or null for one left as the joystick's own fire. */
-  private SpectrumKey getFireButtonKey(int which, InputKey button) {
-    if (which != 0 && which != 1) {
-      throw new RuntimeException("Invalid joystick button");
-    }
-    int fire = button.getValue() - InputKey.INPUT_JOYSTICK_FIRE_1.getValue();
-    SpectrumKey[] buttons = (which == 0 ? setup.joystick1 : setup.joystick2).fire;
-    return fire < 0 || fire >= buttons.length ? null : buttons[fire];
-  }
-
-  private int doJoystick(InputEventJoystick joystickEvent, boolean press) {
-    int which = joystickEvent.which;
-
-    if (joystickEvent.button.getValue() < InputKey.INPUT_JOYSTICK_FIRE_1.getValue()) {
-      Joystick.JoystickButton button;
-      switch (joystickEvent.button) {
-        case INPUT_JOYSTICK_UP:
-          button = Joystick.JoystickButton.JOYSTICK_BUTTON_UP;
-          break;
-        case INPUT_JOYSTICK_DOWN:
-          button = Joystick.JoystickButton.JOYSTICK_BUTTON_DOWN;
-          break;
-        case INPUT_JOYSTICK_LEFT:
-          button = Joystick.JoystickButton.JOYSTICK_BUTTON_LEFT;
-          break;
-        case INPUT_JOYSTICK_RIGHT:
-          button = Joystick.JoystickButton.JOYSTICK_BUTTON_RIGHT;
-          break;
-        default:
-          throw new RuntimeException("Invalid joystick button");
-      }
-      joystick.press(which, button, press);
-    } else {
-      SpectrumKey key = getFireButtonKey(which, joystickEvent.button);
-      if (key == null) {
-        joystick.press(which, Joystick.JoystickButton.JOYSTICK_BUTTON_FIRE, press);
-      } else {
-        if (press) {
-          keyboard.press(key);
-        } else {
-          keyboard.release(key);
-        }
-      }
-    }
-    return 0;
-  }
-
-  /** Everything the person at the keyboard reaches the machine through. */
-  @Singleton
-  public static class Setup {
-    public Pad joystick1 = new Pad();
-    public Pad joystick2 = new Pad();
-    public Keys keyboard = new Keys();
-    /** Whether the arrow keys are read shifted, which is what a Spectrum's own cursor keys are. */
-    public boolean arrowsShifted;
-    /** Whether a Kempston joystick interface is fitted. */
-    public boolean kempstonJoystick;
-    /** Whether a Kempston mouse is fitted. */
-    public boolean kempstonMouse;
-    /** A Recreated ZX Spectrum is a keyboard that sends its own codes rather than a keyboard's. */
-    public boolean recreatedSpectrum;
-
-    public Pad joystick1() { return joystick1; }
-    public Pad joystick2() { return joystick2; }
-    public Keys keyboard() { return keyboard; }
-    public boolean arrowsShifted() { return arrowsShifted; }
-    public boolean kempstonJoystick() { return kempstonJoystick; }
-    public boolean kempstonMouse() { return kempstonMouse; }
-    public boolean recreatedSpectrum() { return recreatedSpectrum; }
-    public void setJoystick1(Pad chosen) { joystick1.take(chosen); }
-    public void setJoystick2(Pad chosen) { joystick2.take(chosen); }
-    public void setKeyboard(Keys chosen) { keyboard.take(chosen); }
-    public void setArrowsShifted(boolean on) { arrowsShifted = on; }
-    public void setKempstonJoystick(boolean on) { kempstonJoystick = on; }
-    public void setKempstonMouse(boolean on) { kempstonMouse = on; }
-    public void setRecreatedSpectrum(boolean on) { recreatedSpectrum = on; }
-
-    /**
-     * What a joystick is to the machine: which of the joysticks a Spectrum understands it answers
-     * as. What moves it differs - a pad has buttons, the keyboard has keys - and that is what the
-     * two shapes below add.
-     */
-    public static abstract class Stick {
-      public Joystick.JoystickType output;
-
-      /** What was chosen, all of it: a key it leaves out is one this does not have any more. */
-      void take(Stick chosen) {
-        if (chosen != null) output = chosen.output;
-      }
-    }
-
-    /** A pad: fifteen fire buttons, each hitting a key of the machine's keyboard, or none. */
-    public static class Pad extends Stick {
-      public static final int FIRE_BUTTONS = 15;
-      public SpectrumKey[] fire = new SpectrumKey[FIRE_BUTTONS];
-
-      void take(Pad chosen) {
-        super.take(chosen);
-        if (chosen == null) return;
-        for (int button = 0; button < fire.length; button++)
-          fire[button] = button < chosen.fire.length ? chosen.fire[button] : null;
-      }
-    }
-
-    /**
-     * The keys of whoever is typing used as a joystick: four directions and a fire. Kept by the
-     * name of the key rather than by its number, so a file someone reads says "INPUT_KEY_a".
-     */
-    public static class Keys extends Stick {
-      public InputKey up;
-      public InputKey down;
-      public InputKey left;
-      public InputKey right;
-      public InputKey fire;
-      /** Nobody is holding a pad, so the arrows and space stand in for one. Not a setting. */
-      private transient boolean noPad;
-
-      /** Told from outside because who is holding what is not the file's to say. */
-      public void standInForAPad(boolean stand) {
-        noPad = stand;
-      }
-
-      /**
-       * Which way a key of the host pushes the stick, or null when it is not the joystick's and
-       * the machine's own keyboard should see it.
-       * <p>
-       * A direction nobody chose is the arrow that looks like it, and fire is space, while no pad
-       * is plugged in: with nothing else holding the Kempston, the keys are what is left to hold
-       * it. Space under fire is what Fuse does too, and Ctrl fires as well: many keyboards cannot
-       * report space with two arrows held, and a modifier is wired apart from the rest.
-       * <p>
-       * Those stand-in keys are only taken while {@code standingIn} says they are wanted - the
-       * machine is reading its Kempston port - because space is a key of the Spectrum too, and a
-       * game that asks for it to start would never see it if the stand-in took it all the time.
-       * A key the file chose is the joystick's either way: that was somebody's decision.
-       */
-      public Joystick.JoystickButton pushes(InputKey key, boolean standingIn) {
-        if (key == null || key == InputKey.INPUT_KEY_NONE) return null;
-        if (key == orStandIn(up, InputKey.INPUT_KEY_Up, standingIn)) return Joystick.JoystickButton.JOYSTICK_BUTTON_UP;
-        if (key == orStandIn(down, InputKey.INPUT_KEY_Down, standingIn)) return Joystick.JoystickButton.JOYSTICK_BUTTON_DOWN;
-        if (key == orStandIn(left, InputKey.INPUT_KEY_Left, standingIn)) return Joystick.JoystickButton.JOYSTICK_BUTTON_LEFT;
-        if (key == orStandIn(right, InputKey.INPUT_KEY_Right, standingIn)) return Joystick.JoystickButton.JOYSTICK_BUTTON_RIGHT;
-        if (key == orStandIn(fire, InputKey.INPUT_KEY_space, standingIn)
-            || key == orStandIn(fire, InputKey.INPUT_KEY_Control_L, standingIn)) return Joystick.JoystickButton.JOYSTICK_BUTTON_FIRE;
-        return null;
-      }
-
-      private InputKey orStandIn(InputKey chosen, InputKey standIn, boolean standingIn) {
-        return chosen != null ? chosen : noPad && standingIn ? standIn : null;
-      }
-
-      void take(Keys chosen) {
-        super.take(chosen);
-        if (chosen == null) return;
-        up = chosen.up;
-        down = chosen.down;
-        left = chosen.left;
-        right = chosen.right;
-        fire = chosen.fire;
-      }
-    }
+    Optional<Joystick.JoystickButton> button = setup.keyboard().pushes(key, !press || joystick.inUse() != null)
+        .filter(pushed -> joystick.takes(joystick.JOYSTICK_KEYBOARD));
+    button.ifPresent(pushed -> joystick.press(joystick.JOYSTICK_KEYBOARD, pushed, press));
+    return button.isPresent();
   }
 }

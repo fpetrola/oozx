@@ -18,6 +18,7 @@
 import com.fpetrola.oozx.config.Settings;
 import com.fpetrola.oozx.Extension;
 import com.fpetrola.oozx.speccy.modules.input.Input;
+import com.fpetrola.oozx.speccy.modules.input.InputSetup;
 import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
@@ -26,7 +27,7 @@ import com.google.inject.multibindings.Multibinder;
 public class InputDevices extends AbstractModule implements Extension {
   protected void configure() {
     Multibinder.newSetBinder(binder(), Peripheral.class).addBinding().to(Input.class);
-    Settings.mirror(binder(), "input", Input.Setup.class, "joystick1", "joystick2", "keyboard",
+    Settings.mirror(binder(), "input", InputSetup.class, "joystick1", "joystick2", "keyboard",
         "arrowsShifted", "kempstonJoystick", "kempstonMouse", "recreatedSpectrum");
   }
 }
