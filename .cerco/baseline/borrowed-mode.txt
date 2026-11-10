@@ -1,0 +1,3 @@
+# cerco baseline v1 borrowed-mode: count, key
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.chooseRecording()|fileChooser.getFileFilter()
+1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/AttachedFrame.java|com.fpetrola.oozx.speccy.windows.AttachedFrame.compactHeight()|detail.isVisible()
