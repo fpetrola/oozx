@@ -123,8 +123,9 @@ public class KnobRows {
   }
 
   private JComponent controlFor(Knob knob) {
-    switch (knob.kind()) {
-      case CHOICE -> {
+    return knob.shownBy(new Knob.Controls<>() {
+      @Override
+      public JComponent choice(Knob knob) {
         JComboBox<String> box = new JComboBox<>(knob.options().toArray(new String[0]));
         box.setSelectedItem(String.valueOf(knob.value()));
         box.addActionListener(e -> {
@@ -134,20 +135,23 @@ public class KnobRows {
         refreshers.put(knob, () -> box.setSelectedItem(String.valueOf(knob.value())));
         return box;
       }
-      case SWITCH -> {
+
+      @Override
+      public JComponent switching(Knob knob) {
         JCheckBox check = new JCheckBox("", Boolean.parseBoolean(String.valueOf(knob.value())));
         check.addActionListener(e -> {
           knob.set(check.isSelected());
           whenChanged.run();
         });
-        refreshers.put(knob, () -> check.setSelected(
-            Boolean.parseBoolean(String.valueOf(knob.value()))));
+        refreshers.put(knob, () -> check.setSelected(Boolean.parseBoolean(String.valueOf(knob.value()))));
         return check;
       }
-      default -> {
+
+      @Override
+      public JComponent number(Knob knob) {
         return slider(knob);
       }
-    }
+    });
   }
 
   /**

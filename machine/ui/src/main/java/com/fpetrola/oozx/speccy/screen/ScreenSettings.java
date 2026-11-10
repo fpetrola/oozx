@@ -228,11 +228,7 @@ public class ScreenSettings {
         continue;
       }
       try {
-        switch (setting.kind()) {
-          case NUMBER -> setting.set(Double.parseDouble(value));
-          case SWITCH -> setting.set(Boolean.parseBoolean(value));
-          case CHOICE -> setting.set(value);
-        }
+        setting.setWritten(value);
       } catch (RuntimeException unreadable) {
         // A value from a file someone edited, or from a version that meant something else by it.
         // One knob at its default is a better answer than a window that will not open.

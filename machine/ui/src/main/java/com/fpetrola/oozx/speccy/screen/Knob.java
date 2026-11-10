@@ -47,8 +47,65 @@ public record Knob(String key, String label, String about, String group, Kind ki
                             List<String> options, double minimum, double maximum, double step,
                             Object fallback, Supplier<Object> read, Consumer<Object> write) {
 
-  /** What sort of control shows a knob. */
-  public enum Kind { CHOICE, SWITCH, NUMBER }
+  /** What sort of control shows a knob, and how its value is read back from where it was written down. */
+  public enum Kind {
+    CHOICE {
+      @Override
+      Object read(String written) {
+        return written;
+      }
+
+      @Override
+      <T> T shownBy(Controls<T> controls, Knob knob) {
+        return controls.choice(knob);
+      }
+    },
+    SWITCH {
+      @Override
+      Object read(String written) {
+        return Boolean.parseBoolean(written);
+      }
+
+      @Override
+      <T> T shownBy(Controls<T> controls, Knob knob) {
+        return controls.switching(knob);
+      }
+    },
+    NUMBER {
+      @Override
+      Object read(String written) {
+        return Double.parseDouble(written);
+      }
+
+      @Override
+      <T> T shownBy(Controls<T> controls, Knob knob) {
+        return controls.number(knob);
+      }
+    };
+
+    abstract Object read(String written);
+
+    abstract <T> T shownBy(Controls<T> controls, Knob knob);
+  }
+
+  /** What makes a control for each sort of knob: a window says it once, and each knob picks its own. */
+  public interface Controls<T> {
+    T choice(Knob knob);
+
+    T switching(Knob knob);
+
+    T number(Knob knob);
+  }
+
+  /** The control for this knob, from whatever makes them. */
+  public <T> T shownBy(Controls<T> controls) {
+    return kind.shownBy(controls, this);
+  }
+
+  /** Sets it to a value as it was written down in a settings file. */
+  public void setWritten(String written) {
+    set(kind.read(written));
+  }
 
   /** One of a fixed set, shown as a list or as buttons. */
   public static Knob choice(String key, String label, String about, String group,
