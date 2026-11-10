@@ -1,6 +1,5 @@
 # cerco baseline v1 no-instanceof: count, key
 1	emulator/src/main/java/com/fpetrola/z80/base/ToStringInstructionVisitor.java|com.fpetrola.z80.base.ToStringInstructionVisitor.visitingConditionalInstruction(ConditionalInstruction)|instanceof Ret
-1	emulator/src/main/java/com/fpetrola/z80/cpu/CachedInstructionFetcher.java|com.fpetrola.z80.cpu.CachedInstructionFetcher.fetchNextInstruction()|instanceof AbstractInstruction
 1	emulator/src/main/java/com/fpetrola/z80/cpu/DefaultInstructionExecutor.java|com.fpetrola.z80.cpu.DefaultInstructionExecutor.execute(Instruction)|instanceof RepeatingInstruction
 1	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.After.throughBcDeOrNn(IndirectMemory8BitReference)|instanceof Memory16BitReference
 1	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.After.throughBcDeOrNn(IndirectMemory8BitReference)|instanceof Register
@@ -22,10 +21,7 @@
 1	emulator/src/main/java/com/fpetrola/z80/cpu/MultiOpcodeFetcher.java|com.fpetrola.z80.cpu.MultiOpcodeFetcher.wrapInstructions(Instruction[], int, Register, FetchedInstructionWrapper[], int, boolean, Memory)|instanceof Ld
 1	emulator/src/main/java/com/fpetrola/z80/cpu/MultiOpcodeFetcher.java|com.fpetrola.z80.cpu.MultiOpcodeFetcher.wrapInstructions(Instruction[], int, Register, FetchedInstructionWrapper[], int, boolean, Memory)|instanceof Memory8BitReference
 1	emulator/src/main/java/com/fpetrola/z80/cpu/OOZ80.java|com.fpetrola.z80.cpu.OOZ80.execute()|instanceof EI
-1	emulator/src/main/java/com/fpetrola/z80/cpu/SpyInstructionExecutor.java|com.fpetrola.z80.cpu.SpyInstructionExecutor.updatePC(Instruction)|instanceof AbstractInstruction
-2	emulator/src/main/java/com/fpetrola/z80/instructions/cache/InstructionCache.java|com.fpetrola.z80.instructions.cache.InstructionCache.cacheInstruction(int, Instruction)|instanceof AbstractInstruction
 1	emulator/src/main/java/com/fpetrola/z80/instructions/cache/InstructionCloner.java|com.fpetrola.z80.instructions.cache.InstructionCloner.clone(ConditionPredicate)|instanceof FlipFLopConditionFlag.FlipFlopPredicate
-1	emulator/src/main/java/com/fpetrola/z80/instructions/cache/InstructionCloner.java|com.fpetrola.z80.instructions.cache.InstructionCloner.clone(Instruction)|instanceof AbstractInstruction
 1	emulator/src/main/java/com/fpetrola/z80/instructions/impl/BIT.java|com.fpetrola.z80.instructions.impl.BIT.execute()|instanceof IndirectMemory8BitReference
 1	emulator/src/main/java/com/fpetrola/z80/instructions/impl/BIT.java|com.fpetrola.z80.instructions.impl.BIT.execute()|instanceof MemoryPlusRegister8BitReference
 1	emulator/src/main/java/com/fpetrola/z80/instructions/impl/In.java|com.fpetrola.z80.instructions.impl.In.In(OpcodeReference, ImmutableOpcodeReference, ImmutableOpcodeReference, ImmutableOpcodeReference, Register, IO)|instanceof Register
@@ -37,8 +33,6 @@
 2	emulator/src/main/java/com/fpetrola/z80/opcodes/references/ExecutionPoint.java|com.fpetrola.z80.opcodes.references.ExecutionPoint.equals(Object)|getClass()==
 1	emulator/src/main/java/com/fpetrola/z80/opcodes/references/IndirectMemory16BitReference.java|com.fpetrola.z80.opcodes.references.IndirectMemory16BitReference.IndirectMemory16BitReference(ImmutableOpcodeReference, Memory)|instanceof Register
 2	emulator/src/main/java/com/fpetrola/z80/registers/DefaultRegisterBankFactory.java|com.fpetrola.z80.registers.DefaultRegisterBankFactory.compose(String, Register, Register)|getClass()==
-1	emulator/src/main/java/com/fpetrola/z80/spy/InstructionSpy.java|com.fpetrola.z80.spy.InstructionSpy.wrapBank(RegisterBank)|instanceof Composed16BitRegister<?>
-1	emulator/src/main/java/com/fpetrola/z80/transformations/InstructionFetcherForTest.java|com.fpetrola.z80.transformations.InstructionFetcherForTest.updatePC(Instruction)|instanceof AbstractInstruction
 2	emulator/src/main/java/com/fpetrola/z80/tstates/Event.java|com.fpetrola.z80.tstates.Event.equals(Object)|getClass()==
 1	emulator/src/main/java/com/fpetrola/z80/tstates/PhaseProcessor.java|com.fpetrola.z80.tstates.PhaseProcessor.isImmediate(ImmutableOpcodeReference)|instanceof Memory8BitReference
 1	emulator/src/main/java/com/fpetrola/z80/tstates/PhaseProcessor.java|com.fpetrola.z80.tstates.PhaseProcessor.isIndexed(OpcodeReferenceBase)|instanceof MemoryPlusRegister8BitReference

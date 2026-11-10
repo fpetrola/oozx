@@ -1,5 +1,4 @@
 # cerco baseline v1 no-cast: count, key
-1	emulator/src/main/java/com/fpetrola/z80/cpu/DefaultInstructionExecutor.java|com.fpetrola.z80.cpu.DefaultInstructionExecutor.execute(Instruction)|(AbstractInstruction) instruction
 1	emulator/src/main/java/com/fpetrola/z80/helpers/Helper.java|com.fpetrola.z80.helpers.Helper.createInstance(Class)|(S) constructor.newInstance()
 1	emulator/src/main/java/com/fpetrola/z80/instructions/cache/InstructionCloner.java|com.fpetrola.z80.instructions.cache.InstructionCloner.clone(OpcodeReference)|(OpcodeReference) opcodeReferenceCloner.getResult()
 1	emulator/src/main/java/com/fpetrola/z80/instructions/cache/InstructionCloner.java|com.fpetrola.z80.instructions.cache.InstructionCloner.clone(R)|(R) cloneable.clone()
@@ -11,10 +10,7 @@
 1	emulator/src/main/java/com/fpetrola/z80/instructions/factory/DefaultInstructionFactory.java|com.fpetrola.z80.instructions.factory.DefaultInstructionFactory.setState(State)|(RegisterPair) state.getRegister(HL)
 1	emulator/src/main/java/com/fpetrola/z80/minizx/emulation/AbstractMemory.java|com.fpetrola.z80.minizx.emulation.AbstractMemory.read(int, int)|(MemoryReadListener) l
 1	emulator/src/main/java/com/fpetrola/z80/minizx/emulation/AbstractMemory.java|com.fpetrola.z80.minizx.emulation.AbstractMemory.write(int, int)|(MemoryWriteListener) l
-1	emulator/src/main/java/com/fpetrola/z80/opcodes/decoder/DefaultFetchNextOpcodeInstruction.java|com.fpetrola.z80.opcodes.decoder.DefaultFetchNextOpcodeInstruction.DefaultFetchNextOpcodeInstruction(State, Instruction[], int, String, Memory)|(AbstractInstruction) instruction
-1	emulator/src/main/java/com/fpetrola/z80/opcodes/decoder/table/DDCBFDCBPrefixTableOpCodeGenerator.java|com.fpetrola.z80.opcodes.decoder.table.DDCBFDCBPrefixTableOpCodeGenerator.getOpcode()|(AbstractInstruction) result
 1	emulator/src/main/java/com/fpetrola/z80/opcodes/decoder/table/TableOpCodeGenerator.java|com.fpetrola.z80.opcodes.decoder.table.TableOpCodeGenerator.replaceLowHigh(OpcodeReference, RegisterName, RegisterName)|(Register) source
-1	emulator/src/main/java/com/fpetrola/z80/opcodes/references/ExecutionPoint.java|com.fpetrola.z80.opcodes.references.ExecutionPoint.compareTo(Object)|(ExecutionPoint) o
 1	emulator/src/main/java/com/fpetrola/z80/opcodes/references/ExecutionPoint.java|com.fpetrola.z80.opcodes.references.ExecutionPoint.equals(Object)|(ExecutionPoint) o
 1	emulator/src/main/java/com/fpetrola/z80/registers/Composed16BitRegister.java|com.fpetrola.z80.registers.Composed16BitRegister.Composed16BitRegister(String, Register, Register)|(R) h
 1	emulator/src/main/java/com/fpetrola/z80/registers/Composed16BitRegister.java|com.fpetrola.z80.registers.Composed16BitRegister.Composed16BitRegister(String, Register, Register)|(R) l
@@ -27,11 +23,6 @@
 1	emulator/src/main/java/com/fpetrola/z80/registers/Composed16BitRegister.java|com.fpetrola.z80.registers.Composed16BitRegister.update8Bits(int, R)|(ObservableRegister) register
 1	emulator/src/main/java/com/fpetrola/z80/registers/DefaultRegisterBankFactory.java|com.fpetrola.z80.registers.DefaultRegisterBankFactory.compose(String, Register, Register)|(Plain8BitRegister) h
 1	emulator/src/main/java/com/fpetrola/z80/registers/DefaultRegisterBankFactory.java|com.fpetrola.z80.registers.DefaultRegisterBankFactory.compose(String, Register, Register)|(Plain8BitRegister) l
-1	emulator/src/main/java/com/fpetrola/z80/spy/InstructionSpy.java|com.fpetrola.z80.spy.InstructionSpy.wrapBank(RegisterBank)|(Register) composed16BitRegister.getHigh()
-1	emulator/src/main/java/com/fpetrola/z80/spy/InstructionSpy.java|com.fpetrola.z80.spy.InstructionSpy.wrapBank(RegisterBank)|(Register) composed16BitRegister.getLow()
-1	emulator/src/main/java/com/fpetrola/z80/spy/InstructionSpy.java|com.fpetrola.z80.spy.InstructionSpy.wrapBank(RegisterBank)|(Register) r
-1	emulator/src/main/java/com/fpetrola/z80/spy/SpyRegisterBankFactory.java|com.fpetrola.z80.spy.SpyRegisterBankFactory.createComposed16BitRegister(RegisterName, Register, Register)|(RegisterPair) spy.wrapRegister(super.createComposed16BitRegister(r...
-1	emulator/src/main/java/com/fpetrola/z80/spy/SpyRegisterBankFactory.java|com.fpetrola.z80.spy.SpyRegisterBankFactory.createComposed16BitRegister(RegisterName, RegisterName, RegisterName)|(RegisterPair) spy.wrapRegister(super.createComposed16BitRegister(r...
 1	emulator/src/main/java/com/fpetrola/z80/tstates/Event.java|com.fpetrola.z80.tstates.Event.equals(Object)|(Event) o
 1	emulator/src/main/java/com/fpetrola/z80/tstates/PhaseProcessor.java|com.fpetrola.z80.tstates.PhaseProcessor.visitLdOperation(LdOperation)|(TargetInstruction) ldOperation.getInstruction()
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/RomNotShippedDialog.java|com.fpetrola.oozx.speccy.desktop.RomNotShippedDialog.open(List)|(java.awt.Frame) null
