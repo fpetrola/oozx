@@ -4,7 +4,7 @@
 1	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/input/Input.java|com.fpetrola.oozx.speccy.modules.input.Input.useShiftedArrowKeys(InputKey)|InputKey|INPUT_KEY_Left
 1	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/input/Input.java|com.fpetrola.oozx.speccy.modules.input.Input.useShiftedArrowKeys(InputKey)|InputKey|INPUT_KEY_Right
 1	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/input/Input.java|com.fpetrola.oozx.speccy.modules.input.Input.useShiftedArrowKeys(InputKey)|InputKey|INPUT_KEY_Up
-2	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/keyboard/RecreatedLayout.java|com.fpetrola.oozx.speccy.modules.keyboard.RecreatedLayout.pressed(InputKey)|InputKey|INPUT_KEY_NONE
+1	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/keyboard/RecreatedLayout.java|com.fpetrola.oozx.speccy.modules.keyboard.RecreatedLayout.pressed(InputKey)|InputKey|INPUT_KEY_NONE
 1	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/keyboard/RecreatedLayout.java|com.fpetrola.oozx.speccy.modules.keyboard.RecreatedLayout.pressed(InputKey)|InputKey|INPUT_KEY_Shift_L
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/AttachedFrame.java|com.fpetrola.oozx.speccy.windows.AttachedFrame.SnapGlow.paintComponent(Graphics)|Dock|FREE
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/AttachedFrame.java|com.fpetrola.oozx.speccy.windows.AttachedFrame.distanceTo(JInternalFrame, Rectangle, Dock)|Dock|FREE

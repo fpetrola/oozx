@@ -31,94 +31,71 @@ import java.util.Map;
  * makes of it is a press of one key, or the release of the key that was down.
  */
 public class RecreatedLayout implements KeyLayout {
-  private final Map<Integer, InputKey> presses = new HashMap<>();
-  private final Map<Integer, InputKey> releases = new HashMap<>();
+  /** What a letter the keyboard sends means: a Spectrum key, pressed or let go of. */
+  private record Sent(InputKey key, boolean letsGo) {
+  }
+
+  private final Map<Integer, Sent> sent = new HashMap<>();
   private final KeyLayout keys = new PcLayout();
   private int typed;
   private InputKey produced = InputKey.INPUT_KEY_NONE;
   private boolean letGo;
 
   {
-    presses.put(InputKey.INPUT_KEY_a.getValue(), InputKey.INPUT_KEY_1);
-    presses.put(InputKey.INPUT_KEY_c.getValue(), InputKey.INPUT_KEY_2);
-    presses.put(InputKey.INPUT_KEY_e.getValue(), InputKey.INPUT_KEY_3);
-    presses.put(InputKey.INPUT_KEY_g.getValue(), InputKey.INPUT_KEY_4);
-    presses.put(InputKey.INPUT_KEY_i.getValue(), InputKey.INPUT_KEY_5);
-    presses.put(InputKey.INPUT_KEY_k.getValue(), InputKey.INPUT_KEY_6);
-    presses.put(InputKey.INPUT_KEY_m.getValue(), InputKey.INPUT_KEY_7);
-    presses.put(InputKey.INPUT_KEY_o.getValue(), InputKey.INPUT_KEY_8);
-    presses.put(InputKey.INPUT_KEY_q.getValue(), InputKey.INPUT_KEY_9);
-    presses.put(InputKey.INPUT_KEY_s.getValue(), InputKey.INPUT_KEY_0);
-    presses.put(InputKey.INPUT_KEY_u.getValue(), InputKey.INPUT_KEY_q);
-    presses.put(InputKey.INPUT_KEY_w.getValue(), InputKey.INPUT_KEY_w);
-    presses.put(InputKey.INPUT_KEY_y.getValue(), InputKey.INPUT_KEY_e);
-    presses.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_a.getValue(), InputKey.INPUT_KEY_r);
-    presses.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_c.getValue(), InputKey.INPUT_KEY_t);
-    presses.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_e.getValue(), InputKey.INPUT_KEY_y);
-    presses.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_g.getValue(), InputKey.INPUT_KEY_u);
-    presses.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_i.getValue(), InputKey.INPUT_KEY_i);
-    presses.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_k.getValue(), InputKey.INPUT_KEY_o);
-    presses.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_m.getValue(), InputKey.INPUT_KEY_p);
-    presses.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_o.getValue(), InputKey.INPUT_KEY_a);
-    presses.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_q.getValue(), InputKey.INPUT_KEY_s);
-    presses.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_s.getValue(), InputKey.INPUT_KEY_d);
-    presses.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_u.getValue(), InputKey.INPUT_KEY_f);
-    presses.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_w.getValue(), InputKey.INPUT_KEY_g);
-    presses.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_y.getValue(), InputKey.INPUT_KEY_h);
-    presses.put(InputKey.INPUT_KEY_0.getValue(), InputKey.INPUT_KEY_j);
-    presses.put(InputKey.INPUT_KEY_2.getValue(), InputKey.INPUT_KEY_k);
-    presses.put(InputKey.INPUT_KEY_4.getValue(), InputKey.INPUT_KEY_l);
-    presses.put(InputKey.INPUT_KEY_6.getValue(), InputKey.INPUT_KEY_Return);
-    presses.put(InputKey.INPUT_KEY_8.getValue(), InputKey.INPUT_KEY_Shift_L);
-    presses.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_comma.getValue(), InputKey.INPUT_KEY_z);
-    presses.put(InputKey.INPUT_KEY_minus.getValue(), InputKey.INPUT_KEY_x);
-    presses.put(InputKey.INPUT_KEY_bracketleft.getValue(), InputKey.INPUT_KEY_c);
-    presses.put(InputKey.INPUT_KEY_semicolon.getValue(), InputKey.INPUT_KEY_v);
-    presses.put(InputKey.INPUT_KEY_comma.getValue(), InputKey.INPUT_KEY_b);
-    presses.put(InputKey.INPUT_KEY_slash.getValue(), InputKey.INPUT_KEY_n);
-    presses.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_bracketleft.getValue(), InputKey.INPUT_KEY_m);
-    presses.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_1.getValue(), InputKey.INPUT_KEY_Control_R);
-    presses.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_5.getValue(), InputKey.INPUT_KEY_space);
-    releases.put(InputKey.INPUT_KEY_b.getValue(), InputKey.INPUT_KEY_1);
-    releases.put(InputKey.INPUT_KEY_d.getValue(), InputKey.INPUT_KEY_2);
-    releases.put(InputKey.INPUT_KEY_f.getValue(), InputKey.INPUT_KEY_3);
-    releases.put(InputKey.INPUT_KEY_h.getValue(), InputKey.INPUT_KEY_4);
-    releases.put(InputKey.INPUT_KEY_j.getValue(), InputKey.INPUT_KEY_5);
-    releases.put(InputKey.INPUT_KEY_l.getValue(), InputKey.INPUT_KEY_6);
-    releases.put(InputKey.INPUT_KEY_n.getValue(), InputKey.INPUT_KEY_7);
-    releases.put(InputKey.INPUT_KEY_p.getValue(), InputKey.INPUT_KEY_8);
-    releases.put(InputKey.INPUT_KEY_r.getValue(), InputKey.INPUT_KEY_9);
-    releases.put(InputKey.INPUT_KEY_t.getValue(), InputKey.INPUT_KEY_0);
-    releases.put(InputKey.INPUT_KEY_v.getValue(), InputKey.INPUT_KEY_q);
-    releases.put(InputKey.INPUT_KEY_x.getValue(), InputKey.INPUT_KEY_w);
-    releases.put(InputKey.INPUT_KEY_z.getValue(), InputKey.INPUT_KEY_e);
-    releases.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_b.getValue(), InputKey.INPUT_KEY_r);
-    releases.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_d.getValue(), InputKey.INPUT_KEY_t);
-    releases.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_f.getValue(), InputKey.INPUT_KEY_y);
-    releases.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_h.getValue(), InputKey.INPUT_KEY_u);
-    releases.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_j.getValue(), InputKey.INPUT_KEY_i);
-    releases.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_l.getValue(), InputKey.INPUT_KEY_o);
-    releases.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_n.getValue(), InputKey.INPUT_KEY_p);
-    releases.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_p.getValue(), InputKey.INPUT_KEY_a);
-    releases.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_r.getValue(), InputKey.INPUT_KEY_s);
-    releases.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_t.getValue(), InputKey.INPUT_KEY_d);
-    releases.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_v.getValue(), InputKey.INPUT_KEY_f);
-    releases.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_x.getValue(), InputKey.INPUT_KEY_g);
-    releases.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_z.getValue(), InputKey.INPUT_KEY_h);
-    releases.put(InputKey.INPUT_KEY_1.getValue(), InputKey.INPUT_KEY_j);
-    releases.put(InputKey.INPUT_KEY_3.getValue(), InputKey.INPUT_KEY_k);
-    releases.put(InputKey.INPUT_KEY_5.getValue(), InputKey.INPUT_KEY_l);
-    releases.put(InputKey.INPUT_KEY_7.getValue(), InputKey.INPUT_KEY_Return);
-    releases.put(InputKey.INPUT_KEY_9.getValue(), InputKey.INPUT_KEY_Shift_L);
-    releases.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_period.getValue(), InputKey.INPUT_KEY_z);
-    releases.put(InputKey.INPUT_KEY_equal.getValue(), InputKey.INPUT_KEY_x);
-    releases.put(InputKey.INPUT_KEY_bracketright.getValue(), InputKey.INPUT_KEY_c);
-    releases.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_semicolon.getValue(), InputKey.INPUT_KEY_v);
-    releases.put(InputKey.INPUT_KEY_period.getValue(), InputKey.INPUT_KEY_b);
-    releases.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_slash.getValue(), InputKey.INPUT_KEY_n);
-    releases.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_bracketright.getValue(), InputKey.INPUT_KEY_m);
-    releases.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_4.getValue(), InputKey.INPUT_KEY_Control_R);
-    releases.put(InputKey.INPUT_KEY_Shift_L.getValue() | InputKey.INPUT_KEY_6.getValue(), InputKey.INPUT_KEY_space);
+    key(InputKey.INPUT_KEY_1, alone(InputKey.INPUT_KEY_a), alone(InputKey.INPUT_KEY_b));
+    key(InputKey.INPUT_KEY_2, alone(InputKey.INPUT_KEY_c), alone(InputKey.INPUT_KEY_d));
+    key(InputKey.INPUT_KEY_3, alone(InputKey.INPUT_KEY_e), alone(InputKey.INPUT_KEY_f));
+    key(InputKey.INPUT_KEY_4, alone(InputKey.INPUT_KEY_g), alone(InputKey.INPUT_KEY_h));
+    key(InputKey.INPUT_KEY_5, alone(InputKey.INPUT_KEY_i), alone(InputKey.INPUT_KEY_j));
+    key(InputKey.INPUT_KEY_6, alone(InputKey.INPUT_KEY_k), alone(InputKey.INPUT_KEY_l));
+    key(InputKey.INPUT_KEY_7, alone(InputKey.INPUT_KEY_m), alone(InputKey.INPUT_KEY_n));
+    key(InputKey.INPUT_KEY_8, alone(InputKey.INPUT_KEY_o), alone(InputKey.INPUT_KEY_p));
+    key(InputKey.INPUT_KEY_9, alone(InputKey.INPUT_KEY_q), alone(InputKey.INPUT_KEY_r));
+    key(InputKey.INPUT_KEY_0, alone(InputKey.INPUT_KEY_s), alone(InputKey.INPUT_KEY_t));
+    key(InputKey.INPUT_KEY_q, alone(InputKey.INPUT_KEY_u), alone(InputKey.INPUT_KEY_v));
+    key(InputKey.INPUT_KEY_w, alone(InputKey.INPUT_KEY_w), alone(InputKey.INPUT_KEY_x));
+    key(InputKey.INPUT_KEY_e, alone(InputKey.INPUT_KEY_y), alone(InputKey.INPUT_KEY_z));
+    key(InputKey.INPUT_KEY_r, shifted(InputKey.INPUT_KEY_a), shifted(InputKey.INPUT_KEY_b));
+    key(InputKey.INPUT_KEY_t, shifted(InputKey.INPUT_KEY_c), shifted(InputKey.INPUT_KEY_d));
+    key(InputKey.INPUT_KEY_y, shifted(InputKey.INPUT_KEY_e), shifted(InputKey.INPUT_KEY_f));
+    key(InputKey.INPUT_KEY_u, shifted(InputKey.INPUT_KEY_g), shifted(InputKey.INPUT_KEY_h));
+    key(InputKey.INPUT_KEY_i, shifted(InputKey.INPUT_KEY_i), shifted(InputKey.INPUT_KEY_j));
+    key(InputKey.INPUT_KEY_o, shifted(InputKey.INPUT_KEY_k), shifted(InputKey.INPUT_KEY_l));
+    key(InputKey.INPUT_KEY_p, shifted(InputKey.INPUT_KEY_m), shifted(InputKey.INPUT_KEY_n));
+    key(InputKey.INPUT_KEY_a, shifted(InputKey.INPUT_KEY_o), shifted(InputKey.INPUT_KEY_p));
+    key(InputKey.INPUT_KEY_s, shifted(InputKey.INPUT_KEY_q), shifted(InputKey.INPUT_KEY_r));
+    key(InputKey.INPUT_KEY_d, shifted(InputKey.INPUT_KEY_s), shifted(InputKey.INPUT_KEY_t));
+    key(InputKey.INPUT_KEY_f, shifted(InputKey.INPUT_KEY_u), shifted(InputKey.INPUT_KEY_v));
+    key(InputKey.INPUT_KEY_g, shifted(InputKey.INPUT_KEY_w), shifted(InputKey.INPUT_KEY_x));
+    key(InputKey.INPUT_KEY_h, shifted(InputKey.INPUT_KEY_y), shifted(InputKey.INPUT_KEY_z));
+    key(InputKey.INPUT_KEY_j, alone(InputKey.INPUT_KEY_0), alone(InputKey.INPUT_KEY_1));
+    key(InputKey.INPUT_KEY_k, alone(InputKey.INPUT_KEY_2), alone(InputKey.INPUT_KEY_3));
+    key(InputKey.INPUT_KEY_l, alone(InputKey.INPUT_KEY_4), alone(InputKey.INPUT_KEY_5));
+    key(InputKey.INPUT_KEY_Return, alone(InputKey.INPUT_KEY_6), alone(InputKey.INPUT_KEY_7));
+    key(InputKey.INPUT_KEY_Shift_L, alone(InputKey.INPUT_KEY_8), alone(InputKey.INPUT_KEY_9));
+    key(InputKey.INPUT_KEY_z, shifted(InputKey.INPUT_KEY_comma), shifted(InputKey.INPUT_KEY_period));
+    key(InputKey.INPUT_KEY_x, alone(InputKey.INPUT_KEY_minus), alone(InputKey.INPUT_KEY_equal));
+    key(InputKey.INPUT_KEY_c, alone(InputKey.INPUT_KEY_bracketleft), alone(InputKey.INPUT_KEY_bracketright));
+    key(InputKey.INPUT_KEY_v, alone(InputKey.INPUT_KEY_semicolon), shifted(InputKey.INPUT_KEY_semicolon));
+    key(InputKey.INPUT_KEY_b, alone(InputKey.INPUT_KEY_comma), alone(InputKey.INPUT_KEY_period));
+    key(InputKey.INPUT_KEY_n, alone(InputKey.INPUT_KEY_slash), shifted(InputKey.INPUT_KEY_slash));
+    key(InputKey.INPUT_KEY_m, shifted(InputKey.INPUT_KEY_bracketleft), shifted(InputKey.INPUT_KEY_bracketright));
+    key(InputKey.INPUT_KEY_Control_R, shifted(InputKey.INPUT_KEY_1), shifted(InputKey.INPUT_KEY_4));
+    key(InputKey.INPUT_KEY_space, shifted(InputKey.INPUT_KEY_5), shifted(InputKey.INPUT_KEY_6));
+  }
+
+  /** The Spectrum key that one letter presses and another lets go of. */
+  private void key(InputKey spectrumKey, int pressedBy, int letGoBy) {
+    sent.put(pressedBy, new Sent(spectrumKey, false));
+    sent.put(letGoBy, new Sent(spectrumKey, true));
+  }
+
+  private static int alone(InputKey letter) {
+    return letter.getValue();
+  }
+
+  private static int shifted(InputKey letter) {
+    return InputKey.INPUT_KEY_Shift_L.getValue() | letter.getValue();
   }
 
   @Override
@@ -129,11 +106,9 @@ public class RecreatedLayout implements KeyLayout {
     if (key.getValue() >= 0 && key.getValue() < 256) {
       typed = (typed & ~255) | key.getValue();
     }
-    produced = releases.getOrDefault(typed, InputKey.INPUT_KEY_NONE);
-    letGo = produced != InputKey.INPUT_KEY_NONE;
-    if (!letGo) {
-      produced = presses.getOrDefault(typed, InputKey.INPUT_KEY_NONE);
-    }
+    Sent meant = sent.getOrDefault(typed, new Sent(InputKey.INPUT_KEY_NONE, false));
+    produced = meant.key();
+    letGo = meant.letsGo();
     if (produced != InputKey.INPUT_KEY_NONE) {
       typed = 0;
     }

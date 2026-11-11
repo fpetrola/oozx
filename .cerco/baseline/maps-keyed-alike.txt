@@ -2,7 +2,6 @@
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/SwingKeyboard.java|com.fpetrola.oozx.speccy.desktop.SwingKeyboard|maps keyed by Integer
 1	machine/core/src/main/java/com/fpetrola/oozx/config/RomFiles.java|com.fpetrola.oozx.config.RomFiles|maps keyed by String
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/config/OOZxConfiguration.java|com.fpetrola.oozx.speccy.config.OOZxConfiguration|maps keyed by String
-1	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/keyboard/RecreatedLayout.java|com.fpetrola.oozx.speccy.modules.keyboard.RecreatedLayout|maps keyed by Integer
 1	translation/blocks/src/main/java/com/fpetrola/z80/graph/CustomGraph.java|com.fpetrola.z80.graph.CustomGraph|maps keyed by String
 1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/ControlFlowStructuring.java|com.fpetrola.z80.bytecode.generators.ControlFlowStructuring|maps keyed by Integer
 1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator|maps keyed by Integer
