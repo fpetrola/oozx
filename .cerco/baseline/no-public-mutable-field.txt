@@ -80,17 +80,8 @@
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/timer/Speed.java|com.fpetrola.oozx.speccy.modules.timer.Speed.emulation
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/timer/Speed.java|com.fpetrola.oozx.speccy.modules.timer.Speed.fastLoading
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/timer/Speed.java|com.fpetrola.oozx.speccy.modules.timer.Speed.whenChanged
-1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/machine/MachineTypes.java|com.fpetrola.emulation.helpers.machine.MachineTypes.clockFreq
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/machine/MachineTypes.java|com.fpetrola.emulation.helpers.machine.MachineTypes.codeModel
-1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/machine/MachineTypes.java|com.fpetrola.emulation.helpers.machine.MachineTypes.firstScrByte
-1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/machine/MachineTypes.java|com.fpetrola.emulation.helpers.machine.MachineTypes.lastScrUpdate
-1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/machine/MachineTypes.java|com.fpetrola.emulation.helpers.machine.MachineTypes.lengthINT
-1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/machine/MachineTypes.java|com.fpetrola.emulation.helpers.machine.MachineTypes.outBorderOffset
-1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/machine/MachineTypes.java|com.fpetrola.emulation.helpers.machine.MachineTypes.outOffset
-1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/machine/MachineTypes.java|com.fpetrola.emulation.helpers.machine.MachineTypes.scanLines
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/machine/MachineTypes.java|com.fpetrola.emulation.helpers.machine.MachineTypes.tstatesFrame
-1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/machine/MachineTypes.java|com.fpetrola.emulation.helpers.machine.MachineTypes.tstatesLine
-1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/machine/MachineTypes.java|com.fpetrola.emulation.helpers.machine.MachineTypes.upBorderWidth
 1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/CodeBlockType.java|com.fpetrola.z80.blocks.CodeBlockType.routine
 1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/references/ReferencesHandler.java|com.fpetrola.z80.blocks.references.ReferencesHandler.blocksManager
 1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/references/ReferencesHandler.java|com.fpetrola.z80.blocks.references.ReferencesHandler.relationsBySourceAddress
