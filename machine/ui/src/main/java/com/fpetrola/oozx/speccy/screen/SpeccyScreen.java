@@ -19,8 +19,6 @@ package com.fpetrola.oozx.speccy.screen;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.awt.image.DirectColorModel;
@@ -328,21 +326,5 @@ public class SpeccyScreen extends JPanel {
     int x = (int) (((double) getWidth() / 2) - ((double) imgWidth / 2));
     int y = (int) (((double) getHeight() / 2) - ((double) imgHeight / 2));
     g.drawImage(scaledImage, x, y, this);
-  }
-
-  public static BufferedImage getScaledImage(BufferedImage image, int width, int height, boolean b) {
-    try {
-      int imageWidth = image.getWidth();
-      int imageHeight = image.getHeight();
-
-      double scaleX = (double) width / imageWidth;
-      double scaleY = (double) height / imageHeight;
-      AffineTransform scaleTransform = AffineTransform.getScaleInstance(scaleX, scaleY);
-      AffineTransformOp bilinearScaleOp = new AffineTransformOp(scaleTransform, b ? AffineTransformOp.TYPE_NEAREST_NEIGHBOR : AffineTransformOp.TYPE_BILINEAR);
-
-      return bilinearScaleOp.filter(image, new BufferedImage(width, height, image.getType()));
-    } catch (Exception e) {
-      return image;
-    }
   }
 }

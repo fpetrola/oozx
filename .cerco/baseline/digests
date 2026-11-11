@@ -436,7 +436,7 @@ cdf35147798e0f75776f41a11aaf98eb18886ccf51f25e98e34fa3630b8b0cd2	machine/ui/src/
 917e3fdf487910d1785045fc8c39cbd5abc2a5fcd4d9a5187947a052b945a975	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenEffects.java
 7d0a381b7c89a82ca0befaba2386a7ad9e7a0a328e50f5264e04408fd72a10c5	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenProfile.java
 e9a6bbbde2d805da4cdcdaf5da25dcca8f17c29b712bd707e147602fe6172d8d	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenSettings.java
-64325d27ccbc401657e9fe67a2a458e116d35ffbc4972fa3536e3ba84264f9cf	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/SpeccyScreen.java
+b26d1bd813d2b0a730a2078adda80109d9ccc0941dd2aa9e43a8a5edb5f3af12	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/SpeccyScreen.java
 4f4b644b4e0287f9809f786f49724dceb3984f0d1fe0fa94af327b65bea3c3bd	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/SpectrumPanel.java
 ea763344ca3d384c47672fbc470edaa5018fb43a3080855dad801cb19628fd3b	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/TvScreen.java
 2474685d374ef3ebbd77c6798158ba54f6dcd0d4d4e45ab326b548ab53658e4d	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/WaysOfDrawing.java

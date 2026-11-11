@@ -11,7 +11,6 @@
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotFile.java|com.fpetrola.emulation.helpers.snapshots.SnapshotFile.fresh()|catch(ReflectiveOperationException)
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenProfile.java|com.fpetrola.oozx.speccy.screen.ScreenProfile.sameValue(String, String)|catch(NumberFormatException)
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenSettings.java|com.fpetrola.oozx.speccy.screen.ScreenSettings.apply(Map)|catch(RuntimeException)
-1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/SpeccyScreen.java|com.fpetrola.oozx.speccy.screen.SpeccyScreen.getScaledImage(BufferedImage, int, int, boolean)|catch(Exception)
 1	translation/blocks/src/main/java/com/fpetrola/z80/graph/CustomGraph.java|com.fpetrola.z80.graph.CustomGraph.exportGraph()|catch(IOException)
 1	translation/translator/src/main/java/com/fpetrola/z80/bytecode/examples/RemoteZ80Translator.java|com.fpetrola.z80.bytecode.examples.RemoteZ80Translator.Forks.exploreUntakenBranch(OOZ80, ConditionalInstruction, int, int, StackAnalyzer, int)|catch(RuntimeException)
 1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/EmulatedMiniZX.java|com.fpetrola.z80.minizx.emulation.EmulatedMiniZX.emulate()|catch(Reached)

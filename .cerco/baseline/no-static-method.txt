@@ -117,7 +117,6 @@
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenSettings.java|com.fpetrola.oozx.speccy.screen.ScreenSettings.setDefaults(Map)
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenSettings.java|com.fpetrola.oozx.speccy.screen.ScreenSettings.setKeptProfiles(List)
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenSettings.java|com.fpetrola.oozx.speccy.screen.ScreenSettings.thereAre(List)
-1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/SpeccyScreen.java|com.fpetrola.oozx.speccy.screen.SpeccyScreen.getScaledImage(BufferedImage, int, int, boolean)
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/Widgets.java|com.fpetrola.oozx.speccy.windows.Widgets.greyed(ImageIcon, float)
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/Widgets.java|com.fpetrola.oozx.speccy.windows.Widgets.iconButton(String, String, String)
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/Widgets.java|com.fpetrola.oozx.speccy.windows.Widgets.iconToggle(String, String, String)
