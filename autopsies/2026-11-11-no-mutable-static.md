@@ -77,7 +77,9 @@ none: why no deterministic check could catch this cause; a person files it with 
 same-as: <id of a filed autopsy>  when one already proposed the rule; the sections above still describe
 this case -->
 
-rule: no-mutable-static
-A static field that is not final, or a final static collection that is mutated. It flagged
-machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/SwingKeyboard.java:37 before this fix; cerco has it.
-
+rule: static-filled-by-instances
+A static field, a collection above all, changed from a constructor or an instance method: every instance writes into
+what all of them share, and any of them can empty it for the rest. no-mutable-static only says the field is mutable;
+this says who mutates it, which is what made SwingKeyboard's map a bug. It flags today
+machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenSettings.java:277, where keepAs changes the static
+`kept`. A candidate in cerco 0.16.0.

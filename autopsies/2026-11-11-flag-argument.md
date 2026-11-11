@@ -81,8 +81,9 @@ none: why no deterministic check could catch this cause; a person files it with 
 same-as: <id of a filed autopsy>  when one already proposed the rule; the sections above still describe
 this case -->
 
-rule: flag-argument
-A boolean parameter that decides between two behaviours inside the method. It flagged
-machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/blip/BlipBuffer.java:87 before this fix; cerco
-0.15.0 has it. It would tell more by saying when every call in the project passes the same literal.
-
+rule: constant-argument
+A parameter that every call in the project passes with the same literal: the variation it stands for is not in the
+model, so the branch and the parameter go, rather than splitting the method in two as flag-argument advises. It would
+have caught BlipBuffer.readSamples(..., true) and clear(true) before this fix, and it flags today
+machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/Scalers.java:260, where every call of resize passes `true` as
+`smooth`. A candidate in cerco 0.16.0.
