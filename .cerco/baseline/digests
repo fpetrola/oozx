@@ -442,7 +442,7 @@ ea763344ca3d384c47672fbc470edaa5018fb43a3080855dad801cb19628fd3b	machine/ui/src/
 2474685d374ef3ebbd77c6798158ba54f6dcd0d4d4e45ab326b548ab53658e4d	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/WaysOfDrawing.java
 cef8f99a863e25ba1179af384b00781f847fc741dfedd0ce52091a032965d010	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/XbrzScaler.java
 e8f61e42ae88b5c0c62defd20e5395bb310ae45022c9de0155923e20112d8c8a	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/AttachedFrame.java
-ddfa191e5f4d1db36384e152741ef0bf3858cdc86d31be7fc98b54ff6184cc43	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/Edge.java
+fcd54c6530faafd95163f14c1a92e436761043cf802cb1bd47dd6b6b0ec1baa9	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/Edge.java
 89b0235fcca7a61e9acb37debb520f82ca93c72092f9d362b8073ee13edcb16c	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/EmptyIcon.java
 017a23246f7d6aed0809273c0038f05e53c65917fdac5905783b4049aa9c20f9	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/KnobRows.java
 38b6b9fe2180e4fc8d7e7b807a6d4b7e398c6d3d7f1c3088f55d43060725f94c	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/LazyImageIconLoader.java

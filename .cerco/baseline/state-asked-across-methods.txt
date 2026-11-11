@@ -1,7 +1,6 @@
 # cerco baseline v1 state-asked-across-methods: count, key
 1	emulator/src/main/java/com/fpetrola/z80/spy/ObservableRegister.java|com.fpetrola.z80.spy.ObservableRegister.listening
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/AttachedFrame.java|com.fpetrola.oozx.speccy.windows.AttachedFrame.compact
-1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/Edge.java|com.fpetrola.oozx.speccy.windows.Edge.flat
 1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/BlockChangesListenerDelegator.java|com.fpetrola.z80.blocks.BlockChangesListenerDelegator.delegationEnabled
 1	translation/blocks/src/main/java/com/fpetrola/z80/spy/WrapperInstructionSpy.java|com.fpetrola.z80.spy.WrapperInstructionSpy.capturing
 1	translation/blocks/src/main/java/com/fpetrola/z80/spy/WrapperInstructionSpy.java|com.fpetrola.z80.spy.WrapperInstructionSpy.print

@@ -24,26 +24,42 @@ import java.awt.Rectangle;
  * against a frame on that border, and where the border itself runs.
  */
 public enum Edge {
-  BOTTOM(true, true), TOP(true, false), LEFT(false, false), RIGHT(false, true);
+  BOTTOM(Axis.FLAT, true), TOP(Axis.FLAT, false), LEFT(Axis.UPRIGHT, false), RIGHT(Axis.UPRIGHT, true);
 
-  private final boolean flat;
+  /** Which way a border runs. An upright one is a flat one with the rectangle seen turned over its diagonal. */
+  private enum Axis {
+    FLAT {
+      Rectangle seen(Rectangle r) {
+        return r;
+      }
+    },
+    UPRIGHT {
+      Rectangle seen(Rectangle r) {
+        return new Rectangle(r.y, r.x, r.height, r.width);
+      }
+    };
+
+    abstract Rectangle seen(Rectangle r);
+  }
+
+  private final Axis axis;
   /** Past the far border (below the frame, or right of it) rather than before the near one. */
   private final boolean far;
 
-  Edge(boolean flat, boolean far) {
-    this.flat = flat;
+  Edge(Axis axis, boolean far) {
+    this.axis = axis;
     this.far = far;
   }
 
   /** The top or the bottom, along which a window runs the frame's width. */
   public boolean flat() {
-    return flat;
+    return axis == Axis.FLAT;
   }
 
   /** The border of the other rectangle that meets this one. */
   public Edge facing() {
     for (Edge other : values()) {
-      if (other.flat == flat && other.far != far) {
+      if (other.axis == axis && other.far != far) {
         return other;
       }
     }
@@ -52,20 +68,20 @@ public enum Edge {
 
   /** Where a rectangle starts along this border, and how far it runs along it. */
   public int along(Rectangle r) {
-    return flat ? r.x : r.y;
+    return axis.seen(r).x;
   }
 
   public int run(Rectangle r) {
-    return flat ? r.width : r.height;
+    return axis.seen(r).width;
   }
 
   /** Where a rectangle is across this border, and how thick it is that way. */
   public int across(Rectangle r) {
-    return flat ? r.y : r.x;
+    return axis.seen(r).y;
   }
 
   public int thickness(Rectangle r) {
-    return flat ? r.height : r.width;
+    return axis.seen(r).height;
   }
 
   /** Across this border, where a window that thick rests against the frame, the two overlapping by the seam. */
@@ -80,7 +96,7 @@ public enum Edge {
 
   /** The rectangle at those places along and across this border, with that run and thickness. */
   public Rectangle laid(int along, int across, int run, int thick) {
-    return flat ? new Rectangle(along, across, run, thick) : new Rectangle(across, along, thick, run);
+    return axis.seen(new Rectangle(along, across, run, thick));
   }
 
   /** Whether a window lies alongside this border of the frame, overlapping it along the border. */
