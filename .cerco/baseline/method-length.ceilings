@@ -11,7 +11,6 @@
 45	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/OOSpectrumConnector.java|com.fpetrola.oozx.speccy.bridge.OOSpectrumConnector.init(LibretroCore, LibretroCore.bridge_command)
 73	machine/core/src/main/java/com/fpetrola/oozx/EmulatorModule.java|com.fpetrola.oozx.EmulatorModule.configure()
 44	machine/core/src/main/java/com/fpetrola/oozx/speccy/media/DownloadAndUnzip.java|com.fpetrola.oozx.speccy.media.DownloadAndUnzip.scoreOf(String)
-50	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/blip/BlipBuffer.java|com.fpetrola.oozx.speccy.modules.sound.blip.BlipBuffer.readSamples(int[], int, boolean)
 42	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/timer/Timer.java|com.fpetrola.oozx.speccy.modules.timer.Timer.Tick.run(long)
 77	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/keyboard/PcLayout.java|com.fpetrola.oozx.speccy.modules.keyboard.PcLayout.PcLayout()
 106	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/machine/MachineTypes.java|com.fpetrola.emulation.helpers.machine.MachineTypes.MachineTypes(int)

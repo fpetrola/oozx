@@ -66,8 +66,15 @@ public class BlipSynth {
     blipBuffer.endFrame(frameTstates);
   }
 
+  /** Interleaved left and right, the same sample in both. */
+  public int readSamples(int[] outputSamples, int soundFrameSize) {
+    return blipBuffer.readSamples(outputSamples, soundFrameSize);
+  }
+
+  /** @deprecated always stereo; kept for the plugins built against it. */
+  @Deprecated
   public int readSamples(int[] outputSamples, int soundFrameSize, boolean stereo) {
-    return blipBuffer.readSamples(outputSamples, soundFrameSize, stereo);
+    return readSamples(outputSamples, soundFrameSize);
   }
 
   public void volume(double v) {

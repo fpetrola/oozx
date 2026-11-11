@@ -3,8 +3,6 @@
 1	machine/core/src/main/java/com/fpetrola/oozx/config/Settings.java|com.fpetrola.oozx.config.Settings.Edits.over(List, boolean)|live
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/config/OOZxConfiguration.java|com.fpetrola.oozx.speccy.config.OOZxConfiguration.takeIntoAccount(String, boolean)|taken
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/display/ScreenLayout.java|com.fpetrola.oozx.speccy.modules.display.ScreenLayout.showing(int, boolean)|colourPerLine
-1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/blip/BlipBuffer.java|com.fpetrola.oozx.speccy.modules.sound.blip.BlipBuffer.clear(boolean)|entireBuffer
-1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/blip/BlipBuffer.java|com.fpetrola.oozx.speccy.modules.sound.blip.BlipBuffer.readSamples(int[], int, boolean)|stereo
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/z80/Cpu.java|com.fpetrola.oozx.speccy.modules.z80.Cpu.machineWasReset(boolean)|hard
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/peripherals/PeripheralRegistry.java|com.fpetrola.oozx.speccy.peripherals.PeripheralRegistry.activateType(Class, boolean)|active
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/ports/Backplane.java|com.fpetrola.oozx.speccy.ports.Backplane.attach(Wired[], boolean)|inFront

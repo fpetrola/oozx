@@ -53,7 +53,7 @@ public class BlipBuffer {
 
   public BlipBuffer() {
     factor = MAX_VALUE;
-    clear(true);
+    clear();
   }
 
   public void setSampleRate(long new_rate, int msec) {
@@ -73,7 +73,7 @@ public class BlipBuffer {
 
     if (clockRate != 0) clockRate(clockRate);
     bassFreq(bassFreq);
-    clear(true);
+    clear();
   }
 
   public void clockRate(long cps) {
@@ -84,7 +84,7 @@ public class BlipBuffer {
     offset += t * factor;
   }
 
-  public int readSamples(int[] out, int maxSamples, boolean stereo) {
+  public int readSamples(int[] out, int maxSamples) {
     long count = samplesAvail();
 
     if (count > maxSamples)
@@ -101,31 +101,17 @@ public class BlipBuffer {
       int inPos = 0;
       int outPos = 0;
 
-      if (!stereo) {
-        for (int n = (int) count; n-- != 0; ) {
-          long s = accum >> sample_shift;
+      for (int n = (int) count; n-- != 0; ) {
+        long s = accum >> sample_shift;
 
-          accum -= accum >> my_bass_shift;
-          accum += in[inPos++];
-          out[outPos++] = (int) s;
+        accum -= accum >> my_bass_shift;
+        accum += in[inPos++];
+        out[outPos] = (int) s;
+        outPos += 2;
 
-          // saturate: a sample that overflowed 16 bits is clipped instead of wrapping
-          if ((int) s != s)
-            out[outPos - 1] = (int) (0x7FFF - (s >> 24));
-        }
-      } else {
-        for (int n = (int) count; n-- != 0; ) {
-          long s = accum >> sample_shift;
-
-          accum -= accum >> my_bass_shift;
-          accum += in[inPos++];
-          out[outPos] = (int) s;
-          outPos += 2;
-
-          // saturate: a sample that overflowed 16 bits is clipped instead of wrapping
-          if ((short) s != s)
-            out[outPos - 2] = (int) (0x7FFF - (s >> 24));
-        }
+        // saturate: a sample that overflowed 16 bits is clipped instead of wrapping
+        if ((short) s != s)
+          out[outPos - 2] = (int) (0x7FFF - (s >> 24));
       }
 
       readerAccum = accum;
@@ -135,12 +121,11 @@ public class BlipBuffer {
     return (int) count;
   }
 
-  public void clear(boolean entireBuffer) {
+  public void clear() {
     offset = 0;
     readerAccum = 0;
     if (buffer != null) {
-      int count = entireBuffer ? bufferSize : (int) samplesAvail();
-      fill(buffer, 0, count + BUFFER_EXTRA, 0);
+      fill(buffer, 0, bufferSize + BUFFER_EXTRA, 0);
     }
   }
 

@@ -326,9 +326,9 @@ e7aaf42af9e7a069a3246f48efaa940e3a28babdc23d8486fbde458afd5c5f58	machine/core/sr
 5d577e641e8b9f887b7ffacacc8236b2efaf378e8ef49380145987ca9fa58fa8	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/SilentSoundDevice.java
 0af435ba22475ba434b0beadfa75b8cf9235c643c595efe3ae8f983be2e7c324	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/Sound.java
 4f4e1a3d710356027ce019f9b743bc84a3d97dff8612cd036eeebe0c1b8e358c	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/SoundCard.java
-67ead2af7de4b26f6109e3cea1c19c2a725284f040660b9921f21c5e2436cf33	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/blip/BlipBuffer.java
+0db2d6e0cb26a74cd7a0a10cc11a2ef4edd7be9b337152a330117ce662f55433	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/blip/BlipBuffer.java
 7f5933336706b6cd382ccb98e16a65ebae8f82f25e033efc8eddc3038bc4f0d4	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/blip/BlipEq.java
-951f163cb6d94110bcf293e083b7c2d463a236c9a0416def323272df083772b9	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/blip/BlipSynth.java
+f650d30a8e831a30136020ab026f2c16ebb461d62c61fc7fbdc7ac306c77e1ce	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/blip/BlipSynth.java
 c0f9f6c6c7978aeeecff19946b7be4e951e9107227a51a616d9fbb16b22c7b77	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/timer/Speed.java
 0dd9b834406e2eae02dab01a98d1edb150552f0cc0d1b0d0efade64543199a03	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/timer/Timer.java
 3d43b3144c7c115039e88ed948f8b7366161eeb18bcccfd535a4eda164404981	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/ula/ContentionTable.java
@@ -399,12 +399,12 @@ db8a9ee2857a5dbca0abde12c207d89f6743c7115548b3cce529dda761c11dec	machine/host/in
 6e9dfe45cc66a1471c6c11edbeafdd863f7c203683ffc27b31e800ddbad9ea1b	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/keyboard/RecreatedLayout.java
 d83d0671ee6b17d51b80faf4ce114d7d67c06c5c198c4dd3c06a76e9f66f89fa	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/devices/sound/SoundDevices.java
 a2fad201bcbeeab1129673b3314863af5761b6ae883d290fa39ffd4f00597a90	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/AudioIn.java
-55664affd2adb17e272f36742dfcd4df21635ad9e77d7cc116ea226313320174	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/Dac.java
+266e4a47a7772380350156a5a63e996e8540d811f4747d2394ba4fd3e6f6adf5	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/Dac.java
 1d810d37bdedf7b11d08fb34423860fcabb345abc158a2f40105ebc9aa6e775e	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/DacDevice.java
 3550457e63867f80bd5a2608cd76cfcde25063ef5753d632ffb8695cb0587cbf	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/JavaSoundDevice.java
 3eb8cafcb2daed4ff978d987281bdca7053a6a4b4e3b7477fb4f551a672d48f8	machine/machines/src/main/java/com/fpetrola/oozx/speccy/machine/Spec48.java
 4302e500e423b0fda277a3c10d68fdc691d70848fa3dd36cf83fbf148a48773a	machine/machines/src/main/java/com/fpetrola/oozx/speccy/machines/Machines.java
-331a9a53fdabc70414363356b88810b08d402f8bc6843971e3d87bf50834a6b6	machine/machines/ula/src/main/java/com/fpetrola/oozx/speccy/devices/ula/Beeper.java
+e255a6a44a4f8c4237511ec107daec96532acb354a6ae8e38f3ab742da4363f2	machine/machines/ula/src/main/java/com/fpetrola/oozx/speccy/devices/ula/Beeper.java
 aa6b8d29139064077daefc9638a8d127b3cf3a6c44f03077097fe672b6c47f73	machine/machines/ula/src/main/java/com/fpetrola/oozx/speccy/devices/ula/UlaDevices.java
 d237ca83c83c3f9f80257cafa7a945fa2f9d94178a198c7cdf7fa2ff6fecf978	machine/machines/ula/src/main/java/com/fpetrola/oozx/speccy/devices/ula/UlaFullDecodePeripheral.java
 2c85b233b1ec227f3274d36791fb4eb5b1d4c18ba4256f75b91a1147f15ed729	machine/machines/ula/src/main/java/com/fpetrola/oozx/speccy/devices/ula/UlaPeripheral.java

@@ -78,7 +78,7 @@ public class Beeper implements AudioSource {
 
   @Override
   public int mixInto(int[] samples, int frames) {
-    int count = synth.readSamples(scratch, frames, true);
+    int count = synth.readSamples(scratch, frames);
     for (int i = 0; i < count; i++) {
       // Mono output duplicated to both stereo channels.
       samples[i * 2] += scratch[i * 2];

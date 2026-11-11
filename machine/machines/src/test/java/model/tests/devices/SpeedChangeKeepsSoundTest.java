@@ -86,7 +86,7 @@ class SpeedChangeKeepsSoundTest {
       long clockRate = 3500000L * speed / 100 * 2;
       int asked = BlipBuffer.samplesInAFrame(44100, clockRate, 70908);
       buffer.clockRate(clockRate);
-      buffer.clear(true);
+      buffer.clear();
       for (int frame = 0; frame < 500; frame++) {
         buffer.endFrame(70908);
         assertTrue(buffer.samplesAvail() <= asked,
