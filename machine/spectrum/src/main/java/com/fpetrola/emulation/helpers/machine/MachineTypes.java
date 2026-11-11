@@ -50,7 +50,14 @@ public enum MachineTypes {
     SPECTRUM48KNTSC("ZX Spectrum 48K (NTSC)", CodeModel.SPECTRUM48K, 3, 59136),
     SPECTRUM128KE("ZX Spectrum 128Ke", CodeModel.SPECTRUM128K, 8, 70908);
 
-    public enum CodeModel { SPECTRUM48K, SPECTRUM128K, SPECTRUMPLUS3 }
+    /** Which of the three the code of a snapshot was written for, and the model that is that one itself. */
+    public enum CodeModel {
+        SPECTRUM48K { public MachineTypes base() { return MachineTypes.SPECTRUM48K; } },
+        SPECTRUM128K { public MachineTypes base() { return MachineTypes.SPECTRUM128K; } },
+        SPECTRUMPLUS3 { public MachineTypes base() { return MachineTypes.SPECTRUMPLUS3; } };
+
+        public abstract MachineTypes base();
+    }
 
   public CodeModel codeModel;
     private String longModelName;

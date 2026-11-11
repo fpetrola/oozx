@@ -117,11 +117,7 @@ public class Machine implements com.fpetrola.oozx.speccy.parts.Visitable {
    * a 16K snapshot lands on the 48K when this build has no 16K, a Pentagon's on the 128K.
    */
   public Optional<Spectrum> forSnapshotModel(MachineTypes model) {
-    return claiming(model).or(() -> claiming(switch (model.codeModel) {
-      case SPECTRUM48K -> MachineTypes.SPECTRUM48K;
-      case SPECTRUM128K -> MachineTypes.SPECTRUM128K;
-      case SPECTRUMPLUS3 -> MachineTypes.SPECTRUMPLUS3;
-    }));
+    return claiming(model).or(() -> claiming(model.codeModel.base()));
   }
 
   private Optional<Spectrum> claiming(MachineTypes model) {
