@@ -52,10 +52,8 @@ public final class Scalers {
         new XbrzScaler(2), new XbrzScaler(3), new XbrzScaler(4)));
     // One written here and also found is one scaler: what ships answers to the same way in as
     // what arrives, and being on the classpath is not arriving twice.
-    java.util.Set<Class<?>> written = all.stream().map(Object::getClass)
-        .collect(java.util.stream.Collectors.toSet());
-    ScreenSettings.scalers().stream()
-        .filter(one -> !written.contains(one.getClass())).forEach(all::add);
+    java.util.Set<String> written = all.stream().map(Scaler::label).collect(java.util.stream.Collectors.toSet());
+    ScreenSettings.scalers().stream().filter(one -> !written.contains(one.label())).forEach(all::add);
     return List.copyOf(all);
   }
 

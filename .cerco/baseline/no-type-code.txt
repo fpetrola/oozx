@@ -14,7 +14,6 @@
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.bringBack(Session, List)|"EMULATOR".equals(state.getType())
 3	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotFactory.java|com.fpetrola.emulation.helpers.snapshots.SnapshotFactory.formats()|already.add(one.getClass())
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotFile.java|com.fpetrola.emulation.helpers.snapshots.SnapshotFile.fresh()|getClass().getDeclaredConstructor()
-1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/Scalers.java|com.fpetrola.oozx.speccy.screen.Scalers.all()|written.contains(one.getClass())
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenContext.java|com.fpetrola.oozx.speccy.screen.ScreenContext.readablePixels(BufferedImage)|image.getType() == BufferedImage.TYPE_INT_ARGB
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenContext.java|com.fpetrola.oozx.speccy.screen.ScreenContext.readablePixels(BufferedImage)|image.getType() == BufferedImage.TYPE_INT_RGB
 1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/Block.java|com.fpetrola.z80.blocks.Block.split(int)|split(address, "split", getBlockType().getClass())
