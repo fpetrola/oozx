@@ -44,7 +44,6 @@
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenContext.java|com.fpetrola.oozx.speccy.screen.ScreenContext.pixelsOf(BufferedImage)|(DataBufferInt) image.getRaster().getDataBuffer()
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenSettings.java|com.fpetrola.oozx.speccy.screen.ScreenSettings.settings()|(Boolean) value
 5	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenSettings.java|com.fpetrola.oozx.speccy.screen.ScreenSettings.settings()|(Number) value
-1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/SpeccyScreen.java|com.fpetrola.oozx.speccy.screen.SpeccyScreen.isScanLines()|(Number) read("scanlines")
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/AttachedFrame.java|com.fpetrola.oozx.speccy.windows.AttachedFrame.SnapGlow.paintComponent(Graphics)|(Graphics2D) g.create()
 1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/GenerateTestSourceInstructionVisitor.java|com.fpetrola.z80.blocks.GenerateTestSourceInstructionVisitor.visitingConditionalInstruction(ConditionalInstruction)|(Integer) conditionalInstruction.getPositionOpcodeReference().read()
 1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/references/BlockRelation.java|com.fpetrola.z80.blocks.references.BlockRelation.equals(Object)|(BlockRelation) o

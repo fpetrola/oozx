@@ -3,7 +3,6 @@
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/memory/SpectrumMemory.java|com.fpetrola.oozx.speccy.modules.memory.SpectrumMemory.beside
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/blip/BlipBuffer.java|com.fpetrola.oozx.speccy.modules.sound.blip.BlipBuffer.buffer
 1	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/AudioIn.java|com.fpetrola.oozx.speccy.modules.sound.AudioIn.line
-1	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/AudioIn.java|com.fpetrola.oozx.speccy.modules.sound.AudioIn.monitor
 1	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/JavaSoundDevice.java|com.fpetrola.oozx.speccy.modules.sound.JavaSoundDevice.line
 1	machine/machines/ula/src/main/java/com/fpetrola/oozx/speccy/devices/ula/UlaPortHandler.java|com.fpetrola.oozx.speccy.devices.ula.UlaPortHandler.speaker
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotZ80.java|com.fpetrola.emulation.helpers.snapshots.SnapshotZ80.fIn

@@ -187,26 +187,13 @@ public class SpeccyScreen extends JPanel {
     set("tv", (tv == null ? TvScreen.RGB_MONITOR : tv).label());
   }
 
-  public TvScreen getTvScreen() {
-    return TvScreen.byName(String.valueOf(read("tv")));
-  }
-
   public void setScanLines(boolean scanLines) {
     set("scanlines", scanLines ? 0.45 : 0.0);
-  }
-
-  public boolean isScanLines() {
-    return ((Number) read("scanlines")).doubleValue() > 0;
   }
 
   private void set(String key, Object value) {
     screen.settings().stream().filter(one -> one.key().equals(key)).findFirst()
         .ifPresent(one -> one.set(value));
-  }
-
-  private Object read(String key) {
-    return screen.settings().stream().filter(one -> one.key().equals(key)).findFirst()
-        .map(com.fpetrola.oozx.speccy.screen.Knob::value).orElse(0);
   }
 
   /** True to smooth, false to keep it blocky, null to go on deciding by the scale. */
@@ -215,20 +202,12 @@ public class SpeccyScreen extends JPanel {
     repaint();
   }
 
-  public Boolean getSmoothing() {
-    return smoothing;
-  }
-
   private int imageWidth() {
     return screen.isBorder() ? width : SCREEN_W;
   }
 
   private int imageHeight() {
     return screen.isBorder() ? height : SCREEN_H;
-  }
-
-  public boolean isBorderVisible() {
-    return screen.isBorder();
   }
 
   /** The picture, copied out: a scaler reads an image's pixels from its first. */

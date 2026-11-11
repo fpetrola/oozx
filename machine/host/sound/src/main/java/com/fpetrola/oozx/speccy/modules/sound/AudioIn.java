@@ -128,10 +128,6 @@ public class AudioIn {
     }
   }
 
-  public boolean isHeard() {
-    return monitor != null;
-  }
-
   public void close() {
     listening = false;
     stopHearing();

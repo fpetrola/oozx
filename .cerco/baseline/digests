@@ -399,7 +399,7 @@ db8a9ee2857a5dbca0abde12c207d89f6743c7115548b3cce529dda761c11dec	machine/host/in
 7f7404649ab4e56f845c23b15d36916366e0c10d06c5e4a3aa6d99c7c86a1b14	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/keyboard/PcLayout.java
 5b52ed3238acdbed626ac1e61a06cbc6ff9efc019552ce2f6e700a58b83785e6	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/keyboard/RecreatedLayout.java
 d83d0671ee6b17d51b80faf4ce114d7d67c06c5c198c4dd3c06a76e9f66f89fa	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/devices/sound/SoundDevices.java
-a2fad201bcbeeab1129673b3314863af5761b6ae883d290fa39ffd4f00597a90	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/AudioIn.java
+a057f3b9b00d4f613e4b81ae18216ee72f312958a8bd205e24aa48836b61fb08	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/AudioIn.java
 266e4a47a7772380350156a5a63e996e8540d811f4747d2394ba4fd3e6f6adf5	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/Dac.java
 1d810d37bdedf7b11d08fb34423860fcabb345abc158a2f40105ebc9aa6e775e	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/DacDevice.java
 3550457e63867f80bd5a2608cd76cfcde25063ef5753d632ffb8695cb0587cbf	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/JavaSoundDevice.java
@@ -436,7 +436,7 @@ cdf35147798e0f75776f41a11aaf98eb18886ccf51f25e98e34fa3630b8b0cd2	machine/ui/src/
 917e3fdf487910d1785045fc8c39cbd5abc2a5fcd4d9a5187947a052b945a975	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenEffects.java
 7d0a381b7c89a82ca0befaba2386a7ad9e7a0a328e50f5264e04408fd72a10c5	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenProfile.java
 e9a6bbbde2d805da4cdcdaf5da25dcca8f17c29b712bd707e147602fe6172d8d	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenSettings.java
-89a985f62be869e78eb47ee842a4cfb6dcace58210d1caf75ffc4bf07be1e342	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/SpeccyScreen.java
+a46d5436669ff2a02ac2ce5ab7d4aea271530d5c16aafcf143bbddbfab399eed	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/SpeccyScreen.java
 4f4b644b4e0287f9809f786f49724dceb3984f0d1fe0fa94af327b65bea3c3bd	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/SpectrumPanel.java
 ea763344ca3d384c47672fbc470edaa5018fb43a3080855dad801cb19628fd3b	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/TvScreen.java
 2474685d374ef3ebbd77c6798158ba54f6dcd0d4d4e45ab326b548ab53658e4d	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/WaysOfDrawing.java
