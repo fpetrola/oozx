@@ -87,6 +87,7 @@ public final class Settings {
       this.held = held;
     }
 
+    @Override
     public String name() {
       return name;
     }
@@ -95,6 +96,7 @@ public final class Settings {
       return device;
     }
 
+    @Override
     public List<String> properties() {
       return properties;
     }
@@ -105,6 +107,7 @@ public final class Settings {
     }
 
     /** What kind of thing a setting is, which is what decides the control that shows it. */
+    @Override
     public Class<?> typeOf(String property) {
       try {
         return Configuration.getter(device, property).getReturnType();
@@ -188,18 +191,22 @@ public final class Settings {
   }
 
   private record SaidWhole(String name, java.util.Map<String, Property> named) implements Described {
+    @Override
     public List<String> properties() {
       return List.copyOf(named.keySet());
     }
 
+    @Override
     public Class<?> typeOf(String property) {
       return named.get(property).type();
     }
 
+    @Override
     public List<?> choicesFor(String property) {
       return named.get(property).choices().get();
     }
 
+    @Override
     public String saidAbout(String property) {
       return named.get(property).said();
     }
