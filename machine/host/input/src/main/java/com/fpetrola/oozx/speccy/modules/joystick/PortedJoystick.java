@@ -28,6 +28,9 @@ public final class PortedJoystick implements JoystickKind {
   private final byte atRest;
   private final boolean pushRaises;
   private byte reads;
+  /** How long after a read it still counts as in use: a few frames. */
+  private static final long IN_USE_NANOS = 250_000_000L;
+  private volatile long lastRead = System.nanoTime() - IN_USE_NANOS;
 
   public static PortedJoystick kempston() {
     return new PortedJoystick(new byte[]{0x02, 0x01, 0x08, 0x04, 0x10}, (byte) 0x00, true);
@@ -62,5 +65,14 @@ public final class PortedJoystick implements JoystickKind {
 
   public byte reads() {
     return reads;
+  }
+
+  public byte read() {
+    lastRead = System.nanoTime();
+    return reads;
+  }
+
+  public boolean readLately() {
+    return System.nanoTime() - lastRead < IN_USE_NANOS;
   }
 }

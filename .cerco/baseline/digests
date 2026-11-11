@@ -388,11 +388,11 @@ b75784f502fdf152791b10addb921da42a7bd26c00bd9d8a56d100da0ebf62f5	machine/host/in
 c43cb3d49ddfbbc23a9df20eb4a0a14a2c192a8bea62aa8784bf5a5ca4a1bbef	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/input/Input.java
 2dd247ee70198fe9ca3c583ac50ca1303260e284d205aabeeb8ed71d378b5a19	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/input/InputSetup.java
 6b67e594442f77107f64c9fa855b6af9232cb418b0435ff007b201e42aa3ade8	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/joystick/Direction.java
-c0dafb1c12e557c4f1463b5fac11063c8f78284e3de025d900468befafbc12ee	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/joystick/Joystick.java
-7bc60d5f9b434ea13f1f363309868b6789ba396cf4405f373f7a998f32732fc5	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/joystick/JoystickKind.java
+a71268bfe4eb9d74143fa19cc8f10ef34f9116c8c44c613bdd6bcb964238ea7a	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/joystick/Joystick.java
+8504eb653bb0677389cd4db9b223fa99fb70d2b27e1b208bb6c709c2ed448246	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/joystick/JoystickKind.java
 f9e976623da82f1d7484f2c972adc07bff391ce860d7de6be37a4addb0090d21	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/joystick/KeyedJoystick.java
 a30d9dcdb658df31c7f453f8c5f5872732d3c5cb89b63e91d8a7e5ae25d2d075	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/joystick/NoJoystick.java
-6227085e5e42df62595599f676c26de85e49ad49560879bb5c6f2796edef02a7	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/joystick/PortedJoystick.java
+9acb7dc057123b2365295e287b1858c0c22cdaa19fd8a57fd1f42d5ab7486d78	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/joystick/PortedJoystick.java
 6af79969316562fd94297279d47e8a818ea0434c290a45419a3469897b7c2079	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/keyboard/Combination.java
 7faac3c131932ed0e1a2b4c5da2ce31587ae336cffcfd9b7c64ac34d5bd59ec6	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/keyboard/KeyLayout.java
 db8a9ee2857a5dbca0abde12c207d89f6743c7115548b3cce529dda761c11dec	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/keyboard/Keyboard.java

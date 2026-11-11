@@ -34,4 +34,14 @@ public interface JoystickKind {
   default byte reads() {
     return 0;
   }
+
+  /** The machine reading its port, which is also what says it is being used. */
+  default byte read() {
+    return reads();
+  }
+
+  /** Whether the machine has read its port a moment ago. */
+  default boolean readLately() {
+    return false;
+  }
 }

@@ -59,11 +59,6 @@ public class Joystick {
 
   public final String[] JOYSTICK_CONNECTION = {"None", "Keyboard", "Joystick 1", "Joystick 2"};
 
-  /** How long after a read the joystick still counts as in use: a few frames. */
-  private static final long IN_USE_NANOS = 250_000_000L;
-
-  /** When the machine last read each joystick that has a port of its own. */
-  private final Map<JoystickType, Long> lastRead = new java.util.concurrent.ConcurrentHashMap<>();
   private final Keyboard keyboard;
   private final InputSetup setup;
   /** One per kind, made once: what a Kempston reads is the same whichever socket it is in. */
@@ -121,8 +116,7 @@ public class Joystick {
   }
 
   private byte read(JoystickType type) {
-    lastRead.put(type, System.nanoTime());
-    return reads(type);
+    return kinds.get(type).read();
   }
 
   /** @deprecated what {@link #inUse()} says for the Kempston alone; kept for plugins built against it. */
@@ -139,8 +133,7 @@ public class Joystick {
    * keys standing in for a pad whether the machine wants them as a joystick or as keys.
    */
   public JoystickType inUse() {
-    long now = System.nanoTime();
-    return lastRead.entrySet().stream().filter(read -> now - read.getValue() < IN_USE_NANOS)
+    return kinds.entrySet().stream().filter(kind -> kind.getValue().readLately())
         .map(Map.Entry::getKey).findFirst().orElse(null);
   }
 
