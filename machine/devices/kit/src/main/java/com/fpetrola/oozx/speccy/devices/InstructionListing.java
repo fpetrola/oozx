@@ -96,18 +96,22 @@ public class InstructionListing extends JTable {
   private class Lines extends AbstractTableModel {
     private final String[] columns = {"", "Address", "Bytes", "Instruction"};
 
+    @Override
     public int getRowCount() {
       return lines.size();
     }
 
+    @Override
     public int getColumnCount() {
       return columns.length;
     }
 
+    @Override
     public String getColumnName(int column) {
       return columns[column];
     }
 
+    @Override
     public Object getValueAt(int row, int column) {
       Disassembly.Line at = lines.get(row);
       return switch (column) {

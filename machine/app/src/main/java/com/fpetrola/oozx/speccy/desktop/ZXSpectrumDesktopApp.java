@@ -24,15 +24,12 @@ import com.fpetrola.oozx.speccy.devices.MachineFrame;
 import com.fpetrola.oozx.speccy.media.DownloadAndUnzip;
 import dev.plugdesk.desk.Widgets;
 import com.fpetrola.oozx.speccy.windows.AttachedFrame;
-import com.fpetrola.oozx.speccy.modules.z80.Cpu;
-import com.fpetrola.oozx.speccy.devices.DeviceFrame;
 import com.fpetrola.oozx.speccy.devices.EmulatorWindow;
 import com.fpetrola.oozx.speccy.devices.Desk;
 import com.fpetrola.oozx.speccy.devices.WhatGameThisIs;
 import com.fpetrola.oozx.speccy.devices.DeskEquipment;
 import com.fpetrola.oozx.speccy.devices.Equipment;
 import com.fpetrola.oozx.speccy.devices.Opens;
-import java.util.ServiceLoader;
 
 import com.fpetrola.oozx.speccy.screen.ScreenProfile;
 import java.util.Map;
@@ -114,11 +111,9 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
   public EmulatorCore emulatorCore;
   private ZXSpectrumDesktopApp parentApp;
   private Desk.Game game;
-  //  private JLabel statusLabel;
   private JComboBox<String> modelCombo;
   private TellsThePerson.Listening listening;
   private KeyListener keys;
-  //  private JLabel tapeStatusLabel;
 
   public EmulatorInternalFrame(EmulatorCore core, int x, int y, ZXSpectrumDesktopApp parentApp) {
     this(core, x, y, parentApp, null);
@@ -1497,6 +1492,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
   private void onTheDesk(EmulatorInternalFrame frame, EmulatorCore core) {
     machines.add(frame);
     frame.addInternalFrameListener(new InternalFrameAdapter() {
+      @Override
       public void internalFrameClosed(InternalFrameEvent e) {
         machines.remove(frame);
         core.finishEmulation();

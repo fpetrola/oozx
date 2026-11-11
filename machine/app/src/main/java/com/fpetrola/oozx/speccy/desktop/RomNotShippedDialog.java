@@ -69,6 +69,7 @@ public class RomNotShippedDialog implements RomFiles.Consent {
     open(missing);
     agreed = true;
     SwingWorker<Boolean, Void> fetching = new SwingWorker<>() {
+      @Override
       protected Boolean doInBackground() {
         for (String rom : missing) {
           if (!roms.bring(rom)) return false;
