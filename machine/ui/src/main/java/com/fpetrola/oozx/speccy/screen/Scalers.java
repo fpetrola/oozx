@@ -94,7 +94,7 @@ public final class Scalers {
     }
 
     public BufferedImage scale(BufferedImage picture, int width, int height, ScreenContext context) {
-      return resize(picture, width, height, context, "scaled", true);
+      return resize(picture, width, height, context);
     }
   }
 
@@ -113,13 +113,13 @@ public final class Scalers {
     public BufferedImage scale(BufferedImage picture, int width, int height, ScreenContext context) {
       int steps = Math.max(1, Math.min(width / picture.getWidth(), height / picture.getHeight()));
       if (steps == 1) {
-        return resize(picture, width, height, context, "scaled", true);
+        return resize(picture, width, height, context);
       }
       BufferedImage stepped = context.buffer("stepped",
           picture.getWidth() * steps, picture.getHeight() * steps);
       Scaler.repeat(ScreenContext.readablePixels(picture), picture.getWidth(), picture.getHeight(),
           ScreenContext.pixelsOf(stepped), stepped.getWidth(), stepped.getHeight());
-      return resize(stepped, width, height, context, "scaled", true);
+      return resize(stepped, width, height, context);
     }
   }
 
@@ -257,13 +257,11 @@ public final class Scalers {
     return out;
   }
 
-  private static BufferedImage resize(BufferedImage picture, int width, int height,
-                                      ScreenContext context, String name, boolean smooth) {
-    BufferedImage out = context.buffer(name, width, height);
+  /** Blended to that size, into the context's own buffer for it. */
+  private static BufferedImage resize(BufferedImage picture, int width, int height, ScreenContext context) {
+    BufferedImage out = context.buffer("scaled", width, height);
     java.awt.Graphics2D g = out.createGraphics();
-    g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, smooth
-        ? RenderingHints.VALUE_INTERPOLATION_BILINEAR
-        : RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+    g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
     g.drawImage(picture, 0, 0, width, height, null);
     g.dispose();
     return out;
