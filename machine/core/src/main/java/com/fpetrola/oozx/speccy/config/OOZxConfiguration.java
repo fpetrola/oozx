@@ -27,8 +27,6 @@ import dev.plugdesk.app.Section;
 import java.beans.Transient;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -209,12 +207,6 @@ public class OOZxConfiguration implements Configuration.Saves {
     gameFolders.add(folder);
     save();
     return true;
-  }
-
-  public void removeGameFolder(String folder) {
-    if (gameFolders.remove(folder)) {
-      save();
-    }
   }
 
   public List<String> getSkippedFolders() {

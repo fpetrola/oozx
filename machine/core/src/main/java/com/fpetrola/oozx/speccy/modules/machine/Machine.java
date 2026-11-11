@@ -37,7 +37,6 @@ import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.z80.cpu.Z80Clock;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import com.fpetrola.emulation.helpers.machine.MachineTypes;
 import java.util.Optional;
@@ -220,10 +219,6 @@ public class Machine implements com.fpetrola.oozx.speccy.parts.Visitable {
 
   public void addMachineChangeListener(MachineChangeListener listener) {
     machineChangeListeners.add(listener);
-  }
-
-  public void addMachineChangeListeners(MachineChangeListener... listeners) {
-    machineChangeListeners.addAll(Arrays.asList(listeners));
   }
 
   /** Hardware differences between individual units of the same model. */

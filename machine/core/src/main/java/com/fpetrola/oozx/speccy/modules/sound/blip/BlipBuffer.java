@@ -140,20 +140,6 @@ public class BlipBuffer {
     bassShift = shift;
   }
 
-  public void mixSamples(short[] in, int count) {
-    int pos = (int) (offset >>> BLIP_BUFFER_ACCURACY) + BLIP_WIDEST_IMPULSE / 2;
-    int prev = 0;
-    int sampleShift = BLIP_SAMPLE_BITS - 16;
-
-    for (int i = 0; i < count; i++) {
-      int s = in[i] << sampleShift;
-      buffer[pos] += s - prev;
-      prev = s;
-      pos++;
-    }
-    buffer[pos] -= prev;
-  }
-
   public long samplesAvail() {
     return offset >>> BLIP_BUFFER_ACCURACY;
   }
@@ -168,10 +154,6 @@ public class BlipBuffer {
 
   public int length() {
     return lengthMs;
-  }
-
-  public int outputLatency() {
-    return BLIP_WIDEST_IMPULSE / 2;
   }
 
   private static long clockRateFactor(long sampleRate, long clockRate) {
@@ -201,12 +183,6 @@ public class BlipBuffer {
       arraycopy(buffer, (int) count, buffer, 0, remain);
       fill(buffer, remain, remain + (int) count, 0);
     }
-  }
-
-  public long countSamples(long duration) {
-    long last = (offset + duration * factor) >>> BLIP_BUFFER_ACCURACY;
-    long first = offset >>> BLIP_BUFFER_ACCURACY;
-    return last - first;
   }
 
   public int[] getBuffer() {

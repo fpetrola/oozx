@@ -279,7 +279,7 @@ dcc52115da9b6b258cdf1fd887d26d48d65fbd15dfaad253b85ede8304bb2f22	machine/core/sr
 a9424040934688634ebd7e38fbc12af2e8167a55cf92e31ea23631cd7a463d1c	machine/core/src/main/java/com/fpetrola/oozx/formats/SnapshotFormat.java
 8af5012478db70aa14670f0d115003ec37e7540fb2d772e070dded9be82b9d24	machine/core/src/main/java/com/fpetrola/oozx/plugins/BesideTheGame.java
 4656e79e66e41ad53c8baa83dc251d4b1696dfa3e185bc2764602ca1d899cb85	machine/core/src/main/java/com/fpetrola/oozx/plugins/Plugins.java
-bc1aed451595d8c222819a95222bc88cd76a7f54f1225aacec6e68f2c503c759	machine/core/src/main/java/com/fpetrola/oozx/speccy/config/OOZxConfiguration.java
+d8fde7476fe51da2eb601d261107f9427d7b4e9a9d4306fef754bb18ff2933b0	machine/core/src/main/java/com/fpetrola/oozx/speccy/config/OOZxConfiguration.java
 5b66ddc41474d1041853adb2c7d5746c3c12dac07fc05c463ac2cf042744dd1f	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/AbstractSpectrumMachine.java
 f6a26edbeb2bdfaf3b31d6d26698afa2f51f842d9ec4d4513866ab53cb8aa3f9	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/MachineTimings.java
 5e5e0445431a24891fb866dfe7a1179486f078ef16dea09ced5c316e2d49e989	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/Paging.java
@@ -304,7 +304,7 @@ cf825c7bb705f62bc05998a9b272e586d9ccd4bd5d7d0f025acb1153a7a7d571	machine/core/sr
 a287ccc0b9abd0223ca3fe65d7419e9d49e6b5d4fe78fefbcfac5c45b0fa2266	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/keyboard/KeyMatrix.java
 7276f1ff498b407e8d6e23ddcf62b5db2b819a8fab08efc97784ebeea5c336d3	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/keyboard/SpectrumKey.java
 6299f9efdff442314baed7961e0610a344df73c7863e8984027457ee4dfed01d	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/machine/DefaultMachine.java
-959569697d03f06e0880adad81226caa6308240dcbc2d9a198db049b3cad2d5c	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/machine/Machine.java
+98f266c4cc90d8f600efc65dfdabe5132560346c4dbdcd8d30ad552af5bf29b9	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/machine/Machine.java
 7ce72ea234c24015bfdb662c8377877fb10bcfdd31c9e683d27968259bc30b81	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/machine/MachineChangeListener.java
 b258c187e3916b7c1fcb21d59a3905dc7e96d106ecac10e4274bbea59d09bf53	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/memory/DecodedMemoryBus.java
 6fb2eeb396825633da91296b0bee7b6d979beb5c9bc29b2a34f037d3dba1a172	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/memory/MappedMemory.java
@@ -327,7 +327,7 @@ e7aaf42af9e7a069a3246f48efaa940e3a28babdc23d8486fbde458afd5c5f58	machine/core/sr
 5d577e641e8b9f887b7ffacacc8236b2efaf378e8ef49380145987ca9fa58fa8	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/SilentSoundDevice.java
 0af435ba22475ba434b0beadfa75b8cf9235c643c595efe3ae8f983be2e7c324	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/Sound.java
 4f4e1a3d710356027ce019f9b743bc84a3d97dff8612cd036eeebe0c1b8e358c	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/SoundCard.java
-0db2d6e0cb26a74cd7a0a10cc11a2ef4edd7be9b337152a330117ce662f55433	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/blip/BlipBuffer.java
+9ef7d1f877be93704afe49f8b12887b636d6cd9b355b1bc28e7ded6c6918ab5c	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/blip/BlipBuffer.java
 7f5933336706b6cd382ccb98e16a65ebae8f82f25e033efc8eddc3038bc4f0d4	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/blip/BlipEq.java
 f650d30a8e831a30136020ab026f2c16ebb461d62c61fc7fbdc7ac306c77e1ce	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/blip/BlipSynth.java
 c0f9f6c6c7978aeeecff19946b7be4e951e9107227a51a616d9fbb16b22c7b77	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/timer/Speed.java
