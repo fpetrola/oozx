@@ -36,8 +36,6 @@
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/memory/DecodedMemoryBus.java|com.fpetrola.oozx.speccy.modules.memory.DecodedMemoryBus.peek(Covering, int)|covering.memory
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/memory/DecodedMemoryBus.java|com.fpetrola.oozx.speccy.modules.memory.DecodedMemoryBus.poke(int, byte)|covering.memory
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/memory/DecodedMemoryBus.java|com.fpetrola.oozx.speccy.modules.memory.DecodedMemoryBus.write(int, byte)|covering.memory
-1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/z80/Disassembly.java|com.fpetrola.oozx.speccy.modules.z80.Disassembly.byteAt(int)|machine.memory
-1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/z80/Disassembly.java|com.fpetrola.oozx.speccy.modules.z80.Disassembly.read(int, int)|machine.memory
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/z80/SpeccyPhaseProcessor.java|com.fpetrola.oozx.speccy.modules.z80.SpeccyPhaseProcessor.SpeccyPhaseProcessor(State, MemoryBus, Ula, SpectrumZ80Clock)|ula.contention
 1	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/input/Input.java|com.fpetrola.oozx.speccy.modules.input.Input.of(Speccy)|speccy.peripheralRegistry
 1	machine/machines/ula/src/main/java/com/fpetrola/oozx/speccy/devices/ula/UlaPortHandler.java|com.fpetrola.oozx.speccy.devices.ula.UlaPortHandler.write(int, byte)|display.border

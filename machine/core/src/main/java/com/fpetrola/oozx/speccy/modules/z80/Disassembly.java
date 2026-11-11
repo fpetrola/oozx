@@ -46,13 +46,13 @@ public final class Disassembly {
 
   private final State reading;
   private final DefaultInstructionFetcher decoder;
-  private final Speccy machine;
+  private final com.fpetrola.oozx.speccy.modules.memory.MemoryBus memory;
 
   public Disassembly(Speccy machine) {
-    this.machine = machine;
+    this.memory = machine.memory;
     reading = new State(new ReadOnlyIOImplementation(null), new Memory() {
       public int read(int address, int fetching) {
-        return machine.memory.peek(address & 0xffff) & 0xff;
+        return memory.peek(address & 0xffff) & 0xff;
       }
 
       public void write(int address, int value) {
@@ -65,7 +65,7 @@ public final class Disassembly {
   }
 
   public int byteAt(int address) {
-    return machine.memory.peek(address & 0xffff) & 0xff;
+    return memory.peek(address & 0xffff) & 0xff;
   }
 
   /** The instruction at an address, decoded. */
