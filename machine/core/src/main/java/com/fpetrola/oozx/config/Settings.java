@@ -167,15 +167,44 @@ public final class Settings {
   public record Configurable(Described device, Values values) {
   }
 
-  /**
-   * Settings being edited away from whatever they will end up in: every change is kept under the
-   * name of the setting until somebody writes them.
-   * <p>
-   * Live, each change also goes straight into what is in front of it, which is what a window
-   * clipped onto a machine does. Written afterwards onto something else - the file, or another
-   * machine it was clipped onto since - the same changes land there, so the way to give one
-   * machine the settings of another is to carry the window across and write them.
-   */
+  /** One property said whole: what it is called, what it holds, what it is for, what it can be, and how it is read and told. */
+  public record Property(String name, Class<?> type, String said, java.util.function.Supplier<List<?>> choices,
+      java.util.function.Supplier<Object> read, java.util.function.Consumer<Object> told) {
+  }
+
+  /** Settings said one property at a time, for what answers each of them itself rather than through a field. */
+  public static Configurable of(String name, Property... properties) {
+    java.util.Map<String, Property> named = new java.util.LinkedHashMap<>();
+    for (Property property : properties) named.put(property.name(), property);
+    return new Configurable(new SaidWhole(name, named), new Values() {
+      public Object get(String property) {
+        return named.get(property).read().get();
+      }
+
+      public void set(String property, Object value) {
+        named.get(property).told().accept(value);
+      }
+    });
+  }
+
+  private record SaidWhole(String name, java.util.Map<String, Property> named) implements Described {
+    public List<String> properties() {
+      return List.copyOf(named.keySet());
+    }
+
+    public Class<?> typeOf(String property) {
+      return named.get(property).type();
+    }
+
+    public List<?> choicesFor(String property) {
+      return named.get(property).choices().get();
+    }
+
+    public String saidAbout(String property) {
+      return named.get(property).said();
+    }
+  }
+
   public static final class Edits {
     private final java.util.Map<String, Object> pending = new java.util.LinkedHashMap<>();
 

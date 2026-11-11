@@ -274,7 +274,7 @@ fb4ee81320ef4f888293d738deab746b748c7466381b4c8d7918dcd22fb172e0	machine/core/sr
 2903a6a6b1d2db01c74f47e4a87f16dd1218d99969db5281e43a31327454d0ca	machine/core/src/main/java/com/fpetrola/oozx/config/Configuration.java
 32def4124037870f875cb704552ad8f68c34da8e74ba4bd66c5c2e870cada0ee	machine/core/src/main/java/com/fpetrola/oozx/config/RomFiles.java
 dcc52115da9b6b258cdf1fd887d26d48d65fbd15dfaad253b85ede8304bb2f22	machine/core/src/main/java/com/fpetrola/oozx/config/RomsOfItsOwn.java
-bb78fefcde7344c383184ad633db8a57781bb51e2992e6a545e25a5ef5146c7a	machine/core/src/main/java/com/fpetrola/oozx/config/Settings.java
+3a4d3dd4ad905e5a55d35c8d6b0c16a2479a3059efafcf562179ba8da73b1f81	machine/core/src/main/java/com/fpetrola/oozx/config/Settings.java
 a9424040934688634ebd7e38fbc12af2e8167a55cf92e31ea23631cd7a463d1c	machine/core/src/main/java/com/fpetrola/oozx/formats/SnapshotFormat.java
 8af5012478db70aa14670f0d115003ec37e7540fb2d772e070dded9be82b9d24	machine/core/src/main/java/com/fpetrola/oozx/plugins/BesideTheGame.java
 4656e79e66e41ad53c8baa83dc251d4b1696dfa3e185bc2764602ca1d899cb85	machine/core/src/main/java/com/fpetrola/oozx/plugins/Plugins.java
@@ -381,7 +381,7 @@ fb9ae827b91232f3f3c477ee1c336a0fe9c860796b84ba06056e33780a5f6b8a	machine/devices
 4dc4014683f4438a79584236711fbad5853dce287698f28f1d9af906df90ddad	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Session.java
 358f7f81ea06dd4f7f63d09e88452cd3d6290330f12278996e2e88800a639676	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/WhatGameThisIs.java
 92fd19f9768a22b054e28a247cfaa6ffe9a5d01a02419b2376d2dba2f64bfc42	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/peripherals/DefaultsCore.java
-bf2c4f5df1676f93b499be67e8c064628240de844f9ca2efd564bcc635cab415	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/peripherals/EmulatorCore.java
+d165ce794a676f9c0d585389ca1e3178f8c35f105cca5fa386847aeabeb2901b	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/peripherals/EmulatorCore.java
 48ac2c8f683bf9b7cb5d0ff79789a90031eff8a7f75a74581ad944d75e236a66	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/peripherals/MockEmulatorCore.java
 b75784f502fdf152791b10addb921da42a7bd26c00bd9d8a56d100da0ebf62f5	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/devices/input/InputDevices.java
 c43cb3d49ddfbbc23a9df20eb4a0a14a2c192a8bea62aa8784bf5a5ca4a1bbef	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/input/Input.java

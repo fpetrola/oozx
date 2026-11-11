@@ -38,7 +38,6 @@
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/DeviceFrame.java|com.fpetrola.oozx.speccy.devices.DeviceFrame.find(Speccy)|kind.cast(machine.peripheralRegistry.find(kind))
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/InstructionListing.java|com.fpetrola.oozx.speccy.devices.InstructionListing.Coloured.getTableCellRendererComponent(JTable, Object, boolean, boolean, int, int)|(JLabel) super.getTableCellRendererComponent(table, value, isSelect...
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/peripherals/DefaultsCore.java|com.fpetrola.oozx.speccy.peripherals.DefaultsCore.setGeneralOption(String, Object)|(Boolean) value
-3	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/peripherals/EmulatorCore.java|com.fpetrola.oozx.speccy.peripherals.EmulatorCore.set(String, Object)|(String) value
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/peripherals/MockEmulatorCore.java|com.fpetrola.oozx.speccy.peripherals.MockEmulatorCore.setGeneralOption(String, Object)|(Boolean) value
 3	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/peripherals/MockEmulatorCore.java|com.fpetrola.oozx.speccy.peripherals.MockEmulatorCore.setScreenOption(String, Object)|(Boolean) value
 1	machine/media/snapshot/src/main/java/com/fpetrola/oozx/speccy/modules/snapshot/Snapshots.java|com.fpetrola.oozx.speccy.modules.snapshot.Snapshots.of(Speccy)|(Snapshots) speccy.peripheralRegistry.find(Snapshots.class)

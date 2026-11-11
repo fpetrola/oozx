@@ -53,58 +53,17 @@ public interface EmulatorCore extends EmulatorControl {
    * value changing.
    */
   default Settings.Configurable ownSettings() {
-    Settings.Described hardware = new Settings.Described() {
-      public String name() {
-        return "machine.hardware";
-      }
-
-      public List<String> properties() {
-        return List.of("model", "romSet", "processor", "turbo");
-      }
-
-      public Class<?> typeOf(String property) {
-        return property.equals("turbo") ? boolean.class : String.class;
-      }
-
-      public String saidAbout(String property) {
-        return switch (property) {
-          case "model" -> "Which Spectrum this is, changed under the game that is running";
-          case "romSet" -> "The set of ROMs this model can be run with, where it has more than one";
-          case "processor" -> "The implementation the machine runs on: the one generated from the"
-              + " model, or the model itself, which is the one to debug";
-          default -> "As fast as it can rather than as fast as a Spectrum";
-        };
-      }
-
-      public List<?> choicesFor(String property) {
-        return switch (property) {
-          case "model" -> getMachineModels();
-          case "romSet" -> getRomSets();
-          case "processor" -> getProcessors();
-          default -> List.of();
-        };
-      }
-    };
-
-    return new Settings.Configurable(hardware, new Settings.Values() {
-      public Object get(String property) {
-        return switch (property) {
-          case "model" -> getCurrentModel();
-          case "romSet" -> getRomSet();
-          case "processor" -> getProcessor();
-          default -> isTurboMode();
-        };
-      }
-
-      public void set(String property, Object value) {
-        switch (property) {
-          case "model" -> setMachineModel((String) value);
-          case "romSet" -> setRomSet((String) value);
-          case "processor" -> setProcessor((String) value);
-          default -> setGeneralOption("turbo", value);
-        }
-      }
-    });
+    return Settings.of("machine.hardware",
+        new Settings.Property("model", String.class, "Which Spectrum this is, changed under the game that is running",
+            this::getMachineModels, this::getCurrentModel, value -> setMachineModel(String.valueOf(value))),
+        new Settings.Property("romSet", String.class,
+            "The set of ROMs this model can be run with, where it has more than one",
+            this::getRomSets, this::getRomSet, value -> setRomSet(String.valueOf(value))),
+        new Settings.Property("processor", String.class, "The implementation the machine runs on: the one generated"
+            + " from the model, or the model itself, which is the one to debug",
+            this::getProcessors, this::getProcessor, value -> setProcessor(String.valueOf(value))),
+        new Settings.Property("turbo", boolean.class, "As fast as it can rather than as fast as a Spectrum",
+            List::of, this::isTurboMode, value -> setGeneralOption("turbo", value)));
   }
 
   KeyListener getKeyListener();
