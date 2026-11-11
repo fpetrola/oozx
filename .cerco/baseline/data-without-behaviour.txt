@@ -1,7 +1,6 @@
 # cerco baseline v1 data-without-behaviour: count, key
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.adoptWhatTheBaseKeepsNow()|WindowState
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.keepAsFavorite(Desk.Game, String)|Game
-1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.open(Chosen, boolean)|Chosen
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.reopenPacked(OOZxConfiguration.WindowState)|WindowState
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.bringBack(Session, List)|WindowState
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/InstructionListing.java|com.fpetrola.oozx.speccy.devices.InstructionListing.Lines.getValueAt(int, int)|Line

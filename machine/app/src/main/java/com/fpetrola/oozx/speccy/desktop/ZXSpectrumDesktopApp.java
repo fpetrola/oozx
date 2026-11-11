@@ -432,7 +432,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
    */
   private void open(Chosen chosen, boolean mayAsk) {
     opensFor(chosen.file()).flatMap(MachineFrame::player).ifPresentOrElse(
-        player -> player.open(chosen.file(), chosen.source(), chosen.entry()),
+        chosen::playIn,
         () -> loadInNewEmulator(chosen.file().getAbsolutePath()));
   }
 
@@ -977,7 +977,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
                         java.util.concurrent.Callable<Chosen> decide) {
     decided(whenItFails, decide, chosen -> {
       java.util.Optional.ofNullable(asking).flatMap(MachineFrame::player).ifPresentOrElse(
-          itsOwn -> itsOwn.open(chosen.file(), chosen.source(), chosen.entry()), () -> open(chosen));
+          chosen::playIn, () -> open(chosen));
     });
   }
 
@@ -1055,10 +1055,6 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     return parts.stream()
         .filter(part -> part.getFileName().toString().equals(chosen))
         .findFirst().orElse(parts.get(0));
-  }
-
-  /** What a chosen recording is: the file to play, and what it lasts as - a URL or a zip plus the entry inside it. */
-  record Chosen(java.io.File file, String source, String entry) {
   }
 
   private Chosen chooseRecording() throws java.io.IOException {
