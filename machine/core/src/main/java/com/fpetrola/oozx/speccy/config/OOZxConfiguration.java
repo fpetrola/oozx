@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fpetrola.emulation.SnapshotUnicodePacker;
 import dev.plugdesk.app.Configuration;
 import dev.plugdesk.app.Section;
 
@@ -31,14 +30,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.zip.Deflater;
-import java.util.zip.Inflater;
 
 @Section(value = "desktop", wasTheWholeFile = true)
 public class OOZxConfiguration implements Configuration.Saves {
@@ -379,65 +375,6 @@ public class OOZxConfiguration implements Configuration.Saves {
 
   public String getSnapshot(String snapshotId) {
     return snapshots.get(snapshotId);
-  }
-
-  public static String packSnapshot(byte[] data) {
-    try {
-      return SnapshotUnicodePacker.packToUnicodeString(data);
-    } catch (Exception e) {
-      System.err.println("Error empaquetando snapshot: " + e.getMessage());
-      return null;
-    }
-  }
-
-  public static byte[] unpackSnapshot(String packed) {
-    try {
-      return SnapshotUnicodePacker.unpackFromUnicodeString(packed);
-    } catch (Exception e) {
-      System.err.println("Error desempaquetando snapshot: " + e.getMessage());
-      return null;
-    }
-  }
-
-  public static String compressAndEncode(byte[] data) {
-    try {
-      Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION);
-      deflater.setInput(data);
-      deflater.finish();
-
-      byte[] compressedData = new byte[data.length];
-      int compressedSize = deflater.deflate(compressedData);
-      deflater.end();
-
-      byte[] finalData = new byte[compressedSize];
-      System.arraycopy(compressedData, 0, finalData, 0, compressedSize);
-
-      return Base64.getEncoder().encodeToString(finalData);
-    } catch (Exception e) {
-      System.err.println("Error comprimiendo datos: " + e.getMessage());
-      return null;
-    }
-  }
-
-  public static byte[] decodeAndDecompress(String encoded) {
-    try {
-      byte[] compressedData = Base64.getDecoder().decode(encoded);
-
-      Inflater inflater = new Inflater();
-      inflater.setInput(compressedData);
-
-      byte[] decompressedData = new byte[compressedData.length * 10];
-      int decompressedSize = inflater.inflate(decompressedData);
-      inflater.end();
-
-      byte[] finalData = new byte[decompressedSize];
-      System.arraycopy(decompressedData, 0, finalData, 0, decompressedSize);
-
-      return finalData;
-    } catch (Exception e) {
-      System.err.println("Error descomprimiendo datos: " + e.getMessage());
-      return null;
-    }
   }
 
   public static class SnapshotHistoryEntry {

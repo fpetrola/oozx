@@ -20,7 +20,6 @@ package com.fpetrola.emulation.helpers.snapshots;
 import com.fpetrola.z80.cpu.RegistersGetter;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.memory.Memory;
-import com.fpetrola.z80.transformations.Base64Utils;
 import com.fpetrola.emulation.SnapshotUnicodePacker;
 import com.fpetrola.emulation.helpers.machine.JoystickModel;
 import com.fpetrola.emulation.helpers.machine.MachineTypes;
@@ -149,20 +148,6 @@ public class SnapshotSaver {
 
     SnapshotZ80 snapshot = new SnapshotZ80();
     return snapshot.saveToBytes(spectrumState);
-  }
-
-  public static String getSnapshotAsCompressedBase64(RegistersGetter registersGetter, State state) throws SnapshotException {
-    byte[] snapshotBytes = getSnapshotAsBytes(registersGetter, state);
-    return Base64Utils.gzipArrayCompressToBase64(snapshotBytes);
-  }
-
-  public static SpectrumState loadSnapshotFromCompressedBase64(String compressedBase64) throws SnapshotException {
-    if (compressedBase64 == null || compressedBase64.isEmpty()) {
-      throw new SnapshotException("INVALID_SNAPSHOT_DATA");
-    }
-    byte[] decompressedBytes = Base64Utils.gzipDecompressFromBase64(compressedBase64);
-    SnapshotZ80 snapshot = new SnapshotZ80();
-    return snapshot.loadFromBytes(decompressedBytes);
   }
 
   private static byte[] gzipCompress(byte[] data) throws Exception {

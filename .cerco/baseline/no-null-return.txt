@@ -26,10 +26,6 @@
 1	machine/core/src/main/java/com/fpetrola/oozx/config/RomFiles.java|com.fpetrola.oozx.config.RomFiles.fetched(String)|return null
 1	machine/core/src/main/java/com/fpetrola/oozx/config/RomFiles.java|com.fpetrola.oozx.config.RomFiles.packaged(String)|return null
 2	machine/core/src/main/java/com/fpetrola/oozx/plugins/BesideTheGame.java|com.fpetrola.oozx.plugins.BesideTheGame.whoWouldSay(String)|return null
-1	machine/core/src/main/java/com/fpetrola/oozx/speccy/config/OOZxConfiguration.java|com.fpetrola.oozx.speccy.config.OOZxConfiguration.compressAndEncode(byte[])|return null
-1	machine/core/src/main/java/com/fpetrola/oozx/speccy/config/OOZxConfiguration.java|com.fpetrola.oozx.speccy.config.OOZxConfiguration.decodeAndDecompress(String)|return null
-1	machine/core/src/main/java/com/fpetrola/oozx/speccy/config/OOZxConfiguration.java|com.fpetrola.oozx.speccy.config.OOZxConfiguration.packSnapshot(byte[])|return null
-1	machine/core/src/main/java/com/fpetrola/oozx/speccy/config/OOZxConfiguration.java|com.fpetrola.oozx.speccy.config.OOZxConfiguration.unpackSnapshot(String)|return null
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/SpectrumMachine.java|com.fpetrola.oozx.speccy.machine.SpectrumMachine.snapshotModel()|return null
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/StartsAMachineOn.java|com.fpetrola.oozx.speccy.machine.StartsAMachineOn.Going.wrong()|return null
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/StartsAMachineOn.java|com.fpetrola.oozx.speccy.machine.StartsAMachineOn.machineFor(File)|return null
