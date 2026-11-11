@@ -288,7 +288,7 @@ f6a26edbeb2bdfaf3b31d6d26698afa2f51f842d9ec4d4513866ab53cb8aa3f9	machine/core/sr
 9a57014313018749681c191669c195c1bbdc0affe47d06dcc0876b50452070b6	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/RomNotLoadedException.java
 7b8bedbcc7caaad9a1783237637ac6ca76b1381d0510c02f6a8314de11a64633	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/Roms.java
 b7b16d20c3d707dba7c0e6ddf8fa908a6f2b151941912ff1d175b91dab7a5a5a	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/SpecPlus3Constants.java
-7abf84adde4d312f81d3258af96b81c0071eb299a335d1be2f331734e103c17f	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/Spectrum.java
+97f88bfde9a64f3d82d6d3775ccef4295ab7fa061fac3f681521192f5c8326e3	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/Spectrum.java
 478f942e27c9791f5e23789c5813d1581fbdcb02d67328d85bb391a23d992071	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/SpectrumMachine.java
 1c3e0fe560d24ec2022717aaaa81dd3176a43c4d33e80c78f9ba78627a245eab	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/StartsAMachineOn.java
 8a1fbb27da89f6c7599f4c31613c8ba9c6cc946a56c5d8a88374d4a89e1a439c	machine/core/src/main/java/com/fpetrola/oozx/speccy/media/DownloadAndUnzip.java

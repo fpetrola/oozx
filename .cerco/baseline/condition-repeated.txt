@@ -1,6 +1,4 @@
 # cerco baseline v1 condition-repeated: count, key
-1	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/Spectrum.java|com.fpetrola.oozx.speccy.machine.Spectrum.unattachedPort(int)|line < 0 || line >= _.HEIGHT || into >= getTimings().frame().line().picture()
-1	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/Spectrum.java|com.fpetrola.oozx.speccy.machine.Spectrum.waitAt(long, Waits)|line < 0 || line >= _.HEIGHT || into >= getTimings().frame().line().picture()
 1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/ControlFlowStructuring.java|com.fpetrola.z80.bytecode.generators.ControlFlowStructuring.ControlFlowStructuring(Routine, RoutineManager, Collection, StackAnalyzer, Collection, Predicate)|piece != routine && (_.parent() == routine || mine != null && _.parent() == _.parent())
 1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.RoutineBytecodeGenerator(BytecodeGenerationContext, Routine)|piece != routine && (_.parent() == routine || mine != null && _.parent() == _.parent())
 1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/Composed16BitRegisterVariable.java|com.fpetrola.z80.bytecode.generators.helpers.Composed16BitRegisterVariable.getField()|_.length() == 1 && _.direct

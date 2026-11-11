@@ -218,8 +218,13 @@ public abstract class Spectrum extends AbstractSpectrumMachine {
     long since = time - (firstPixel() + waits.from());
     int line = (int) Math.floorDiv(since, getTimings().tstatesPerLine());
     int into = (int) Math.floorMod(since, getTimings().tstatesPerLine());
-    if (line < 0 || line >= display.HEIGHT || into >= getTimings().frame().line().picture()) return 0;
+    if (!onThePicture(line, into)) return 0;
     return waits.pattern()[into % 8];
+  }
+
+  /** Whether the beam, so many lines and T-states into them from the first pixel, is drawing the picture. */
+  private boolean onThePicture(int line, int into) {
+    return line >= 0 && line < display.HEIGHT && into < getTimings().frame().line().picture();
   }
 
   /**
@@ -233,7 +238,7 @@ public abstract class Spectrum extends AbstractSpectrumMachine {
     long since = z80Clock.getTStates() - firstPixel();
     int line = (int) Math.floorDiv(since, getTimings().tstatesPerLine());
     int into = (int) Math.floorMod(since, getTimings().tstatesPerLine());
-    if (line < 0 || line >= display.HEIGHT || into >= getTimings().frame().line().picture()) return 0xff;
+    if (!onThePicture(line, into)) return 0xff;
     int column = (into / 8) * 2;
     return switch (into % 8) {
       case 2 -> display.pixels(line, column);
