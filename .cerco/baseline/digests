@@ -230,7 +230,7 @@ fbe5ab6f1fabbe4e762ea3692f42bc8d5172cbe444771a3bcbbdf24314f58580	emulator/src/ma
 704edee8b24efe9fa456c33bb1fc5ec3a90653ec213b254fcef32078695cfcff	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/Chosen.java
 6b4873aa48f8dc64d51b9500ee69aaeaf9a308b48605af1583cb0dbfe61deca3	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java
 6192dc9bf1bfdf1eff36a8cfe63c1bd1bc453689fe79ac0a3c21827874201985	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/RomNotShippedDialog.java
-db5c9b0ceae6f900fbe96fd0d4ede9088a1301f1226d098307c25dd203b85ab7	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/SwingKeyboard.java
+01b870cbb98950cdebd538aeb6d0ee23fb60444f96b47d2c499d6e90859fcbe3	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/SwingKeyboard.java
 90e1c1c07e16b59b5dac39e084b3213844d9f74d55464f85b5f2ecd19b3f493e	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/WhatIsPluggedIn.java
 347cb6a9316a6dbc195200164c36543ab4a336d535d2c6f20a4767db5f0f9b2d	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java
 fcafe35d57f63ef18dd460a7f187c4e8d35ce0eb18c25a0d7ca698a23b389b75	machine/app/src/main/java/com/fpetrola/oozx/speccy/peripherals/SpeccyEmulatorCore.java

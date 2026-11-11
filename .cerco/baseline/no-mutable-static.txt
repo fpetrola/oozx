@@ -1,7 +1,6 @@
 # cerco baseline v1 no-mutable-static: count, key
 1	emulator/src/main/java/com/fpetrola/z80/helpers/Helper.java|com.fpetrola.z80.helpers.Helper.hex
 1	emulator/src/main/java/com/fpetrola/z80/tstates/UncontendedTiming.java|com.fpetrola.z80.tstates.UncontendedTiming.scratch
-1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/SwingKeyboard.java|com.fpetrola.oozx.speccy.desktop.SwingKeyboard.unicodeKeysymsHash
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/WhatIsPluggedIn.java|com.fpetrola.oozx.speccy.desktop.WhatIsPluggedIn.theOne
 1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/GetTStatesHistory.java|com.fpetrola.oozx.speccy.bridge.GetTStatesHistory.tstatesUpdates
 1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/LocalLibretroCore.java|com.fpetrola.oozx.speccy.bridge.LocalLibretroCore.retroInputStateT

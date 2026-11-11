@@ -22,7 +22,6 @@ import com.fpetrola.oozx.speccy.modules.keyboard.Keyboard;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.HashMap;
 import java.util.Map;
 
 public class SwingKeyboard implements KeyListener {
@@ -34,9 +33,6 @@ public class SwingKeyboard implements KeyListener {
     }
 
 
-    private static Map<Integer, Input.InputKey> unicodeKeysymsHash = new HashMap<>();
-    /** What each key code of this toolkit is: written here, because these are Swing's numbers. */
-    private final Map<Integer, Input.InputKey> keysyms = new HashMap<>();
     private static final HostKey[] UNICODE_KEYSYMS_MAP = {
         new HostKey(' ', Input.InputKey.INPUT_KEY_space),
         new HostKey('!', Input.InputKey.INPUT_KEY_exclam),
@@ -131,8 +127,7 @@ public class SwingKeyboard implements KeyListener {
         new HostKey('{', Input.InputKey.INPUT_KEY_braceleft),
         new HostKey('|', Input.InputKey.INPUT_KEY_bar),
         new HostKey('}', Input.InputKey.INPUT_KEY_braceright),
-        new HostKey('~', Input.InputKey.INPUT_KEY_asciitilde),
-        new HostKey(0, Input.InputKey.INPUT_KEY_NONE) // End marker
+        new HostKey('~', Input.InputKey.INPUT_KEY_asciitilde)
     };
 
     private static final HostKey[] KEYSYMS_MAP = {
@@ -231,35 +226,30 @@ public class SwingKeyboard implements KeyListener {
         new HostKey(KeyEvent.VK_SHIFT, Input.InputKey.INPUT_KEY_Shift_L),
         new HostKey(KeyEvent.VK_CONTROL, Input.InputKey.INPUT_KEY_Control_L),
         new HostKey(KeyEvent.VK_ALT, Input.InputKey.INPUT_KEY_Alt_L),
-        new HostKey(KeyEvent.VK_META, Input.InputKey.INPUT_KEY_Meta_L),
-        new HostKey(0, Input.InputKey.INPUT_KEY_NONE) // End marker
+        new HostKey(KeyEvent.VK_META, Input.InputKey.INPUT_KEY_Meta_L)
     };
+
+    private static final Map<Integer, Input.InputKey> BY_CHARACTER = byHost(UNICODE_KEYSYMS_MAP);
+    /** What each key code of this toolkit is: written here, because these are Swing's numbers. */
+    private static final Map<Integer, Input.InputKey> BY_KEY_CODE = byHost(KEYSYMS_MAP);
+
+    private static Map<Integer, Input.InputKey> byHost(HostKey[] table) {
+        return java.util.Arrays.stream(table)
+            .collect(java.util.stream.Collectors.toUnmodifiableMap(HostKey::host, HostKey::key, (first, last) -> last));
+    }
     private Keyboard keyboard;
     private Input input;
 
     public SwingKeyboard(Keyboard keyboard, Input input) {
       this.keyboard = keyboard;
       this.input = input;
-        for (HostKey entry : UNICODE_KEYSYMS_MAP) {
-            if (entry.host() == 0) break;
-            unicodeKeysymsHash.put(entry.host(), entry.key());
-        }
-        for (HostKey entry : KEYSYMS_MAP) {
-            if (entry.host() == 0) break;
-            keysyms.put(entry.host(), entry.key());
-        }
-
         // Enable key repeat (Swing handles this via OS settings, but we can note it)
         // No direct equivalent to SDL_EnableKeyRepeat in Swing; relies on system settings
 
     }
 
-    public void end() {
-        unicodeKeysymsHash.clear();
-    }
-
     private Input.InputKey unicodeKeysymsRemap(int uiKeysym) {
-        return unicodeKeysymsHash.getOrDefault(uiKeysym, Input.InputKey.INPUT_KEY_NONE);
+        return BY_CHARACTER.getOrDefault(uiKeysym, Input.InputKey.INPUT_KEY_NONE);
     }
 
     /** The key as the Spectrum should see it, and as the host's character says it, NONE where neither knows it. */
@@ -267,7 +257,7 @@ public class SwingKeyboard implements KeyListener {
     }
 
     private Keysyms keysymsOf(int keycode, char keyChar) {
-        Input.InputKey speccyKeysym = keysyms.getOrDefault(keycode, Input.InputKey.INPUT_KEY_NONE);
+        Input.InputKey speccyKeysym = BY_KEY_CODE.getOrDefault(keycode, Input.InputKey.INPUT_KEY_NONE);
         Input.InputKey unicodeKeysym = keyChar <= 0x7F ? unicodeKeysymsRemap(keyChar) : Input.InputKey.INPUT_KEY_NONE;
         return new Keysyms(unicodeKeysym != Input.InputKey.INPUT_KEY_NONE ? unicodeKeysym : speccyKeysym, speccyKeysym);
     }
