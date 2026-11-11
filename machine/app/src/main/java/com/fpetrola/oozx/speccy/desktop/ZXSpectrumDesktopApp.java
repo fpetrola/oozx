@@ -151,7 +151,6 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
     emulatorCore.addEmulatorListener(new EmulatorListener() {
       @Override
       public void onEmulationStateChanged(String state) {
-//        statusLabel.setText("State: " + state);
       }
 
       @Override
@@ -502,9 +501,11 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
    */
   private void stopsThePersonWhenSomethingIsMissing() {
     TellsThePerson.listens(new TellsThePerson.Listening() {
+      @Override
       public void about(String what) {
       }
 
+      @Override
       public void aboutNotDoingIt(String what, String thatNeeds) {
         SwingUtilities.invokeLater(() -> {
           if (thatNeeds == null) {
@@ -1574,7 +1575,6 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
       }
     });
     stateCapture.setRepeats(false);
-//    stateCapture.start();
 
     return frame;
   }

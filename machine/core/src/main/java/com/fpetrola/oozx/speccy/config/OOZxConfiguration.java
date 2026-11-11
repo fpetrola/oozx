@@ -77,7 +77,6 @@ public class OOZxConfiguration implements Configuration.Saves {
   private Map<String, SnapshotHistoryEntry> snapshotHistory = new LinkedHashMap<>();
   private static final int MAX_RECENT_FILES = 10;
   private static final int MAX_SNAPSHOT_HISTORY = 20;
-  private static final String CONFIG_DIR = System.getProperty("user.home") + File.separator + ".oozx";
 
   /**
    * Unknown fields are ignored rather than refused. A configuration file outlives the versions
@@ -111,6 +110,7 @@ public class OOZxConfiguration implements Configuration.Saves {
   @JsonIgnore
   public Configuration configuration;
 
+  @Override
   public void savedBy(Configuration configuration) {
     this.configuration = configuration;
   }
