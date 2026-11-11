@@ -1,0 +1,18 @@
+# cerco baseline v1 kept-together: count, key
+1	emulator/src/main/java/com/fpetrola/z80/opcodes/references/MemoryPlusRegister8BitReference.java|com.fpetrola.z80.opcodes.references.MemoryPlusRegister8BitReference|address,memory,value
+1	emulator/src/main/java/com/fpetrola/z80/registers/UnrolledRegisterBank.java|com.fpetrola.z80.registers.UnrolledRegisterBank|A,B,C,D,E,F,H,I,IX,L,PC,R,SP
+1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/LocalLibretroCore.java|com.fpetrola.oozx.speccy.bridge.LocalLibretroCore|cpu,display,scheduler,z80Clock
+1	machine/core/src/main/java/com/fpetrola/oozx/Speccy.java|com.fpetrola.oozx.Speccy|banks,cpu,display,memory,scheduler,sound,timer
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/Spectrum.java|com.fpetrola.oozx.speccy.machine.Spectrum|cpu,display,scheduler
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/display/Display.java|com.fpetrola.oozx.speccy.modules.display.Display|banks,memory,picture
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/machine/Machine.java|com.fpetrola.oozx.speccy.modules.machine.Machine|display,memory,ula
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/z80/ContendedWiring.java|com.fpetrola.oozx.speccy.modules.z80.ContendedWiring|display,memory,ula
+1	machine/media/snapshot/src/main/java/com/fpetrola/oozx/speccy/modules/snapshot/Snapshots.java|com.fpetrola.oozx.speccy.modules.snapshot.Snapshots|cpu,display,machine
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/StateBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.StateBytecodeGenerator|gameData,routineManager,symbolicExecutionAdapter
+1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/BytecodeGenerationContext.java|com.fpetrola.z80.bytecode.generators.helpers.BytecodeGenerationContext|gameData,routineManager,symbolicExecutionAdapter
+1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder|routineManager,stackAnalyzer,state
+1	translation/se/src/main/java/com/fpetrola/z80/se/RoutineExecutorHandler.java|com.fpetrola.z80.se.RoutineExecutorHandler|routineManager,stackAnalyzer,state
+1	translation/se/src/main/java/com/fpetrola/z80/se/SymbolicExecutionAdapter.java|com.fpetrola.z80.se.SymbolicExecutionAdapter|routineManager,stackAnalyzer,state
+1	translation/translator/src/main/java/com/fpetrola/z80/bytecode/RealCodeBytecodeCreationBase.java|com.fpetrola.z80.bytecode.RealCodeBytecodeCreationBase|gameData,routineManager,symbolicExecutionAdapter
+1	translation/translator/src/main/java/com/fpetrola/z80/bytecode/tests/JSW2b.java|com.fpetrola.z80.bytecode.tests.JSW2b|A,B,C,D,E,F,H,I,IX,L,PC,R,SP
+1	translation/translator/src/main/java/com/fpetrola/z80/minizx/SpectrumApplication.java|com.fpetrola.z80.minizx.SpectrumApplication|A,B,C,D,E,F,H,I,IX,L,PC,R,SP

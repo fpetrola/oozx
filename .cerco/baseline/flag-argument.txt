@@ -1,0 +1,17 @@
+# cerco baseline v1 flag-argument: count, key
+1	emulator/src/main/java/com/fpetrola/z80/registers/Flags.java|com.fpetrola.z80.registers.Flags.setFlag(Register, int, boolean)|set
+1	machine/core/src/main/java/com/fpetrola/oozx/config/Settings.java|com.fpetrola.oozx.config.Settings.Edits.over(List, boolean)|live
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/config/OOZxConfiguration.java|com.fpetrola.oozx.speccy.config.OOZxConfiguration.takeIntoAccount(String, boolean)|taken
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/display/ScreenLayout.java|com.fpetrola.oozx.speccy.modules.display.ScreenLayout.showing(int, boolean)|colourPerLine
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/blip/BlipBuffer.java|com.fpetrola.oozx.speccy.modules.sound.blip.BlipBuffer.clear(boolean)|entireBuffer
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/blip/BlipBuffer.java|com.fpetrola.oozx.speccy.modules.sound.blip.BlipBuffer.readSamples(int[], int, boolean)|stereo
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/z80/Cpu.java|com.fpetrola.oozx.speccy.modules.z80.Cpu.machineWasReset(boolean)|hard
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/peripherals/PeripheralRegistry.java|com.fpetrola.oozx.speccy.peripherals.PeripheralRegistry.activateType(Class, boolean)|active
+1	machine/core/src/main/java/com/fpetrola/oozx/speccy/ports/Backplane.java|com.fpetrola.oozx.speccy.ports.Backplane.attach(Wired[], boolean)|inFront
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/InstructionListing.java|com.fpetrola.oozx.speccy.devices.InstructionListing.showBytes(boolean)|shown
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/MediaSlot.java|com.fpetrola.oozx.speccy.devices.MediaSlot.led(boolean)|on
+1	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/joystick/KeyedJoystick.java|com.fpetrola.oozx.speccy.modules.joystick.KeyedJoystick.push(Direction, boolean)|pushed
+1	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/AudioIn.java|com.fpetrola.oozx.speccy.modules.sound.AudioIn.hear(boolean)|wanted
+1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/SpeccyScreen.java|com.fpetrola.oozx.speccy.screen.SpeccyScreen.getScaledImage(BufferedImage, int, int, boolean)|b
+1	translation/blocks/src/main/java/com/fpetrola/z80/spy/AbstractInstructionSpy.java|com.fpetrola.z80.spy.AbstractInstructionSpy.enable(boolean)|enabled
+1	translation/translator/src/main/java/com/fpetrola/z80/minizx/ZxColor.java|com.fpetrola.z80.minizx.ZxColor.getStateColor(boolean)|set
