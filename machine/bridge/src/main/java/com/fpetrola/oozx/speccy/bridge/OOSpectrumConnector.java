@@ -39,7 +39,6 @@ public class OOSpectrumConnector {
   public static List<double[]> localData = new ArrayList<>();
   public static List<double[]> remoteData = new ArrayList<>();
   String device = "buffer=8192,frames=4,verbose";
-  private int counter;
 
   public static void main(String[] args) {
     Speccy speccy = Speccy.create();
@@ -166,24 +165,4 @@ public class OOSpectrumConnector {
     }
   }
 
-  private static void extracted(LibretroCore core) {
-    int ramPtr = core.retro_get_memory_data(0);
-    long ramSize = core.retro_get_memory_size(0);
-
-    System.out.println("Tamaño de RAM expuesta: " + ramSize + " bytes");
-
-// Leer pantalla (6912 bytes desde 0x4000)
-    int screenOffset = 0x4000;
-    int screenSize = 6912;
-
-    byte[] screenData = new byte[screenSize];
-//    ramPtr.read(screenOffset, screenData, 0, screenSize);
-
-    System.out.println("Leídos " + screenData.length + " bytes de la pantalla");
-
-    for (int i = 0; i < 16; i++) {
-      System.out.printf("%02X ", screenData[i]);
-    }
-    System.out.println();
-  }
 }

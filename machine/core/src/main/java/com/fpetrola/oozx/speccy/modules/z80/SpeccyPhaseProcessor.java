@@ -28,7 +28,6 @@ import com.fpetrola.z80.tstates.PhaseProcessor;
 final public class SpeccyPhaseProcessor extends PhaseProcessor {
   private final Ula ula;
   private final SpectrumZ80Clock zxClock;
-  private final int pageSizeLogarithm;
   private final MemoryBus memory;
   /** By length, what a run of one-T-state internal cycles at a contended address takes; a Z80's are seven long at most. */
   private final byte[][] noMreqRun = new byte[8][];
@@ -37,7 +36,6 @@ final public class SpeccyPhaseProcessor extends PhaseProcessor {
     super(state);
     this.ula = ula;
     this.zxClock = zxClock;
-    pageSizeLogarithm = 11;
     this.memory = memory;
     for (int times = 2; times < noMreqRun.length; times++) {
       noMreqRun[times] = ula.contention.run(times);

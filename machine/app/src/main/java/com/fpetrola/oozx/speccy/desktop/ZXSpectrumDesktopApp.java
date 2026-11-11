@@ -1469,17 +1469,6 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
         || owner instanceof JComboBox<?> list && (list.isEditable() || list.isPopupVisible());
   }
 
-  /** Placed, shown and clipped onto the machine in front, which is what wires it to that machine. */
-  private <T extends AttachedFrame> T clipOntoTheMachineInFront(T window) {
-    window.setLocation(60 + (desktop.getAllFrames().length * 20) % 200,
-        60 + (desktop.getAllFrames().length * 20) % 160);
-    desktop.add(window);
-    window.setVisible(true);
-    window.setMachineWindow(machineBeingUsed());
-    window.toFront();
-    return window;
-  }
-
   /**
    * The deck that goes with a machine built on a cassette.
    * <p>

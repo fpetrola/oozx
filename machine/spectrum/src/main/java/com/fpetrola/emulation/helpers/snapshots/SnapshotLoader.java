@@ -19,7 +19,6 @@ package com.fpetrola.emulation.helpers.snapshots;
 
 import com.fpetrola.z80.cpu.MemorySetter;
 import com.fpetrola.z80.cpu.RegistersSetter;
-import com.fpetrola.z80.memory.Memory;
 import com.fpetrola.z80.cpu.State;
 import com.fpetrola.z80.minizx.emulation.MiniZXWithEmulationBase;
 import com.fpetrola.z80.minizx.emulation.MockedMemory;
@@ -101,15 +100,6 @@ public class SnapshotLoader {
     if (ram[page] != null)
       for (int i = 0; i < ram[page].length; i++) {
         result[position++] = ram[page][i];
-      }
-    return position;
-  }
-
-  private static  int copyPage2(byte[][] ram, int page, int position, State state1) {
-    Memory memory = state1.getMemory();
-    if (ram[page] != null)
-      for (int i = 0; i < ram[page].length; i++) {
-        memory.write(position++, ram[page][i]);
       }
     return position;
   }

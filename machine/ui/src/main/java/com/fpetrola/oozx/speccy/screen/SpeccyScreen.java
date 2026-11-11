@@ -20,9 +20,6 @@ package com.fpetrola.oozx.speccy.screen;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
-import java.awt.image.DirectColorModel;
-import java.awt.image.Raster;
 
 public class SpeccyScreen extends JPanel {
   /** Repinta mientras la pantalla esta en una ventana: andando sin ella, retenia la maquina cerrada. */
@@ -41,7 +38,6 @@ public class SpeccyScreen extends JPanel {
   }
 
   private final int[] pixels;
-  private final BufferedImage screenBuffer;
   private double zoom = 1;
 
   private final int stride;
@@ -105,10 +101,6 @@ public class SpeccyScreen extends JPanel {
   public SpeccyScreen(int[] pixels, int stride) {
     this.stride = stride;
     this.pixels = pixels;
-    int[] masks = {0xff0000, 0xff00, 0xff};
-    this.screenBuffer = new BufferedImage(new DirectColorModel(24, masks[0], masks[1], masks[2]),
-        Raster.createPackedRaster(new DataBufferInt(pixels, pixels.length), width, height, stride, masks, null),
-        false, null);
     this.croppedBuffer = new BufferedImage(SCREEN_W, SCREEN_H, BufferedImage.TYPE_INT_RGB);
     this.wholeBuffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
@@ -225,34 +217,6 @@ public class SpeccyScreen extends JPanel {
 
   public Boolean getSmoothing() {
     return smoothing;
-  }
-
-  /**
-   * The unlit gaps a television left between its lines.
-   * <p>
-   * Drawn on the scaled picture rather than the small one, because that is where they belong: a
-   * scan line is a line of the SCREEN, and one drawn before scaling would be stretched into a
-   * dark band as wide as the magnification. Which also says when they are worth drawing at all -
-   * below two screen pixels to a machine pixel there is no gap to leave, and darkening every
-   * other row would only halve the brightness.
-   */
-  private static void darkenAlternateLines(BufferedImage scaled, int sourceHeight) {
-    if (scaled.getHeight() < sourceHeight * 2) {
-      return;
-    }
-    int width = scaled.getWidth();
-    int[] row = new int[width];
-    for (int y = 1; y < scaled.getHeight(); y += 2) {
-      scaled.getRGB(0, y, width, 1, row, 0, width);
-      for (int x = 0; x < width; x++) {
-        int rgb = row[x];
-        row[x] = rgb & 0xFF000000
-            | (((rgb >> 16) & 0xFF) * 55 / 100) << 16
-            | (((rgb >> 8) & 0xFF) * 55 / 100) << 8
-            | ((rgb & 0xFF) * 55 / 100);
-      }
-      scaled.setRGB(0, y, width, 1, row, 0, width);
-    }
   }
 
   private int imageWidth() {

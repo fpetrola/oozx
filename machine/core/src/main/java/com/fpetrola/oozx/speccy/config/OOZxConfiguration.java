@@ -78,7 +78,6 @@ public class OOZxConfiguration implements Configuration.Saves {
   private static final int MAX_RECENT_FILES = 10;
   private static final int MAX_SNAPSHOT_HISTORY = 20;
   private static final String CONFIG_DIR = System.getProperty("user.home") + File.separator + ".oozx";
-  private static final String CONFIG_FILE = CONFIG_DIR + File.separator + "config.json";
 
   /**
    * Unknown fields are ignored rather than refused. A configuration file outlives the versions
