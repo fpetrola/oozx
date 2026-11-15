@@ -1,0 +1,120 @@
+# What a person signed of this module's surface; cerco:approve grows it.
+module: "machine/bridge"
+types:
+  "com.fpetrola.oozx.speccy.bridge.CommandHandler":
+    kind: interface
+    members:
+      - "addNoResultCommand(EmulatorCommand): void"
+      - "addResultFor(EmulatorCommand, Object): void"
+      - "executeCommand(EmulatorCommand): Object"
+      - "noCommands(): boolean"
+      - "pollCommand(): EmulatorCommand"
+      - "reset(): void"
+  "com.fpetrola.oozx.speccy.bridge.EmulatorCommand":
+    kind: interface
+    members:
+      - "execute(LibretroCore): R"
+  "com.fpetrola.oozx.speccy.bridge.LibSpectrum":
+    kind: interface
+    members:
+      - "identifyFileWithClass(String, Object, int, Object): int"
+      - "libspectrum_end(): void"
+      - "libspectrum_free(com.sun.jna.Pointer): void"
+      - "libspectrum_init(): int"
+      - "libspectrum_snap_a(Z80Loader.libspectrum_snap): byte"
+      - "libspectrum_snap_alloc(): Z80Loader.libspectrum_snap"
+      - "libspectrum_snap_f(Z80Loader.libspectrum_snap): byte"
+      - "libspectrum_snap_free(Z80Loader.libspectrum_snap): int"
+      - "libspectrum_snap_pc(Z80Loader.libspectrum_snap): short"
+      - "libspectrum_snap_read(Z80Loader.libspectrum_snap, byte[], NativeLong, int, String): int"
+      - "libspectrum_snap_sp(Z80Loader.libspectrum_snap): short"
+      - "libspectrum_snap_tstates(Z80Loader.libspectrum_snap): int"
+      - "libspectrum_snap_write(com.sun.jna.ptr.PointerByReference, com.sun.jna.ptr.LongByReference, com.sun.jna.ptr.IntByReference, Z80Loader.libspectrum_snap, int, com.sun.jna.Pointer, int): int"
+      - "libspectrum_tape_alloc(): Z80Loader.libspectrum_tape"
+      - "libspectrum_tape_block_type(com.sun.jna.Pointer): int"
+      - "libspectrum_tape_clear(Z80Loader.libspectrum_tape): int"
+      - "libspectrum_tape_free(Z80Loader.libspectrum_tape): void"
+      - "libspectrum_tape_iterator_current(com.sun.jna.Pointer): com.sun.jna.Pointer"
+      - "libspectrum_tape_iterator_init(com.sun.jna.ptr.PointerByReference, Z80Loader.libspectrum_tape): int"
+      - "libspectrum_tape_iterator_next(com.sun.jna.ptr.PointerByReference): com.sun.jna.Pointer"
+      - "libspectrum_tape_nth_block(Z80Loader.libspectrum_tape, int): int"
+      - "libspectrum_tape_position(IntByReference, Z80Loader.libspectrum_tape): int"
+      - "libspectrum_tape_present(Z80Loader.libspectrum_tape): boolean"
+      - "libspectrum_tape_read(Z80Loader.libspectrum_tape, byte[], int, int, String): int"
+      - "libspectrum_tape_write(com.sun.jna.ptr.PointerByReference, com.sun.jna.ptr.IntByReference, Z80Loader.libspectrum_tape, int): int"
+  "com.fpetrola.oozx.speccy.bridge.LibretroCore":
+    kind: interface
+    members:
+      - "fuse_get_show_frame(): int"
+      - "fuse_set_show_frame(boolean): void"
+      - "retro_api_version(): int"
+      - "retro_deinit(): void"
+      - "retro_get_beam_x(): int"
+      - "retro_get_beam_y(): int"
+      - "retro_get_current_screen(): int"
+      - "retro_get_late_timings(): int"
+      - "retro_get_memory_data(int): int"
+      - "retro_get_memory_data_contended(int): int"
+      - "retro_get_memory_map_read(int): MemoryPageStructure"
+      - "retro_get_memory_map_read_page_num(int): int"
+      - "retro_get_memory_map_read_source(int): int"
+      - "retro_get_memory_map_write(int): int"
+      - "retro_get_memory_map_write_page_num(int): int"
+      - "retro_get_memory_map_write_source(int): int"
+      - "retro_get_memory_size(int): long"
+      - "retro_get_register_data(String): int"
+      - "retro_get_system_av_info(Pointer): void"
+      - "retro_get_system_info(Pointer): void"
+      - "retro_get_ula_contention(int): int"
+      - "retro_if1_page(boolean): void"
+      - "retro_init(): void"
+      - "retro_is_intruption_enabled(): boolean"
+      - "retro_load_game(retro_game_info): boolean"
+      - "retro_ram_locked(): int"
+      - "retro_read_lan_port(): int"
+      - "retro_reset(): void"
+      - "retro_run(): void"
+      - "retro_select_machine(String): void"
+      - "retro_set_audio_sample(retro_audio_sample_t): void"
+      - "retro_set_audio_sample_batch(retro_audio_sample_batch_t): void"
+      - "retro_set_bridge_command(bridge_command): void"
+      - "retro_set_environment(retro_environment_t): void"
+      - "retro_set_input_poll(retro_input_poll_t): void"
+      - "retro_set_input_state(retro_input_state_t): void"
+      - "retro_set_late_timings(int): void"
+      - "retro_set_memory_data(int, int): void"
+      - "retro_set_memory_data_contended(int, int): void"
+      - "retro_set_register_data(String, int): void"
+      - "retro_set_video_refresh(retro_video_refresh_t): void"
+      - "retro_tstates_history(): Pointer"
+      - "retro_tstates_history_init(): void"
+      - "retro_unload_game(): void"
+      - "retro_write_port(int, int): void"
+  "com.fpetrola.oozx.speccy.bridge.LibretroCore.bridge_command":
+    kind: interface
+    members:
+      - "invoke(int, Pointer): BridgeResponse"
+  "com.fpetrola.oozx.speccy.bridge.LibretroCore.retro_audio_sample_batch_t":
+    kind: interface
+    members:
+      - "invoke(ShortByReference, long): long"
+  "com.fpetrola.oozx.speccy.bridge.LibretroCore.retro_audio_sample_t":
+    kind: interface
+    members:
+      - "invoke(short, short): void"
+  "com.fpetrola.oozx.speccy.bridge.LibretroCore.retro_environment_t":
+    kind: interface
+    members:
+      - "invoke(int, Pointer): boolean"
+  "com.fpetrola.oozx.speccy.bridge.LibretroCore.retro_input_poll_t":
+    kind: interface
+    members:
+      - "invoke(): void"
+  "com.fpetrola.oozx.speccy.bridge.LibretroCore.retro_input_state_t":
+    kind: interface
+    members:
+      - "invoke(int, int, int, int): short"
+  "com.fpetrola.oozx.speccy.bridge.LibretroCore.retro_video_refresh_t":
+    kind: interface
+    members:
+      - "invoke(Pointer, int, int, long): void"

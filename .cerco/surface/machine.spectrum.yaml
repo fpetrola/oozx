@@ -1,0 +1,12 @@
+# What a person signed of this module's surface; cerco:approve grows it.
+module: "machine/spectrum"
+types:
+  "com.fpetrola.emulation.helpers.snapshots.SnapshotFile":
+    kind: interface
+    members:
+      - "fresh(): SnapshotFile"
+      - "label(): String"
+      - "load(File): SpectrumState"
+      - "named(File, String...): boolean"
+      - "reads(File): boolean"
+      - "save(File, SpectrumState): boolean"

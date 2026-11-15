@@ -1,0 +1,86 @@
+# What a person signed of this module's surface; cerco:approve grows it.
+module: "translation/blocks"
+types:
+  "com.fpetrola.z80.blocks.Block":
+    kind: interface
+    members:
+      - "accept(BlockRoleVisitor): void"
+      - "canTake(int): boolean"
+      - "check1(): void"
+      - "contains(int): boolean"
+      - "createBlock(int, int, String, Class<? extends BlockType>): Block"
+      - "getAppropriatedBlockFor(int, int, BlockType): Block"
+      - "getBlockType(): BlockType"
+      - "getBlocksManager(): BlocksManager"
+      - "getCallType(): String"
+      - "getName(): String"
+      - "getRangeHandler(): RangeHandler"
+      - "getReferencesHandler(): ReferencesHandler"
+      - "getTypeName(): String"
+      - "growBlockTo(int): Block"
+      - "init(int, int, BlocksManager): void"
+      - "isAdjacent(Block): boolean"
+      - "isCompleted(): boolean"
+      - "isReferencedBy(Block): boolean"
+      - "isReferencing(Block): boolean"
+      - "join(Block): Block"
+      - "joinBlocksBetween(Block, int): Block"
+      - "overlap(Block): boolean"
+      - "replaceType(BlockType): Block"
+      - "setBlocksManager(BlocksManager): void"
+      - "setCallType(String): void"
+      - "setCompleted(boolean): void"
+      - "setType(BlockType): void"
+      - "split(int): Block"
+      - "split(int, Class<? extends BlockType>): Block"
+      - "split(int, String, Class<? extends BlockType>): Block"
+      - "testOverlap(int, int, int, int): boolean"
+      - "toString(): String"
+  "com.fpetrola.z80.blocks.BlockChangesListener":
+    kind: interface
+  "com.fpetrola.z80.blocks.BlockRoleVisitor":
+    kind: interface
+    members:
+      - "visiting(CodeBlockType): void"
+      - "visiting(DataBlockType): void"
+      - "visiting(UnknownBlockType): void"
+  "com.fpetrola.z80.blocks.BlockType":
+    kind: interface
+    members:
+      - "accept(BlockRoleVisitor): void"
+      - "getBlock(): Block"
+      - "getName(): String"
+      - "setBlock(Block): void"
+  "com.fpetrola.z80.blocks.ParentChildChangesListener":
+    kind: interface
+    members:
+      - "addingBlock(T): void"
+      - "addingKnownBLock(T, T, int): void"
+      - "blockChanged(T): void"
+      - "removingBlock(T): void"
+      - "removingKnownBlock(T, T): void"
+      - "replaceBlock(T, T): void"
+  "com.fpetrola.z80.blocks.ranges.RangeChangeListener":
+    kind: interface
+    members:
+      - "rangeChanged(RangeHandler): void"
+  "com.fpetrola.z80.blocks.spy.Nameable":
+    kind: interface
+    members:
+      - "getName(): String"
+  "com.fpetrola.z80.spy.RegisterReadListener":
+    kind: interface
+    members:
+      - "readingRegister(int): void"
+  "com.fpetrola.z80.spy.RegisterWriteListener":
+    kind: interface
+    members:
+      - "writingRegister(int, boolean): void"
+  "com.fpetrola.z80.spy.SpyReference":
+    kind: interface
+    members:
+      - "isIndirectReference(): boolean"
+  "com.fpetrola.z80.spy.Undoable":
+    kind: interface
+    members:
+      - "undo(): void"

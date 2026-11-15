@@ -10,6 +10,7 @@ file-length
 flag-argument
 flag-driven-from-outside
 handed-out-whole
+kept-by-index
 kept-together
 key-holds-value
 maps-keyed-alike
@@ -34,9 +35,13 @@ no-type-code
 no-type-keyed-map
 no-utility-class
 notified-by-caller
+one-accept
 parseable
+plural-name
 property-shuffle
 reached-through
 refiltered-by-type
 state-asked-across-methods
+unpromised-member
+visitor-handed-parts
 walked-from-outside

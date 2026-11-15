@@ -1,0 +1,18 @@
+# What a person signed of this module's surface; cerco:approve grows it.
+module: "machine/host/input"
+types:
+  "com.fpetrola.oozx.speccy.modules.joystick.JoystickKind":
+    kind: interface
+    members:
+      - "push(Direction, boolean): void"
+      - "read(): byte"
+      - "readLately(): boolean"
+      - "reads(): byte"
+      - "takesPushes(): boolean"
+  "com.fpetrola.oozx.speccy.modules.keyboard.KeyLayout":
+    kind: interface
+    members:
+      - "pressed(Input.InputKey): void"
+      - "produces(Input.InputKey): Combination"
+      - "releasedByLettingGo(): boolean"
+      - "releasedByPressing(Input.InputKey): boolean"

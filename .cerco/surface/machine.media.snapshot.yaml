@@ -1,0 +1,7 @@
+# What a person signed of this module's surface; cerco:approve grows it.
+module: "machine/media/snapshot"
+types:
+  "com.fpetrola.oozx.speccy.modules.snapshot.RestoredFromASnapshot":
+    kind: interface
+    members:
+      - "restore(SpectrumState): void"

@@ -1,0 +1,274 @@
+# What a person signed of this module's surface; cerco:approve grows it.
+module: "machine/core"
+types:
+  "com.fpetrola.oozx.EmulatorControl":
+    kind: interface
+    members:
+      - "addEmulatorListener(EmulatorListener): void"
+      - "finishEmulation(): void"
+      - "getCurrentModel(): String"
+      - "getEmulationSpeed(): double"
+      - "getFilename(): String"
+      - "getMachineModels(): java.util.List<String>"
+      - "getProcessor(): String"
+      - "getProcessors(): java.util.List<String>"
+      - "getRomSet(): String"
+      - "getRomSets(): java.util.List<String>"
+      - "getTapeStatus(): String"
+      - "getVolume(): int"
+      - "isMuted(): boolean"
+      - "isPaused(): boolean"
+      - "isTurboMode(): boolean"
+      - "loadFile(String): void"
+      - "loadState(String): void"
+      - "notifySpeed(float): void"
+      - "packedState(): String"
+      - "pauseEmulation(): void"
+      - "resetEmulation(): void"
+      - "resumeEmulation(): void"
+      - "saveState(String): void"
+      - "setAudioOption(String, Object): void"
+      - "setFilename(String): void"
+      - "setGeneralOption(String, Object): void"
+      - "setInputOption(String, Object): void"
+      - "setMachineModel(String): void"
+      - "setPeripheralOption(String, Object): void"
+      - "setProcessor(String): void"
+      - "setRomSet(String): void"
+      - "setStorageOption(String, Object): void"
+      - "setVideoOption(String, Object): void"
+      - "startEmulation(): void"
+      - "stopEmulation(): void"
+  "com.fpetrola.oozx.EmulatorListener":
+    kind: interface
+    members:
+      - "onEmulationSpeedChanged(double): void"
+      - "onEmulationStateChanged(String): void"
+      - "onError(String): void"
+      - "onModelChanged(String): void"
+      - "onPauseStateChanged(boolean): void"
+      - "onTapeStatusChanged(String): void"
+      - "onTurboModeChanged(boolean): void"
+  "com.fpetrola.oozx.Extension":
+    kind: interface
+  "com.fpetrola.oozx.config.RomFiles.Consent":
+    kind: interface
+    members:
+      - "arrived(String): void"
+      - "arriving(String, long, long): void"
+      - "toDownload(String, String): boolean"
+  "com.fpetrola.oozx.config.RomsOfItsOwn":
+    kind: interface
+    members:
+      - "files(): Map<String,List<String>>"
+      - "open(String): java.io.InputStream"
+      - "sets(): Map<String,Map<String,List<String>>>"
+      - "sources(): Map<String,RomFiles.Source>"
+  "com.fpetrola.oozx.config.Settings.Described":
+    kind: interface
+    members:
+      - "choicesFor(String): List<?>"
+      - "name(): String"
+      - "properties(): List<String>"
+      - "saidAbout(String): String"
+      - "typeOf(String): Class<?>"
+  "com.fpetrola.oozx.config.Settings.Values":
+    kind: interface
+    members:
+      - "get(String): Object"
+      - "set(String, Object): void"
+  "com.fpetrola.oozx.formats.SnapshotFormat":
+    kind: interface
+    members:
+      - "carried(byte[]): java.util.Map<String,byte[]>"
+      - "carriedBy(File): java.util.Map<String,byte[]>"
+      - "label(): String"
+      - "ram(byte[]): java.util.Optional<byte[]>"
+      - "read(byte[], Speccy, Consumer<String>): void"
+      - "reads(File): boolean"
+      - "write(Speccy, Consumer<String>): byte[]"
+      - "write(Speccy, java.util.Map<String,byte[]>, Consumer<String>): byte[]"
+      - "writes(File): boolean"
+  "com.fpetrola.oozx.plugins.BesideTheGame":
+    kind: interface
+    members:
+      - "anythingBeside(String): boolean"
+      - "isBeside(String): boolean"
+      - "kindsBeside(java.io.File): java.util.List<String>"
+      - "what(): String"
+      - "whatIsBeside(String): String"
+  "com.fpetrola.oozx.speccy.machine.Paging128":
+    kind: interface
+    members:
+      - "memoryPortWrite(int, byte): void"
+  "com.fpetrola.oozx.speccy.machine.PagingPlus3":
+    kind: interface
+    members:
+      - "memoryPort2Write(int, byte): void"
+  "com.fpetrola.oozx.speccy.machine.Roms":
+    kind: interface
+    members:
+      - "of(Peripheral, int): byte[]"
+      - "of(Peripheral, int, int): byte[]"
+      - "of(Spectrum, int, int): byte[]"
+  "com.fpetrola.oozx.speccy.machine.SpecPlus3Constants":
+    kind: interface
+  "com.fpetrola.oozx.speccy.machine.SpectrumMachine":
+    kind: interface
+    members:
+      - "asWrittenToTheUla(int, byte): byte"
+      - "firstLineAt(long): void"
+      - "frameCount(): long"
+      - "fullyDecodesPorts(): boolean"
+      - "getName(): String"
+      - "getTimings(): MachineTimings"
+      - "hasFloatingBus(): boolean"
+      - "hasOnBoard(Class<?>): boolean"
+      - "lineStart(int): long"
+      - "memoryMap(): void"
+      - "nearestModel(): MachineTypes"
+      - "onBoard(): Set<Class<? extends Peripheral>>"
+      - "pagesThrough1ffd(): boolean"
+      - "pagesThrough7ffd(): boolean"
+      - "paging(): Paging"
+      - "portFromUla(int): boolean"
+      - "reset(): int"
+      - "reset(boolean): void"
+      - "separatesTapeFromSpeaker(): boolean"
+      - "shortName(): String"
+      - "snapshotModel(): MachineTypes"
+      - "ulaPortIdleValue(byte): byte"
+      - "unattachedPort(int): int"
+  "com.fpetrola.oozx.speccy.machine.StartsAMachineOn":
+    kind: interface
+    members:
+      - "handles(File): boolean"
+      - "machineFor(File): String"
+      - "start(Speccy, File): Going"
+  "com.fpetrola.oozx.speccy.machine.StartsAMachineOn.Going":
+    kind: interface
+    members:
+      - "done(): boolean"
+      - "step(): void"
+      - "wrong(): String"
+  "com.fpetrola.oozx.speccy.modules.display.Border.BeamAt":
+    kind: interface
+    members:
+      - "column(): int"
+      - "row(): int"
+  "com.fpetrola.oozx.speccy.modules.display.Colouring.Reading":
+    kind: interface
+    members:
+      - "ink(byte, boolean): byte"
+      - "paper(byte, boolean): byte"
+  "com.fpetrola.oozx.speccy.modules.display.ColoursOfItsOwn":
+    kind: interface
+    members:
+      - "asItWas(int[], boolean): void"
+      - "fitted(boolean): void"
+  "com.fpetrola.oozx.speccy.modules.display.Painting.Line":
+    kind: interface
+    members:
+      - "allOfItEveryFrame(): boolean"
+      - "cellsCanFlash(): boolean"
+      - "paint(int, int): void"
+  "com.fpetrola.oozx.speccy.modules.display.Painting.WithoutAttributes":
+    kind: interface
+  "com.fpetrola.oozx.speccy.modules.machine.MachineChangeListener":
+    kind: interface
+    members:
+      - "machineChanged(SpectrumMachine): void"
+  "com.fpetrola.oozx.speccy.modules.memory.MemoryContention":
+    kind: interface
+    members:
+      - "beforeRead(): void"
+      - "beforeWrite(): void"
+  "com.fpetrola.oozx.speccy.modules.sound.AudioOutput":
+    kind: interface
+    members:
+      - "frameSize(): int"
+      - "newFlatSynth(int): BlipSynth"
+      - "newSynth(int): BlipSynth"
+  "com.fpetrola.oozx.speccy.modules.sound.AudioSource":
+    kind: interface
+    members:
+      - "close(): void"
+      - "endFrame(int): void"
+      - "mixInto(int[], int): int"
+      - "takeOutputFrom(AudioOutput): void"
+  "com.fpetrola.oozx.speccy.modules.sound.SoundCard":
+    kind: interface
+    members:
+      - "close(): void"
+      - "dropWhenAhead(boolean): void"
+      - "isOpen(): boolean"
+      - "open(String, int[], int[]): int"
+      - "play(int[], int): void"
+  "com.fpetrola.oozx.speccy.modules.ula.EarLine":
+    kind: interface
+    members:
+      - "high(): boolean"
+      - "playing(): boolean"
+  "com.fpetrola.oozx.speccy.modules.z80.PcTraps.Trap":
+    kind: interface
+    members:
+      - "reached(int): void"
+  "com.fpetrola.oozx.speccy.modules.z80.ProcessorWiring":
+    kind: interface
+    members:
+      - "build(Core, Function<Memory,State>): OOZ80"
+      - "takesACoreThatReachesMemoryItself(): boolean"
+  "com.fpetrola.oozx.speccy.modules.z80.Processors.ReadListener":
+    kind: interface
+    members:
+      - "read(int, int): void"
+  "com.fpetrola.oozx.speccy.parts.PartVisitor":
+    kind: interface
+    members:
+      - "visit(Visitable): void"
+  "com.fpetrola.oozx.speccy.parts.Visitable":
+    kind: interface
+    members:
+      - "accept(PartVisitor): void"
+  "com.fpetrola.oozx.speccy.peripherals.FilesOfItsOwn":
+    kind: interface
+    members:
+      - "beside(String): void"
+      - "files(): java.util.Map<String,byte[]>"
+  "com.fpetrola.oozx.speccy.peripherals.Peripheral":
+    kind: interface
+    members:
+      - "activate(SpectrumMachine): void"
+      - "deactivate(): void"
+      - "fitsOn(SpectrumMachine): boolean"
+      - "getPorts(): Wired[]"
+      - "hasHardReset(): boolean"
+      - "isWanted(): boolean"
+      - "machineWasReset(boolean): void"
+  "com.fpetrola.oozx.speccy.peripherals.Pluggable":
+    kind: interface
+    members:
+      - "isPluggedIn(): boolean"
+      - "plugIn(boolean): void"
+  "com.fpetrola.oozx.speccy.ports.DecodedPortBus.FloatingBus":
+    kind: interface
+    members:
+      - "at(int): byte"
+  "com.fpetrola.oozx.speccy.ports.PortBus":
+    kind: interface
+    members:
+      - "read(int): byte"
+      - "write(int, byte): void"
+  "com.fpetrola.oozx.speccy.ports.PortHandler":
+    kind: interface
+    members:
+      - "ignoresReadWriteLine(): boolean"
+      - "isReader(): boolean"
+      - "isWriter(): boolean"
+      - "read(int): BusAnswer"
+      - "write(int, byte): void"
+  "com.fpetrola.oozx.speccy.ports.Wiring":
+    kind: interface
+    members:
+      - "answers(int): boolean"
+      - "lines(int, int): Wiring"

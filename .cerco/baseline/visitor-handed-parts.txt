@@ -1,0 +1,11 @@
+# cerco baseline v1 visitor-handed-parts: count, key
+1	emulator/src/main/java/com/fpetrola/z80/instructions/impl/Dec16.java|accept|visitor.visitingTarget(getTarget(), this)
+1	emulator/src/main/java/com/fpetrola/z80/instructions/impl/Inc16.java|accept|visitor.visitingTarget(getTarget(), this)
+1	emulator/src/main/java/com/fpetrola/z80/instructions/types/BitOperation.java|accept|visitor.visitingFlag(flag, this)
+1	emulator/src/main/java/com/fpetrola/z80/instructions/types/BitOperation.java|accept|visitor.visitingTarget(target, this)
+1	emulator/src/main/java/com/fpetrola/z80/instructions/types/DefaultTargetFlagInstruction.java|accept|visitor.visitingFlag(flag, this)
+1	emulator/src/main/java/com/fpetrola/z80/instructions/types/DefaultTargetFlagInstruction.java|accept|visitor.visitingTarget(getTarget(), this)
+1	emulator/src/main/java/com/fpetrola/z80/instructions/types/TargetInstruction.java|accept|visitor.visitingTarget(getTarget(), this)
+1	emulator/src/main/java/com/fpetrola/z80/instructions/types/TargetSourceInstruction.java|accept|visitor.visitingFlag(getFlag(), this)
+1	emulator/src/main/java/com/fpetrola/z80/instructions/types/TargetSourceInstruction.java|accept|visitor.visitingSource(getSource(), this)
+1	emulator/src/main/java/com/fpetrola/z80/instructions/types/TargetSourceInstruction.java|accept|visitor.visitingTarget(getTarget(), this)

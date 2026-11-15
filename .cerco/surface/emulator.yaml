@@ -1,0 +1,625 @@
+# What a person signed of this module's surface; cerco:approve grows it.
+module: "emulator"
+types:
+  "com.fpetrola.z80.base.InstructionVisitor":
+    kind: interface
+    members:
+      - "getResult(): R"
+      - "setResult(R): void"
+      - "visitBNotZeroCondition(BNotZeroCondition): void"
+      - "visitBlockInstruction(BlockInstruction): void"
+      - "visitConstantOpcodeReference(ConstantOpcodeReference): void"
+      - "visitCpd(Cpd): boolean"
+      - "visitCpdr(Cpdr): boolean"
+      - "visitCpi(Cpi): boolean"
+      - "visitCpir(Cpir): boolean"
+      - "visitDI(DI): void"
+      - "visitEI(EI): void"
+      - "visitEx(Ex): void"
+      - "visitExx(Exx): void"
+      - "visitImmutableOpcodeReference(ImmutableOpcodeReference): void"
+      - "visitIn(In): void"
+      - "visitInd(Ind): boolean"
+      - "visitIndirectMemory16BitReference(IndirectMemory16BitReference): void"
+      - "visitIndirectMemory8BitReference(IndirectMemory8BitReference): void"
+      - "visitIndr(Indr): boolean"
+      - "visitIni(Ini): boolean"
+      - "visitInir(Inir): boolean"
+      - "visitLdAR(LdAR): boolean"
+      - "visitLdOperation(LdOperation): boolean"
+      - "visitLdd(Ldd): boolean"
+      - "visitLddr(Lddr): boolean"
+      - "visitLdi(Ldi): boolean"
+      - "visitLdir(Ldir): boolean"
+      - "visitMemory16BitReference(Memory16BitReference): boolean"
+      - "visitMemory8BitReference(Memory8BitReference): boolean"
+      - "visitMemoryAccessOpcodeReference(MemoryAccessOpcodeReference): void"
+      - "visitMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference): void"
+      - "visitMutableOpcodeReference(MutableOpcodeReference): void"
+      - "visitNop(Nop): void"
+      - "visitNullOpcodeReference(NullOpcodeReference): void"
+      - "visitOpcodeReference(OpcodeReference): void"
+      - "visitOut(Out): void"
+      - "visitOutd(Outd): boolean"
+      - "visitOutdr(Outdr): boolean"
+      - "visitOuti(Outi): boolean"
+      - "visitOutir(Outir): boolean"
+      - "visitPush(Push): void"
+      - "visitRLD(RLD): boolean"
+      - "visitRRD(RRD): boolean"
+      - "visitRegister(Register): boolean"
+      - "visitRepeatingInstruction(RepeatingInstruction): boolean"
+      - "visiting16BitsOperation(Binary16BitsOperation): boolean"
+      - "visitingAdc(Adc): void"
+      - "visitingAdc16(Adc16): boolean"
+      - "visitingAdd(Add): boolean"
+      - "visitingAdd16(Add16): boolean"
+      - "visitingAnd(And): void"
+      - "visitingBit(BIT): boolean"
+      - "visitingBitOperation(BitOperation): boolean"
+      - "visitingCall(Call): boolean"
+      - "visitingCcf(CCF): void"
+      - "visitingConditionAlwaysTrue(ConditionAlwaysTrue): void"
+      - "visitingConditionFlag(ConditionFlag): void"
+      - "visitingConditionalInstruction(ConditionalInstruction): void"
+      - "visitingCp(Cp): void"
+      - "visitingCpl(CPL): boolean"
+      - "visitingDaa(DAA): boolean"
+      - "visitingDec(Dec): boolean"
+      - "visitingDec16(Dec16): void"
+      - "visitingDjnz(DJNZ): boolean"
+      - "visitingFlag(Register, DefaultTargetFlagInstruction): void"
+      - "visitingHalt(Halt): void"
+      - "visitingIm(IM): void"
+      - "visitingInc(Inc): boolean"
+      - "visitingInc16(Inc16): void"
+      - "visitingInstruction(AbstractInstruction): void"
+      - "visitingJP(JP): boolean"
+      - "visitingJR(JR): void"
+      - "visitingLd(Ld): void"
+      - "visitingNeg(Neg): void"
+      - "visitingOr(Or): void"
+      - "visitingParameterizedBinaryAluInstruction(ParameterizedBinaryAluInstruction): void"
+      - "visitingParameterizedUnaryAluInstruction(ParameterizedUnaryAluInstruction): boolean"
+      - "visitingPop(Pop): void"
+      - "visitingRes(RES): boolean"
+      - "visitingRet(Ret): boolean"
+      - "visitingRl(RL): boolean"
+      - "visitingRla(RLA): boolean"
+      - "visitingRlc(RLC): boolean"
+      - "visitingRlca(RLCA): boolean"
+      - "visitingRr(RR): boolean"
+      - "visitingRra(RRA): boolean"
+      - "visitingRrc(RRC): boolean"
+      - "visitingRrca(RRCA): boolean"
+      - "visitingRst(RST): void"
+      - "visitingSbc(Sbc): void"
+      - "visitingSbc16(Sbc16): boolean"
+      - "visitingScf(SCF): void"
+      - "visitingSet(SET): boolean"
+      - "visitingSla(SLA): boolean"
+      - "visitingSll(SLL): boolean"
+      - "visitingSource(ImmutableOpcodeReference, TargetSourceInstruction): void"
+      - "visitingSra(SRA): boolean"
+      - "visitingSrl(SRL): boolean"
+      - "visitingSub(Sub): void"
+      - "visitingTarget(OpcodeReference, TargetInstruction): void"
+      - "visitingTargetInstruction(TargetInstruction): void"
+      - "visitingTargetSourceInstruction(TargetSourceInstruction): void"
+      - "visitingXor(Xor): void"
+  "com.fpetrola.z80.cpu.Core":
+    kind: interface
+    members:
+      - "bank(Memory, IO): RegisterBank"
+      - "countsItsOwnContention(): boolean"
+      - "cpu(State, PhaseProcessor): OOZ80"
+      - "name(): String"
+      - "wrapping(Memory): Memory"
+  "com.fpetrola.z80.cpu.FetchListener":
+    kind: interface
+    members:
+      - "beforeFetch(): void"
+      - "instructionFetchedAt(int, Instruction): void"
+      - "interruptedTo(int): void"
+  "com.fpetrola.z80.cpu.IO":
+    kind: interface
+    members:
+      - "in(int): int"
+      - "out(int, int): void"
+  "com.fpetrola.z80.cpu.InstructionExecutor":
+    kind: interface
+    members:
+      - "addTopExecutionListener(ExecutionListener): void"
+      - "execute(Instruction): Instruction"
+      - "getInstructionAt(int): Instruction"
+      - "isExecuting(Instruction): boolean"
+      - "reset(): void"
+      - "setExecutionListener(ExecutionListener): void"
+      - "setNoRepeat(boolean): void"
+  "com.fpetrola.z80.cpu.InstructionFetcher":
+    kind: interface
+    members:
+      - "addFetchListener(FetchListener): void"
+      - "afterExecute(Instruction): void"
+      - "fetchNextInstruction(): Instruction"
+      - "interruptedTo(int): void"
+      - "reset(): void"
+      - "setClone(boolean): void"
+  "com.fpetrola.z80.cpu.RandomAccessInstructionFetcher":
+    kind: interface
+    members:
+      - "getInstructionAt(int): Instruction"
+  "com.fpetrola.z80.cpu.RegistersGetter":
+    kind: interface
+    members:
+      - "getActiveINT(): boolean"
+      - "getActiveNMI(): boolean"
+      - "getFlagQ(): boolean"
+      - "getIFF1(): boolean"
+      - "getIFF2(): boolean"
+      - "getLastFlagQ(): boolean"
+      - "getMemPtr(): int"
+      - "getModeINT(): int"
+      - "getRegA(): int"
+      - "getRegAF(): int"
+      - "getRegAFx(): int"
+      - "getRegAx(): int"
+      - "getRegB(): int"
+      - "getRegBC(): int"
+      - "getRegBCx(): int"
+      - "getRegBx(): int"
+      - "getRegC(): int"
+      - "getRegCx(): int"
+      - "getRegD(): int"
+      - "getRegDE(): int"
+      - "getRegDEx(): int"
+      - "getRegDx(): int"
+      - "getRegE(): int"
+      - "getRegEx(): int"
+      - "getRegF(): int"
+      - "getRegFx(): int"
+      - "getRegH(): int"
+      - "getRegHL(): int"
+      - "getRegHLx(): int"
+      - "getRegHx(): int"
+      - "getRegI(): int"
+      - "getRegIX(): int"
+      - "getRegIY(): int"
+      - "getRegL(): int"
+      - "getRegLx(): int"
+      - "getRegPC(): int"
+      - "getRegR(): int"
+      - "getRegSP(): int"
+      - "isAddSubFlag(): boolean"
+      - "isCarryFlag(): boolean"
+      - "isHalfCarryFlag(): boolean"
+      - "isHalted(): boolean"
+      - "isParityFlag(): boolean"
+      - "isPendingEI(): boolean"
+      - "isSignFlag(): boolean"
+      - "isZeroFlag(): boolean"
+  "com.fpetrola.z80.cpu.RegistersSetter":
+    kind: interface
+    members:
+      - "setActiveINT(boolean): void"
+      - "setActiveNMI(boolean): void"
+      - "setCarryFlag(boolean): void"
+      - "setDE(int): void"
+      - "setFfIFF1(boolean): void"
+      - "setFfIFF2(boolean): void"
+      - "setFlagQ(boolean): void"
+      - "setFlags(int): void"
+      - "setHalted(boolean): void"
+      - "setIFF1(boolean): void"
+      - "setIFF2(boolean): void"
+      - "setIM(int): void"
+      - "setINTLine(boolean): void"
+      - "setLastFlagQ(boolean): void"
+      - "setMemPtr(int): void"
+      - "setMemptr(int): void"
+      - "setModeINT(int): void"
+      - "setNMI(boolean): void"
+      - "setPendingEI(boolean): void"
+      - "setPinReset(boolean): void"
+      - "setRegA(int): void"
+      - "setRegAF(int): void"
+      - "setRegAx(int): void"
+      - "setRegB(int): void"
+      - "setRegBC(int): void"
+      - "setRegBx(int): void"
+      - "setRegC(int): void"
+      - "setRegCx(int): void"
+      - "setRegD(int): void"
+      - "setRegDE(int): void"
+      - "setRegDx(int): void"
+      - "setRegE(int): void"
+      - "setRegEx(int): void"
+      - "setRegFx(int): void"
+      - "setRegH(int): void"
+      - "setRegHLx(int): void"
+      - "setRegHx(int): void"
+      - "setRegI(int): void"
+      - "setRegIX(int): void"
+      - "setRegIY(int): void"
+      - "setRegL(int): void"
+      - "setRegLx(int): void"
+      - "setRegPC(int): void"
+      - "setRegR(int): void"
+      - "setRegSP(int): void"
+  "com.fpetrola.z80.cpu.Z80Clock":
+    kind: interface
+    members:
+      - "addTStates(int): void"
+      - "getTStates(): int"
+      - "setTStates(int): void"
+  "com.fpetrola.z80.cpu.Z80Cpu":
+    kind: interface
+    members:
+      - "execute(): void"
+      - "getInstructionExecutor(): InstructionExecutor"
+      - "getInstructionFetcher(): InstructionFetcher"
+      - "getState(): State"
+      - "interruption(): void"
+      - "reset(): void"
+  "com.fpetrola.z80.helpers.ItemHandler":
+    kind: interface
+    members:
+      - "add(T): ItemHandler<T>"
+      - "execute(ItemInvoker<T>): void"
+      - "getList(): List<T>"
+      - "remove(T): ItemHandler<T>"
+  "com.fpetrola.z80.helpers.ItemInvoker":
+    kind: interface
+    members:
+      - "invoke(T): void"
+  "com.fpetrola.z80.instructions.cache.ConditionExecutionListener":
+    kind: interface
+    members:
+      - "executingCondition(Instruction, boolean, boolean): boolean"
+  "com.fpetrola.z80.instructions.cache.ConditionPredicate":
+    kind: interface
+    members:
+      - "test(T, Instruction): boolean"
+  "com.fpetrola.z80.instructions.factory.InstructionFactory":
+    kind: interface
+    members:
+      - "Adc(OpcodeReference, ImmutableOpcodeReference): Adc"
+      - "Adc16(OpcodeReference, ImmutableOpcodeReference): Adc16"
+      - "Add(OpcodeReference, ImmutableOpcodeReference): Add"
+      - "Add16(OpcodeReference, ImmutableOpcodeReference): Add16"
+      - "And(ImmutableOpcodeReference): And"
+      - "BIT(OpcodeReference, int): BIT"
+      - "CCF(): CCF"
+      - "CPL(): CPL"
+      - "Call(Condition, ImmutableOpcodeReference): Call"
+      - "Cp(ImmutableOpcodeReference): Cp"
+      - "Cpd(): Cpd"
+      - "Cpdr(): Cpdr"
+      - "Cpi(): Cpi"
+      - "Cpir(): Cpir"
+      - "DAA(): DAA"
+      - "DI(): DI"
+      - "DJNZ(BNotZeroCondition, ImmutableOpcodeReference): DJNZ"
+      - "Dec(OpcodeReference): Dec"
+      - "Dec16(OpcodeReference): Dec16"
+      - "EI(): EI"
+      - "Ex(OpcodeReference, OpcodeReference): Ex"
+      - "Exx(): Exx"
+      - "Halt(): Halt"
+      - "IM(int): IM"
+      - "In(OpcodeReference, ImmutableOpcodeReference): In"
+      - "Inc(OpcodeReference): Inc"
+      - "Inc16(OpcodeReference): Inc16"
+      - "Ind(): Ind"
+      - "Indr(): Indr"
+      - "Ini(): Ini"
+      - "Inir(): Inir"
+      - "JP(ImmutableOpcodeReference, Condition): JP"
+      - "JR(Condition, ImmutableOpcodeReference): JR"
+      - "Ld(OpcodeReference, ImmutableOpcodeReference): Ld"
+      - "LdAI(): LdAI"
+      - "LdAR(OpcodeReference, ImmutableOpcodeReference): LdAR"
+      - "LdOperation(OpcodeReference, Instruction): LdOperation"
+      - "Ldd(): Ldd"
+      - "Lddr(): Lddr"
+      - "Ldi(): Ldi"
+      - "Ldir(): Ldir"
+      - "Neg(OpcodeReference): Neg"
+      - "Nop(): Nop"
+      - "Or(ImmutableOpcodeReference): Or"
+      - "Out(ImmutableOpcodeReference, ImmutableOpcodeReference): Out"
+      - "Outd(): Outd"
+      - "Outdr(): Outdr"
+      - "Outi(): Outi"
+      - "Outir(): Outir"
+      - "Pop(OpcodeReference): Pop"
+      - "Push(OpcodeReference): Push"
+      - "RES(OpcodeReference, int): RES"
+      - "RL(OpcodeReference): RL"
+      - "RLA(): RLA"
+      - "RLC(OpcodeReference): RLC"
+      - "RLCA(): RLCA"
+      - "RLD(): RLD"
+      - "RR(OpcodeReference): RR"
+      - "RRA(): RRA"
+      - "RRC(OpcodeReference): RRC"
+      - "RRCA(): RRCA"
+      - "RRD(): RRD"
+      - "RST(int): RST"
+      - "Ret(Condition): Ret"
+      - "RetN(Condition): RetN"
+      - "SCF(): SCF"
+      - "SET(OpcodeReference, int): SET"
+      - "SLA(OpcodeReference): SLA"
+      - "SLL(OpcodeReference): SLL"
+      - "SRA(OpcodeReference): SRA"
+      - "SRL(OpcodeReference): SRL"
+      - "Sbc(OpcodeReference, ImmutableOpcodeReference): Sbc"
+      - "Sbc16(OpcodeReference, ImmutableOpcodeReference): Sbc16"
+      - "Sub(ImmutableOpcodeReference): Sub"
+      - "Xor(ImmutableOpcodeReference): Xor"
+      - "getFetchNextOpcodeInstructionFactory(): FetchNextOpcodeInstructionFactory"
+      - "memoryForOpcodes(State): Memory"
+      - "targets(State, Memory): OpcodeTargets"
+  "com.fpetrola.z80.instructions.factory.InstructionFactoryDelegator":
+    kind: interface
+    members:
+      - "Adc(OpcodeReference, ImmutableOpcodeReference): Adc"
+      - "Adc16(OpcodeReference, ImmutableOpcodeReference): Adc16"
+      - "Add(OpcodeReference, ImmutableOpcodeReference): Add"
+      - "Add16(OpcodeReference, ImmutableOpcodeReference): Add16"
+      - "And(ImmutableOpcodeReference): And"
+      - "BIT(OpcodeReference, int): BIT"
+      - "CCF(): CCF"
+      - "CPL(): CPL"
+      - "Call(Condition, ImmutableOpcodeReference): Call"
+      - "Cp(ImmutableOpcodeReference): Cp"
+      - "Cpd(): Cpd"
+      - "Cpdr(): Cpdr"
+      - "Cpi(): Cpi"
+      - "Cpir(): Cpir"
+      - "DAA(): DAA"
+      - "DI(): DI"
+      - "DJNZ(BNotZeroCondition, ImmutableOpcodeReference): DJNZ"
+      - "Dec(OpcodeReference): Dec"
+      - "Dec16(OpcodeReference): Dec16"
+      - "EI(): EI"
+      - "Ex(OpcodeReference, OpcodeReference): Ex"
+      - "Exx(): Exx"
+      - "Halt(): Halt"
+      - "IM(int): IM"
+      - "In(OpcodeReference, ImmutableOpcodeReference): In"
+      - "Inc(OpcodeReference): Inc"
+      - "Inc16(OpcodeReference): Inc16"
+      - "Ind(): Ind"
+      - "Indr(): Indr"
+      - "Ini(): Ini"
+      - "Inir(): Inir"
+      - "JP(ImmutableOpcodeReference, Condition): JP"
+      - "JR(Condition, ImmutableOpcodeReference): JR"
+      - "Ld(OpcodeReference, ImmutableOpcodeReference): Ld"
+      - "LdAI(): LdAI"
+      - "LdAR(OpcodeReference, ImmutableOpcodeReference): LdAR"
+      - "LdOperation(OpcodeReference, Instruction): LdOperation"
+      - "Ldd(): Ldd"
+      - "Lddr(): Lddr"
+      - "Ldi(): Ldi"
+      - "Ldir(): Ldir"
+      - "Neg(OpcodeReference): Neg"
+      - "Nop(): Nop"
+      - "Or(ImmutableOpcodeReference): Or"
+      - "Out(ImmutableOpcodeReference, ImmutableOpcodeReference): Out"
+      - "Outd(): Outd"
+      - "Outdr(): Outdr"
+      - "Outi(): Outi"
+      - "Outir(): Outir"
+      - "Pop(OpcodeReference): Pop"
+      - "Push(OpcodeReference): Push"
+      - "RES(OpcodeReference, int): RES"
+      - "RL(OpcodeReference): RL"
+      - "RLA(): RLA"
+      - "RLC(OpcodeReference): RLC"
+      - "RLCA(): RLCA"
+      - "RLD(): RLD"
+      - "RR(OpcodeReference): RR"
+      - "RRA(): RRA"
+      - "RRC(OpcodeReference): RRC"
+      - "RRCA(): RRCA"
+      - "RRD(): RRD"
+      - "RST(int): RST"
+      - "Ret(Condition): Ret"
+      - "RetN(Condition): RetN"
+      - "SCF(): SCF"
+      - "SET(OpcodeReference, int): SET"
+      - "SLA(OpcodeReference): SLA"
+      - "SLL(OpcodeReference): SLL"
+      - "SRA(OpcodeReference): SRA"
+      - "SRL(OpcodeReference): SRL"
+      - "Sbc(OpcodeReference, ImmutableOpcodeReference): Sbc"
+      - "Sbc16(OpcodeReference, ImmutableOpcodeReference): Sbc16"
+      - "Sub(ImmutableOpcodeReference): Sub"
+      - "Xor(ImmutableOpcodeReference): Xor"
+      - "getDelegate(): InstructionFactory"
+      - "getFetchNextOpcodeInstructionFactory(): FetchNextOpcodeInstructionFactory"
+      - "memoryForOpcodes(State): Memory"
+      - "targets(State, Memory): OpcodeTargets"
+  "com.fpetrola.z80.instructions.types.FlagInstruction":
+    kind: interface
+    members:
+      - "getFlag(): Register"
+  "com.fpetrola.z80.instructions.types.Instruction":
+    kind: interface
+    members:
+      - "accept(InstructionVisitor<?>): void"
+      - "execute(): void"
+      - "getLength(): int"
+      - "getNextPC(): int"
+      - "getRDelta(): int"
+      - "incrementLengthBy(int): void"
+      - "setRDelta(int): void"
+  "com.fpetrola.z80.instructions.types.JumpInstruction":
+    kind: interface
+    members:
+      - "getNextPC(): int"
+  "com.fpetrola.z80.instructions.types.SourceInstruction":
+    kind: interface
+    members:
+      - "getSource(): S"
+  "com.fpetrola.z80.instructions.types.TargetInstruction":
+    kind: interface
+    members:
+      - "getTarget(): OpcodeReference"
+  "com.fpetrola.z80.memory.Memory":
+    kind: interface
+    members:
+      - "addMemoryReadListener(MemoryReadListener): void"
+      - "addMemoryWriteListener(MemoryWriteListener): void"
+      - "compare(): boolean"
+      - "copyFrom(Memory): void"
+      - "disableReadListener(): void"
+      - "disableWriteListener(): void"
+      - "enableReadListener(): void"
+      - "enableWriteListener(): void"
+      - "getData(): int[]"
+      - "isProtected(int): boolean"
+      - "peek(int): int"
+      - "poke(int, int): void"
+      - "protect(int, int): void"
+      - "read(int): int"
+      - "read(int, int): int"
+      - "read16Bits(int): int"
+      - "readFetching(int, int): int"
+      - "removeMemoryReadListener(MemoryReadListener): void"
+      - "removeMemoryWriteListener(MemoryWriteListener): void"
+      - "reset(): void"
+      - "unprotect(int, int): void"
+      - "update(): void"
+      - "write(int, int): void"
+      - "write16Bits(int, int): void"
+      - "write16BitsReverse(int, int): void"
+  "com.fpetrola.z80.memory.MemoryReadListener":
+    kind: interface
+    members:
+      - "readingMemoryAt(int, int, int): void"
+  "com.fpetrola.z80.memory.MemoryWriteListener":
+    kind: interface
+    members:
+      - "writtingMemoryAt(int, int): void"
+  "com.fpetrola.z80.opcodes.decoder.FetchNextOpcodeInstruction":
+    kind: interface
+    members:
+      - "getTable(): Instruction[]"
+  "com.fpetrola.z80.opcodes.decoder.OpCodeDecoder":
+    kind: interface
+    members:
+      - "getOpcodeLookupTable(): Instruction[]"
+  "com.fpetrola.z80.opcodes.decoder.table.RotFactory":
+    kind: interface
+    members:
+      - "create(OpcodeReference, int): Instruction"
+  "com.fpetrola.z80.opcodes.references.Condition":
+    kind: interface
+    members:
+      - "accept(InstructionVisitor): void"
+      - "conditionMet(Instruction): boolean"
+  "com.fpetrola.z80.opcodes.references.ImmutableOpcodeReference":
+    kind: interface
+    members:
+      - "accept(InstructionVisitor): void"
+      - "getLength(): int"
+      - "read(): int"
+  "com.fpetrola.z80.opcodes.references.MutableOpcodeReference":
+    kind: interface
+    members:
+      - "accept(InstructionVisitor): void"
+      - "write(int): void"
+  "com.fpetrola.z80.opcodes.references.OpcodeReference":
+    kind: interface
+    members:
+      - "accept(InstructionVisitor): void"
+  "com.fpetrola.z80.opcodes.references.OpcodeReferenceBase":
+    kind: interface
+    members:
+      - "accept(InstructionVisitor): void"
+  "com.fpetrola.z80.opcodes.references.PublicCloneable":
+    kind: interface
+    members:
+      - "clone(): Object"
+  "com.fpetrola.z80.registers.Register":
+    kind: interface
+    members:
+      - "accept(InstructionVisitor): void"
+      - "decrement(): void"
+      - "getName(): String"
+      - "increment(): void"
+  "com.fpetrola.z80.registers.RegisterPair":
+    kind: interface
+    members:
+      - "getHigh(): Register"
+      - "getLow(): Register"
+  "com.fpetrola.z80.registers.flag.PrimitiveIntBiFunction":
+    kind: interface
+    members:
+      - "applyAsInt(int, int): void"
+  "com.fpetrola.z80.registers.flag.ToPrimitiveIntTriFunction":
+    kind: interface
+    members:
+      - "applyAsInt(int, int, int): int"
+  "com.fpetrola.z80.se.DataflowService":
+    kind: interface
+    members:
+      - "findCurrentReturnAddress(): Integer"
+      - "findValueOrigin(Register): int"
+      - "isSyntheticReturnAddress(): boolean"
+  "com.fpetrola.z80.spy.ComplexInstructionSpy":
+    kind: interface
+    members:
+      - "enableReadAccessCapture(): void"
+      - "enableStructureCapture(): void"
+      - "executeInPause(Supplier<Integer>): int"
+      - "export(): void"
+      - "getBitsWritten(): boolean[]"
+      - "getExecutionNumber(): long"
+      - "getFetchedAt(int): Instruction"
+      - "getLastExecutionPoint(): ExecutionPoint"
+      - "isIndirectReference(): boolean"
+      - "isReadAccessCapture(): boolean"
+      - "isStructureCapture(): boolean"
+      - "setGameName(String): void"
+      - "setSecondZ80(Z80Cpu): void"
+      - "setSpritesArray(boolean[]): void"
+      - "switchToDirectReference(): void"
+      - "switchToIndirectReference(): void"
+      - "undo(): void"
+      - "wasFetched(int): boolean"
+  "com.fpetrola.z80.spy.ExecutionListener":
+    kind: interface
+    members:
+      - "afterExecution(Instruction): void"
+      - "beforeExecution(Instruction): void"
+  "com.fpetrola.z80.spy.InstructionSpy":
+    kind: interface
+    members:
+      - "addExecutionListener(ExecutionListener): void"
+      - "addExecutionListeners(InstructionExecutor): void"
+      - "afterExecution(Instruction): void"
+      - "beforeExecution(Instruction): void"
+      - "doContinue(): void"
+      - "enable(boolean): void"
+      - "flipOpcode(Instruction, int): void"
+      - "isCapturing(): boolean"
+      - "pause(): void"
+      - "reset(State): void"
+      - "setState(State): void"
+      - "wrapMemory(Memory): Memory"
+      - "wrapMemoryPlusRegister8BitReference(MemoryPlusRegister8BitReference): MemoryPlusRegister8BitReference"
+      - "wrapOpcodeReference(ImmutableOpcodeReference): ImmutableOpcodeReference"
+      - "wrapRegister(Register): Register"
+  "com.fpetrola.z80.spy.RegisterReadListener":
+    kind: interface
+    members:
+      - "readingRegister(int): void"
+  "com.fpetrola.z80.spy.RegisterWriteListener":
+    kind: interface
+    members:
+      - "writingRegister(int, boolean): void"

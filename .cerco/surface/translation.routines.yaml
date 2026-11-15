@@ -1,0 +1,37 @@
+# What a person signed of this module's surface; cerco:approve grows it.
+module: "translation/routines"
+types:
+  "com.fpetrola.z80.routines.RoutineVisitor":
+    kind: interface
+    members:
+      - "getResult(): R"
+      - "visit(Routine): void"
+      - "visitInstruction(int, Instruction): void"
+      - "visitParameter(String): void"
+      - "visitReturnValue(String): void"
+  "com.fpetrola.z80.se.StackListener":
+    kind: interface
+    members:
+      - "beginUsingStackAsRepository(int, int, int): boolean"
+      - "droppingReturnValues(int, int, int, StackAnalyzer.Entry): boolean"
+      - "endUsingStackAsRepository(int, int, int): boolean"
+      - "jumpUsingRet(Ret, int, Set<Integer>): boolean"
+      - "returnAddressPopped(int, int, int): boolean"
+      - "returnShifted(Instruction, int, int, int): boolean"
+      - "returningToUnknownAddress(int): boolean"
+      - "simulatedCall(int, int, Set<Integer>, int): boolean"
+  "com.fpetrola.z80.se.Z80InstructionDriver":
+    kind: interface
+    members:
+      - "add(Instruction): int"
+      - "countExecutedInstructionsOfType(Class<? extends Instruction>): long"
+      - "getExecutedInstructions(): List"
+      - "getInstructionAt(int): Instruction"
+      - "getRegisterTransformerInstructionSpy(): RoutineFinderInstructionSpy"
+      - "getState(): State"
+      - "getTransformedInstructionAt(int): Instruction"
+      - "initMem(Supplier<int[]>): MockedMemory"
+      - "mem(): MockedMemory"
+      - "readMemAt(int): int"
+      - "step(): void"
+      - "step(int): void"

@@ -1,0 +1,43 @@
+# What a person signed of this module's surface; cerco:approve grows it.
+module: "translation/virtual"
+types:
+  "com.fpetrola.z80.transformations.IVirtual8BitsRegister":
+    kind: interface
+    members:
+      - "addDependant(VirtualRegister): void"
+      - "addPreviousVersion(IVirtual8BitsRegister): void"
+      - "getCurrentPreviousVersion(): IVirtual8BitsRegister"
+      - "getVirtualComposed16BitRegister(): VirtualComposed16BitRegister"
+      - "readPrevious(): int"
+      - "set16BitsRegister(VirtualComposed16BitRegister): void"
+  "com.fpetrola.z80.transformations.VirtualRegister":
+    kind: interface
+    members:
+      - "adjustRegisterScope(): VirtualRegister"
+      - "computeDominators(List<Block>, Block): Map<Block,Set<Block>>"
+      - "computeDominators2(List<Block>, Block): Set<Block>"
+      - "getAddress(): int"
+      - "getAncestorsOf(): List<VirtualRegister>"
+      - "getBlocksManager(): BlocksManager"
+      - "getDependants(): List<VirtualRegister>"
+      - "getDominantOf(List<Block>): Block"
+      - "getMinLineNumber2(): Integer"
+      - "getParentPreviousVersion(): VirtualRegister"
+      - "getParentPreviousVersion2(): Block"
+      - "getPreviousVersions(): List<VirtualRegister>"
+      - "getRegisterLine(): int"
+      - "getScope(): Scope"
+      - "getVersionHandler(): VirtualRegisterVersionHandler"
+      - "hasNoPrevious(): boolean"
+      - "isComposed(): boolean"
+      - "isComposed2(): boolean"
+      - "isInitialized(): boolean"
+      - "isMixRegister(): boolean"
+      - "reset(): void"
+      - "saveData(): void"
+      - "setComposed(boolean): void"
+      - "usesMultipleVersions(): boolean"
+  "com.fpetrola.z80.transformations.VirtualRegisterFactory.VirtualRegisterBuilder":
+    kind: interface
+    members:
+      - "build(String, VirtualRegister, int, VirtualRegisterVersionHandler): VirtualRegister"

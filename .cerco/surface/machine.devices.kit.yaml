@@ -1,0 +1,100 @@
+# What a person signed of this module's surface; cerco:approve grows it.
+module: "machine/devices/kit"
+types:
+  "com.fpetrola.oozx.speccy.devices.Desk":
+    kind: interface
+    members:
+      - "bringBack(Session, List<WindowState>): void"
+      - "choose(String): File"
+      - "configuration(): com.fpetrola.oozx.speccy.config.OOZxConfiguration"
+      - "coreOf(java.awt.Component): com.fpetrola.oozx.speccy.peripherals.EmulatorCore"
+      - "equipment(String): MachineFrame"
+      - "equipmentOn(EmulatorWindow): java.util.Map<MachineFrame,String>"
+      - "isRunBy(Desk): void"
+      - "keep(Game): void"
+      - "keep(Session, JInternalFrame, File, int): WindowState"
+      - "keep(Session, List<JInternalFrame>, File): List<WindowState>"
+      - "keepRecording(String, String, String): void"
+      - "machineFrom(File): EmulatorWindow"
+      - "machines(): java.util.List<String>"
+      - "nameOf(JInternalFrame): String"
+      - "open(Game, Runnable): void"
+      - "open(String): void"
+      - "openMachineFor(File, MachineFrame): void"
+      - "openRecording(MachineFrame): void"
+      - "openSaved(String, String): void"
+      - "place(javax.swing.JInternalFrame): void"
+      - "play(String, String): void"
+      - "play(String, String, String): void"
+      - "rememberScreen(String, String): void"
+      - "show(com.fpetrola.oozx.Speccy, String, MachineFrame): EmulatorWindow"
+      - "showDetails(Game): void"
+      - "theOne(): Desk"
+      - "window(String): JInternalFrame"
+  "com.fpetrola.oozx.speccy.devices.DeskEquipment":
+    kind: interface
+    members:
+      - "name(): String"
+  "com.fpetrola.oozx.speccy.devices.EmulatorWindow":
+    kind: interface
+    members:
+      - "game(): Desk.Game"
+      - "machine(): Speccy"
+  "com.fpetrola.oozx.speccy.devices.Equipment":
+    kind: interface
+    members:
+      - "name(): String"
+      - "open(): MachineFrame"
+      - "opens(java.io.File): boolean"
+      - "usedBy(com.fpetrola.oozx.Speccy): boolean"
+  "com.fpetrola.oozx.speccy.devices.Explains":
+    kind: interface
+  "com.fpetrola.oozx.speccy.devices.KeepsItsPlace":
+    kind: interface
+    members:
+      - "restoreWindowState(OOZxConfiguration.WindowState): void"
+      - "saveWindowState(): OOZxConfiguration.WindowState"
+  "com.fpetrola.oozx.speccy.devices.Look":
+    kind: interface
+  "com.fpetrola.oozx.speccy.devices.MachineTool":
+    kind: interface
+    members:
+      - "button(EmulatorWindow): javax.swing.AbstractButton"
+      - "closed(EmulatorWindow): void"
+      - "icon(): javax.swing.Icon"
+      - "key(): javax.swing.KeyStroke"
+      - "menuItem(EmulatorWindow): javax.swing.JMenuItem"
+      - "place(): int"
+      - "status(EmulatorWindow): javax.swing.JComponent"
+      - "tooltip(): String"
+      - "use(EmulatorWindow): void"
+  "com.fpetrola.oozx.speccy.devices.Opens":
+    kind: interface
+    members:
+      - "cameFrom(): String"
+      - "empty(): boolean"
+      - "entryInside(): String"
+      - "label(): String"
+      - "open(File): void"
+      - "open(File, String, String): void"
+  "com.fpetrola.oozx.speccy.devices.Session":
+    kind: interface
+    members:
+      - "bringBack(byte[], EmulatorWindow): void"
+      - "bringBack(java.util.Map<String,String>): javax.swing.JInternalFrame"
+      - "extension(): String"
+      - "keep(javax.swing.JInternalFrame): java.util.Map<String,String>"
+      - "write(EmulatorWindow): byte[]"
+  "com.fpetrola.oozx.speccy.devices.WhatGameThisIs":
+    kind: interface
+    members:
+      - "gameIn(String): Desk.Game"
+      - "show(Desk.Game): void"
+  "com.fpetrola.oozx.speccy.peripherals.EmulatorCore":
+    kind: interface
+    members:
+      - "deviceSettings(): java.util.List<Settings.Configurable>"
+      - "getKeyListener(): KeyListener"
+      - "getPanel(): JComponent"
+      - "machine(): java.util.Optional<com.fpetrola.oozx.Speccy>"
+      - "ownSettings(): Settings.Configurable"

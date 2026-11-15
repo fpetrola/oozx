@@ -1,0 +1,46 @@
+# What a person signed of this module's surface; cerco:approve grows it.
+module: "translation/bytecode"
+types:
+  "com.fpetrola.z80.bytecode.generators.helpers.VariableDelegator":
+    kind: interface
+    members:
+      - "getDelegate(): Variable"
+      - "setRegister(Register): void"
+  "org.cojen.maker.ClassMaker2":
+    kind: interface
+    members:
+      - "abstract_(): ClassMaker2"
+      - "addClinit(): MethodMaker"
+      - "addConstructor(): MethodMaker"
+      - "addConstructor(MethodType): MethodMaker"
+      - "addConstructor(Object...): MethodMaker"
+      - "addField(Object, String): FieldMaker"
+      - "addInnerClass(String): ClassMaker2"
+      - "addMethod(Object, String): MethodMaker"
+      - "addMethod(Object, String, Object...): MethodMaker"
+      - "addMethod(String, MethodType): MethodMaker"
+      - "annotation(): ClassMaker2"
+      - "another(String): ClassMaker2"
+      - "arrayType(int): Object"
+      - "asRecord(): MethodMaker"
+      - "beginExternal(String, ClassLoader): ClassMaker"
+      - "classLoader(): ClassLoader"
+      - "enum_(): ClassMaker2"
+      - "extend(Object): ClassMaker2"
+      - "final_(): ClassMaker2"
+      - "finish(): Class<?>"
+      - "finishBytes(): byte[]"
+      - "finishHidden(): MethodHandles.Lookup"
+      - "finishLookup(): MethodHandles.Lookup"
+      - "finishTo(OutputStream): void"
+      - "implement(Object): ClassMaker2"
+      - "interface_(): ClassMaker2"
+      - "permitSubclass(Object): ClassMaker2"
+      - "private_(): ClassMaker2"
+      - "protected_(): ClassMaker2"
+      - "public_(): ClassMaker2"
+      - "signature(Object...): ClassMaker2"
+      - "sourceFile(String): ClassMaker2"
+      - "static_(): ClassMaker2"
+      - "synthetic(): ClassMaker2"
+      - "unimplementedMethods(): Set<String>"

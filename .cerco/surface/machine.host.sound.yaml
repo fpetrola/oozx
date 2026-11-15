@@ -1,0 +1,9 @@
+# What a person signed of this module's surface; cerco:approve grows it.
+module: "machine/host/sound"
+types:
+  "com.fpetrola.oozx.speccy.modules.sound.DacDevice":
+    kind: interface
+    members:
+      - "dac(): Dac"
+      - "setVolume(int): void"
+      - "volume(): int"

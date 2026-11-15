@@ -1,0 +1,62 @@
+# What a person signed of this module's surface; cerco:approve grows it.
+module: "translation/translator"
+types:
+  "com.fpetrola.z80.analysis.sprites.AccessProcessor":
+    kind: interface
+    members:
+      - "accessMatching(Object): boolean"
+  "com.fpetrola.z80.base.IDriverConfigurator":
+    kind: interface
+    members:
+      - "getFirstContext(): CPUExecutionContext"
+      - "getRoutineFinderInstructionSpy(): RoutineFinderInstructionSpy"
+      - "getRoutineManager(): RoutineManager"
+      - "getSecondContext(): CPUExecutionContext"
+      - "reset(): void"
+  "com.fpetrola.z80.base.Z80ContextDriver":
+    kind: interface
+    members:
+      - "bnz(): BNotZeroCondition"
+      - "c(): Condition"
+      - "c(int): ImmutableOpcodeReference"
+      - "f(): Register"
+      - "iRR(Register): OpcodeReference"
+      - "iRRn(Register, int): OpcodeReference"
+      - "iiRR(Register): OpcodeReference"
+      - "iinn(int): OpcodeReference"
+      - "nc(): Condition"
+      - "nn(int): ImmutableOpcodeReference"
+      - "nz(): Condition"
+      - "pc(): Register"
+      - "r(RegisterName): Register"
+      - "reset(): void"
+      - "rp(RegisterName): RegisterPair"
+      - "t(): Condition"
+      - "z(): Condition"
+  "com.fpetrola.z80.bytecode.BytecodeGeneration":
+    kind: interface
+    members:
+      - "generateAndDecompile(): String"
+      - "generateAndDecompile(String, List<Routine>, String, String, SymbolicExecutionAdapter): String"
+      - "getDecompiledSource(String, String, State, boolean, SymbolicExecutionAdapter, String, GameData): String"
+      - "getRoutineManager(): RoutineManager"
+      - "translatedProgram(String, State, SymbolicExecutionAdapter, String, GameData): MiniZX"
+      - "translatedProgram(String, byte[]): MiniZX"
+  "com.fpetrola.z80.minizx.ZxAttribute.LineUpdater":
+    kind: interface
+    members:
+      - "update(ZxColor, int, int, int): void"
+  "com.fpetrola.z80.minizx.sync.SyncChecker":
+    kind: interface
+    members:
+      - "checkMatching(int, int, boolean): void"
+      - "checkSyncEmu(int, int, int, boolean): void"
+      - "checkSyncInJava(int, int): void"
+      - "checkSyncJava(int, int, int): void"
+      - "getByteFromEmu(Integer): int"
+      - "getR(): int"
+      - "init(SpectrumApplication): void"
+  "io.korhner.asciimg.image.character_fit_strategy.BestCharacterFitStrategy":
+    kind: interface
+    members:
+      - "calculateError(GrayscaleMatrix, GrayscaleMatrix): float"

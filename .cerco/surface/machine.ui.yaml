@@ -1,0 +1,28 @@
+# What a person signed of this module's surface; cerco:approve grows it.
+module: "machine/ui"
+types:
+  "com.fpetrola.oozx.speccy.screen.Knob.Controls":
+    kind: interface
+    members:
+      - "choice(Knob): T"
+      - "number(Knob): T"
+      - "switching(Knob): T"
+  "com.fpetrola.oozx.speccy.screen.Scaler":
+    kind: interface
+    members:
+      - "at(int[], int, int, int, int): int"
+      - "repeat(int[], int, int, int[], int, int): void"
+      - "scale(BufferedImage, int, int, ScreenContext): BufferedImage"
+  "com.fpetrola.oozx.speccy.screen.ScreenEffect":
+    kind: interface
+    members:
+      - "apply(BufferedImage, ScreenContext): BufferedImage"
+      - "arriveAt(WaysOfDrawing): void"
+      - "isTransparent(): boolean"
+      - "knobs(): java.util.List<Knob>"
+      - "label(): String"
+      - "when(): When"
+  "com.fpetrola.oozx.speccy.windows.MachineWindow":
+    kind: interface
+    members:
+      - "picture(): javax.swing.JComponent"
