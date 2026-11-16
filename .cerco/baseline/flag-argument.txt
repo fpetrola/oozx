@@ -10,5 +10,3 @@
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/MediaSlot.java|com.fpetrola.oozx.speccy.devices.MediaSlot.led(boolean)|on
 1	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/joystick/KeyedJoystick.java|com.fpetrola.oozx.speccy.modules.joystick.KeyedJoystick.push(Direction, boolean)|pushed
 1	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/AudioIn.java|com.fpetrola.oozx.speccy.modules.sound.AudioIn.hear(boolean)|wanted
-1	translation/blocks/src/main/java/com/fpetrola/z80/spy/AbstractInstructionSpy.java|com.fpetrola.z80.spy.AbstractInstructionSpy.enable(boolean)|enabled
-1	translation/translator/src/main/java/com/fpetrola/z80/minizx/ZxColor.java|com.fpetrola.z80.minizx.ZxColor.getStateColor(boolean)|set

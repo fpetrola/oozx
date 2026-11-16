@@ -6,6 +6,3 @@
 4	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotZ80.java|com.fpetrola.emulation.helpers.snapshots.SnapshotZ80.loadFromStream()|spectrum.setConnectedIF1(false)
 4	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotZ80.java|com.fpetrola.emulation.helpers.snapshots.SnapshotZ80.loadFromStream()|spectrum.setConnectedIF1(true)
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotZ80.java|com.fpetrola.emulation.helpers.snapshots.SnapshotZ80.loadFromStream()|spectrum.setEnabledAY(true)
-1	translation/routines/src/main/java/com/fpetrola/z80/transformations/ExecutionTracker.java|com.fpetrola.z80.transformations.ExecutionTracker.visiting(CodeBlockType)|block1.setCompleted(true)
-1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/EmulatedMiniZX.java|com.fpetrola.z80.minizx.emulation.EmulatedMiniZX.emulate()|ooz80.getState().setINTLine(true)
-1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/finders/Z80Rewinder.java|com.fpetrola.z80.minizx.emulation.finders.Z80Rewinder.init()|observableRegister.setListening(true)

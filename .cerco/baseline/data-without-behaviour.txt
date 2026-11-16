@@ -11,8 +11,3 @@
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotZ80.java|com.fpetrola.emulation.helpers.snapshots.SnapshotZ80.save(File, SpectrumState)|SpectrumState
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotZ80.java|com.fpetrola.emulation.helpers.snapshots.SnapshotZ80.saveToBytes(SpectrumState)|SpectrumState
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotZ80.java|com.fpetrola.emulation.helpers.snapshots.SnapshotZ80.writeSnapshotData()|SpectrumState
-1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.leavesJavaFrames(int, StackAnalyzer.AbandoningRet, StackAnalyzer, boolean)|AbandoningRet
-1	translation/routines/src/main/java/com/fpetrola/z80/transformations/StackAnalyzer.java|com.fpetrola.z80.transformations.StackAnalyzer.beforeExecution(Instruction)|Entry
-1	translation/routines/src/main/java/com/fpetrola/z80/transformations/StackAnalyzer.java|com.fpetrola.z80.transformations.StackAnalyzer.returnPutBack(Entry, int)|PoppedReturn
-1	translation/routines/src/main/java/com/fpetrola/z80/transformations/StackAnalyzer.java|com.fpetrola.z80.transformations.StackAnalyzer.visitingPop(Pop)|Entry
-1	translation/routines/src/main/java/com/fpetrola/z80/transformations/StackAnalyzer.java|com.fpetrola.z80.transformations.StackAnalyzer.visitingRet(Ret)|Entry

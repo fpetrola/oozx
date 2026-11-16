@@ -1,6 +1,4 @@
 # cerco baseline v1 named-by-text: count, key
-1	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.After.throughBcDeOrNn(IndirectMemory8BitReference)|"BC"
-1	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.After.throughBcDeOrNn(IndirectMemory8BitReference)|"DE"
 1	emulator/src/main/java/com/fpetrola/z80/cpu/MemptrUpdater.java|com.fpetrola.z80.cpu.MemptrUpdater.After.visitEx(Ex)|"SP"
 1	emulator/src/main/java/com/fpetrola/z80/opcodes/references/IndirectMemory16BitReference.java|com.fpetrola.z80.opcodes.references.IndirectMemory16BitReference.IndirectMemory16BitReference(ImmutableOpcodeReference, Memory)|"SP"
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/peripherals/SpeccyEmulatorCore.java|com.fpetrola.oozx.speccy.peripherals.SpeccyEmulatorCore.setGeneralOption(String, Object)|"turbo"
@@ -8,8 +6,3 @@
 1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/LocalLibretroCore.java|com.fpetrola.oozx.speccy.bridge.LocalLibretroCore.retro_set_register_data(String, int)|"tstates"
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/peripherals/DefaultsCore.java|com.fpetrola.oozx.speccy.peripherals.DefaultsCore.setGeneralOption(String, Object)|"turbo"
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/peripherals/MockEmulatorCore.java|com.fpetrola.oozx.speccy.peripherals.MockEmulatorCore.setGeneralOption(String, Object)|"turbo"
-1	translation/blocks/src/main/java/com/fpetrola/z80/graph/CustomGraph.java|com.fpetrola.z80.graph.CustomGraph.addVertex(String, String)|"null"
-1	translation/blocks/src/main/java/com/fpetrola/z80/graph/CustomGraph.java|com.fpetrola.z80.graph.CustomGraph.getVertexLabel(Object)|"null"
-1	translation/translator/src/main/java/com/fpetrola/z80/minizx/SpectrumApplication.java|com.fpetrola.z80.minizx.SpectrumApplication.popInto(String)|"BC"
-1	translation/translator/src/main/java/com/fpetrola/z80/minizx/SpectrumApplication.java|com.fpetrola.z80.minizx.SpectrumApplication.popInto(String)|"DE"
-1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/VirtualRegisterFactory.java|com.fpetrola.z80.transformations.VirtualRegisterFactory.createVirtualRegister(Instruction, Register, VirtualFetcher, Instruction)|"SP"

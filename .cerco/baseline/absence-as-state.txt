@@ -8,15 +8,3 @@
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotZ80.java|com.fpetrola.emulation.helpers.snapshots.SnapshotZ80.fIn
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotZ80.java|com.fpetrola.emulation.helpers.snapshots.SnapshotZ80.fOut
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/AttachedFrame.java|com.fpetrola.oozx.speccy.windows.AttachedFrame.machineWindow
-1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.reentries
-1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.unwound
-1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineFinder.java|com.fpetrola.z80.routines.RoutineFinder.currentRoutine
-1	translation/routines/src/main/java/com/fpetrola/z80/transformations/StackAnalyzer.java|com.fpetrola.z80.transformations.StackAnalyzer.lastEvent
-1	translation/routines/src/main/java/com/fpetrola/z80/transformations/StackAnalyzer.java|com.fpetrola.z80.transformations.StackAnalyzer.lastPoppedReturn
-1	translation/se/src/main/java/com/fpetrola/z80/se/JumpUsingRetAddressAction.java|com.fpetrola.z80.se.JumpUsingRetAddressAction.currentCase
-1	translation/se/src/main/java/com/fpetrola/z80/se/actions/CallAddressAction.java|com.fpetrola.z80.se.actions.CallAddressAction.calleeRoutineExecution
-1	translation/se/src/main/java/com/fpetrola/z80/se/actions/CallAddressAction.java|com.fpetrola.z80.se.actions.CallAddressAction.throughRegister
-1	translation/se/src/main/java/com/fpetrola/z80/se/actions/JPRegisterAddressAction.java|com.fpetrola.z80.se.actions.JPRegisterAddressAction.currentCase
-1	translation/translator/src/main/java/com/fpetrola/z80/minizx/SpectrumApplication.java|com.fpetrola.z80.minizx.SpectrumApplication.banks
-1	translation/translator/src/main/java/io/korhner/asciimg/utils/AnimatedGifEncoder.java|io.korhner.asciimg.utils.AnimatedGifEncoder.transparent
-1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/Virtual8BitsRegister.java|com.fpetrola.z80.transformations.Virtual8BitsRegister.virtualComposed16BitRegister

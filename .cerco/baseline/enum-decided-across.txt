@@ -1,5 +1,4 @@
 # cerco baseline v1 enum-decided-across: count, key
-1	emulator/src/main/java/com/fpetrola/z80/registers/RegisterBank.java|com.fpetrola.z80.registers.RegisterBank.get(RegisterName)|RegisterName|A,AF,AFx,Ax,B,BC,BCx,Bx,C,Cx,D,DE,DEx,Dx,E,Ex,F,Fx,H,HL,HLx,Hx,I,IR,IX,IXH,IXL,IY,IYH,IYL,L,Lx,MEMPTR,PC,R,SP,VIRTUAL
 1	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/input/Input.java|com.fpetrola.oozx.speccy.modules.input.Input.useShiftedArrowKeys(InputKey)|InputKey|INPUT_KEY_Down
 1	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/input/Input.java|com.fpetrola.oozx.speccy.modules.input.Input.useShiftedArrowKeys(InputKey)|InputKey|INPUT_KEY_Left
 1	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/modules/input/Input.java|com.fpetrola.oozx.speccy.modules.input.Input.useShiftedArrowKeys(InputKey)|InputKey|INPUT_KEY_Right
@@ -14,9 +13,3 @@
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/AttachedFrame.java|com.fpetrola.oozx.speccy.windows.AttachedFrame.resettle(JInternalFrame, Dock)|Dock|FREE
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/AttachedFrame.java|com.fpetrola.oozx.speccy.windows.AttachedFrame.snapCandidate()|Dock|FREE
 4	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/AttachedFrame.java|com.fpetrola.oozx.speccy.windows.AttachedFrame.snapIfNear()|Dock|FREE
-1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/InstructionsBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.InstructionsBytecodeGenerator.visitingRet(Ret)|Exit|CONTINUATION,DISPATCH,NON_LOCAL,RETURN,SWITCH_STACK
-2	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.throughTrampoline(int, RegisterName, Collection)|RegisterName|HL
-1	translation/routines/src/main/java/com/fpetrola/z80/routines/CodeVersions.java|com.fpetrola.z80.routines.CodeVersions.blockIfAnyIs(List, int)|Kind|BLOCK
-1	translation/routines/src/main/java/com/fpetrola/z80/routines/CodeVersions.java|com.fpetrola.z80.routines.CodeVersions.instructionVersions(int)|Kind|INSTRUCTION
-1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.goesOnAt(int, Routine, StackAnalyzer, boolean)|Exit|SIMULATED_CALL
-1	translation/routines/src/main/java/com/fpetrola/z80/routines/RoutineManager.java|com.fpetrola.z80.routines.RoutineManager.returnsOfCallsInTakenByNonLocalReturns(Routine, StackAnalyzer)|Exit|NON_LOCAL

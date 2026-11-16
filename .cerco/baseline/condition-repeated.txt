@@ -1,5 +1,0 @@
-# cerco baseline v1 condition-repeated: count, key
-1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/ControlFlowStructuring.java|com.fpetrola.z80.bytecode.generators.ControlFlowStructuring.ControlFlowStructuring(Routine, RoutineManager, Collection, StackAnalyzer, Collection, Predicate)|piece != routine && (_.parent() == routine || mine != null && _.parent() == _.parent())
-1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/RoutineBytecodeGenerator.java|com.fpetrola.z80.bytecode.generators.RoutineBytecodeGenerator.RoutineBytecodeGenerator(BytecodeGenerationContext, Routine)|piece != routine && (_.parent() == routine || mine != null && _.parent() == _.parent())
-1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/Composed16BitRegisterVariable.java|com.fpetrola.z80.bytecode.generators.helpers.Composed16BitRegisterVariable.getField()|_.length() == 1 && _.direct
-1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/helpers/Composed16BitRegisterVariable.java|com.fpetrola.z80.bytecode.generators.helpers.Composed16BitRegisterVariable.set(Object)|_.length() == 1 && _.direct

@@ -22,12 +22,3 @@
 1	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/MemoryState.java|MemoryState
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenEffects.java|Shade
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/TvScreen.java|Scratch
-1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/BlocksManager.java|BlocksManager
-1	translation/blocks/src/main/java/com/fpetrola/z80/spy/AbstractInstructionSpy.java|AbstractInstructionSpy
-1	translation/routines/src/main/java/com/fpetrola/z80/routines/CodeVersions.java|CodeVersions
-1	translation/translator/src/main/java/com/fpetrola/z80/minizx/SpectrumApplication.java|SpectrumApplication
-1	translation/translator/src/main/java/com/fpetrola/z80/minizx/SyncSpectrumApplication.java|SyncSpectrumApplication
-1	translation/translator/src/main/java/io/korhner/asciimg/image/matrix/TiledGrayscaleMatrix.java|TiledGrayscaleMatrix
-1	translation/translator/src/main/java/io/korhner/asciimg/utils/GifDecoder.java|GifDecoder
-1	translation/translator/src/main/java/io/korhner/asciimg/utils/NeuQuant.java|NeuQuant
-1	translation/virtual/src/main/java/com/fpetrola/z80/transformations/VirtualRegister.java|VirtualRegister

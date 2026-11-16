@@ -24,8 +24,3 @@
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenSettings.java|ScreenSettings
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/KnobRows.java|KnobRows
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/Widgets.java|Widgets
-1	translation/routines/src/main/java/com/fpetrola/z80/routines/CodeVersions.java|CodeVersions
-1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/HeadOverHeels.java|HeadOverHeels
-1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/RainbowIslands.java|RainbowIslands
-1	translation/translator/src/main/java/com/fpetrola/z80/minizx/emulation/Zynaps.java|Zynaps
-1	translation/translator/src/main/java/io/korhner/asciimg/utils/ArrayUtils.java|ArrayUtils

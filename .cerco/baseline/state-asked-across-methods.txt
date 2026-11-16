@@ -1,9 +1,3 @@
 # cerco baseline v1 state-asked-across-methods: count, key
 1	emulator/src/main/java/com/fpetrola/z80/spy/ObservableRegister.java|com.fpetrola.z80.spy.ObservableRegister.listening
 1	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/AttachedFrame.java|com.fpetrola.oozx.speccy.windows.AttachedFrame.compact
-1	translation/blocks/src/main/java/com/fpetrola/z80/blocks/BlockChangesListenerDelegator.java|com.fpetrola.z80.blocks.BlockChangesListenerDelegator.delegationEnabled
-1	translation/blocks/src/main/java/com/fpetrola/z80/spy/WrapperInstructionSpy.java|com.fpetrola.z80.spy.WrapperInstructionSpy.capturing
-1	translation/blocks/src/main/java/com/fpetrola/z80/spy/WrapperInstructionSpy.java|com.fpetrola.z80.spy.WrapperInstructionSpy.print
-1	translation/bytecode/src/main/java/com/fpetrola/z80/bytecode/generators/OpcodeReferenceVisitor.java|com.fpetrola.z80.bytecode.generators.OpcodeReferenceVisitor.isTarget
-1	translation/translator/src/main/java/io/korhner/asciimg/utils/AnimatedGifEncoder.java|io.korhner.asciimg.utils.AnimatedGifEncoder.firstFrame
-1	translation/translator/src/main/java/io/korhner/asciimg/utils/AnimatedGifEncoder.java|io.korhner.asciimg.utils.AnimatedGifEncoder.started
