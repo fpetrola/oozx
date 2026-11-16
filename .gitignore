@@ -15,3 +15,5 @@ JSpeccy.xml
 dependency-reduced-pom.xml
 .profileconfig.json
 .ide
+firma.sh
+/translation/
