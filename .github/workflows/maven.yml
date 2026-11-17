@@ -54,6 +54,16 @@ jobs:
     - name: Build the application base
       run: mvn -B -U -DskipTests install -f plugdesk/pom.xml
 
+    # El cerco de diseño: el build lo corre en cada modulo y no esta en Maven Central. A un tag,
+    # como los otros dos.
+    - uses: actions/checkout@v4
+      with:
+        repository: fpetrola/cerco
+        ref: v0.34.0
+        path: cerco
+    - name: Build the design gate
+      run: mvn -B -U -DskipTests install -f cerco/pom.xml
+
     # Sin los plugins adentro: son otro repositorio, aca no estan, y este build no publica nada.
     # Vacio apaga el empaquetado; con el groupId puesto y ninguno encontrado, el build falla.
     - name: Build with Maven

@@ -95,10 +95,12 @@ public class Joystick {
     return socket >= 0 && socket < setup.sticks().size() && in(socket).takesPushes();
   }
 
-  public void press(int socket, JoystickButton button, boolean pushed) {
+  /** Whether the joystick took the push: the published plugins still read it, the ones built now ask takes. */
+  public boolean press(int socket, JoystickButton button, boolean pushed) {
     if (takes(socket)) {
       in(socket).push(Direction.values()[button.ordinal()], pushed);
     }
+    return takes(socket);
   }
 
   /** The machine reading its Kempston port, which is also what says the joystick is being used. */
