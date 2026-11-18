@@ -64,7 +64,10 @@
             <id>NeoForge</id>
             <url>https://maven.neoforged.net/releases/</url>
         </repository>
-
+        <repository>
+            <id>jitpack</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
@@ -263,9 +266,9 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>dev.crystal.plugins</groupId>
+                <groupId>com.github.fpetrola.crystal-plugins</groupId>
                 <artifactId>framework-maven-plugin</artifactId>
-                <version>0.1.0-SNAPSHOT</version>
+                <version>0.1.1</version>
                 <extensions>true</extensions>
             </plugin>
             <plugin>

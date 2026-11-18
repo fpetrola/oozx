@@ -22,17 +22,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # El framework de plugins contra el que se compila. No publica artefactos a ningun
-    # repositorio, asi que su arbol se construye aca, igual que hace el repo de plugins con este.
-    #
-    # A un tag y no a su rama: lo que se empuje alla mientras se trabaja no tiene por que voltear
-    # el build de aca. El tag se mueve cuando este arbol esta listo para tomar una version nueva.
-    - uses: actions/checkout@v4
-      with:
-        repository: fpetrola/crystal-plugins
-        ref: a2b53897c122379259a708d53b79997ae922b028
-        path: crystal-plugins
-
     # 21 y no 18: el framework se compila con release 21, y modulos de aca tambien. El pom
     # raiz sigue pidiendo 18 de lenguaje, que un javac 21 compila sin problema.
     - name: Set up JDK 21
@@ -41,19 +30,6 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
-    - name: Build the plugin framework
-      run: mvn -B -U -DskipTests install -f crystal-plugins/pom.xml
-
-    # La base de la aplicacion, sobre el framework: la casa, config.json, los plugins y de donde
-    # vienen. Tampoco publica artefactos, y va a un tag por la misma razon que el framework.
-    - uses: actions/checkout@v4
-      with:
-        repository: fpetrola/plugdesk
-        ref: step-14
-        path: plugdesk
-    - name: Build the application base
-      run: mvn -B -U -DskipTests install -f plugdesk/pom.xml
-
     # Sin los plugins adentro: son otro repositorio, aca no estan, y este build no publica nada.
     # Vacio apaga el empaquetado; con el groupId puesto y ninguno encontrado, el build falla.
     - name: Build with Maven

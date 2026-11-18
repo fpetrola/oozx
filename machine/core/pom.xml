@@ -20,9 +20,9 @@
     <dependencies>
         <!-- La base de la aplicacion: la casa y config.json, los plugins (con crystal debajo) y de donde vienen. -->
         <dependency>
-            <groupId>dev.plugdesk</groupId>
+            <groupId>com.github.fpetrola.plugdesk</groupId>
             <artifactId>plugdesk-app</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>0.1.1</version>
         </dependency>
 
         <dependency>

@@ -42,16 +42,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>dev.crystal.plugins</groupId>
+            <groupId>com.github.fpetrola.crystal-plugins</groupId>
             <artifactId>framework-swing</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>0.1.1</version>
         </dependency>
         <!-- What most applications want on their desk - looks, the window menu, suggestions, the bar of buttons, help,
              docks - each a plugin of plugdesk's, installed the first time like this build's own and removable. -->
         <dependency>
-            <groupId>dev.plugdesk.standard</groupId>
+            <groupId>com.github.fpetrola.plugdesk</groupId>
             <artifactId>plugdesk-standard</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>0.1.1</version>
         </dependency>
         <dependency>
             <groupId>com.fpetrola</groupId>
