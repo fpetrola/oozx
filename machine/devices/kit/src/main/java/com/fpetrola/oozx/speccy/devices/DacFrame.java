@@ -21,6 +21,7 @@ import com.fpetrola.oozx.speccy.peripherals.Pluggable;
 import com.fpetrola.oozx.speccy.modules.sound.Dac;
 import com.fpetrola.oozx.speccy.modules.sound.DacDevice;
 
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -28,12 +29,15 @@ import javax.swing.Timer;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 /**
- * A box with a DAC in it, on the desk: a meter for what is coming out of it, and its volume.
- * Expanded, the last byte the program sent, which is all such a box ever holds.
+ * A box with a DAC in it, on the desk. Folded, a meter for what is coming out of it, at a glance;
+ * expanded, a form of labelled rows: what it is doing, its volume, and whatever the box adds.
  */
-public class DacFrame<P extends Peripheral & Pluggable & DacDevice> extends DeviceFrame<P> {
+public class DacFrame<P extends Peripheral & Pluggable & DacDevice> extends DeviceFrame<P> implements LabelledRows {
 
   private static final int REFRESH_MILLIS = 40;
 
@@ -42,12 +46,13 @@ public class DacFrame<P extends Peripheral & Pluggable & DacDevice> extends Devi
   private final JLabel last = new JLabel();
   private final Timer refresh = new Timer(REFRESH_MILLIS, e -> refresh());
   private final double fullScale;
+  private final JPanel form = new JPanel(new GridBagLayout());
 
   /** @param fullScale the synth level a byte of 255 comes to, for the meter's top */
   public DacFrame(String name, Class<? extends P> kind, double fullScale) {
     super(name, kind);
     this.fullScale = fullScale;
-    setSize(420, 160);
+    setSize(360, 160);
     volume.setToolTipText("How loud this box is in the mix");
     volume.addChangeListener(e -> {
       if (device() != null) {
@@ -55,10 +60,10 @@ public class DacFrame<P extends Peripheral & Pluggable & DacDevice> extends Devi
       }
     });
     controls.add(meter);
-    controls.add(volume);
-
+    row("Status", last);
+    row("Volume", volume);
     JPanel inside = new JPanel(new BorderLayout());
-    inside.add(last, BorderLayout.NORTH);
+    inside.add(form, BorderLayout.NORTH);
     assemble(inside);
     addInternalFrameListener(new InternalFrameAdapter() {
       @Override
@@ -68,6 +73,18 @@ public class DacFrame<P extends Peripheral & Pluggable & DacDevice> extends Devi
     });
     refresh.start();
     plugged(null);
+  }
+
+  @Override
+  public void row(String label, JComponent field) {
+    GridBagConstraints at = new GridBagConstraints();
+    at.gridy = form.getComponentCount() / 2;
+    at.insets = new Insets(3, 6, 3, 6);
+    at.anchor = GridBagConstraints.LINE_START;
+    form.add(new JLabel(label), at);
+    at.weightx = 1;
+    at.fill = GridBagConstraints.HORIZONTAL;
+    form.add(field, at);
   }
 
   @Override
@@ -97,7 +114,7 @@ public class DacFrame<P extends Peripheral & Pluggable & DacDevice> extends Devi
 
   @Override
   protected String expandTip() {
-    return "Show the last byte sent, or just the meter";
+    return "Show its status, volume and settings, or just the meter";
   }
 
   @Override

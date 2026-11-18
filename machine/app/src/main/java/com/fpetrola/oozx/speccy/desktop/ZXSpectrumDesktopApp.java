@@ -1403,21 +1403,19 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
           event.getKeyChar() == KeyEvent.CHAR_UNDEFINED ? "none" : String.valueOf(event.getKeyChar()),
           KeyEvent.getModifiersExText(event.getModifiersEx()));
     }
-    if (somebodyIsWriting()) {
-      return false;
-    }
+    // A key let go always reaches the machine: pressed before a dialog opened and released in it, it stayed down.
+    if (somebodyIsWriting() && event.getID() != KeyEvent.KEY_RELEASED) return false;
     EmulatorInternalFrame machine = machineBeingUsed();
     KeyListener keys = machine == null ? null : machine.keys();
-    if (keys == null) {
-      return false;
-    }
+    if (keys == null) return false;
     switch (event.getID()) {
       case KeyEvent.KEY_PRESSED -> keys.keyPressed(event);
       case KeyEvent.KEY_RELEASED -> keys.keyReleased(event);
       case KeyEvent.KEY_TYPED -> keys.keyTyped(event);
       default -> { }
     }
-    return false;
+    // Ctrl is the Spectrum's Symbol Shift: with the machine in front, Ctrl+L is "=" and not the menu's Load State.
+    return event.isControlDown() && machine.isSelected();
   }
 
   /** Which machine windows already had each kind opened for them, so closing it keeps it closed. */
@@ -1443,8 +1441,8 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
   private EmulatorInternalFrame machineBeingUsed() {
     if (desktop == null) return null;
     JInternalFrame selected = desktop.getSelectedFrame();
-    JInternalFrame used = selected instanceof AttachedFrame clipped && clipped.isAttached()
-        ? clipped.getMachineWindow() : selected;
+    JInternalFrame used = equipment.values().stream().flatMap(List::stream).filter(window -> window == selected
+        && window.isAttached()).findFirst().map(MachineFrame::getMachineWindow).orElse(selected);
     List<EmulatorInternalFrame> frontToBack = machinesFrontToBack();
     return frontToBack.stream().filter(machine -> machine == used && !machine.isClosed()).findFirst()
         .or(() -> frontToBack.stream().filter(JInternalFrame::isVisible).findFirst()).orElse(null);

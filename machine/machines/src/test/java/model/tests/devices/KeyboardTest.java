@@ -148,6 +148,21 @@ class KeyboardTest extends MachineTest {
   }
 
   @Test
+  void typingATextPressesEachKeyWithWhatItNeedsAndLetsGoAfterwards() throws InterruptedException {
+    Speccy speccy = silentMachine();
+    com.fpetrola.oozx.speccy.modules.input.Typing typing = Input.of(speccy);
+    assertEquals(java.util.Optional.of(Input.InputKey.INPUT_KEY_equal), typing.keyFor('='), "the key that types =");
+    assertEquals(java.util.Optional.of(Input.InputKey.INPUT_KEY_Return), typing.keyFor('\n'), "a new line is ENTER");
+    typing.type("=");
+    Thread.sleep(40);
+    assertEquals(KEYS & ~0x02, speccy.ports.read(0xBFFE) & KEYS, "L is down for =");
+    assertEquals(KEYS & ~0x02, speccy.ports.read(0x7FFE) & KEYS, "with symbol shift");
+    Thread.sleep(200);
+    assertEquals(KEYS, speccy.ports.read(0xBFFE) & KEYS, "and let go after it was held");
+    assertEquals(KEYS, speccy.ports.read(0x7FFE) & KEYS, "symbol shift too");
+  }
+
+  @Test
   void releasingEverythingLetsGoOfEveryRow() {
     Speccy speccy = silentMachine();
     Input.of(speccy).keyboard().press(SpectrumKey.Q);
@@ -169,6 +184,8 @@ class KeyboardTest extends MachineTest {
         {Input.InputKey.INPUT_KEY_BackSpace, new SpectrumKey[]{SpectrumKey.CAPS_SHIFT, SpectrumKey.ZERO}},
         {Input.InputKey.INPUT_KEY_Escape, new SpectrumKey[]{SpectrumKey.CAPS_SHIFT, SpectrumKey.ONE}},
         {Input.InputKey.INPUT_KEY_period, new SpectrumKey[]{SpectrumKey.SYMBOL_SHIFT, SpectrumKey.M}},
+        {Input.InputKey.INPUT_KEY_quotedbl, new SpectrumKey[]{SpectrumKey.SYMBOL_SHIFT, SpectrumKey.P}},
+        {Input.InputKey.INPUT_KEY_parenleft, new SpectrumKey[]{SpectrumKey.SYMBOL_SHIFT, SpectrumKey.EIGHT}},
         {Input.InputKey.INPUT_KEY_Shift_L, new SpectrumKey[]{SpectrumKey.CAPS_SHIFT}},
         {Input.InputKey.INPUT_KEY_Control_L, new SpectrumKey[]{SpectrumKey.SYMBOL_SHIFT}},
         {Input.InputKey.INPUT_KEY_Left, new SpectrumKey[]{SpectrumKey.FIVE}},

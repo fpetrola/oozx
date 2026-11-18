@@ -35,7 +35,7 @@ import java.util.Optional;
 
 /** The person at the machine: what they type and what they hold, as the machine's keys and joysticks. */
 @Singleton
-public class Input extends AbstractPeripheral {
+public class Input extends AbstractPeripheral implements Typing {
   private final Joystick joystick;
   private final Keyboard keyboard;
   private final InputSetup setup;
@@ -239,6 +239,34 @@ public class Input extends AbstractPeripheral {
     public int getValue() {
       return value;
     }
+
+  }
+
+  /** How long each key of a typed text is held, and then left up: a few frames, so the ROM's scan sees both. */
+  private static final long HOLD_MILLIS = 80;
+
+  /**
+   * Types a text on the keyboard as a person would, one key down and up at a time, on a thread of its own so
+   * the caller does not wait. What a character needs besides its key - shift, symbol shift - is the layout's,
+   * as for a key of the host.
+   */
+  @Override
+  public Optional<InputKey> keyFor(char c) {
+    int wanted = c == '\n' ? InputKey.INPUT_KEY_Return.getValue() : c;
+    return java.util.Arrays.stream(InputKey.values()).filter(key -> key.getValue() == wanted).findFirst();
+  }
+
+  @Override
+  public void type(String text) {
+    List<InputKey> keys = text.chars().mapToObj(c -> keyFor((char) c)).flatMap(Optional::stream).toList();
+    java.util.concurrent.ScheduledExecutorService typist = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(
+        Thread.ofPlatform().daemon().name("typist").factory());
+    for (int i = 0; i < keys.size(); i++) {
+      InputKey key = keys.get(i);
+      typist.schedule(() -> press(key), 2L * i * HOLD_MILLIS, java.util.concurrent.TimeUnit.MILLISECONDS);
+      typist.schedule(() -> release(key), (2L * i + 1) * HOLD_MILLIS, java.util.concurrent.TimeUnit.MILLISECONDS);
+    }
+    typist.schedule(typist::shutdown, 2L * keys.size() * HOLD_MILLIS, java.util.concurrent.TimeUnit.MILLISECONDS);
   }
 
   /** A key of the host going down. */

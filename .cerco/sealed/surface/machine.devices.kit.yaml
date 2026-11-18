@@ -54,6 +54,10 @@ types:
     members:
       - "restoreWindowState(OOZxConfiguration.WindowState): void"
       - "saveWindowState(): OOZxConfiguration.WindowState"
+  "com.fpetrola.oozx.speccy.devices.LabelledRows":
+    kind: interface
+    members:
+      - "row(String, JComponent): void"
   "com.fpetrola.oozx.speccy.devices.Look":
     kind: interface
   "com.fpetrola.oozx.speccy.devices.MachineTool":

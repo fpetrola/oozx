@@ -33,102 +33,6 @@ public class SwingKeyboard implements KeyListener {
     }
 
 
-    private static final HostKey[] UNICODE_KEYSYMS_MAP = {
-        new HostKey(' ', Input.InputKey.INPUT_KEY_space),
-        new HostKey('!', Input.InputKey.INPUT_KEY_exclam),
-        new HostKey('"', Input.InputKey.INPUT_KEY_quotedbl),
-        new HostKey('#', Input.InputKey.INPUT_KEY_numbersign),
-        new HostKey('$', Input.InputKey.INPUT_KEY_dollar),
-        new HostKey('%', Input.InputKey.INPUT_KEY_percent),
-        new HostKey('&', Input.InputKey.INPUT_KEY_ampersand),
-        new HostKey('\'', Input.InputKey.INPUT_KEY_apostrophe),
-        new HostKey('(', Input.InputKey.INPUT_KEY_parenleft),
-        new HostKey(')', Input.InputKey.INPUT_KEY_parenright),
-        new HostKey('*', Input.InputKey.INPUT_KEY_asterisk),
-        new HostKey('+', Input.InputKey.INPUT_KEY_plus),
-        new HostKey(',', Input.InputKey.INPUT_KEY_comma),
-        new HostKey('-', Input.InputKey.INPUT_KEY_minus),
-        new HostKey('.', Input.InputKey.INPUT_KEY_period),
-        new HostKey('/', Input.InputKey.INPUT_KEY_slash),
-        new HostKey('0', Input.InputKey.INPUT_KEY_0),
-        new HostKey('1', Input.InputKey.INPUT_KEY_1),
-        new HostKey('2', Input.InputKey.INPUT_KEY_2),
-        new HostKey('3', Input.InputKey.INPUT_KEY_3),
-        new HostKey('4', Input.InputKey.INPUT_KEY_4),
-        new HostKey('5', Input.InputKey.INPUT_KEY_5),
-        new HostKey('6', Input.InputKey.INPUT_KEY_6),
-        new HostKey('7', Input.InputKey.INPUT_KEY_7),
-        new HostKey('8', Input.InputKey.INPUT_KEY_8),
-        new HostKey('9', Input.InputKey.INPUT_KEY_9),
-        new HostKey(':', Input.InputKey.INPUT_KEY_colon),
-        new HostKey(';', Input.InputKey.INPUT_KEY_semicolon),
-        new HostKey('<', Input.InputKey.INPUT_KEY_less),
-        new HostKey('=', Input.InputKey.INPUT_KEY_equal),
-        new HostKey('>', Input.InputKey.INPUT_KEY_greater),
-        new HostKey('?', Input.InputKey.INPUT_KEY_question),
-        new HostKey('@', Input.InputKey.INPUT_KEY_at),
-        new HostKey('A', Input.InputKey.INPUT_KEY_A),
-        new HostKey('B', Input.InputKey.INPUT_KEY_B),
-        new HostKey('C', Input.InputKey.INPUT_KEY_C),
-        new HostKey('D', Input.InputKey.INPUT_KEY_D),
-        new HostKey('E', Input.InputKey.INPUT_KEY_E),
-        new HostKey('F', Input.InputKey.INPUT_KEY_F),
-        new HostKey('G', Input.InputKey.INPUT_KEY_G),
-        new HostKey('H', Input.InputKey.INPUT_KEY_H),
-        new HostKey('I', Input.InputKey.INPUT_KEY_I),
-        new HostKey('J', Input.InputKey.INPUT_KEY_J),
-        new HostKey('K', Input.InputKey.INPUT_KEY_K),
-        new HostKey('L', Input.InputKey.INPUT_KEY_L),
-        new HostKey('M', Input.InputKey.INPUT_KEY_M),
-        new HostKey('N', Input.InputKey.INPUT_KEY_N),
-        new HostKey('O', Input.InputKey.INPUT_KEY_O),
-        new HostKey('P', Input.InputKey.INPUT_KEY_P),
-        new HostKey('Q', Input.InputKey.INPUT_KEY_Q),
-        new HostKey('R', Input.InputKey.INPUT_KEY_R),
-        new HostKey('S', Input.InputKey.INPUT_KEY_S),
-        new HostKey('T', Input.InputKey.INPUT_KEY_T),
-        new HostKey('U', Input.InputKey.INPUT_KEY_U),
-        new HostKey('V', Input.InputKey.INPUT_KEY_V),
-        new HostKey('W', Input.InputKey.INPUT_KEY_W),
-        new HostKey('X', Input.InputKey.INPUT_KEY_X),
-        new HostKey('Y', Input.InputKey.INPUT_KEY_Y),
-        new HostKey('Z', Input.InputKey.INPUT_KEY_Z),
-        new HostKey('a', Input.InputKey.INPUT_KEY_a),
-        new HostKey('b', Input.InputKey.INPUT_KEY_b),
-        new HostKey('c', Input.InputKey.INPUT_KEY_c),
-        new HostKey('d', Input.InputKey.INPUT_KEY_d),
-        new HostKey('e', Input.InputKey.INPUT_KEY_e),
-        new HostKey('f', Input.InputKey.INPUT_KEY_f),
-        new HostKey('g', Input.InputKey.INPUT_KEY_g),
-        new HostKey('h', Input.InputKey.INPUT_KEY_h),
-        new HostKey('i', Input.InputKey.INPUT_KEY_i),
-        new HostKey('j', Input.InputKey.INPUT_KEY_j),
-        new HostKey('k', Input.InputKey.INPUT_KEY_k),
-        new HostKey('l', Input.InputKey.INPUT_KEY_l),
-        new HostKey('m', Input.InputKey.INPUT_KEY_m),
-        new HostKey('n', Input.InputKey.INPUT_KEY_n),
-        new HostKey('o', Input.InputKey.INPUT_KEY_o),
-        new HostKey('p', Input.InputKey.INPUT_KEY_p),
-        new HostKey('q', Input.InputKey.INPUT_KEY_q),
-        new HostKey('r', Input.InputKey.INPUT_KEY_r),
-        new HostKey('s', Input.InputKey.INPUT_KEY_s),
-        new HostKey('t', Input.InputKey.INPUT_KEY_t),
-        new HostKey('u', Input.InputKey.INPUT_KEY_u),
-        new HostKey('v', Input.InputKey.INPUT_KEY_v),
-        new HostKey('w', Input.InputKey.INPUT_KEY_w),
-        new HostKey('x', Input.InputKey.INPUT_KEY_x),
-        new HostKey('y', Input.InputKey.INPUT_KEY_y),
-        new HostKey('z', Input.InputKey.INPUT_KEY_z),
-        new HostKey('[', Input.InputKey.INPUT_KEY_bracketleft),
-        new HostKey('\\', Input.InputKey.INPUT_KEY_backslash),
-        new HostKey(']', Input.InputKey.INPUT_KEY_bracketright),
-        new HostKey('^', Input.InputKey.INPUT_KEY_asciicircum),
-        new HostKey('_', Input.InputKey.INPUT_KEY_underscore),
-        new HostKey('{', Input.InputKey.INPUT_KEY_braceleft),
-        new HostKey('|', Input.InputKey.INPUT_KEY_bar),
-        new HostKey('}', Input.InputKey.INPUT_KEY_braceright),
-        new HostKey('~', Input.InputKey.INPUT_KEY_asciitilde)
-    };
 
     private static final HostKey[] KEYSYMS_MAP = {
         new HostKey(KeyEvent.VK_TAB, Input.InputKey.INPUT_KEY_Tab),
@@ -229,7 +133,6 @@ public class SwingKeyboard implements KeyListener {
         new HostKey(KeyEvent.VK_META, Input.InputKey.INPUT_KEY_Meta_L)
     };
 
-    private static final Map<Integer, Input.InputKey> BY_CHARACTER = byHost(UNICODE_KEYSYMS_MAP);
     /** What each key code of this toolkit is: written here, because these are Swing's numbers. */
     private static final Map<Integer, Input.InputKey> BY_KEY_CODE = byHost(KEYSYMS_MAP);
 
@@ -248,17 +151,13 @@ public class SwingKeyboard implements KeyListener {
 
     }
 
-    private Input.InputKey unicodeKeysymsRemap(int uiKeysym) {
-        return BY_CHARACTER.getOrDefault(uiKeysym, Input.InputKey.INPUT_KEY_NONE);
-    }
-
     /** The key as the Spectrum should see it, and as the host's character says it, NONE where neither knows it. */
     private record Keysyms(Input.InputKey nativeKey, Input.InputKey spectrumKey) {
     }
 
     private Keysyms keysymsOf(int keycode, char keyChar) {
         Input.InputKey speccyKeysym = BY_KEY_CODE.getOrDefault(keycode, Input.InputKey.INPUT_KEY_NONE);
-        Input.InputKey unicodeKeysym = keyChar <= 0x7F ? unicodeKeysymsRemap(keyChar) : Input.InputKey.INPUT_KEY_NONE;
+        Input.InputKey unicodeKeysym = keyChar <= 0x7F ? input.keyFor(keyChar).orElse(Input.InputKey.INPUT_KEY_NONE) : Input.InputKey.INPUT_KEY_NONE;
         return new Keysyms(unicodeKeysym != Input.InputKey.INPUT_KEY_NONE ? unicodeKeysym : speccyKeysym, speccyKeysym);
     }
 

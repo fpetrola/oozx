@@ -1,6 +1,11 @@
 # What a person signed of this module's surface; cerco:approve grows it.
 module: "machine/host/input"
 types:
+  "com.fpetrola.oozx.speccy.modules.input.Typing":
+    kind: interface
+    members:
+      - "keyFor(char): java.util.Optional<Input.InputKey>"
+      - "type(String): void"
   "com.fpetrola.oozx.speccy.modules.joystick.JoystickKind":
     kind: interface
     members:

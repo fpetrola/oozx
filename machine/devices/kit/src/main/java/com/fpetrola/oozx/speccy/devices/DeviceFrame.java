@@ -21,7 +21,6 @@ import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 import com.fpetrola.oozx.speccy.peripherals.Pluggable;
 
-import javax.swing.JFileChooser;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import java.util.ArrayList;
@@ -80,12 +79,9 @@ public abstract class DeviceFrame<P extends Peripheral & Pluggable> extends Mach
     }
     List<String> chosen = new ArrayList<>();
     for (String title : titles) {
-      JFileChooser chooser = new JFileChooser();
-      chooser.setDialogTitle(title);
-      if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
-        return;
-      }
-      chosen.add(chooser.getSelectedFile().getPath());
+      int before = chosen.size();
+      com.fpetrola.oozx.speccy.windows.Widgets.openFile(this, title, null, file -> chosen.add(file.getPath()));
+      if (chosen.size() == before) return;
     }
     machine().roms.runOn(device, chosen);
     machine().reset();

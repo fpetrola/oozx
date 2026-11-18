@@ -1,4 +1,3 @@
 # cerco baseline v1 maps-keyed-alike: count, key
-1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/SwingKeyboard.java|com.fpetrola.oozx.speccy.desktop.SwingKeyboard|maps keyed by Integer
 1	machine/core/src/main/java/com/fpetrola/oozx/config/RomFiles.java|com.fpetrola.oozx.config.RomFiles|maps keyed by String
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/config/OOZxConfiguration.java|com.fpetrola.oozx.speccy.config.OOZxConfiguration|maps keyed by String

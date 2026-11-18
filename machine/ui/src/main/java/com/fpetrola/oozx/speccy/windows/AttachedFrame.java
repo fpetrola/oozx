@@ -177,7 +177,7 @@ public abstract class AttachedFrame extends JInternalFrame {
     Widgets.tighten(corner);
 
     JPanel row = new JPanel(new BorderLayout());
-    row.add(controls, BorderLayout.CENTER);
+    row.add(new SidewaysScrollPane(controls), BorderLayout.CENTER);
     row.add(corner, BorderLayout.EAST);
 
     JPanel top = new JPanel(new BorderLayout());
@@ -736,7 +736,7 @@ public abstract class AttachedFrame extends JInternalFrame {
   /** The compact form is the controls alone; expanded adds the listing under them. */
   public void setCompact(boolean wanted) {
     if (!wanted && chosenHeight < compactHeight() + 40) {
-      chosenHeight = 300;                       // never expanded before: a sensible first size
+      chosenHeight = Math.min(300, compactHeight() + detail.getPreferredSize().height); // first time: what it shows
     }
     compact = wanted;
     detail.setVisible(!wanted);
