@@ -44,10 +44,8 @@ entirely of objects, which is what makes all of that cheap to build and possible
 ## Why it can do that
 
 - **The Z80 is made of objects.** Every instruction, operand and register is an object you can execute,
-  inspect, clone or replace on its own. That is why the code of a game can be analysed: symbolic execution runs
-  a game with nobody playing, finds its routines, detects self-modifying code and emits Java. Twenty-nine games
-  are in the translator's catalogue today, and Head over Heels follows a recording of the game being played for
-  174,364 frames. The same hooks give tracing and profiling for free.
+  inspect, clone or replace on its own. That is why the code of a game can be analysed and not only run, and
+  the same hooks give tracing and profiling for free.
 - **Nothing foreign inside it.** Memory timing belongs to the Spectrum and MEMPTR is optional, so both are
   aspects attached from outside. Either can be left off; the processor never knows.
 - **Every part behind a contract, no global state.** Processor, memory, I/O, sound and display are each
@@ -86,6 +84,9 @@ measurement diary is in `doc/`.
 ## What it opens next
 
 - A new machine or peripheral costs what a module costs.
+- A tool of its own is built on this model: a translator that turns a game into a Java program. Twenty-nine
+  games are in its catalogue today, and Head over Heels follows a recording of the game being played for
+  174,364 frames. It grows by the game, apart from the environment, which runs the same without it.
 - A debugger or a disassembler is one more visitor over the same instructions.
 - Rewind is cloning the state. A different generation target is a different back end for the same generator.
 

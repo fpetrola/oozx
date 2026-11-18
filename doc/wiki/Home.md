@@ -41,7 +41,7 @@ fast: a second processor core is *generated* from the model and runs 4.3× the m
 | [The Generated Core](The-Generated-Core) | A partial evaluator flattens the model into a second core |
 | [Performance](Performance) | 15,256 fps on a laptop, with sound and screen on — every number and how it was taken |
 | [Correctness and Tests](Correctness-and-Tests) | 1,355 vectors, 131,072 ALU combinations, and Fuse's real core behind the same interface |
-| [Games as Java programs](Games-as-Java-Programs) | Symbolic execution turns a game into Java that runs with no emulator under it |
+| [Games as Java programs](Games-as-Java-Programs) | A separate tool built on this model: it turns some games into Java, and the list grows |
 | [Extending OOZX](Extending-OOZX) | A peripheral is a few dozen lines and two service files |
 | [Tools and Debugging](Tools-and-Debugging) | Debugger, sprite viewer, map, poke finder, heatmap, memory map, trace, ports |
 | [Limits and what is not there](Limits-and-what-is-not-there) | The honest list |

@@ -48,6 +48,7 @@ files. Most of the historical expansion hardware landed in a single sweep of abo
 | **Fuller Box** | Its AY on `0x3F`/`0x5F` and its joystick on `0x7F`, with a socket and a write light |
 | **Covox** | A DAC on a port, with a level meter and volume |
 | **SpecDrum** | Cheetah's drum machine, the same way |
+| **Currah µSpeech** | The SP0256 speech chip, sample for sample what the reference emulator's makes, and the 2K ROM that flips in and out at `0x0038`, so the Spectrum speaks its keys as you type. On its front: a meter for what it is saying, the allophone last written, the intonation, and a *Say* line — type in English or in Spanish and it spells it out by its sounds, or pick any of the 64 allophones |
 
 ### Printers and pointers
 
