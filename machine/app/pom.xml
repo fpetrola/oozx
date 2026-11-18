@@ -2,9 +2,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.fpetrola</groupId>
+        <groupId>com.github.fpetrola.oozx</groupId>
         <artifactId>machine</artifactId>
-        <version>0.0.2-alu-SNAPSHOT</version>
+        <version>0.1.0</version>
     </parent>
 
     <artifactId>app</artifactId>
@@ -24,20 +24,20 @@
         <!-- Los plugins viajan adentro del jar de un solo archivo y el primer arranque los pone
              sin red. En todo build y no en un perfil: un jar armado sin ellos es igual de grande
              y parece el bueno, asi que el dia que alguien olvide el perfil no se entera. -->
-        <crystal.bundleGroupId>com.fpetrola</crystal.bundleGroupId>
-        <crystal.bundleVersion>0.0.2-alu-SNAPSHOT</crystal.bundleVersion>
+        <crystal.bundleGroupId>com.github.fpetrola.oozx</crystal.bundleGroupId>
+        <crystal.bundleVersion>0.1.0</crystal.bundleVersion>
     </properties>
 
     <dependencies>
         <!-- Guardar y abrir el estado de una maquina: la app lo usa directo. -->
         <dependency>
-            <groupId>com.fpetrola</groupId>
+            <groupId>com.github.fpetrola.oozx</groupId>
             <artifactId>media-snapshot</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- El teclado de la PC llega a la Spectrum por aca: sin esto no se puede tipear. -->
         <dependency>
-            <groupId>com.fpetrola</groupId>
+            <groupId>com.github.fpetrola.oozx</groupId>
             <artifactId>host-input</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -54,14 +54,14 @@
             <version>0.1.1</version>
         </dependency>
         <dependency>
-            <groupId>com.fpetrola</groupId>
+            <groupId>com.github.fpetrola.oozx</groupId>
             <artifactId>core</artifactId>
-            <version>0.0.2-alu-SNAPSHOT</version>
+            <version>0.1.0</version>
         </dependency>
         <dependency>
-            <groupId>com.fpetrola</groupId>
+            <groupId>com.github.fpetrola.oozx</groupId>
             <artifactId>ui</artifactId>
-            <version>0.0.2-alu-SNAPSHOT</version>
+            <version>0.1.0</version>
         </dependency>
         <!-- The peripherals this build offers. Nothing here names one; they arrive by service file. -->
         <!--
@@ -69,30 +69,30 @@
           the contract stays here, because a plugin has to be able to name it.
         -->
         <dependency>
-            <groupId>com.fpetrola</groupId>
+            <groupId>com.github.fpetrola.oozx</groupId>
             <artifactId>devices-kit</artifactId>
-            <version>0.0.2-alu-SNAPSHOT</version>
+            <version>0.1.0</version>
         </dependency>
         <!-- The ATA and MMC code six of the boards share, for the same reason the kit is here. -->
         <!-- The fast core, which arrives the same way and makes itself on the first run. -->
         <dependency>
-            <groupId>com.fpetrola</groupId>
+            <groupId>com.github.fpetrola.oozx</groupId>
             <artifactId>generated-core</artifactId>
-            <version>0.0.2-alu-SNAPSHOT</version>
+            <version>0.1.0</version>
         </dependency>
         <!-- The Slow tag, which lives in the most upstream module so every module shares it. -->
         <dependency>
-            <groupId>com.fpetrola</groupId>
+            <groupId>com.github.fpetrola.oozx</groupId>
             <artifactId>emulator</artifactId>
-            <version>0.0.2-alu-SNAPSHOT</version>
+            <version>0.1.0</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <!-- The emulator's test harness and its ROMs, tapes and recordings. -->
         <dependency>
-            <groupId>com.fpetrola</groupId>
+            <groupId>com.github.fpetrola.oozx</groupId>
             <artifactId>core</artifactId>
-            <version>0.0.2-alu-SNAPSHOT</version>
+            <version>0.1.0</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
