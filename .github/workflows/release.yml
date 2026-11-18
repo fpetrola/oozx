@@ -1,0 +1,69 @@
+name: Release
+
+# The application people download: one jar with every plugin inside, which the first start installs
+# without the network. Made when a version is tagged (the tag is the version in the poms, which is
+# also what JitPack publishes), or by hand for a tag that already exists.
+on:
+  push:
+    tags: ['[0-9]+.[0-9]+.[0-9]+']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (an existing one)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: The tag is the version the poms say
+        run: |
+          version=$(mvn -B -q help:evaluate -Dexpression=project.version -DforceStdout)
+          [ "$version" = "$TAG" ] || { echo "::error::tag $TAG but the poms say $version"; exit 1; }
+
+      # The plugins are compiled against these, and the application is packaged after them.
+      - name: Build the emulator
+        run: mvn -B -U -DskipTests -Dcrystal.bundleGroupId= install
+
+      # The plugins go into the jar from the local repository, at this same version: oozx-plugins
+      # shares the groupId and the version with this tree.
+      - uses: actions/checkout@v4
+        with:
+          repository: fpetrola/oozx-plugins
+          path: oozx-plugins
+      - name: Build the plugins
+        run: mvn -B -U -DskipTests install -f oozx-plugins/pom.xml
+
+      - name: Package the application with its plugins
+        run: mvn -B -DskipTests package -pl machine/app
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          JAR=machine/app/target/app-$TAG-all.jar
+          cp "$JAR" "oozx-$TAG.jar"
+          {
+            echo "OOZX $TAG, a ZX Spectrum emulator, with every published plugin inside."
+            echo
+            echo "Needs Java 21 or later: \`java -jar oozx-$TAG.jar\`."
+            echo "Plugins are added, removed and updated from the Plugins window."
+          } > notes.md
+          gh release delete "$TAG" --yes --repo "$GITHUB_REPOSITORY" || true
+          gh release create "$TAG" "oozx-$TAG.jar" --repo "$GITHUB_REPOSITORY" --verify-tag \
+            --title "OOZX $TAG" --notes-file notes.md

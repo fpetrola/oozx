@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.github.fpetrola.oozx</groupId>
         <artifactId>media</artifactId>
-        <version>0.1.0</version>
+        <version>0.1.1</version>
     </parent>
 
     <artifactId>media-snapshot</artifactId>
