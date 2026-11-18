@@ -43,7 +43,7 @@
         <dependency>
             <groupId>com.github.fpetrola.crystal-plugins</groupId>
             <artifactId>framework-swing</artifactId>
-            <version>0.1.4</version>
+            <version>0.1.5</version>
         </dependency>
         <!-- What most applications want on their desk - looks, the window menu, suggestions, the bar of buttons, help,
              docks - each a plugin of plugdesk's, installed the first time like this build's own and removable. -->

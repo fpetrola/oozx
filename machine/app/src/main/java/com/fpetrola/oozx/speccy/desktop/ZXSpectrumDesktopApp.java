@@ -358,9 +358,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
   private java.util.List<String> knownMachines = java.util.List.of();
 
   void rememberMachines(EmulatorCore core) {
-    if (knownMachines.isEmpty() && core != null) {
-      knownMachines = core.getMachineModels();
-    }
+    if (knownMachines.isEmpty() && core != null) knownMachines = core.getMachineModels();
   }
   private final Function<String, EmulatorCore> mockCoreState;
   /** The windows of the desk, free inside it, and the desk that offers what the menus and the bar have. */
@@ -1264,6 +1262,8 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
 
   /** Said once the folder changed: the menus offer what is there now, and only that. */
   public void somethingWasPluggedIn() {
+    // A plugin can bring a machine: the list learnt before it came is asked again when next wanted.
+    knownMachines = java.util.List.of();
     whatThereIs();
     refillMachineToolBars();
     workbench.changed();
