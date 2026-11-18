@@ -7,8 +7,9 @@
 | **TAP** | yes | — |
 | **TZX** | yes, including the awkward blocks: generalized data, signal level, loop start and end, jump, direct recording, pure data | blocks `0x18` (CSW) and `0x15` (direct recording) |
 | **CSW** | yes | inside a TZX |
+| **PZX** | yes | — |
 
-TZX block `0x19` (generalized data) is listed and skipped. PZX and WAV are not read.
+TZX block `0x19` (generalized data) is played, and PZX is read. WAV is not.
 
 ![A tape loading](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/tape-loading.gif)
 

@@ -95,6 +95,18 @@
         </dependency>
     </dependencies>
     <build>
+        <!-- Only the application's own file is filtered (its version is the project's): the ROMs beside it are bytes. -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes><exclude>META-INF/plugdesk/**</exclude></excludes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes><include>META-INF/plugdesk/**</include></includes>
+            </resource>
+        </resources>
         <plugins>
             <!--
               The test harness and the test files - ROMs, tapes, recordings - are shared with the

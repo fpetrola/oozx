@@ -19,43 +19,62 @@ Then emit Java.
 
 ![Jet Set Willy as Java](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/jsw1.gif)
 
-Jet Set Willy, Manic Miner, Dynamite Dan, Everyone's a Wally and Sam Cruise have run this way. The class
-that comes out looks like this — a method per routine, named after its address:
+Twenty-nine games are in the translator's catalogue today, from Manic Miner and Jet Set Willy to Batman,
+Head over Heels, The Great Escape, Fairlight, Skool Daze, R-Type and Rainbow Islands on the 128K. The class
+that comes out has a method per routine, named after its address. This is the end of Jet Set Willy's, the
+loop that drives the speaker:
 
 ```java
-public class ZxGame1 extends MiniZX {
-  public void $CD8A() {
-    A = 0;
-    wMem(51326, A, pc: 52626);
-    HL(51316);
-    int var1 = HL();
+public class JetSetWilly extends MiniZX {
+  public void $38601() {
     ...
+    while(true) {
+      pc(38631, 1, 4);
+      int var6 = B();
+      int var7 = A();
+      alu("cp", var7, var6);
+      pc(38632, 1, 7);
+      if(flag(64, true)) {
+        tstates(5);
+      } else {
+        pc(38634, 1, 7);
+        D(24);
+      }
+
+      pc(38636, 2, 12);
+      int var8 = BC();
+      int var9 = D();
+      out(var8, var9);
+      ...
+    }
   }
 }
 ```
+
+It reads like the Z80 it came from, one statement per instruction: the translation keeps the address, the length
+and the cost of each, which is what lets it be checked. **A translation is held against a recording of the game
+being played**: the Java program and the emulator replay the same recording side by side, and they have to
+agree instruction by instruction. Head over Heels agrees with its recording for 174,364 frames. The earlier
+captures above (Dynamite Dan in a debugger, Everyone's a Wally) are from the first translations.
 
 It is Java. You can set a breakpoint in it, watch a variable, profile it, step through the frame in which
 Willy dies.
 
 ## How it is done
 
-1. **Symbolic execution** (`translation/se`) runs the game with nobody playing: an `InstructionSpy` sits on
+1. **Symbolic execution** (`se`) runs the game with nobody playing: an `InstructionSpy` sits on
    the executor, the registers are backed by values that remember where they came from
    (`DirectAccessWordNumber`, `ReturnAddressWordNumber` — that is how a return address is recognised as one),
    and the memory records who wrote what.
-2. **Blocks and routines** (`translation/blocks`, `translation/routines`) turn the trace into structure: what
+2. **Blocks and routines** (`blocks`, `routines`) turn the trace into structure: what
    is code, what is data, where a routine starts and ends, which branches are real.
-3. **Bytecode** (`translation/bytecode`, `translation/translator`) emits a class per game, a method per
+3. **Bytecode** (`bytecode`, `translator`) emits a class per game, a method per
    routine, with the Z80's registers as fields and memory as an array.
 4. `MiniZX` is the runtime it extends: a screen, a keyboard, and the handful of operations the emitted code
    calls (`mem`, `wMem`, the 16-bit register pairs). The window in the animations above is exactly that.
 
-```bash
-# translate a game, from a URL and an entry point
-java -cp translation/translator/target/... \
-     com.fpetrola.z80.bytecode.examples.RemoteZ80Translator \
-     translate jetsetwilly http://torinak.com/qaop/bin/jetsetwilly 34762
-```
+A recording says where the game really went, so the translation starts from what a person's playthrough
+reached, and the symbolic execution covers the branches that playthrough did not take.
 
 ## What it is good for
 
@@ -69,6 +88,7 @@ java -cp translation/translator/target/... \
 
 ## Where this lives
 
-`translation/` — `se` (symbolic execution), `blocks` (control-flow blocks), `routines`, `bytecode` and
-`translator` (the emission), `virtual` (the runtime). 199 classes. It is a separate line of work from the
-emulator and is not needed to run one.
+A repository of its own, `oozx-translator`, since November 2026: `se` (symbolic execution), `blocks`
+(control-flow blocks), `routines`, `bytecode` and `translator` (the emission), `virtual` (the runtime); the
+translated sources are under `translator/.../minizx/emulation`, and `translated-games.json` is the catalogue. It
+is not published yet. It is a separate line of work from the emulator and is not needed to run one.

@@ -30,6 +30,22 @@ frames, the items, and the guardians. The machine beside it is the same game in 
 
 Useful for exactly what it sounds like: finding where a game keeps its graphics.
 
+## The game lab
+
+Eight more windows under `Emulator → Equipment`, each clipped to the machine it looks at. None of them is in
+the emulator: each is a plugin, and several are a device on the bus like any board.
+
+| | |
+|---|---|
+| **Map** | A flip-screen game mapped as it is played: what its memory says of the room and of the player, turned into rooms and the ways between them. A way told wrong once is outvoted by the times after |
+| **Poke finder** | Finding the byte that holds the lives, by playing: take the memory down, play until something you can name happens, say what happened, and every address that disagrees is thrown away. Three or four rounds leave a handful |
+| **Heatmap** | How much code ran at each of the 64K addresses, and how much of that was just now — two counts, because a total never goes down and only the recent one shows a routine stopping |
+| **Memory map** | What is mapped where, right now, asked of the bus: a 128K's banks, the ROM, and whatever a board has plugged over them |
+| **Frames** | What the machine did in each of the last hundred frames. A frame that ran far more instructions than the ones around it is the frame where something happened |
+| **Functions** and **Calls** | The routines a run found — where each starts, how far it goes, how often it was called — and what called what, as a graph |
+| **Trace** | The last instructions the machine ran, in the order it ran them: a ring of addresses, disassembled only when somebody looks |
+| **Ports** | Every port the machine touched, counted. It is a device wired to all sixteen address lines that never drives the data lines, which is how a logic analyser is put on a bus |
+
 ## The keyboard window
 
 A photograph of a 48K showing **the matrix the machine actually reads**. When typing does not arrive, it
@@ -38,7 +54,7 @@ this far. See [Input and Keyboard](Input-and-Keyboard).
 
 ## The oscilloscope
 
-`Emulator → Real Cassette (audio in)` shows the sound card's input as a waveform, with a line selector, zoom
+`Emulator → Equipment → Real Cassette (audio in)` shows the sound card's input as a waveform, with a line selector, zoom
 and follow-the-head. Made for loading from a real cassette player; useful for looking at any signal.
 
 ## The bridge
@@ -75,5 +91,6 @@ the frame leaves the clock standing still, and that once hung a build for ten mi
 
 ## Where this lives
 
-`devices/debugger` (debugger and sprite viewer), `machine/app/.../KeyboardInternalFrame` and
-`AudioInInternalFrame`, `machine/bridge`, `model.harness.MachineTest` for the headless harness.
+In [oozx-plugins](https://github.com/fpetrola/oozx-plugins): `devices/debugger` (debugger and sprite viewer) and
+`tools/` — `map`, `poke-finder`, `heatmap`, `memory-map`, `frames`, `calls`, `trace`, `io`, `keyboard`,
+`audio-in`. Here: `machine/bridge`, and `model.harness.MachineTest` for the headless harness.

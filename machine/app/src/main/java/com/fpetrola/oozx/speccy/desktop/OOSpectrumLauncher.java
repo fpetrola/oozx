@@ -84,7 +84,7 @@ public class OOSpectrumLauncher {
 
     appHolder[0] = zxSpectrumDesktopApp;
     zxSpectrumDesktopApp.comeBack();
-    dev.plugdesk.desk.DeskWindow.open("ZX Spectrum Multi-Emulator", zxSpectrumDesktopApp, zxSpectrumDesktopApp.menus(),
+    dev.plugdesk.desk.DeskWindow.open(dev.plugdesk.app.Application.it().said("title"), zxSpectrumDesktopApp, zxSpectrumDesktopApp.menus(),
         zxSpectrumDesktopApp::keepTheSession);
   }
 

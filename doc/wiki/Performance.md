@@ -101,10 +101,12 @@ still the reference, still switchable at runtime.
 ## Reproducing it
 
 ```bash
-mvn -o -q -DskipTests install
-taskset -c 2,3 java -jar machine/app/target/app-0.0.2-alu-SNAPSHOT-all.jar
+taskset -c 2,3 java -jar oozx-<version>.jar
 ```
 
 Load a game, set the speed dial to its maximum, and read the percentage in the machine's status bar. For the
-harness versions — the ones that run a fixed number of frames and report fps — see the measurement classes
-under `machine/generated/src/test` and `machine/bridge`.
+harness versions — the ones that run a fixed amount of work and report a rate — see `InstructionsPerSecond`
+under `machine/app/src/test` and `LoopCoreMeasurement` under `machine/machines/src/test`.
+
+The figures on this page are the ones taken on 3 September 2026, on the build of that day. They have not been
+taken again on a released jar.

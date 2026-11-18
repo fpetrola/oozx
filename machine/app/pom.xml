@@ -135,6 +135,13 @@
                 <directory>src/main/crystal</directory>
                 <filtering>true</filtering>
             </resource>
+            <!-- La wiki viaja en el jar: es lo que muestra la ayuda. -->
+            <resource>
+                <directory>../../doc/wiki</directory>
+                <targetPath>wiki</targetPath>
+                <includes><include>*.md</include></includes>
+                <excludes><exclude>README.md</exclude></excludes>
+            </resource>
         </resources>
         <plugins>
             <plugin>

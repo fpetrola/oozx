@@ -16,10 +16,10 @@ fast: a second processor core is *generated* from the model and runs 4.3× the m
 | | |
 |---|---|
 | **[Everything it does](Features)** | **The whole thing in pictures: every feature, and what it looks like** |
-| [Getting Started](Getting-Started) | Build it, run it, load your first game |
+| [Getting Started](Getting-Started) | Download it, run it, load your first game |
 | [The Desktop](The-Desktop) | Many machines on one desk, windows you clip together, a session that comes back |
 | [Machines](Machines) | Twenty-four models, from a 16K to a Pentagon 1024 |
-| [Peripherals](Peripherals) | Twenty-four devices, each a window you clip onto a machine to plug it in |
+| [Peripherals](Peripherals) | More than two dozen devices, each a window you clip onto a machine to plug it in |
 
 ## What the machine does
 
@@ -43,12 +43,12 @@ fast: a second processor core is *generated* from the model and runs 4.3× the m
 | [Correctness and Tests](Correctness-and-Tests) | 1,355 vectors, 131,072 ALU combinations, and Fuse's real core behind the same interface |
 | [Games as Java programs](Games-as-Java-Programs) | Symbolic execution turns a game into Java that runs with no emulator under it |
 | [Extending OOZX](Extending-OOZX) | A peripheral is a few dozen lines and two service files |
-| [Tools and Debugging](Tools-and-Debugging) | Debugger, sprite viewer, keyboard monitor, oscilloscope |
+| [Tools and Debugging](Tools-and-Debugging) | Debugger, sprite viewer, map, poke finder, heatmap, memory map, trace, ports |
 | [Limits and what is not there](Limits-and-what-is-not-there) | The honest list |
 
 ---
 
-## What you can do here that you cannot do elsewhere
+## What you can do here
 
 - **Run several Spectrums at once.** Each window is its own machine, with its own model, speed, sound and
   pokes. Quit, reopen, and they come back running where they were.
@@ -81,7 +81,7 @@ fast: a second processor core is *generated* from the model and runs 4.3× the m
 | | |
 |---|---|
 | Machines | 16K, 48K PAL and NTSC, 128K, +2, +2A, +3, +3e, Pentagon 128/512/1024, Timex TC2048/TC2068/TS2068, Spectrum SE, Scorpion ZS 256, and seven clones |
-| Tapes and disks | TAP, TZX, CSW; DSK, TRD, SCL, MGT, IMG, OPD, D40/D80; HDF and SD images; Microdrive and ROM cartridges |
+| Tapes and disks | TAP, TZX, CSW, PZX; DSK, TRD, SCL, MGT, IMG, OPD, D40/D80; HDF and SD images; Microdrive and ROM cartridges |
 | Snapshots and recordings | Z80, SNA, SZX, SP read and written; RZX read, written and replayed |
 | Sound | beeper, AY-3-8912 with band-limited synthesis, Melodik, Fuller Box, Covox, SpecDrum |
 | Video | contention per T-state, attribute and border changes drawn where the beam was, Timex hi-res and hi-colour, ULAplus |
@@ -96,7 +96,7 @@ Three sentences, each with a page behind it:
    inspect, clone or replace on its own. That is why a game's code can be *analysed* and not only run, and why
    tracing, profiling and a debugger come for free. → [Architecture](Architecture)
 2. **A fixed object graph is exactly what a partial evaluator wants.** The model is read by a generator that
-   flattens it into one class with no objects on the hot path, cached and re-generated when the model changes,
+   flattens it into one class with no objects on the hot path, written by the build and re-generated when the model changes,
    passing the same test batteries. → [The Generated Core](The-Generated-Core)
 3. **One concept, one owner, one module.** A peripheral is a jar with a service file; the core never names a
    device; the compiler enforces who may know whom. Twenty-four devices landed that way, most of them in two

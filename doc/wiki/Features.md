@@ -10,7 +10,7 @@ time. This page is the whole of it, in pictures.
 **[Games](#games-finding-them-and-playing-them)** · **[Tapes and disks](#tapes-and-disks)** ·
 **[The picture](#the-picture)** · **[256 colours](#a-1984-game-in-256-colours)** · **[Sound](#sound)** ·
 **[Controls](#controls)** · **[Speed](#speed)** · **[Tools](#tools)** ·
-**[Only here](#the-ones-you-will-not-find-elsewhere)**
+**[Ten to try first](#ten-to-try-first)**
 
 ---
 
@@ -242,7 +242,7 @@ Two machines can be under two debuggers at once without sharing a thing.
 
 ---
 
-## The ones you will not find elsewhere
+## Ten to try first
 
 1. **Several Spectrums on one desk**, each its own machine, each at its own speed, all in one process.
 2. **Plugging hardware in by dragging a window onto another.** No dialog, no checkbox: the window *is* the
