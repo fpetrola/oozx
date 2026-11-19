@@ -235,39 +235,40 @@ public class SpeccyScreen extends JPanel {
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
     BufferedImage image = screen.isBorder() ? whole() : cropped();
-
-    int imgWidth, imgHeight;
-    double contRatio = (double) getWidth() / (double) getHeight();
-    double imgRatio = (double) image.getWidth(this) / (double) image.getHeight(this);
-
-    //width limited
-    if (contRatio < imgRatio) {
-      imgWidth = getWidth();
-      imgHeight = (int) (getWidth() / imgRatio);
-      //height limited
-    } else {
-      imgWidth = (int) (getHeight() * imgRatio);
-      imgHeight = getHeight();
-    }
-
-    // A picture landing on, or just past, a whole multiple is drawn at that multiple, so its
-    // pixels stay square. Ceil minus one was meant to be that floor but came up one short on
-    // the whole numbers themselves: an exact 2x window drew its picture at 1x, in the middle
-    // of a wide margin.
-    double scale = imgWidth / (double) image.getWidth(this);
-    int whole = (int) Math.floor(scale);
-    if (whole > 0 && scale - whole < 0.3) {
-      imgWidth = whole * image.getWidth(this);
-      imgHeight = whole * image.getHeight(this);
-    }
+    Rectangle placed = placed();
     // Everything this window was told to do to the picture, in the order it has to happen in:
     // the lead and the colours before the scaler, on a quarter of the pixels a window has, and
     // the mask and the lines after it, because those are features of the screen and not of the
     // picture. The pipeline is the settings' to decide; this only says how big.
-    BufferedImage scaledImage = screen.render(image, imgWidth, imgHeight, screenContext);
-    //to center
-    int x = (int) (((double) getWidth() / 2) - ((double) imgWidth / 2));
-    int y = (int) (((double) getHeight() / 2) - ((double) imgHeight / 2));
-    g.drawImage(scaledImage, x, y, this);
+    g.drawImage(screen.render(image, placed.width, placed.height, screenContext), placed.x, placed.y, this);
+  }
+
+  /**
+   * Where the picture is drawn in this panel: as big as fits, centred.
+   * <p>
+   * A picture landing on, or just past, a whole multiple is drawn at that multiple, so its
+   * pixels stay square. Ceil minus one was meant to be that floor but came up one short on
+   * the whole numbers themselves: an exact 2x window drew its picture at 1x, in the middle
+   * of a wide margin.
+   */
+  private Rectangle placed() {
+    int imageWidth = imageWidth(), imageHeight = imageHeight();
+    double scale = Math.min(getWidth() / (double) imageWidth, getHeight() / (double) imageHeight);
+    int whole = (int) Math.floor(scale);
+    if (whole > 0 && scale - whole < 0.3) scale = whole;
+    int width = (int) (imageWidth * scale), height = (int) (imageHeight * scale);
+    return new Rectangle((getWidth() - width) / 2, (getHeight() - height) / 2, width, height);
+  }
+
+  /**
+   * The Spectrum's pixel under that point of this panel, counted from the top left of its 256x192,
+   * so a point over the border is below 0 or past the far edge: what a pointer on this picture is
+   * pointing at in the machine.
+   */
+  public java.awt.geom.Point2D.Double pixelUnder(Point point) {
+    Rectangle placed = placed();
+    double scale = placed.width / (double) imageWidth();
+    int border = screen.isBorder() ? 1 : 0;
+    return new java.awt.geom.Point2D.Double((point.x - placed.x) / scale - border * SCREEN_X, (point.y - placed.y) / scale - border * SCREEN_Y);
   }
 }
