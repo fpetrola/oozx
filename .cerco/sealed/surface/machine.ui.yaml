@@ -7,6 +7,10 @@ types:
       - "choice(Knob): T"
       - "number(Knob): T"
       - "switching(Knob): T"
+  "com.fpetrola.oozx.speccy.screen.PointedAt":
+    kind: interface
+    members:
+      - "pixelUnder(Point): Point2D.Double"
   "com.fpetrola.oozx.speccy.screen.Scaler":
     kind: interface
     members:

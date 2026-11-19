@@ -21,7 +21,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class SpeccyScreen extends JPanel {
+public class SpeccyScreen extends JPanel implements PointedAt {
   /** Repinta mientras la pantalla esta en una ventana: andando sin ella, retenia la maquina cerrada. */
   private final Timer repainting = new Timer(30, e -> repaint());
 
@@ -260,11 +260,7 @@ public class SpeccyScreen extends JPanel {
     return new Rectangle((getWidth() - width) / 2, (getHeight() - height) / 2, width, height);
   }
 
-  /**
-   * The Spectrum's pixel under that point of this panel, counted from the top left of its 256x192,
-   * so a point over the border is below 0 or past the far edge: what a pointer on this picture is
-   * pointing at in the machine.
-   */
+  @Override
   public java.awt.geom.Point2D.Double pixelUnder(Point point) {
     Rectangle placed = placed();
     double scale = placed.width / (double) imageWidth();

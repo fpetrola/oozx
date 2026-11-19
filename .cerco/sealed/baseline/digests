@@ -578,6 +578,7 @@ e3426302cbd1076580aa691abfd049c2f130cf02334e63abab5aadd3f5eb2910	machine/spectru
 6642fab9ed20fecb7c0e43a9539f68abd9c19a7a8ec09f22847b5349b5a0d447	machine/spectrum/src/main/java/com/fpetrola/z80/minizx/emulation/MiniZXWithEmulationBase.java
 36af1860d3bea671be93374b92a26a26043f19209742a1fb33c7fd92b498d2a7	machine/spectrum/src/test/java/com/fpetrola/emulation/helpers/snapshots/AFormatThatArrivedTest.java
 573a0ba68934091fd95cca09b62fb8571dee7d3d81df400d94f32c2e6d5111cc	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/Knob.java
+acc1b5a077c5fcf26887b72cfdcf8be1005efcdaaadf67237408c0741021d28e	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/PointedAt.java
 9719a9c69c14146da78c30e8e1fb467d821ea9cf3fd725685ee2e1da73f41309	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/Scaler.java
 a93f395e9f81593648daa4575316008c515fe8ff3a31f810577db3ef762db863	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/Scalers.java
 7ab78f401d522d8545b63a089f37df1d733b026a07158ab2c081dc2e965ead96	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenContext.java
@@ -585,7 +586,7 @@ cdf35147798e0f75776f41a11aaf98eb18886ccf51f25e98e34fa3630b8b0cd2	machine/ui/src/
 917e3fdf487910d1785045fc8c39cbd5abc2a5fcd4d9a5187947a052b945a975	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenEffects.java
 7d0a381b7c89a82ca0befaba2386a7ad9e7a0a328e50f5264e04408fd72a10c5	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenProfile.java
 e9a6bbbde2d805da4cdcdaf5da25dcca8f17c29b712bd707e147602fe6172d8d	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/ScreenSettings.java
-a46d5436669ff2a02ac2ce5ab7d4aea271530d5c16aafcf143bbddbfab399eed	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/SpeccyScreen.java
+920814de08d9ac7c0615114ad5f78a33ada4d862cc3d1408695c3657ee96c5d8	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/SpeccyScreen.java
 4f4b644b4e0287f9809f786f49724dceb3984f0d1fe0fa94af327b65bea3c3bd	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/SpectrumPanel.java
 ea763344ca3d384c47672fbc470edaa5018fb43a3080855dad801cb19628fd3b	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/TvScreen.java
 2474685d374ef3ebbd77c6798158ba54f6dcd0d4d4e45ab326b548ab53658e4d	machine/ui/src/main/java/com/fpetrola/oozx/speccy/screen/WaysOfDrawing.java
@@ -598,6 +599,7 @@ fcd54c6530faafd95163f14c1a92e436761043cf802cb1bd47dd6b6b0ec1baa9	machine/ui/src/
 c7161807e728e9adcd34c8826fb25aada56963d72daf531fb73abcdff6460251	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/MachineWindow.java
 3c80016fc3e1c0ef6c183aac536c484981178ad3793ad2933a75fd1e0ba561c6	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/SidewaysScrollPane.java
 357cf48fcefb5b6560e1cc061cb16cac1aafe72fabdb0ff99ccc1d5ba5b6b76d	machine/ui/src/main/java/com/fpetrola/oozx/speccy/windows/Widgets.java
+9edd9451a63dcde87a7ba3e0ca62c8ff4bb3d70acd082593d439f41d48b38e27	machine/ui/src/test/java/com/fpetrola/oozx/speccy/screen/ThePixelUnderAPointerTest.java
 04f08675ab683ba20e5815139a4c96095292091912e1c0c82e9e77869e2254f3	machine/ui/src/test/java/model/suites/UiSuite.java
 30c0b4ba3ac40f279c7a62ed32caa8438123f15ad6d5c49dd936c625718661af	machine/ui/src/test/java/model/tests/ui/ABoxThatChangesWhatItShowsTest.java
 f76627dc3ea5f015a4c9052e9f795855f3bc3bc553abb637de6afba19e195984	machine/ui/src/test/java/model/tests/ui/AKnobAPluginMakesTest.java
