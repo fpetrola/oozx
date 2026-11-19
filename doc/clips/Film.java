@@ -31,6 +31,7 @@ public class Film {
       case "any-name" -> anyName(new File(args[1]), args[2]);
       case "type-a-name" -> typeAName();
       case "an-hour" -> anHour(new File(args[1]), args[2]);
+      case "take-over" -> takeOver(new File(args[1]), args[2]);
       case "look" -> look("Game Browser...");
       default -> throw new IllegalArgumentException("no clip called " + args[0]);
     }
@@ -74,6 +75,53 @@ public class Film {
     look(9000);
     press(at(component(AbstractButton.class, "Full speed - right-click for a speed")));
     look(3000);
+  }
+
+  /** Somebody's recording is let go of over the desk and watched; then the machine is taken, and it is ours to play. */
+  private static void takeOver(File file, String marking) throws Exception {
+    Point[] at = new Point[1];
+    SwingUtilities.invokeAndWait(() -> at[0] = folder("Downloads", file, 70, 520));
+    new ProcessBuilder(marking).start().waitFor();
+    look(900);
+    move(at[0].x, at[0].y);
+    robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+    look(200);
+    move(at[0].x + 14, at[0].y - 10);
+    move(320, 240);
+    robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+    look(9000);
+    // The fourth button of the player is the joystick: take over.
+    press(at(button("RZX", 3)));
+    look(900);
+    press(at(window("ZX Spectrum", "Spectrum #")));
+    for (int key : new int[]{java.awt.event.KeyEvent.VK_P, java.awt.event.KeyEvent.VK_SPACE, java.awt.event.KeyEvent.VK_P, java.awt.event.KeyEvent.VK_O, java.awt.event.KeyEvent.VK_SPACE}) {
+      robot.keyPress(key);
+      robot.delay(500 + hand.nextInt(500));
+      robot.keyRelease(key);
+      robot.delay(150 + hand.nextInt(200));
+    }
+    look(2500);
+  }
+
+  /** The desk window whose title starts with one of those. */
+  private static JInternalFrame window(String... starts) {
+    for (Window window : Window.getWindows()) {
+      Component found = inside(window, JInternalFrame.class, null, frame -> java.util.Arrays.stream(starts).anyMatch(((JInternalFrame) frame).getTitle()::startsWith));
+      if (found != null) return (JInternalFrame) found;
+    }
+    throw new IllegalStateException("no window on the desk starts with " + String.join(" or ", starts));
+  }
+
+  /** One of the buttons of that window, counted from the first: for the ones that say nothing but their picture. */
+  private static Component button(String title, int which) {
+    java.util.List<Component> buttons = new java.util.ArrayList<>();
+    gather(window(title), buttons);
+    return buttons.get(which);
+  }
+
+  private static void gather(Component component, java.util.List<Component> buttons) {
+    if (component instanceof JButton && component.isShowing() && !(component.getParent() instanceof javax.swing.plaf.basic.BasicInternalFrameTitlePane)) buttons.add(component);
+    if (component instanceof Container container) for (Component each : container.getComponents()) gather(each, buttons);
   }
 
   /** The catalogue is opened from the menu, a name is typed, and the first game found is played. */
@@ -130,16 +178,20 @@ public class Film {
   }
 
   private static Component inside(Component component, Class<? extends Component> kind, String saying) {
+    return inside(component, kind, saying, any -> true);
+  }
+
+  private static Component inside(Component component, Class<? extends Component> kind, String saying, java.util.function.Predicate<Component> which) {
     if (!component.isShowing()) return null;
     String says = component instanceof AbstractButton button && button.getText() != null && !button.getText().isEmpty() ? button.getText()
         : component instanceof JComponent j ? j.getToolTipText() : null;
-    if (kind.isInstance(component) && (saying == null || saying.equals(says))) return component;
+    if (kind.isInstance(component) && (saying == null || saying.equals(says)) && which.test(component)) return component;
     if (component instanceof JMenu menu && menu.isPopupMenuVisible()) {
-      Component found = inside(menu.getPopupMenu(), kind, saying);
+      Component found = inside(menu.getPopupMenu(), kind, saying, which);
       if (found != null) return found;
     }
     if (component instanceof Container container) for (Component each : container.getComponents()) {
-      Component found = inside(each, kind, saying);
+      Component found = inside(each, kind, saying, which);
       if (found != null) return found;
     }
     return null;
