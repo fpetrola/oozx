@@ -84,8 +84,18 @@ public class OOSpectrumLauncher {
 
     appHolder[0] = zxSpectrumDesktopApp;
     zxSpectrumDesktopApp.comeBack();
-    dev.plugdesk.desk.DeskWindow.open(dev.plugdesk.app.Application.it().said("title"), zxSpectrumDesktopApp, zxSpectrumDesktopApp.menus(),
-        zxSpectrumDesktopApp::keepTheSession);
+    inItsWindow(zxSpectrumDesktopApp);
+  }
+
+  /** The desk in the window a person sees: a file let go of over it opens as from the menu, and whoever knows of games says which it is. */
+  private static void inItsWindow(ZXSpectrumDesktopApp desk) {
+    dev.plugdesk.desk.DeskWindow.dropping(desk, file -> {
+      // A game let go of here is to be played, so it gets a machine; a recording or a zip goes where the menu sends it.
+      if (file.getName().toLowerCase().matches(".*\\.(rzx|zip)")) desk.open(file.getPath());
+      else desk.loadInNewEmulator(file.getPath());
+      desk.showDetails(new com.fpetrola.oozx.speccy.devices.Desk.Game(file.getPath(), null, null, null));
+    });
+    dev.plugdesk.desk.DeskWindow.open(dev.plugdesk.app.Application.it().said("title"), desk, desk.menus(), desk::keepTheSession);
   }
 
   /** A machine with nothing loaded, sitting at the BASIC prompt, running at real speed. */

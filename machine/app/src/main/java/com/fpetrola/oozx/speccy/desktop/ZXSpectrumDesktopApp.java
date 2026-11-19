@@ -1115,7 +1115,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
   }
 
   public void loadInNewEmulator(String path) {
-    load(path, null, () -> { }, true);
+    load(path, has.aboutGames() == null ? null : has.aboutGames().gameIn(path), () -> { }, true);
   }
 
   /**
