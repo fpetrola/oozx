@@ -24,11 +24,14 @@ public class Film {
    */
   public static void main(String[] args) throws Exception {
     com.fpetrola.oozx.speccy.desktop.OOSpectrumLauncher.main(new String[0]);
-    File rolling = new File(args[3]);
+    File rolling = new File(args[args.length - 1]);
     while (!rolling.exists()) Thread.sleep(200);
     robot = new Robot();
     switch (args[0]) {
       case "any-name" -> anyName(new File(args[1]), args[2]);
+      case "type-a-name" -> typeAName();
+      case "an-hour" -> anHour(new File(args[1]), args[2]);
+      case "look" -> look("Game Browser...");
       default -> throw new IllegalArgumentException("no clip called " + args[0]);
     }
     System.exit(0);
@@ -52,6 +55,118 @@ public class Film {
     look(6000);
     move(980, 380);
     look(6500);
+  }
+
+  /** A game is let go of over the desk and the rocket is pressed: what takes an hour goes by in seconds, and comes back. */
+  private static void anHour(File file, String marking) throws Exception {
+    Point[] at = new Point[1];
+    SwingUtilities.invokeAndWait(() -> at[0] = folder("Downloads", file, 70, 470));
+    new ProcessBuilder(marking).start().waitFor();
+    look(900);
+    move(at[0].x, at[0].y);
+    robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+    look(200);
+    move(at[0].x + 14, at[0].y - 10);
+    move(300, 250);
+    robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+    look(5000);
+    press(at(component(AbstractButton.class, "Full speed - right-click for a speed")));
+    look(9000);
+    press(at(component(AbstractButton.class, "Full speed - right-click for a speed")));
+    look(3000);
+  }
+
+  /** The catalogue is opened from the menu, a name is typed, and the first game found is played. */
+  private static void typeAName() throws Exception {
+    look(1200);
+    press(at(component(JMenu.class, "Emulator")));
+    look(500);
+    press(at(component(JMenuItem.class, "Game Browser...")));
+    look(2500);
+    press(at(component(JTextField.class, null)));
+    look(400);
+    type("dizzy\n");
+    look(3200);
+    // The first game found, where the gallery starts: twice, as anything is opened.
+    Component gallery = component(JSplitPane.class, null);
+    Point first = gallery.getLocationOnScreen();
+    press(new Point(first.x + 370, first.y + 110));
+    robot.delay(110);
+    robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+    robot.delay(60);
+    robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+    look(16000);
+  }
+
+  /** Not a clip: what a window is made of, written out, to find what a clip has to press. */
+  private static void look(String menuItem) throws Exception {
+    press(at(component(JMenu.class, "Emulator")));
+    look(500);
+    press(at(component(JMenuItem.class, menuItem)));
+    look(2500);
+    press(at(component(JTextField.class, null)));
+    type("dizzy\n");
+    look(9000);
+    for (Window window : Window.getWindows()) written(window, "");
+  }
+
+  private static void written(Component component, String indent) {
+    if (!component.isShowing()) return;
+    String says = component instanceof AbstractButton button ? button.getText() : component instanceof JLabel label ? label.getText()
+        : component instanceof JInternalFrame frame ? frame.getTitle() : "";
+    Point on = component.getLocationOnScreen();
+    System.out.println(indent + component.getClass().getSimpleName() + " [" + on.x + "," + on.y + " " + component.getWidth() + "x" + component.getHeight() + "] "
+        + (says == null ? "" : says) + (component instanceof JComponent j && j.getToolTipText() != null ? " (" + j.getToolTipText() + ")" : ""));
+    if (component instanceof Container container && indent.length() < 60) for (Component inside : container.getComponents()) written(inside, indent + "  ");
+  }
+
+  /** The first thing of that kind on screen that says that, or the first of that kind when nothing is asked of what it says. */
+  private static Component component(Class<? extends Component> kind, String saying) {
+    for (Window window : Window.getWindows()) {
+      Component found = inside(window, kind, saying);
+      if (found != null) return found;
+    }
+    throw new IllegalStateException("nothing on screen is a " + kind.getSimpleName() + " saying " + saying);
+  }
+
+  private static Component inside(Component component, Class<? extends Component> kind, String saying) {
+    if (!component.isShowing()) return null;
+    String says = component instanceof AbstractButton button && button.getText() != null && !button.getText().isEmpty() ? button.getText()
+        : component instanceof JComponent j ? j.getToolTipText() : null;
+    if (kind.isInstance(component) && (saying == null || saying.equals(says))) return component;
+    if (component instanceof JMenu menu && menu.isPopupMenuVisible()) {
+      Component found = inside(menu.getPopupMenu(), kind, saying);
+      if (found != null) return found;
+    }
+    if (component instanceof Container container) for (Component each : container.getComponents()) {
+      Component found = inside(each, kind, saying);
+      if (found != null) return found;
+    }
+    return null;
+  }
+
+  private static Point at(Component component) {
+    Point on = component.getLocationOnScreen();
+    return new Point(on.x + Math.min(component.getWidth() / 2, 60), on.y + component.getHeight() / 2);
+  }
+
+  private static void press(Point where) {
+    move(where.x, where.y);
+    look(180);
+    robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+    robot.delay(70 + hand.nextInt(50));
+    robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+  }
+
+  /** Letters, digits, spaces and Enter, a key at a time and never at a steady pace. */
+  private static void type(String text) {
+    for (char letter : text.toCharArray()) {
+      int key = letter == '\n' ? java.awt.event.KeyEvent.VK_ENTER : java.awt.event.KeyEvent.getExtendedKeyCodeForChar(letter);
+      robot.keyPress(key);
+      robot.delay(40 + hand.nextInt(40));
+      robot.keyRelease(key);
+      robot.delay(90 + hand.nextInt(140));
+    }
   }
 
   /** A folder as a file manager shows it, with that file among others to be taken by the hand; where the file is. */
