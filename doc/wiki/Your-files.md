@@ -70,9 +70,10 @@ something that was called `cinta3.tzx`.
 
 - **A file it cannot name** is still loaded. Its card says "I do not know this one" and asks which game it
   is: type the name and it looks that up instead.
-- **A 128K snapshot can fool it.** Two snapshots of unrelated games were measured sharing 16,257 identical
-  bytes in a row, which is enough for one to be taken for the other. Whatever left that memory behind is not
-  the game.
+- **A snapshot can hold more than its game.** A 128K snapshot of a 48K game may still have, in banks the
+  game never pages in, the game loaded before it. One of Silk Worm was once taken for The Addams Family that
+  way. A snapshot is now recognised by the memory its processor has in front of it; a game that left no
+  trace there cannot claim the file.
 - **It knows the games whose fingerprint ships**, not every game there is.
 
 ## Your whole collection

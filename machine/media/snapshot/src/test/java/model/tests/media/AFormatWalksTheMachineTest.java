@@ -94,6 +94,17 @@ class AFormatWalksTheMachineTest extends MachineTest {
   }
 
   @Test
+  void aFormatThatDoesNotSayWhatIsPagedInHasInSightAllTheRamItSays() {
+    SnapshotFormat sixteenK = new TwoBytes() {
+      public java.util.Optional<byte[]> ram(byte[] file) {
+        return java.util.Optional.of(file);
+      }
+    };
+    org.junit.jupiter.api.Assertions.assertArrayEquals(new byte[]{1, 2, 3}, sixteenK.ramInSight(new byte[]{1, 2, 3}).orElseThrow());
+    org.junit.jupiter.api.Assertions.assertTrue(new TwoBytes().ramInSight(new byte[]{1, 2}).isEmpty(), "and none when it says none");
+  }
+
+  @Test
   void aFileItRefusesIsRefused() throws Exception {
     Speccy speccy = silentMachine();
     Path file = Files.write(folder.resolve("cut.two"), new byte[]{3});

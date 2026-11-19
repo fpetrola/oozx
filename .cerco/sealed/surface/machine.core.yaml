@@ -84,6 +84,7 @@ types:
       - "carriedBy(File): java.util.Map<String,byte[]>"
       - "label(): String"
       - "ram(byte[]): java.util.Optional<byte[]>"
+      - "ramInSight(byte[]): java.util.Optional<byte[]>"
       - "read(byte[], Speccy, Consumer<String>): void"
       - "reads(File): boolean"
       - "write(Speccy, Consumer<String>): byte[]"

@@ -47,8 +47,6 @@ Three peripherals are named and not written: SpeccyBoot, Spectranet and the TTX2
 - **The speed you get depends on your computer.** The figures were taken on a notebook, pinned to two cores.
   On one harness the same code ran at 830 frames a second with its thread wandering between cores, and at
   1,360 pinned to one.
-- **Recognising a game can be fooled by a 128K snapshot.** Two snapshots of unrelated games were measured
-  sharing 16,257 identical bytes in a row, which is enough for one to be taken for the other.
 - **The desk's keys are not a machine's.** While a machine has the focus, Ctrl and Alt are the Spectrum's
   SYMBOL SHIFT, so Ctrl+T and the rest do nothing until another window has the keyboard.
   → [Shortcuts](Shortcuts)

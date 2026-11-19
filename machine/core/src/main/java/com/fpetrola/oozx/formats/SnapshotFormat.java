@@ -68,6 +68,14 @@ public interface SnapshotFormat {
     return java.util.Optional.empty();
   }
 
+  /**
+   * The part of that RAM a processor has in front of it: what is paged in. A bank nobody pages in can
+   * still hold the program loaded before, so only this part is certainly the game.
+   */
+  default java.util.Optional<byte[]> ramInSight(byte[] file) {
+    return ram(file);
+  }
+
   /** What the format is called, for saying which one a file is. */
   default String label() {
     return getClass().getSimpleName();
