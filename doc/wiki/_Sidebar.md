@@ -20,11 +20,13 @@
 
 **Under the hood**
 - [Why it all fits](Why-it-all-fits)
+- [The parts, on one page](The-parts)
 - [The fast core](The-fast-core)
 - [How fast, and how we know](How-fast-and-how-we-know)
 - [How right, and how we know](How-right-and-how-we-know)
 - [The game lab](The-game-lab)
 - [The translator: games as Java](The-translator)
+- [A file format is a table](A-file-format-is-a-table)
 - [Build a peripheral](Build-a-peripheral)
 - [The rules of the code](The-rules-of-the-code)
 

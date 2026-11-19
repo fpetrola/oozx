@@ -79,7 +79,7 @@ Two things make those possible. **It knows which game is running**: game, file a
 | **Rename your collection** | every file is recognised by what is inside it | only the games whose fingerprint ships: 4,922 → [Your files](Your-files) |
 | **Hunt for pokes on a website** | the pokes of 3,612 games come with it, matched to the game that is loaded; and the poke finder finds the one that is missing | |
 | **Open an options dialog to plug something in** | you drag the peripheral's window against the machine | the Melodik is the exception: it is fitted in the settings |
-| **Lose your place when you quit** | every machine comes back running where it was | whether each peripheral comes back holding what it held has not been checked one by one |
+| **Lose your place when you quit** | every machine comes back running where it was | twenty-two parts come back holding what they held, each held by a test → [A file format is a table](A-file-format-is-a-table) |
 | **Choose the machine for a game** | a recognised game brings the machine it was made for, and a snapshot the one it was taken on | |
 
 ## Why it all fits
@@ -97,7 +97,7 @@ of objects is six machines on one desk, and a model a program can read is a fast
 |---|---|
 | **[Play](Your-first-five-minutes)** | [Your first five minutes](Your-first-five-minutes) · [Any game, a name away](Any-game-a-name-away) · [Your files](Your-files) · [Pokes, and finding yours](Pokes-and-finding-yours) · [Recordings and Take Over](Recordings-and-Take-Over) · [The map draws itself](The-map-draws-itself) · [256 colours](256-colours) |
 | **[The desk](The-desk)** | [The desk](The-desk) · [The machines, and yours](The-machines-and-yours) · [The catalogue of peripherals](The-catalogue-of-peripherals) · [Tape, real and virtual](Tape-real-and-virtual) · [The picture, by lead](The-picture-by-lead) · [Sound and controls](Sound-and-controls) · [It talks](It-talks) |
-| **[Under the hood](Why-it-all-fits)** | [Why it all fits](Why-it-all-fits) · [The fast core](The-fast-core) · [How fast](How-fast-and-how-we-know) · [How right](How-right-and-how-we-know) · [The game lab](The-game-lab) · [The translator](The-translator) · [Build a peripheral](Build-a-peripheral) · [The rules of the code](The-rules-of-the-code) |
+| **[Under the hood](Why-it-all-fits)** | [Why it all fits](Why-it-all-fits) · [The parts](The-parts) · [The fast core](The-fast-core) · [How fast](How-fast-and-how-we-know) · [How right](How-right-and-how-we-know) · [The game lab](The-game-lab) · [The translator](The-translator) · [A file format is a table](A-file-format-is-a-table) · [Build a peripheral](Build-a-peripheral) · [The rules of the code](The-rules-of-the-code) |
 
 And to look things up: [Machines](Machines) · [Peripherals](Peripherals) · [Formats](Formats) ·
 [Shortcuts](Shortcuts) · [Plugins](Plugins) · [Building from source](Building-from-source) ·

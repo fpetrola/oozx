@@ -279,6 +279,8 @@ in.
 - **Bring a ROM**, a drive, a sound: the peripherals that ship are the worked examples, one small module
   each, in [oozx-plugins](https://github.com/fpetrola/oozx-plugins) under `devices/`. The ZXMMC is the
   smallest, the Kempston Mouse is the one closest to this.
+- **Keep what it holds across a session.** A peripheral never saves itself; a mapping does it.
+  → [A file format is a table](A-file-format-is-a-table)
 - **Something that is not a peripheral**: a tool, a machine, a file format, a way of drawing the picture.
   Every way in there is, is on [Plugins](Plugins).
 

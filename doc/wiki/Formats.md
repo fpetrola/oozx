@@ -44,7 +44,11 @@ the Interface 1, and ROM cartridges for the Interface 2 and the Timex.
 A snapshot goes back onto the machine it was taken on. It carries its colours back if the machine had
 sixty-four of them, and it says where it came from, which is how a Spec256 game finds its colour file.
 
-The session is made of the same thing: each machine you leave open is kept as a snapshot.
+An **EZX**, the snapshot a Spec256 game comes in, is read as well.
+
+The session is made of the same thing: each machine you leave open is kept as an SZX, with its peripherals
+and everything around it inside. How a format is written, and how a peripheral gets into one, is on
+[A file format is a table](A-file-format-is-a-table).
 
 ## How the readers are held to it
 

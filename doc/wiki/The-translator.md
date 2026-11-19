@@ -172,4 +172,4 @@ run the same recording through the emulator's fast core, on the same computer, w
 - **The translated sources are not published.** Each one carries the original game inside it, so publishing
   them whole would be handing out the games. This page shows pieces.
 
-That is the detour. Next: [Build a peripheral](Build-a-peripheral).
+That is the detour. Next: [A file format is a table](A-file-format-is-a-table).

@@ -92,4 +92,4 @@ translator works, but it puts the two under one sentence.
 each module owns is on [Building from source](Building-from-source), and the rules all of it is held to are
 on [The rules of the code](The-rules-of-the-code).
 
-Next: [The fast core](The-fast-core).
+Next: [The parts, on one page](The-parts).
