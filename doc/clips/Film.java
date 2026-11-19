@@ -26,6 +26,7 @@ public class Film {
     com.fpetrola.oozx.speccy.desktop.OOSpectrumLauncher.main(new String[0]);
     File rolling = new File(args[args.length - 1]);
     // What a clip starts from and nobody needs to see being done, done before the camera rolls.
+    if (args[0].equals("six")) machines(args[1].split(","));
     if (args[0].equals("speech")) {
       plugged(new File(args[1]), "Currah µSpeech:RIGHT");
       // A machine with nothing loaded says so; and the board is opened whole, not just its meter.
@@ -49,6 +50,7 @@ public class Film {
       case "art-scale" -> artScale();
       case "art" -> art();
       case "speech" -> speech();
+      case "six" -> six();
       case "art-colour" -> { art(); artColoured(); }
       case "art-drift" -> { art(); mark("d0"); stroke(4, 158, 250, 158); mark("d1"); ink(56); mark("d2"); fill(32, 30, 60); mark("d3"); }
       case "art-menu" -> artMenu();
@@ -149,28 +151,32 @@ public class Film {
   /** A machine with that file, and those boards clipped onto it, left on the desk where the hand will find them. */
   private static void plugged(File file, String... boards) throws Exception {
     Thread.sleep(6000);
-    com.fpetrola.oozx.speccy.devices.Desk desk = com.fpetrola.oozx.speccy.devices.Desk.theOne();
+    JInternalFrame machine = machine(file, 40, 60);
+    for (String board : boards) SwingUtilities.invokeAndWait(() -> {
+      String[] nameAndSide = (board + ":BOTTOM").split(":");
+      JInternalFrame window = com.fpetrola.oozx.speccy.devices.Desk.theOne().window(nameAndSide[0]);
+      if (window instanceof com.fpetrola.oozx.speccy.windows.AttachedFrame clipped)
+        clipped.attachTo(machine, com.fpetrola.oozx.speccy.windows.AttachedFrame.Dock.valueOf(nameAndSide[1]));
+      // Beside the machine, as tall as it and as wide as the desk leaves: big enough to watch the paper come out.
+      if ("RIGHT".equals(nameAndSide[1])) window.setSize(420, machine.getHeight());
+    });
+  }
+
+  /** A machine with that file in it, there on the desk, at twice the size: its picture 512 by 384, the window around it growing by as much. */
+  private static JInternalFrame machine(File file, int x, int y) throws Exception {
     JInternalFrame[] machine = new JInternalFrame[1];
     SwingUtilities.invokeAndWait(() -> {
-      machine[0] = (JInternalFrame) desk.machineFrom(file);
-      machine[0].setLocation(40, 60);
+      machine[0] = (JInternalFrame) com.fpetrola.oozx.speccy.devices.Desk.theOne().machineFrom(file);
+      machine[0].setLocation(x, y);
     });
     Thread.sleep(1500);
-    // Twice the size: the picture made 512 by 384, the window around it growing by as much.
     SwingUtilities.invokeAndWait(() -> {
       Component picture = ((com.fpetrola.oozx.speccy.windows.MachineWindow) machine[0]).picture();
       machine[0].setSize(machine[0].getWidth() + 512 - picture.getWidth(), machine[0].getHeight() + 384 - picture.getHeight());
       machine[0].validate();
     });
     Thread.sleep(2000);
-    for (String board : boards) SwingUtilities.invokeAndWait(() -> {
-      String[] nameAndSide = (board + ":BOTTOM").split(":");
-      JInternalFrame window = desk.window(nameAndSide[0]);
-      if (window instanceof com.fpetrola.oozx.speccy.windows.AttachedFrame clipped)
-        clipped.attachTo(machine[0], com.fpetrola.oozx.speccy.windows.AttachedFrame.Dock.valueOf(nameAndSide[1]));
-      // Beside the machine, as tall as it and as wide as the desk leaves: big enough to watch the paper come out.
-      if ("RIGHT".equals(nameAndSide[1])) window.setSize(420, machine[0].getHeight());
-    });
+    return machine[0];
   }
 
   /** Not a clip: the hand goes round a square and back, and the machine's picture is kept at every corner. */
@@ -301,6 +307,38 @@ public class Film {
     choose(over(across, down));
     look(3500);
     outAndBack();
+  }
+
+  private static final List<JInternalFrame> machines = new java.util.ArrayList<>();
+
+  /** Those files each in a machine of its own, two by two across the desk, and only the last one heard. */
+  private static void machines(String... files) throws Exception {
+    Thread.sleep(6000);
+    for (String file : files) {
+      Dimension each = machines.isEmpty() ? new Dimension() : machines.get(0).getSize();
+      machines.add(machine(new File(file), 6 + machines.size() % 2 * (each.width + 6), 6 + machines.size() / 2 * (each.height + 6)));
+    }
+    SwingUtilities.invokeAndWait(() -> {
+      for (Window window : Window.getWindows())
+        if (inside(window, JButton.class, "OK") instanceof JButton ok) ok.doClick();
+    });
+    SwingUtilities.invokeAndWait(() -> {
+      for (JInternalFrame quiet : machines.subList(0, machines.size() - 1))
+        ((AbstractButton) inside(quiet, AbstractButton.class, "Mute Sound")).doClick();
+    });
+  }
+
+  /** Several machines at once, each its own: the first sent to full speed and back, the third paused and let go on. */
+  private static void six() throws Exception {
+    look(3000);
+    press(at(inside(machines.get(0), AbstractButton.class, "Full speed - right-click for a speed")));
+    look(5000);
+    press(at(inside(machines.get(2), AbstractButton.class, "Pause")));
+    look(3500);
+    press(at(inside(machines.get(0), AbstractButton.class, "Full speed - right-click for a speed")));
+    look(2500);
+    press(at(inside(machines.get(2), AbstractButton.class, "Continue")));
+    look(4000);
   }
 
   /** The µSpeech saying each key as it is typed, and then saying what is written beside it, in Spanish. */
