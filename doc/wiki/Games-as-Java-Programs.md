@@ -64,6 +64,43 @@ captures above (Dynamite Dan in a debugger, Everyone's a Wally) are from the fir
 It is Java. You can set a breakpoint in it, watch a variable, profile it, step through the frame in which
 Willy dies.
 
+## The games so far
+
+Counted from the translator's own catalogue and the sources it wrote, on 18 November 2026. The list grows; this table is made from the catalogue, not kept by hand.
+
+| Game | Lines of Java | Routines |
+|---|---:|---:|
+| Batman The Movie (128K) | 20,685 | 178 |
+| Bomb Jack | 31,233 | 120 |
+| Bruce Lee | 17,261 | 114 |
+| Dizzy | 16,802 | 169 |
+| Dynamite Dan | 18,778 | 145 |
+| Dynamite Dan II | 20,980 | 114 |
+| Emlyn Hughes International Soccer | 54,853 | 422 |
+| Equinox | 24,748 | 184 |
+| Everyone's a Wally | 19,267 | 119 |
+| Exolon | 29,097 | 212 |
+| Fairlight | 16,675 | 109 |
+| Head over Heels | 44,378 | 464 |
+| Jet Set Willy | 7,680 | 33 |
+| Manic Miner | 8,510 | 60 |
+| Monty on the Run | 23,712 | 190 |
+| Movie | 28,823 | 241 |
+| Quazatron | 31,297 | 137 |
+| R-Type | 28,032 | 248 |
+| Rainbow Islands | 51,547 | 445 |
+| Renegade | 23,091 | 157 |
+| Renegade (128K) | 40,713 | 310 |
+| Saboteur! | 25,868 | 90 |
+| Sir Fred | 58,194 | 606 |
+| Skool Daze | 52,664 | 228 |
+| Target: Renegade (128K) | 29,463 | 245 |
+| The Great Escape | 36,095 | 205 |
+| The Lords of Midnight | 30,773 | 194 |
+| Turbo Esprit | 58,947 | 495 |
+| Zynaps | 28,242 | 177 |
+| **29 games** | **878,408** | **6,411** |
+
 ## How it is done
 
 1. **Symbolic execution** (`se`) runs the game with nobody playing: an `InstructionSpy` sits on
