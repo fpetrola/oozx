@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.github.fpetrola.oozx</groupId>
         <artifactId>devices</artifactId>
-        <version>0.1.3</version>
+        <version>0.1.4</version>
     </parent>
 
     <artifactId>devices-kit</artifactId>
