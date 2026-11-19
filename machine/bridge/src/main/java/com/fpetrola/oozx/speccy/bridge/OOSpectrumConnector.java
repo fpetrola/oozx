@@ -24,7 +24,6 @@ import com.fpetrola.oozx.speccy.bridge.EmulatorCommand;
 import com.fpetrola.oozx.speccy.modules.sound.JavaSoundDevice;
 import com.sun.jna.Memory;
 import com.sun.jna.NativeLong;
-import com.sun.jna.Pointer;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -108,15 +107,12 @@ public class OOSpectrumConnector {
     aCore.retro_set_audio_sample((l, r) -> {
     });
     aCore.retro_set_audio_sample_batch((data, frames) -> {
-      Pointer pointer = data.getPointer();
-      double[] shortArray = pointer.getDoubleArray(0, (int) frames);
-      remoteData.add(shortArray);
-//      System.out.println("remote:" + Arrays.toString(shortArray));
-      int[] intArray = new int[shortArray.length];
-      for (int i = 0; i < shortArray.length; i++) {
-        intArray[i] = (int) shortArray[i];
-      }
-      javaSoundDevice.play(intArray, shortArray.length);
+      short[] stereo = data.getPointer().getShortArray(0, (int) frames * 2);
+      int[] left = new int[(int) frames];
+      for (int i = 0; i < left.length; i++)
+        left[i] = stereo[i * 2];
+      remoteData.add(java.util.Arrays.stream(left).asDoubleStream().toArray());
+      javaSoundDevice.play(left, left.length);
       return frames;
     });
     aCore.retro_set_input_poll(() -> {

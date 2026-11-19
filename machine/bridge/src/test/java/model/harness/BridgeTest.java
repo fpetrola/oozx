@@ -17,7 +17,9 @@
 
 package model.harness;
 
+import com.fpetrola.oozx.Speccy;
 import com.fpetrola.oozx.speccy.bridge.DefaultCommandHandler;
+import com.fpetrola.oozx.speccy.bridge.LibretroCore;
 import com.fpetrola.oozx.speccy.bridge.SpeccyBaseForTests;
 import model.connected.ConnectedInterface1;
 import model.connected.ConnectedMemory;
@@ -29,6 +31,8 @@ import model.interfaces.IMicrodrive;
 import model.interfaces.ISpectrumBus;
 import model.interfaces.IZ80CPU;
 import model.interfaces.IZXInterface1;
+import java.util.function.Supplier;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -51,7 +55,7 @@ public abstract class BridgeTest {
 
   @BeforeAll
   public static void connectTheMachine() {
-    testDriver = new TestDriver(DefaultCommandHandler.createCommandHandler(SpeccyBaseForTests.createSpeccy()));
+    testDriver = new TestDriver(DefaultCommandHandler.createCommandHandler(theReferenceOr(SpeccyBaseForTests::createSpeccy)));
     bus = new ConnectedSpectrumBus(new ConnectedMemory(testDriver), new ConnectedULA(testDriver), testDriver);
     interface1 = new ConnectedInterface1(testDriver);
     microdrive = new ConnectedMicrodrive(testDriver);
@@ -59,6 +63,11 @@ public abstract class BridgeTest {
     interface1.connectMicrodrive(microdrive);
     cpu = new ConnectedZ80CPU(testDriver);
     bus.getULA().setScreenActive(true);
+  }
+
+  /** Fuse when the run was given one, so the same tests say what the reference does; our machine otherwise. */
+  private static LibretroCore theReferenceOr(Supplier<Speccy> ours) {
+    return LibretroCore.INSTANCE != null ? LibretroCore.INSTANCE : DefaultCommandHandler.over(ours.get());
   }
 
   @BeforeEach

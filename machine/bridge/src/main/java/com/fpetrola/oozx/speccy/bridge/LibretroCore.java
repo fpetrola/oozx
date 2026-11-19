@@ -28,8 +28,8 @@ public interface LibretroCore extends Library {
   int retro_get_beam_x();
   int retro_get_beam_y();
 
-//  LibretroCore INSTANCE = Native.load("/home/fernando/detodo/desarrollo/m/zx/emus/fuse-libretro/fuse_libretro.so", LibretroCore.class);
-  LibretroCore INSTANCE = null;
+  /** Fuse itself, where {@code -Doozx.fuse} says its libretro core built with the bridge is. */
+  LibretroCore INSTANCE = System.getProperty("oozx.fuse") == null ? null : Native.load(System.getProperty("oozx.fuse"), LibretroCore.class);
 
   void retro_init();
 

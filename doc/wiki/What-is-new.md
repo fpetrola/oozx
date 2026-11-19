@@ -4,6 +4,7 @@ What arrived, newest first. The rows above the releases are in the code and not 
 
 | When | What | |
 |---|---|---|
+| 19 November 2026 | **Release 0.1.5** | *Fast Loading* ships switched on; `New Machine` and `Pokes` are called that; two pages on how it is made: [The parts, on one page](The-parts) and [A file format is a table](A-file-format-is-a-table) |
 | 19 November 2026 | **Release 0.1.4** | a snapshot is recognised by the memory its processor has in front of it, so what another game left in a bank nobody pages in no longer claims the file → [Your files](Your-files) |
 | 19 November 2026 | **Release 0.1.3** | the four rows below, in the jar |
 | November 2026 | **Drop anything** | a file let go of over the desk is recognised, starts the machine its game needs and opens its card → [Your files](Your-files) |
