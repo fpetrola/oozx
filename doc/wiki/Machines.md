@@ -1,21 +1,14 @@
 # Machines
 
-Twenty-four models, of which the build carries one. A model is a handful of declarations — how it pages,
-which chip draws it, how its ULA measures a frame, which ROM it runs — and the machine is built from them;
-that is why there are twenty-four rather than a special case each. It is also why every one of them except
-the 48K is a jar you add: the 128 and the +2, Amstrad's three, the 16K and the American 48K, and each
-family of clones, with its ROMs inside. A machine that arrives that way runs on the generated core like any
-other, because the fast core is specialised over the model's structures and not over a list of machines.
-[Extending OOZX](Extending-OOZX) is how to write one.
-
-![Manic Miner on a 48K, drawn as the beam passes](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/manic-miner.png)
+The twenty-four models, one by one, and what a model is made of. The tour of them is
+[The machines, and yours](The-machines-and-yours).
 
 ## Sinclair and Amstrad
 
 | Model | What it is here |
 |---|---|
 | **Spectrum 16K** | The one Sinclair sold first: a 48K with three quarters of its memory missing, so everything above `0x7FFF` is bus and nothing else |
-| **Spectrum 48K** | The machine. Contention per T-state, floating bus, issue 2 / issue 3 keyboard |
+| **Spectrum 48K** | The machine. Contention per T-state, floating bus, issue 2 or issue 3 keyboard |
 | **Spectrum 48K (NTSC)** | The same, where the mains gives sixty cycles: a shorter frame |
 | **Spectrum 128K** | Paging on `0x7FFD`, the AY, the second ROM |
 | **Spectrum +2** | The 128 in grey, with its own ROMs |
@@ -31,10 +24,10 @@ other, because the fast core is specialised over the model's structures and not 
 | **Timex TS2068** | The same machine sold in America: fifty lines fewer, a slightly faster crystal, its own ROM |
 | **Spectrum SE** | A 128 with a Timex display chip and cartridge slots holding RAM, so both kinds of paging are live at once and meet in one odd page at the top |
 | **Chloe 140SE / 280SE** | The SE as its designer went on with it: ULAplus's sixty-four colours, and a register that asks the machine to run faster than it was built to |
-| **Chrome** | A 128 with two more pages, two more ROMs and a port of its own — and one bit that puts all of it away and leaves a 128 behind |
+| **Chrome** | A 128 with two more pages, two more ROMs and a port of its own, and one bit that puts all of it away and leaves a 128 behind |
 | **Pentagon** | Contends nothing, decodes its ports fully, has no floating bus |
 | **Pentagon 512K** | Five bits of page number where the port has three: the two missing ones are bits a 128 never decoded |
-| **Pentagon 1024K** | A megabyte, by four more bits and a second port — which also says how to read the first, so the machine can become a later revision of itself |
+| **Pentagon 1024K** | A megabyte, by four more bits and a second port, which also says how to read the first, so the machine can become a later revision of itself |
 | **Scorpion ZS 256** | A quarter of a megabyte through the two ports a +3 has, read differently: one bit puts page zero at the bottom, one picks a ROM of its own, one is simply a fourth page bit |
 
 ## The ones somebody's country made
@@ -43,12 +36,7 @@ other, because the fast core is specialised over the model's structures and not 
 |---|---|
 | **Microdigital TK90X / TK95** | Brazil. A 48K with a ROM of its own, where the accents and the different messages live |
 | **Czerweny CZ Spectrum / CZ Spectrum Plus** | Argentina. A 48K down to the ROM. Here because a machine that was sold is a machine |
-| **Inves Spectrum+** | Spain. A 48K "in the way a copy of a drawing is the drawing": 64 K of RAM with the ROM over the first 16, so a program reads the ROM and writes underneath it; no contention anywhere; an unanswered port reads as all ones |
-
-![The model combo, open](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/model-combo.png)
-
-*Changing the machine is choosing it in the status bar. The list is the machines themselves, asked what they
-are called.*
+| **Inves Spectrum+** | Spain. A 48K in the way a copy of a drawing is the drawing: 64 K of RAM with the ROM over the first 16, so a program reads the ROM and writes underneath it; no contention anywhere; an unanswered port reads as all ones |
 
 ## Each one on its own ROM
 
@@ -60,60 +48,51 @@ Every one of these booted for 320 frames and had its picture taken, with nothing
 | ![A 48K booting](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/boot-spec48.png) | ![A 128K booting](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/boot-spec128.png) |
 | **Spectrum +2** | **Spectrum +2A** |
 | ![A +2 booting](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/boot-specplus2.png) | ![A +2A booting](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/boot-specplus2a.png) |
-| **Spectrum +3** — *Drives A:, B: and M: available* | **Spectrum +3e** — Garry Lancaster's loader, and the IDE count |
+| **Spectrum +3**: *Drives A:, B: and M: available* | **Spectrum +3e**: Garry Lancaster's loader, and the IDE count |
 | ![A +3 booting](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/boot-specplus3.png) | ![A +3e booting](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/boot-specplus3e.png) |
-| **Pentagon** — a 128's menu on a machine that contends nothing | **Spectrum SE** |
+| **Pentagon**: a 128's menu on a machine that contends nothing | **Spectrum SE** |
 | ![A Pentagon booting](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/boot-pentagon.png) | ![An SE booting](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/boot-specse.png) |
-| **Timex TC2048** | **Timex TC2068** — its own screen, behind a cartridge slot |
+| **Timex TC2048** | **Timex TC2068**: its own screen, behind a cartridge slot |
 | ![A TC2048 booting](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/boot-tc2048.png) | ![A TC2068 booting](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/boot-tc2068.png) |
 
-The 16K boots the 48K's screen with three quarters of its memory missing, and the Pentagon 512 and 1024 the
-Pentagon's; the Chloe machines boot the SE's. The five that are not here — Scorpion, TK90X, TK95, Inves and
-Chrome, and the CZ Spectrum Plus, which runs the same Spanish ROM Investronica put in theirs — stop with
-*"couldn't find ROM"* until somebody fetches one, which is the next section.
+The 16K boots the 48K's screen, the Pentagon 512 and 1024 the Pentagon's, and the Chloe machines the SE's.
+The Scorpion, the TK90X, the TK95, the Inves, the Chrome and the CZ Spectrum Plus run on ROMs that do not
+ship: they are fetched the first time, once you say yes. The Pentagons boot on the 128's ROMs, which ship;
+the Beta 128 built into them needs `trdos.rom`, which does not. → [Peripherals](Peripherals)
 
-## What a model actually is
+## What a model is
 
-Four declarations and no switch statements anywhere else:
+Four declarations, and no `switch` on the model anywhere else:
 
-- **How it pages.** `Paging128` (`0x7FFD`), `PagingPlus3` (`0x1FFD`), or a pager of the machine's own. The
-  memory is a 2 KB page table with a `contended` flag per page, so "banking" is mutating that table.
-- **Which chip draws it.** A ULA with partial decoding, one with full decoding (Pentagon), or an SCLD —
-  which brings a second display file, hi-res and hi-colour. What the Timex and the Pentagon share turned out
-  not to be a device but *a class of painting*: the one with no attributes in it.
-- **How its ULA measures a frame.** `MachineTimings` is a record: the processor's clock in Hz and a `Frame`
-  — a line as four spans (border, picture, border, retrace), a frame as lines the same way, how long `/INT`
-  is held, and the T-state of the first pixel *as measured*, not as computed.
-- **Which ROMs.** Per machine, and per **ROM set**: a 48K in English or Spanish, a +2 in French, a +3 at
-  version 4.0 or 4.1, a TK90X in Portuguese. The same machine with other ROMs in it is not another machine,
-  so it is a list of its own.
+- **How it pages.** The 128's way through `0x7FFD`, the +3's through `0x1FFD`, or a pager of the machine's
+  own. Memory is a table of 2 KB pages with a *contended* flag on each, so banking is changing that table.
+- **Which chip draws it.** A ULA that decodes its ports partially, one that decodes them fully (the
+  Pentagon), or the Timex's SCLD, which brings a second display file, hi-res and hi-colour.
+- **How its ULA measures a frame.** The processor's clock in Hz, a line as four spans (border, picture,
+  border, retrace), a frame as lines the same way, how long the interrupt is held, and the T-state of the
+  first pixel *as measured*, not as computed.
+- **Which ROMs.** For each machine, and for each **ROM set**: a 48K in English or Spanish, a +2 in French,
+  a +3 at version 4.0 or 4.1, a TK90X in Portuguese. The same machine with other ROMs in it is not another
+  machine.
 
-Every machine is then asked the same questions by the same tests — what it is called, which ROMs it runs,
-which ports answer on it, what its contention table says, whether the screen follows the beam, whether a
-snapshot picks it correctly. That is `machine/machines`: 65 classes and 44 test classes.
+Every machine is then asked the same questions by the same tests.
+→ [How right, and how we know](How-right-and-how-we-know)
 
-## ROMs this build cannot ship
+Only the 48K is part of the emulator. Every other model is a plugin with its ROMs, and runs on the fast core
+like any other, because the fast core is made from the model's structures and not from a list of machines.
 
-![The emulator asking before fetching a ROM](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/rom-asking.png)
+## ROMs that do not ship
 
-![Switching to a Scorpion, which fetches its ROMs and boots on them](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/rom-fetch.gif)
+For a ROM that is not mine to distribute, the plugin that brings the machine declares **where the ROM is
+published and what its SHA-256 has to be**, and, for an archive that publishes a whole chip image, where
+inside it the ROM starts. Twenty-seven ROMs are declared that way.
 
-*Choosing the Scorpion in the model box: it says which three ROMs it needs and where they are published,
-fetches them once you say yes, and the machine comes up on its own ROM — "© 1992 Scorpion ZS 256".*
+The emulator asks first, fetches from whoever publishes it, shows the download as it arrives, and keeps the
+copy under `~/.oozx/roms`. A kept copy is trusted only while it still matches its hash. Which ROMs do ship,
+and on whose terms, is on [Legal](Legal).
 
-Some machines' ROMs are not ours to distribute. For those the configuration declares **where the ROM is
-published, what its SHA-256 must be**, and, for archives that publish a whole chip image, where inside it
-the ROM starts. The emulator asks first, fetches from whoever publishes it, shows the download as it
-arrives, and keeps the copy under your home directory. A kept copy is trusted only while it still matches
-its hash. Twenty-seven such sources are declared.
+## Switching
 
-## Switching machines
-
-The model combo in a machine's status bar changes the machine. Putting a machine in **is** switching it on:
+The box at the foot of a machine's window changes the machine. Putting a machine in **is** switching it on:
 it finds its own memory rather than the last one's. A snapshot says which machine it was taken on and that
-machine is what it loads onto; a TZX that declares its hardware gets that hardware.
-
-## Where this lives
-
-`machine/machines` (the models), `machine/core/.../speccy/machine` (`AbstractSpectrumMachine`, `Paging*`,
-`MachineTimings`, `Roms`), `machine/core/src/main/resources/roms` (the ROMs and `README.copyright`).
+is the machine it goes onto, and a recognised game brings the machine the catalogue says it was made for.

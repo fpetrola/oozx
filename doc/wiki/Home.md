@@ -1,108 +1,126 @@
 # OOZX
 
-**A ZX Spectrum emulation environment, object-oriented all the way down to the Z80.**
+**The ZX Spectrum desk.** As many Spectrums as you like, forty years of hardware you plug in by hand, and
+the whole catalogue a search away.
+
+> **Clip** · the trailer: the five moments below, one after another, with the machine's own sound and no
+> voice. (`trailer`, to cut from the clips)
 
 ![A desk filling up: two machines and the keyboard window](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/desk-now.gif)
 
-A desktop where you run as many Spectrums as you like, plug real hardware into them by hand, pull games
-straight from the catalogue, and run them at hundreds of times real time. Underneath, a machine model made
-entirely of objects — which is what makes all of that cheap to build, possible to extend, and, unexpectedly,
-fast: a second processor core is *generated* from the model and runs 4.3× the model it came from.
+OOZX is a ZX Spectrum emulator built as a desk. Machines, drives, printers and tape decks are windows on it,
+and where a window sits is what it is plugged into. It knows which game you are running, from what is in the
+file and not from its name, so the pokes, the maps and other people's recordings come with it. Underneath,
+the Spectrum is made of objects down to the Z80, and the fast core is generated from that model.
 
----
+## Get it
 
-## Start here
+Download `oozx-<version>.jar` from the [latest release](https://github.com/fpetrola/oozx/releases/latest)
+and run it with Java 21 or newer. Everything is inside.
 
-| | |
-|---|---|
-| **[Everything it does](Features)** | **The whole thing in pictures: every feature, and what it looks like** |
-| [Getting Started](Getting-Started) | Download it, run it, load your first game |
-| [The Desktop](The-Desktop) | Many machines on one desk, windows you clip together, a session that comes back |
-| [Machines](Machines) | Twenty-four models, from a 16K to a Pentagon 1024 |
-| [Peripherals](Peripherals) | More than two dozen devices, each a window you clip onto a machine to plug it in |
+```bash
+java -jar oozx-<version>.jar
+```
 
-## What the machine does
+Windows, macOS and Linux. → [Your first five minutes](Your-first-five-minutes)
 
-| | |
-|---|---|
-| [Video](Video) | The picture as it came down the lead: RGB, Scart, composite, aerial, phosphor, scalers |
-| [Sound](Sound) | Beeper, AY, Melodik, Fuller, Covox, SpecDrum — and sound as the thing that sets the pace |
-| [Input and Keyboard](Input-and-Keyboard) | The matrix, the on-screen 48K, joysticks, a gamepad, the Kempston mouse |
-| [Tapes, Disks and Snapshots](Tapes-Disks-and-Snapshots) | Every format it reads and writes, the cassette deck, a real cassette through the sound card |
-| [Spec256 — 256 colours](Spec256-256-Colours) | Nine Z80s in lockstep, so a 1984 game plays in 256 colours |
-| [Games: catalogue and library](Games-Catalogue-and-Library) | ZXInfo inside the emulator, 4,922 games fingerprinted, 3,683 pokes |
-| [Recordings (RZX)](Recordings-RZX) | Watch somebody else's playthrough, then take the machine over mid-replay |
+## Five things to see first
 
-## How it is built
+**1. Any name. The right game.**
+Drop a file called `cinta3.tzx` on the desk. The machine that game needs starts loading it, and beside it a
+card unfolds with everything there is about it: its screens, its maps, its pokes, other people's recordings.
+It was recognised by what is inside the file. → [Your files](Your-files)
 
-| | |
-|---|---|
-| [Architecture](Architecture) | Objects down to the instruction; one concept, one owner, one module |
-| [The Generated Core](The-Generated-Core) | A partial evaluator flattens the model into a second core |
-| [Performance](Performance) | 15,256 fps on a laptop, with sound and screen on — every number and how it was taken |
-| [Correctness and Tests](Correctness-and-Tests) | 1,355 vectors, 131,072 ALU combinations, and Fuse's real core behind the same interface |
-| [Games as Java programs](Games-as-Java-Programs) | A separate tool built on this model: it turns some games into Java, and the list grows |
-| [Extending OOZX](Extending-OOZX) | A peripheral is a few dozen lines and two service files |
-| [Tools and Debugging](Tools-and-Debugging) | Debugger, sprite viewer, map, poke finder, heatmap, memory map, trace, ports |
-| [Limits and what is not there](Limits-and-what-is-not-there) | The honest list |
+> **Clip** · `any-name`, filmed
 
----
+**2. Type a name. Play.**
+Open the game browser, type `dizzy`, double-click. A machine appears, `LOAD ""` types itself, and the game's
+pokes are already there. → [Any game, a name away](Any-game-a-name-away)
 
-## What you can do here
+> **Clip** · `type-a-name`, filmed
 
-- **Run several Spectrums at once.** Each window is its own machine, with its own model, speed, sound and
-  pokes. Quit, reopen, and they come back running where they were.
+**3. Drag it on. It is plugged in.**
+The Art Studio is running. Drag the Kempston Mouse's window against the machine and draw; drag the ZX
+Printer's and print what you drew. No dialog, no checkbox. → [The catalogue of peripherals](The-catalogue-of-peripherals)
 
-  ![Three machines at three speeds](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/desk-tiled.png)
-- **Plug hardware in by hand.** Two dozen peripherals, each a window. Clip it onto a machine to connect it,
-  unclip to disconnect. Drive bays with motor lights, disks you insert, flip and write-protect, the Multiface's
-  red button, the ZX Printer's paper, the Interface 1's RS-232 terminal.
-- **Play a 1984 game in 256 colours.** Spec256 graphics packs, run by nine processors in lockstep, over
-  photographic backgrounds — the same game, the same machine, twice:
+> **Clip** · `art-colour`, filmed
 
-  ![Jet Set Willy in Sinclair colours and in 256](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/jsw-side-by-side.gif)
-- **Play from the catalogue, no files.** Search ZXInfo.dk, filter by machine and genre, load a title into a
-  new machine. It picks the right file out of the archive and the right model from the tape.
-- **Let it recognise what you already have.** Point it at your collection and every file says which game it
-  is — by content, not by filename — so pokes, maps and details follow a file called `RENE256.SNA`.
-- **Watch a recorded playthrough, then take over.** Recordings from ZXInfo and the RZX Archive, several
-  playing side by side, and a button that hands you the machine mid-replay.
-- **Run at 300 times real time**, with sound and screen on, on a laptop. A speed dial from 25 % to 40,000 %,
-  paced by the sound card so it never stutters.
-- **Load from a real cassette player** through the sound card, with a live oscilloscope. Or use the tape deck
-  per machine: audible loading, auto-load at 20,000 %.
-- **See the picture as it came through the lead:** RGB, Scart, composite or aerial, with phosphor,
-  persistence and scan lines, up to xBRZ scaling, saved as named profiles.
-- **Change the processor while the machine runs.** Object model, generated core, or the nine of Spec256 —
-  the same machine, mid-game.
+**4. Somebody else's playthrough, and then yours.**
+A recording gets through the screen you never could. Press *Take Over* and the machine is yours, from that
+frame. → [Recordings and Take Over](Recordings-and-Take-Over)
 
-## And everything you expect
+> **Clip** · `take-over`, filmed
+
+**5. An hour in twelve seconds.**
+Manic Miner at three hundred times its speed, with sound and picture on.
+→ [How fast, and how we know](How-fast-and-how-we-know)
+
+> **Clip** · `an-hour`, filmed
+
+## Four nothings
 
 | | |
 |---|---|
-| Machines | 16K, 48K PAL and NTSC, 128K, +2, +2A, +3, +3e, Pentagon 128/512/1024, Timex TC2048/TC2068/TS2068, Spectrum SE, Scorpion ZS 256, and seven clones |
-| Tapes and disks | TAP, TZX, CSW, PZX; DSK, TRD, SCL, MGT, IMG, OPD, D40/D80; HDF and SD images; Microdrive and ROM cartridges |
-| Snapshots and recordings | Z80, SNA, SZX, SP read and written; RZX read, written and replayed |
-| Sound | beeper, AY-3-8912 with band-limited synthesis, Melodik, Fuller Box, Covox, SpecDrum |
-| Video | contention per T-state, attribute and border changes drawn where the beam was, Timex hi-res and hi-colour, ULAplus |
-| Input | Cursor, Kempston, Sinclair, Timex and Fuller joysticks, physical gamepads, Kempston Mouse, Recreated ZX |
-| Storage and tools | Beta 128, +D, DISCiPLE, Opus, Didaktik, DivIDE, DivMMC, ZXATASP, ZXCF, ZXMMC, Interface 1 and 2, Multiface One/128/3, ZX Printer, parallel port |
+| **Nothing to find** | The game arrives with what belongs to it. The catalogue is inside, with 5,000 games in the jar and the rest a search away; pokes for 3,612 games; 4,291 recordings catalogued; 4,922 games recognised from their contents |
+| **Nothing to set up** | What you see is what there is. A window is a machine. Clipping a peripheral on is plugging it in. Settings belong to the window they are clipped to. Quit, and the desk comes back as it was |
+| **Nothing to wait for** | Speed pays for everything else: 15,256 frames a second with sound and picture on, a tape that can run flat out, nine Z80s at once and still faster than a Spectrum |
+| **Nothing hidden** | Everything can be looked at, changed or added. Three cores you can switch between while a game runs; seventy-five plugins in the jar and room for yours; 1,356 test vectors that both cores pass; and a page of [limits](Limits) |
 
-## Why it can do that
+Two things make those possible. **It knows which game is running**: game, file and machine. And it is
+**objects down to the Z80**: every part can be replaced.
 
-Three sentences, each with a page behind it:
+## Eight things you will never do again
 
-1. **The Z80 is made of objects** — every instruction, operand and register is an object you can execute,
-   inspect, clone or replace on its own. That is why a game's code can be *analysed* and not only run, and why
-   tracing, profiling and a debugger come for free. → [Architecture](Architecture)
-2. **A fixed object graph is exactly what a partial evaluator wants.** The model is read by a generator that
-   flattens it into one class with no objects on the hot path, written by the build and re-generated when the model changes,
-   passing the same test batteries. → [The Generated Core](The-Generated-Core)
-3. **One concept, one owner, one module.** A peripheral is a jar with a service file; the core never names a
-   device; the compiler enforces who may know whom. Twenty-four devices landed that way, most of them in two
-   days. → [Extending OOZX](Extending-OOZX)
+| Never again | Because | The small print |
+|---|---|---|
+| **Look for a ROM** | a machine says which ROM it needs and who publishes it, asks, fetches it and checks it byte for byte | twenty-seven such ROMs. Some peripherals' ROMs you still supply → [Peripherals](Peripherals) |
+| **Unzip an archive and guess which file is the game** | it picks the file inside, by score | |
+| **Type `LOAD ""`** | it types it | the tape then plays at its own speed until you tick *Fast Loading* |
+| **Rename your collection** | every file is recognised by what is inside it | a 128K snapshot can fool it |
+| **Hunt for pokes on a website** | the pokes of 3,612 games come with it, matched to the game that is loaded; and the poke finder finds the one that is missing | |
+| **Open an options dialog to plug something in** | you drag the peripheral's window against the machine | the Melodik is the exception: it is fitted in the settings |
+| **Lose your place when you quit** | every machine comes back running where it was | whether each peripheral comes back holding what it held has not been checked one by one |
+| **Choose the machine for a game** | a recognised game brings the machine it was made for, and a snapshot the one it was taken on | |
 
----
+## Why it all fits
 
-Licensed under the GNU General Public License, version 3 or later.
-Source: [github.com/fpetrola/oozx](https://github.com/fpetrola/oozx)
+The clean model is not the price of the fast emulator. It is its source.
+
+One decision, objects down to the Z80 with no global state, explains nearly everything above: nine
+processors at once is 256 colours, input swapped for a recording is *Take Over*, a machine that is a graph
+of objects is six machines on one desk, and a model a program can read is a fast core nobody had to write.
+→ [Why it all fits](Why-it-all-fits)
+
+## Three ways in
+
+| | |
+|---|---|
+| **[Play](Your-first-five-minutes)** | [Your first five minutes](Your-first-five-minutes) · [Any game, a name away](Any-game-a-name-away) · [Your files](Your-files) · [Pokes, and finding yours](Pokes-and-finding-yours) · [Recordings and Take Over](Recordings-and-Take-Over) · [The map draws itself](The-map-draws-itself) · [256 colours](256-colours) |
+| **[The desk](The-desk)** | [The desk](The-desk) · [The machines, and yours](The-machines-and-yours) · [The catalogue of peripherals](The-catalogue-of-peripherals) · [Tape, real and virtual](Tape-real-and-virtual) · [The picture, by lead](The-picture-by-lead) · [Sound and controls](Sound-and-controls) · [It talks](It-talks) |
+| **[Under the hood](Why-it-all-fits)** | [Why it all fits](Why-it-all-fits) · [The fast core](The-fast-core) · [How fast](How-fast-and-how-we-know) · [How right](How-right-and-how-we-know) · [The game lab](The-game-lab) · [The translator](The-translator) · [Build a peripheral](Build-a-peripheral) · [The rules of the code](The-rules-of-the-code) |
+
+And to look things up: [Machines](Machines) · [Peripherals](Peripherals) · [Formats](Formats) ·
+[Shortcuts](Shortcuts) · [Plugins](Plugins) · [Building from source](Building-from-source) ·
+[Questions](Questions) · [Limits](Limits) · [Network and privacy](Network-and-privacy) · [Legal](Legal) ·
+[What is new](What-is-new)
+
+## The Spectrum of your country
+
+![The keyboard window](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/keyboard-only.png)
+
+Twenty-four machines, and among them the ones somebody's country made: the Czerweny CZ Spectrum from
+Argentina, the TK90X and TK95 from Brazil, the Inves Spectrum+ from Spain, the Pentagon and the Scorpion
+from Russia, the Timex machines from Portugal and the United States.
+→ [The machines, and yours](The-machines-and-yours)
+
+## Thanks
+
+To the [Fuse](https://fuse-emulator.sourceforge.net/) authors, whose test vectors both cores here pass and
+whose real core settles my arguments. To Cristian Dinu, for the
+[decoding of the Z80 opcode byte](http://www.z80.info/decoding.htm). To Peter Jakubčo's
+[emuStudio](https://www.emustudio.net/), for its test suite. To [ZXInfo.dk](https://zxinfo.dk/),
+[ZXDB](https://github.com/zxdb/ZXDB) and the [RZX Archive](https://www.rzxarchive.co.uk/), for the
+catalogues, and to the people who found the pokes.
+
+Free software, under the GNU General Public License, version 3 or later.
+Source: [github.com/fpetrola/oozx](https://github.com/fpetrola/oozx) · [Legal](Legal)

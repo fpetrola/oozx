@@ -1,141 +1,83 @@
 # Peripherals
 
-Twenty-four devices. Each one is a Maven module, a jar and two one-line service files; each one is a window
-on the desk; and **clipping that window onto a machine's window is what plugs the device in**. Unclip it and
-it is unplugged. Carry it to another machine and it is that machine's now.
+Every peripheral, with the machines it fits and the ROM it needs. What each one was and what it does here
+is on [The catalogue of peripherals](The-catalogue-of-peripherals).
 
-![Drawing in the Art Studio with the Kempston Mouse and printing it on the ZX Printer](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/multi-devices.gif)
+All of them are under `Emulator → Equipment`, and clipping a peripheral's window onto a machine is what
+plugs it in.
 
-*Two boards on one machine, doing what they were for: the OCP Art Studio loaded, the Kempston Mouse clipped
-on — its label turns from "not plugged into a machine" to "over the machine's picture" — a drawing made with
-it, and then the ZX Printer clipped on as well, printing that drawing onto its paper.*
+## Which machine, which ROM
 
-![Dragging the Kempston Mouse window onto a machine plugs it in](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/clipping.gif)
+A peripheral says which machines it fits, and it will not plug into another. Three rules cover most of them:
 
-*The Kempston Mouse, dragged across the desk and let go against the machine. Watch its label: "not plugged
-into a machine" becomes "over the machine's picture" the moment it snaps.*
+- **48K-like**: a machine without the 128's paging, such as the 16K, the 48K and its clones.
+- **Not on the Amstrad ones**: any machine except those that page through `0x1FFD` (the +2A, the +3, the +3e,
+  the Scorpion) and those that decode their ports fully (the Pentagons).
+- **Any**: every machine.
 
-The whole set is 8,305 lines of Java, licence headers not counted. The smallest, ZXMMC, is 44 lines in three
-files. Most of the historical expansion hardware landed in a single sweep of about two days.
+Some peripherals had a ROM of their own. Where that ROM can be shipped, it is. Where it cannot, you supply
+it: either from a button on the peripheral's window, or by putting the file in `~/.oozx/roms/` under the name
+given here. A window that is missing its ROM says `no ROM` and which file it wants.
 
-## What is there
+| Peripheral | Fits | Its ROM |
+|---|---|---|
+| **ZX Printer** | 48K-like | none |
+| **Parallel printer** | the Amstrad ones, and machines with the 128's sound chip | none |
+| **Kempston Mouse** | any | none |
+| **Joystick** | any | none |
+| **Currah µSpeech** | 48K-like | two of 2K, yours, chosen on its window |
+| **Currah µSource** | not on the Amstrad ones | 8K, yours, chosen on its window |
+| **Fuller Box** | 48K-like | none |
+| **SpecDrum** | not on the Amstrad ones | none |
+| **Covox** | the Pentagons | none |
+| **Melodik** | machines with no sound chip of their own | none. Fitted under `Emulator → Settings... → Audio`, not from a window |
+| **Interface 1** | not on the Amstrad ones | yours: `if1-2.rom` |
+| **Interface 2** | not on the Amstrad ones | none; the cartridge is the ROM |
+| **Beta 128** | not on the Amstrad ones. Built into the Pentagon | yours: `trdos.rom` |
+| **+D** | not on the Amstrad ones | ships |
+| **DISCiPLE** | 48K-like | ships |
+| **Opus Discovery** | not on the Amstrad ones | yours: `opus.rom` |
+| **Didaktik 40 / 80** | 48K-like | yours: `didaktik80.rom` |
+| **DivIDE** | not on the Amstrad ones | an 8K EPROM, yours, chosen on its window |
+| **DivMMC** | not on the Amstrad ones | an 8K EPROM, yours, chosen on its window |
+| **ZXMMC**, **Simple 8-bit IDE** | any | none |
+| **ZXATASP**, **ZXCF** | not on the Amstrad ones | none |
+| **Multiface One** | 48K-like | 8K, yours, chosen on its window |
+| **Multiface 128** | not on the Amstrad ones | 8K, yours, chosen on its window |
+| **Multiface 3** | the Amstrad ones | 8K, yours, chosen on its window |
+| **ULAplus** | any. Built into the Chloe machines | none |
+| **Spec256** | any; its games are 48K snapshots | none → [256 colours](256-colours) |
 
-### Disk and tape interfaces
+## The fronts
 
-| | |
+A peripheral's window is the front of the thing, built from a few shapes they share:
+
+- **A drive bay** for each drive: a slot with a motor lamp, *Insert*, *Eject*, *New*, *Save*, *Flip* and
+  *Write-protect*, a lamp for the paged ROM, the peripheral's own button, and an unfolded view with the track
+  under each head.
+- **A hard disk or card bay** for each disk, where *Save* is what commits.
+- **A sound front** with a level meter and a volume knob.
+- **A bar** that stays when the window is folded, and the rest under it.
+
+## Their settings
+
+`Emulator → Settings...` has what does not belong on a front, a tab at a time:
+
+| Tab | What is there |
 |---|---|
-| **Beta 128** | TR-DOS on a WD1793. Built into the Pentagon, pluggable on a 48K or 128K. Its *Boot* button resets into TR-DOS with the 48 BASIC underneath and boots from drive A |
-| **+D** | The MGT interface, with its NMI button for the snapshot menu, and a printer on its port |
-| **DISCiPLE** | The same family, its own ROM, its own NMI button |
-| **Opus Discovery** | `.opd` and `.opu` images, on what every WD interface shares |
-| **Didaktik 40 / 80** | The Czech interface, with the *SNAP* button: an NMI its ROM takes over to save what is running |
-| **Interface 1** | Eight Microdrives with motor lights, the shadow-ROM lamp, an RS-232 terminal on the desk, and the ZX Net plugs. 1,163 lines, the largest device here |
+| **Audio** | the volume of the Covox, the SpecDrum and the µSpeech; whether the Melodik is fitted |
+| **Storage** | the tape's ear; the +3's drives; the Beta 128's *Boot on 48K* and *Auto boot*; write protection and disks of the DivIDE, the DivMMC, the ZXATASP and the ZXCF |
+| **Peripherals** | the Interface 1's Microdrive length, handshake and network; the Multiface's *Stealth* |
+| **Devices** | the disks of the Simple 8-bit IDE and the ZXMMC |
 
-### Storage cards
+Clipped onto a machine, the settings are that machine's. Left free, they are the defaults.
+→ [The desk](The-desk)
 
-| | |
-|---|---|
-| **DivIDE** | The automapper's EPROM and RAM, an ATA channel over HDF files, the write-protect jumper and the NMI button |
-| **DivMMC** | A card the machine talks to a byte at a time |
-| **ZXMMC** | The same idea, 44 lines of it |
-| **Simple 8-bit IDE**, **ZXATASP**, **ZXCF** | The three IDE/CompactFlash boards, with bays where you insert a disk image and *Save* is the commit |
+## What a peripheral is
 
-### Sound
+A peripheral answers ports on a bus that merges answers the way the real one does: every line that somebody
+pulls low is low, a line nobody drives floats, and what is plugged in answers before the machine's own
+chips. It may also watch the program counter, which is how a ROM pages itself in when the processor reaches
+an address. Whatever its window does reaches the machine on the emulator's own thread.
 
-| | |
-|---|---|
-| **Melodik** | An AY for a machine that has none, so a 48K can hear 128K music |
-| **Fuller Box** | Its AY on `0x3F`/`0x5F` and its joystick on `0x7F`, with a socket and a write light |
-| **Covox** | A DAC on a port, with a level meter and volume |
-| **SpecDrum** | Cheetah's drum machine, the same way |
-| **Currah µSpeech** | The SP0256 speech chip, sample for sample what the reference emulator's makes, and the 2K ROM that flips in and out at `0x0038`, so the Spectrum speaks its keys as you type. On its front: a meter for what it is saying, the allophone last written, the intonation, and a *Say* line — type in English or in Spanish and it spells it out by its sounds, or pick any of the 64 allophones |
-
-### Printers and pointers
-
-| | |
-|---|---|
-| **ZX Printer** | The belt and the paper, the printout drawn as a burn rather than a bitmap, zoomable, tear off, save as PNG |
-| **Parallel printer** | Continuous paper, text out |
-| **Kempston Mouse** | Your desk mouse moves over the picture; *Hold* captures the pointer; sensitivity, swap, record |
-| **Joystick** | Cursor, Kempston, Sinclair 1/2, Timex 1/2 and Fuller, plus a physical gamepad |
-
-![The ZX Printer printing a screen](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/printing.gif)
-
-*`PRINT "OOZX"`, `PLOT 0,0`, `DRAW 255,175`, `COPY` — typed into the machine, and the ZX Printer bringing it
-out a line at a time, drawn as a burn rather than as a bitmap.*
-
-### Cartridges, freezers and the rest
-
-| | |
-|---|---|
-| **Interface 2** | A cartridge takes the place of the ROM, and two joystick sockets |
-| **Multiface One / 128 / 3** | The red button, and what the processor needed for it to work. Three entries in the menu over one window |
-| **ULAplus** | Sixty-four colours a program picks for itself. A machine's palette rather than a board, so plugging it in is what gives a machine those colours. Its own jar, which Chloe's machines bring with them because they have it soldered on |
-| **Spec256** | Nine processors in lockstep and 256 colours — [its own page](Spec256-256-Colours) |
-| **Debugger / Sprite viewer** | [Tools and Debugging](Tools-and-Debugging) |
-
-![The Interface 1 with its eight microdrive bays](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/interface1-microdrives.png)
-
-*The Interface 1, expanded: eight microdrive bays with their motor lamps, and the RxD, TxD and ZX Net files
-for the RS-232 and the network. The machine above it is at its boot screen because plugging in a board that
-brings a ROM resets it — as it would.*
-
-## The front panels
-
-![A machine with the printer, the mouse and a Covox clipped onto it](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/peripherals-clipped.png)
-
-*Manic Miner running with three boards plugged in: the ZX Printer with its paper, the Kempston Mouse with
-its Hold and its sensitivity, and a Covox with its level meter.*
-
-A device window is not a settings dialog. It is the front of the thing:
-
-- A **drive bay** per drive: a media slot with a motor LED, *Insert*, *Eject*, *New*, *Save*, *Flip*,
-  *Write-protect*, a lamp for the paged ROM, the board's own button (*Boot*, *SNAP*, *NMI*, the red one), and
-  an expanded view showing the track under each head.
-- An **IDE bay** per disk, where *Save* is the commit.
-- A **DAC** front with a level meter and a volume knob.
-- The Interface 1 with its eight Microdrives and a terminal window for the RS-232.
-
-Everything a panel does reaches the machine on the emulator's own thread (`z80.later(...)`), never from Swing.
-
-## How a device is found
-
-Two independent `ServiceLoader`s, two one-line files in each jar:
-
-- `Extension` — a Guice module. It contributes the `Peripheral` to a multibinder and, if it has settings, a
-  configuration section. This is what makes the device exist inside a machine.
-- `Equipment` — `name()` and `open()`. This is what puts it in the `Emulator → Equipment` menu and opens its
-  window.
-
-`devices/all` has no source at all: it depends on every plugin jar so that the classpath carries
-every service file, and it is where the tests that need them all live. **The core never names a device.** A device, for
-its part, may use the ULA, the mixer and the clock, and nothing else.
-
-What a machine brings stock — the 128's pager, both ULAs, the +3's FDC, the 128's AY — stays in the core:
-that is not plugged in, that *is* the computer.
-
-## The contract
-
-```java
-public interface Peripheral {
-  void activate(Machine machine);
-  void deactivate();
-  Ports getPorts();
-  boolean fitsOn(Machine machine);
-  boolean isWanted();
-  boolean hasHardReset();
-}
-```
-
-Plus `Pluggable` (`plugIn(connected)`, `isPluggedIn()`) for the ones the window plugs and unplugs. Ports are
-answered on a bus that merges answers the way the real one does — a wired AND with a "driven" flag, the
-floating bus for undriven bits, and plugged-in devices answering before the machine's own chips.
-
-Writing one is [Extending OOZX](Extending-OOZX).
-
-## Where this lives
-
-`devices/<name>` in [oozx-plugins](https://github.com/fpetrola/oozx-plugins) — one module each.
-Here, `machine/devices/kit` holds the window shapes
-(`DriveBayFrame`, `IdeBayFrame`, `DacFrame`) and `machine/devices/ide` the shared ATA code: 2,150 lines of
-infrastructure that the boards share.
+Writing one is [Build a peripheral](Build-a-peripheral).

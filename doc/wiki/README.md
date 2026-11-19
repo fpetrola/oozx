@@ -53,10 +53,26 @@ They therefore appear once `main` carries them. `img/` holds the pictures made f
 The animations under `doc/` (`zxenv1.gif`, `zxenv2.gif`, `jsw1.gif`, `dan-95%.gif`, `wally-90%.gif`) were
 already in the repository.
 
+## How they are laid out
+
+`Home.md` is the front page. `_Sidebar.md` is the order of everything else: three tours that are read from
+top to bottom (*Play*, *The desk*, *Under the hood*) and a layer of pages to look things up in. A tour page
+starts with what the reader can do; where a thing lives in the code is on `Building-from-source.md`.
+
+One word for each thing: a *peripheral* is what plugs in (*device* is the code's word), *clip* is the gesture
+and *plugged in* the result, *the desk* is the place, *a machine* is a Spectrum that is open, a *recording*
+is a recorded game (RZX is its format), *pokes* are pokes, the *processor* is the Z80 and a *core* is one
+implementation of it.
+
+## Where a clip or a picture is still to come
+
+A quoted line that begins `> **Clip**` or `> **Picture**` marks the place of one that is not in the page yet,
+and says what it shows. A clip is named by the script that films it, under `doc/clips/`, and says whether it
+has been filmed. `grep -n '^> \*\*\(Clip\|Picture\)' *.md` lists them all.
+
 ## Keeping them true
 
-Every page says at the end where the thing it describes lives. When a page states a number, the number came
-from the tree on the day it was written — counts of modules, tests, lines and games, and the measurements in
-the diaries under `doc/`. `Limits-and-what-is-not-there.md` is the list of what the environment does *not*
-do, and it is the page most likely to go stale first: it is the one to re-check against
-`doc/environment-inventory.md` when something lands.
+When a page states a number, the number came from the tree on the day it was written, and the page says the
+day where the number is of the kind that moves. `Limits.md` is the list of what this does *not* do, and it is
+the page most likely to go stale first: it is the one to check again when something lands. The same pages
+ride inside the jar as the guide, which opens on `Your-first-five-minutes.md`.
