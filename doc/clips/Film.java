@@ -26,6 +26,15 @@ public class Film {
     com.fpetrola.oozx.speccy.desktop.OOSpectrumLauncher.main(new String[0]);
     File rolling = new File(args[args.length - 1]);
     // What a clip starts from and nobody needs to see being done, done before the camera rolls.
+    if (args[0].equals("speech")) {
+      plugged(new File(args[1]), "Currah µSpeech:RIGHT");
+      // A machine with nothing loaded says so; and the board is opened whole, not just its meter.
+      SwingUtilities.invokeAndWait(() -> {
+        for (Window window : Window.getWindows())
+          if (inside(window, JButton.class, "OK") instanceof JButton ok) ok.doClick();
+        ((AbstractButton) component(AbstractButton.class, "Show what it is saying, its volume and ROMs, or just the meter")).doClick();
+      });
+    }
     if (args[0].startsWith("art")) {
       plugged(new File(args[1]), "Kempston Mouse:BOTTOM", "ZX Printer:RIGHT");
       SwingUtilities.invokeAndWait(() -> ((AbstractButton) component(AbstractButton.class, "Fit")).doClick());
@@ -39,6 +48,7 @@ public class Film {
       case "art-probe" -> artProbe();
       case "art-scale" -> artScale();
       case "art" -> art();
+      case "speech" -> speech();
       case "art-colour" -> { art(); artColoured(); }
       case "art-drift" -> { art(); mark("d0"); stroke(4, 158, 250, 158); mark("d1"); ink(56); mark("d2"); fill(32, 30, 60); mark("d3"); }
       case "art-menu" -> artMenu();
@@ -293,6 +303,31 @@ public class Film {
     outAndBack();
   }
 
+  /** The µSpeech saying each key as it is typed, and then saying what is written beside it, in Spanish. */
+  private static void speech() throws Exception {
+    look(1200);
+    press(over(128, 96));
+    look(800);
+    type("v\n");
+    look(1500);
+    type("p2\n");
+    look(2500);
+    press(at(component(JTextField.class, null)));
+    look(600);
+    JComboBox<?> language = (JComboBox<?>) component(JComboBox.class, null, box -> ((JComboBox<?>) box).getItemCount() == 3);
+    press(at(language));
+    look(700);
+    robot.keyPress(java.awt.event.KeyEvent.VK_DOWN);
+    robot.keyRelease(java.awt.event.KeyEvent.VK_DOWN);
+    look(300);
+    robot.keyPress(java.awt.event.KeyEvent.VK_ENTER);
+    robot.keyRelease(java.awt.event.KeyEvent.VK_ENTER);
+    look(700);
+    press(at(component(JTextField.class, null)));
+    type("hola, soy un spectrum\n");
+    look(9000);
+  }
+
   /** Not a clip: a click on a menu of the program, and what it opens. */
   private static void artMenu() throws Exception {
     look(800);
@@ -409,8 +444,12 @@ public class Film {
 
   /** The first thing of that kind on screen that says that, or the first of that kind when nothing is asked of what it says. */
   private static Component component(Class<? extends Component> kind, String saying) {
+    return component(kind, saying, any -> true);
+  }
+
+  private static Component component(Class<? extends Component> kind, String saying, java.util.function.Predicate<Component> which) {
     for (Window window : Window.getWindows()) {
-      Component found = inside(window, kind, saying);
+      Component found = inside(window, kind, saying, which);
       if (found != null) return found;
     }
     throw new IllegalStateException("nothing on screen is a " + kind.getSimpleName() + " saying " + saying);

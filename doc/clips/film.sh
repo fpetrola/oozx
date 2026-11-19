@@ -7,7 +7,17 @@ set -e
 clip=$1; file=$(realpath "$2"); jar=$(realpath "$3"); here=$(cd "$(dirname "$0")" && pwd)
 work=$(mktemp -d); mkdir -p "$work/home/.oozx" "$here/out"
 # Real speed, tapes loaded fast, and the desk filling the display.
-echo '{"speed":{"emulation":100,"fastLoading":true},"desk":{"x":0,"y":0,"width":1280,"height":800}}' > "$work/home/.oozx/config.json"
+# A board that needs ROMs of its own finds them in ROMS, named NAME=file:file (the board's settings key), copied in.
+roms=""
+for board in $ROMS; do
+  key=${board%%=*}; list=""
+  for rom in $(echo "${board#*=}" | tr ':' ' '); do
+    mkdir -p "$work/home/.oozx/roms"; cp "$rom" "$work/home/.oozx/roms/"
+    list="$list${list:+,}\"$work/home/.oozx/roms/$(basename "$rom")\""
+  done
+  roms="$roms${roms:+,}\"$key\":[$list]"
+done
+echo '{"speed":{"emulation":100,"fastLoading":true},"desk":{"x":0,"y":0,"width":1280,"height":800},"roms":{"files":{'"$roms"'}}}' > "$work/home/.oozx/config.json"
 # The machine's sound goes to an output of its own, which nobody hears and the camera records.
 pw-cli ls Node 2>/dev/null | grep -q 'node.name = "oozx-clip"' || pw-cli create-node adapter \
   '{ factory.name=support.null-audio-sink node.name=oozx-clip media.class=Audio/Sink object.linger=true audio.position=[FL FR] }' >/dev/null
