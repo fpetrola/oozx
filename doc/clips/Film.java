@@ -26,7 +26,10 @@ public class Film {
     com.fpetrola.oozx.speccy.desktop.OOSpectrumLauncher.main(new String[0]);
     File rolling = new File(args[args.length - 1]);
     // What a clip starts from and nobody needs to see being done, done before the camera rolls.
-    if (args[0].startsWith("art")) plugged(new File(args[1]), "Kempston Mouse", "ZX Printer");
+    if (args[0].startsWith("art")) {
+      plugged(new File(args[1]), "Kempston Mouse:BOTTOM", "ZX Printer:RIGHT");
+      SwingUtilities.invokeAndWait(() -> ((AbstractButton) component(AbstractButton.class, "Fit")).doClick());
+    }
     while (!rolling.exists()) Thread.sleep(200);
     robot = new Robot();
     robot.mouseMove(at.x, at.y);
@@ -36,6 +39,8 @@ public class Film {
       case "art-probe" -> artProbe();
       case "art-scale" -> artScale();
       case "art" -> art();
+      case "art-colour" -> { art(); artColoured(); }
+      case "art-drift" -> { art(); mark("d0"); stroke(4, 158, 250, 158); mark("d1"); ink(56); mark("d2"); fill(32, 30, 60); mark("d3"); }
       case "art-menu" -> artMenu();
       case "an-hour" -> anHour(new File(args[1]), args[2]);
       case "take-over" -> takeOver(new File(args[1]), args[2]);
@@ -149,8 +154,12 @@ public class Film {
     });
     Thread.sleep(2000);
     for (String board : boards) SwingUtilities.invokeAndWait(() -> {
-      JInternalFrame window = desk.window(board);
-      if (window instanceof com.fpetrola.oozx.speccy.windows.AttachedFrame clipped) clipped.attachTo(machine[0]);
+      String[] nameAndSide = (board + ":BOTTOM").split(":");
+      JInternalFrame window = desk.window(nameAndSide[0]);
+      if (window instanceof com.fpetrola.oozx.speccy.windows.AttachedFrame clipped)
+        clipped.attachTo(machine[0], com.fpetrola.oozx.speccy.windows.AttachedFrame.Dock.valueOf(nameAndSide[1]));
+      // Beside the machine, as tall as it and as wide as the desk leaves: big enough to watch the paper come out.
+      if ("RIGHT".equals(nameAndSide[1])) window.setSize(420, machine[0].getHeight());
     });
   }
 
@@ -203,6 +212,85 @@ public class Film {
     look(300);
     robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
     look(300);
+  }
+
+  /** Not a clip: the menus for filling and for colour, opened and kept. */
+  /** The horizon under the house, and the picture printed on the ZX Printer. */
+  private static void artColoured() throws Exception {
+    // Short of the edges, where the program would hold its brush back while the hand went on.
+    stroke(8, 159, 247, 159);
+    look(1200);
+    // The ZX Printer is the one the program calls ZX/Alphacom, the other printer it drove the same way.
+    choose(over(16, 4));
+    look(1200);
+    choose(over(40, 172));
+    look(2500);
+    choose(over(16, 4));
+    look(1200);
+    choose(over(40, 26));
+    look(4000);
+    shoot("art-p1");
+    look(14000);
+    shoot("art-p2");
+  }
+
+  /** Not a clip: the hand still over one place, and the picture kept with that place marked. */
+  private static void mark(String name) throws Exception {
+    Point there = over(150, 110);
+    move(there.x, there.y);
+    look(2500);
+    java.awt.image.BufferedImage shot = robot.createScreenCapture(new Rectangle(0, 0, 1280, 800));
+    Graphics2D pen = shot.createGraphics();
+    pen.setColor(Color.RED);
+    pen.drawOval(there.x - 5, there.y - 5, 10, 10);
+    javax.imageio.ImageIO.write(shot, "png", new File("/tmp/claude-1000/art-" + name + ".png"));
+  }
+
+  /**
+   * The hand off the picture and back. The program stops reading the mouse while it fills, and
+   * starts again from wherever its pointer is, so what the hand did meanwhile is lost; coming back in,
+   * the mouse puts the pointer under the hand again.
+   */
+  private static void outAndBack() {
+    Point outside = over(290, 120), back = over(200, 120);
+    move(outside.x, outside.y);
+    look(800);
+    move(back.x, back.y);
+    look(1600);
+  }
+
+  /** Fill with a texture: the one at that place of the program's grid of them, poured at that place. */
+  private static void textured(int textureAcross, int textureDown, int across, int down) {
+    choose(over(75, 16));
+    look(900);
+    choose(over(70, 44));
+    look(1000);
+    choose(over(textureAcross, textureDown));
+    look(900);
+    choose(over(across, down));
+    look(3500);
+    outAndBack();
+  }
+
+  /** Attributes, ink, and the colour at that place in the row of eight the program shows. */
+  private static void ink(int colour) {
+    choose(over(95, 4));
+    look(900);
+    choose(over(74, 26));
+    look(1000);
+    choose(over(colour, 48));
+    look(800);
+  }
+
+  /** Fill, the kind on that row of its menu, and a press on the place to fill. */
+  private static void fill(int kind, int across, int down) {
+    choose(over(75, 16));
+    look(900);
+    choose(over(70, kind));
+    look(900);
+    choose(over(across, down));
+    look(3500);
+    outAndBack();
   }
 
   /** Not a clip: a click on a menu of the program, and what it opens. */
@@ -356,7 +444,7 @@ public class Film {
   /** A press on something of a Spectrum program: it looks at the buttons once a frame, and its pointer comes behind the hand. */
   private static void choose(Point where) {
     move(where.x, where.y);
-    look(600);
+    look(1400);
     robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
     robot.delay(160 + hand.nextInt(60));
     robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
