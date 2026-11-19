@@ -483,6 +483,7 @@ f29574f8f7f5ea9257d37488ea9ae61ddae20d1457f27203e0eb1dfb62ab8f78	machine/core/sr
 7b461664c1751edf4e0e07d41b31fc8617fababdbb649fa100d0bf68935d9d57	machine/core/src/test/java/model/tests/ports/SpectrumPortsTest.java
 75f8093f810017e529fe420124485257f2f036981933d82f9a29250f69a46987	machine/core/src/test/java/model/tests/timing/ASpeedTheMachineCanComeBackFromTest.java
 27eb442c6446af4cb6b21bf3d5848b85a309ae639c2f572e9d22fe7426d13308	machine/core/src/test/java/model/tests/timing/WhenTheClockIsMovedTest.java
+5a70b68dc99fd90aa8b737a691358e863c45faca9c611ccf19317898f04f1657	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/AboutAGame.java
 eb958cef2eccdab992e2dc7a30798c73ff1138ecb21de5b2f3852fa4d4f50441	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/DacFrame.java
 0347e6102b83966be603dd2fe9af07035693cdfc92501ed3702f86eef09346a8	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java
 d2e97290c5ad4244edd93f85927443a6b2d91a0adc3f55216cd0dc4321b93a36	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/DeskEquipment.java
@@ -505,6 +506,7 @@ b98e1863f75bd91ee9be4e8a68a0a4db72e35341534335a1421bec40ed31a0f9	machine/devices
 d165ce794a676f9c0d585389ca1e3178f8c35f105cca5fa386847aeabeb2901b	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/peripherals/EmulatorCore.java
 48ac2c8f683bf9b7cb5d0ff79789a90031eff8a7f75a74581ad944d75e236a66	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/peripherals/MockEmulatorCore.java
 41ccd9a5b50847df051e267d4db2a0a809c41df024a93022f9df762d276c95cf	machine/devices/kit/src/test/java/com/fpetrola/oozx/speccy/devices/ADriveBaySlotTest.java
+e764f8da78ecdfdb198ec3e4b70a356bef933ed12629d607900dbc1335aeb4e7	machine/devices/kit/src/test/java/com/fpetrola/oozx/speccy/devices/APartOfAGameTest.java
 674ad1c3e862fbe1dde90e8e7be0246189b4fb93ca16e8570ac671a262d8a82f	machine/devices/kit/src/test/java/com/fpetrola/oozx/speccy/devices/DacFrameTest.java
 d49695a56d7ed9cfa678c379930d268d70bcb06579c29aafbc8dc391f8cbbf25	machine/devices/kit/src/test/java/com/fpetrola/oozx/speccy/windows/EveryIconIsDrawnTest.java
 b75784f502fdf152791b10addb921da42a7bd26c00bd9d8a56d100da0ebf62f5	machine/host/input/src/main/java/com/fpetrola/oozx/speccy/devices/input/InputDevices.java

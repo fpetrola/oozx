@@ -1,6 +1,12 @@
 # What a person signed of this module's surface; cerco:approve grows it.
 module: "machine/devices/kit"
 types:
+  "com.fpetrola.oozx.speccy.devices.AboutAGame":
+    kind: interface
+    members:
+      - "howMany(Desk.Game): int"
+      - "page(Desk.Game): JComponent"
+      - "what(): String"
   "com.fpetrola.oozx.speccy.devices.Desk":
     kind: interface
     members:
