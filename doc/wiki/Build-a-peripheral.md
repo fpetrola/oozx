@@ -37,7 +37,7 @@ One file, `pom.xml`. The last block is the part that matters: it is what makes t
   <name>Lamps</name>
 
   <properties>
-    <oozx>0.1.2</oozx>
+    <oozx>0.1.3</oozx>
     <crystal>0.1.5</crystal>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>

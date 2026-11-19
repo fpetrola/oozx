@@ -4,6 +4,7 @@ What arrived, newest first. The rows above the releases are in the code and not 
 
 | When | What | |
 |---|---|---|
+| 19 November 2026 | **Release 0.1.3** | the four rows below, in the jar |
 | November 2026 | **Drop anything** | a file let go of over the desk is recognised, starts the machine its game needs and opens its card → [Your files](Your-files) |
 | November 2026 | **A game's card** | everything there is about one game, in tiles: its files, pokes, recordings, editions, maps, screens and music, with a viewer you can zoom and a player for `.ay` tunes |
 | November 2026 | **The mouse under your hand** | the Kempston Mouse puts the program's pointer where yours is → [Sound and controls](Sound-and-controls) |
