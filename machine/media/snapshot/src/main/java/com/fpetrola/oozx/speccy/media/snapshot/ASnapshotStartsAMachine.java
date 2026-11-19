@@ -37,9 +37,6 @@ public class ASnapshotStartsAMachine implements StartsAMachineOn {
 
   @Override
   public Going start(Speccy machine, File file) {
-    // It comes up as fast as it can and then runs at whatever it was told to: a snapshot is not
-    // watched while it loads, because there is nothing to watch.
-    machine.speed.emulation = 10000;
     Snapshots.of(machine).load(file.getAbsolutePath());
     return null;
   }

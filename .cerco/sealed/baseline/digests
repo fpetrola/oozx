@@ -555,7 +555,7 @@ aa6b8d29139064077daefc9638a8d127b3cf3a6c44f03077097fe672b6c47f73	machine/machine
 d237ca83c83c3f9f80257cafa7a945fa2f9d94178a198c7cdf7fa2ff6fecf978	machine/machines/ula/src/main/java/com/fpetrola/oozx/speccy/devices/ula/UlaFullDecodePeripheral.java
 2c85b233b1ec227f3274d36791fb4eb5b1d4c18ba4256f75b91a1147f15ed729	machine/machines/ula/src/main/java/com/fpetrola/oozx/speccy/devices/ula/UlaPeripheral.java
 7352023d28b2eb33ea3a35024276ced96e0afc9f88f83732d0e4314bc168c864	machine/machines/ula/src/main/java/com/fpetrola/oozx/speccy/devices/ula/UlaPortHandler.java
-64160bd46d7129b7e731940e82749302fd4e72e276b1d40f97d082598ab0d069	machine/media/snapshot/src/main/java/com/fpetrola/oozx/speccy/media/snapshot/ASnapshotStartsAMachine.java
+3d418fa8c7928d6314192f725c54cd98d38c12c6ce5b44a9f78bedebae1e2728	machine/media/snapshot/src/main/java/com/fpetrola/oozx/speccy/media/snapshot/ASnapshotStartsAMachine.java
 b644abc1021998458b21ab4a492b4cebe53a18db995dd1bee112bbe610e5b7b6	machine/media/snapshot/src/main/java/com/fpetrola/oozx/speccy/media/snapshot/SnapshotMedia.java
 76d6b10f337f1d2a7c8856137674378b0d2c0bce282de2ef3b8c27585c501d1a	machine/media/snapshot/src/main/java/com/fpetrola/oozx/speccy/modules/snapshot/RestoredFromASnapshot.java
 c3fb97403682fd35e121d8ff6107d68586fef1448264fdf50d8f3325a71becc6	machine/media/snapshot/src/main/java/com/fpetrola/oozx/speccy/modules/snapshot/Snapshots.java
