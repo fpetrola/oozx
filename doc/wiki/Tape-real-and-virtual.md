@@ -15,8 +15,8 @@ machine appears, `LOAD ""` is typed for you, and the tape plays.
 
 How long that takes is yours to choose, under `Emulator → Settings... → Machine`:
 
-- **Fast Loading off**, as it ships: the tape plays at its own speed. You hear it, and you watch the stripes.
-- **Fast Loading on**: the machine runs flat out while the tape plays, and drops back to the speed it had when
+- **Fast Loading off**: the tape plays at its own speed. You hear it, and you watch the stripes.
+- **Fast Loading on**, as it ships: the machine runs flat out while the tape plays, and drops back to the speed it had when
   the tape stops. Minutes become a moment, and it works for a loader of the game's own just as for the ROM's,
   because the machine really runs it.
 

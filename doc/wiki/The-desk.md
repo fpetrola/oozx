@@ -10,7 +10,7 @@ Manic Miner at 9,775 %.*
 
 ## A window is a machine
 
-`Emulator → New Emulator` opens a Spectrum. Open six and you have six Spectrums, each with its own
+`Emulator → New Machine` opens a Spectrum. Open six and you have six Spectrums, each with its own
 model, its own speed, its own sound, its own pokes, its own picture settings, its own tape. Close a window
 and that Spectrum is gone.
 
@@ -27,7 +27,7 @@ Along the top of each machine, its own controls:
 | **Border**, **Zoom**, **Fullscreen** | the border on or off; 1×, 2×, 3×; Escape leaves full screen |
 | **Screen** | scaling, television and colour → [The picture, by lead](The-picture-by-lead) |
 | **Save** | this machine exactly as it is, to open again later |
-| **View Game Details**, **Keep this game in Favorites**, **Cheats/Pokes** | of the game this machine is running → [Your files](Your-files) |
+| **View Game Details**, **Keep this game in Favorites**, **Pokes** | of the game this machine is running → [Your files](Your-files) |
 
 Along the bottom: which model it is, and the speed it is actually reaching. Choose another model there and
 the machine becomes that machine.

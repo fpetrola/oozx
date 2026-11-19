@@ -265,7 +265,7 @@ Start the desk. *Lamps* is under `Emulator → Equipment`, among the peripherals
 
 ## 6. Light them
 
-1. `Emulator → New Emulator`, and `Emulator → Equipment → Lamps`.
+1. `Emulator → New Machine`, and `Emulator → Equipment → Lamps`.
 2. Drag the Lamps window against the machine's.
 3. On the Spectrum, type `OUT 255,170` and Enter. `OUT` is on the O key in extended mode: on your keyboard,
    Tab and then Ctrl+O.

@@ -13,7 +13,7 @@ no others.
 
 *Manic Miner's pokes, each saying what it writes and where.*
 
-- The *Cheats/Pokes* button on a machine's bar opens them for the game that machine is running.
+- The *Pokes* button on a machine's bar opens them for the game that machine is running.
 - The *Pokes* tile of a game's card has the same list. → [Your files](Your-files)
 - Each one is a checkbox. Un-applying a poke puts the original bytes back.
 - What you applied is remembered with the machine and comes back with the session.

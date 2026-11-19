@@ -599,7 +599,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
         offering("File/Save State...", "ctrl S", 300, this::saveState),
         offering("File/Load State...", "ctrl L", 301, this::loadState),
         offering("File/Quit", "ctrl Q", 400, () -> dev.plugdesk.desk.DeskWindow.close(this)),
-        new Offering("Emulator/New Emulator", List.of(KeyStroke.getKeyStroke("ctrl N")), 100,
+        new Offering("Emulator/New Machine", List.of(KeyStroke.getKeyStroke("ctrl N")), 100,
             loadIcon("Sinclair_ZX_Spectrum-02b.svg"), null, () -> createNewEmulator(mockCore.apply("", null)))));
     List<String> recent = config.getRecentFiles();
     for (int i = 0; i < recent.size(); i++) {

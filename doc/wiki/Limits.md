@@ -36,8 +36,6 @@ Three peripherals are named and not written: SpeccyBoot, Spectranet and the TTX2
 
 ## Things that are true and easy to misread
 
-- **"Nothing to wait for" has a switch.** A tape loads at its own speed until you tick *Fast Loading*, which
-  ships off.
 - **Some peripherals need a ROM you supply.** The Beta 128, the Interface 1, the Multiface, the Opus, the
   Didaktik, the DivIDE, the DivMMC, the µSpeech and the µSource had ROMs of their own that are not mine to
   ship. → [Peripherals](Peripherals)

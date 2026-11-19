@@ -30,7 +30,7 @@ class TheDeskIsMadeWithoutAWindowTest {
     assertEquals(null, SwingUtilities.getWindowAncestor(desk), "in no window: the base makes the window");
     assertEquals(List.of("File", "Emulator", "Window"), names(menus).subList(0, 3));
     assertTrue(items(menus.getMenu(0)).containsAll(List.of("Open...", "Save State...", "Load State...", "Quit")));
-    assertTrue(items(menus.getMenu(1)).containsAll(List.of("New Emulator", "Plugins...")));
+    assertTrue(items(menus.getMenu(1)).containsAll(List.of("New Machine", "Plugins...")));
     assertEquals(List.of("TV"), items(menus.getMenu(2)),
         "the window menu, the looks and the help are plugins, and with plugins off they are not here");
     assertTrue(!names(menus).contains("Help") && !names(menus).contains("Discover"));

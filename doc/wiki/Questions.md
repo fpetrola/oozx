@@ -25,9 +25,9 @@ Yes. A tape, a snapshot, a zip or a recording, dropped anywhere on the desk. →
 Yes, by what is inside each file and not by its name: 4,922 games today. A file it cannot name is still
 loaded, and stays in your library as unknown.
 
-**Why did the tape take minutes to load?**
-Because that is how long it takes, and *Fast Loading* ships switched off. Tick it under
-`Emulator → Settings... → Machine` and a tape is over in a moment. → [Tape, real and virtual](Tape-real-and-virtual)
+**Can I watch a tape load as it did?**
+Yes. *Fast Loading* ships switched on, so a tape is over in a moment. Untick it under
+`Emulator → Settings... → Machine` and the tape plays at its own speed, stripes and noise included. → [Tape, real and virtual](Tape-real-and-virtual)
 
 **Does it work without the network?**
 The catalogue does, for the 5,000 most voted games, and so does everything you already have on disk.

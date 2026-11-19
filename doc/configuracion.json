@@ -1,7 +1,7 @@
 {
   "speed" : {
     "emulation" : 20000,
-    "fastLoading" : false
+    "fastLoading" : true
   },
   "memory" : {
     "writableRoms" : false

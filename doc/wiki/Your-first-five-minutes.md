@@ -25,9 +25,9 @@ and room.
 2. Type `dizzy` and press Enter. What comes back is the catalogue's answer, each game with its own screen.
 3. Double-click one.
 
-A machine appears with the game in it. If the game is on tape, `LOAD ""` types itself and the tape starts,
-stripes and noise included. To skip the wait, tick *Fast Loading* under `Emulator → Settings... → Machine`:
-from then on a tape runs flat out and the machine drops back to the speed it had when it stops.
+A machine appears with the game in it. If the game is on tape, `LOAD ""` types itself and the tape runs flat
+out; the machine drops back to the speed it had when it stops. To hear the tape and watch the stripes, as it
+was, untick *Fast Loading* under `Emulator → Settings... → Machine`.
 
 What the double click did for you is on [Any game, a name away](Any-game-a-name-away).
 
@@ -46,7 +46,7 @@ What the double click did for you is on [Any game, a name away](Any-game-a-name-
 
 ## A machine of your own
 
-`Emulator → New Emulator` opens a Spectrum 48K at its prompt. The window is the machine, not a
+`Emulator → New Machine` opens a Spectrum 48K at its prompt. The window is the machine, not a
 picture of one: close it and that Spectrum is gone. The box at the bottom says which model it is; choose
 another and the machine becomes that machine. → [The machines, and yours](The-machines-and-yours)
 

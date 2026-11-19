@@ -68,7 +68,7 @@ public class OOSpectrumLauncher {
       String string = null;
 
       if (filename == null || filename.isBlank()) {
-        // Nothing asked for: a machine at the BASIC prompt, which is what "New Emulator" means.
+        // Nothing asked for: a machine at the BASIC prompt, which is what "New Machine" means.
         speccy = createBareSpeccy();
       } else {
         string = filename;

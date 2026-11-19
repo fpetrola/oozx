@@ -75,7 +75,7 @@ Two things make those possible. **It knows which game is running**: game, file a
 |---|---|---|
 | **Look for a ROM** | a machine says which ROM it needs and who publishes it, asks, fetches it and checks it byte for byte | twenty-seven such ROMs. Some peripherals' ROMs you still supply → [Peripherals](Peripherals) |
 | **Unzip an archive and guess which file is the game** | it picks the file inside, by score | |
-| **Type `LOAD ""`** | it types it | the tape then plays at its own speed until you tick *Fast Loading* |
+| **Type `LOAD ""`** | it types it | untick *Fast Loading* to hear the tape and watch the stripes |
 | **Rename your collection** | every file is recognised by what is inside it | only the games whose fingerprint ships: 4,922 → [Your files](Your-files) |
 | **Hunt for pokes on a website** | the pokes of 3,612 games come with it, matched to the game that is loaded; and the poke finder finds the one that is missing | |
 | **Open an options dialog to plug something in** | you drag the peripheral's window against the machine | the Melodik is the exception: it is fitted in the settings |
