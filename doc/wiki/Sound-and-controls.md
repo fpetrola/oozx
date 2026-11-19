@@ -1,7 +1,7 @@
 # Sound and controls
 
 The sound card is the clock. At its own speed a machine here is not timed by a timer: it runs exactly as fast
-as your sound card plays what it makes, so nothing stutters and nothing drifts.
+as your sound card plays what it makes.
 
 ## Sound
 
@@ -9,9 +9,10 @@ as your sound card plays what it makes, so nothing stutters and nothing drifts.
 
 A frame of the machine goes out when the sound card has room for it. The machine therefore runs as fast as
 the audio is played, and the picture follows. There is no sleeping on a timer that the operating system
-rounds. It also turned out to be the fastest arrangement I measured, and it stayed.
+rounds.
 
-Above its own speed the sound is dropped rather than stretched, so going fast does not turn into a siren.
+Above its own speed a timer takes over, and the sound is dropped rather than stretched, so going fast does
+not turn into a siren.
 
 ### What makes it
 
@@ -28,8 +29,8 @@ volume on its own window. The chip's three channels come out equally in both ear
 
 ## The keyboard
 
-Your keyboard is the Spectrum's. Letters and digits are where they are; Shift is Caps Shift and Ctrl is
-Symbol Shift, so while a machine has the focus Ctrl belongs to the Spectrum.
+Your keyboard is the Spectrum's. Letters and digits are where they are; Shift is Caps Shift, and Ctrl and
+Alt are Symbol Shift, so while a machine has the focus they belong to the Spectrum. → [Shortcuts](Shortcuts)
 
 ![The keyboard window](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/keyboard-only.png)
 
@@ -43,7 +44,8 @@ It is the place to look when typing does not arrive. A key that lights here and 
 business. A key that never lights never got that far. And it is the whole keyboard of a Spectrum, for
 whoever is sitting at a PC: it shows which keys of the machine a key of yours turns into.
 
-A Recreated ZX Spectrum keyboard is supported as its own layout, under `Emulator → Settings... → Input`.
+If you have a Recreated ZX Spectrum keyboard, tick *Recreated Spectrum* under
+`Emulator → Settings... → Input`.
 
 ## Joysticks
 

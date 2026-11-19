@@ -30,9 +30,9 @@ They are here because a machine that was sold is a machine.
 |---|---|---|
 | **Argentina** | [Czerweny CZ Spectrum](https://en.wikipedia.org/wiki/CZ_Spectrum) and CZ Spectrum Plus. Czerweny Electrónica, Paraná, 1986 | a 48K down to the ROM |
 | **Brazil** | [Microdigital TK90X](https://en.wikipedia.org/wiki/TK90X), 1985, and the TK95 that followed it | a 48K with a ROM of its own, where the accents and the different messages live |
-| **Spain** | [Inves Spectrum+](https://www.sinclaircollection.site/?p=453). Investrónica, 1986 | a 48K "in the way a copy of a drawing is the drawing": the ROM lies over RAM a program can still write to, nothing slows the processor down, and a port nobody answers reads as all ones |
+| **Spain** | [Inves Spectrum+](https://www.sinclaircollection.site/?p=453). Investrónica, 1986 | a 48K in the way a copy of a drawing is the drawing: the ROM lies over RAM a program can still write to, nothing slows the processor down, and a port nobody answers reads as all ones |
 | **Russia** | [Pentagon](https://en.wikipedia.org/wiki/Pentagon_(computer)), from 1991, at 128K, 512K and 1024K; [Scorpion ZS 256](https://en.wikipedia.org/wiki/Scorpion_ZS-256), Sergey Zonov, St. Petersburg, 1991 | the Pentagon slows the processor down nowhere, decodes its ports fully and has its disk interface built in; the Scorpion reaches a quarter of a megabyte through the two ports a +3 has, read differently |
-| **Portugal and the United States** | [Timex TC2048](https://spectrumcomputing.co.uk/entry/1000508/Hardware/Timex_Computer_TC2048), 1984, the TC2068, and the [TS2068](https://en.wikipedia.org/wiki/Timex_Sinclair_2068), 1983 | the TS2068 is "the same machine sold in America: fifty lines fewer, a slightly faster crystal, its own ROM" |
+| **Portugal and the United States** | [Timex TC2048](https://spectrumcomputing.co.uk/entry/1000508/Hardware/Timex_Computer_TC2048), 1984, the TC2068, and the [TS2068](https://en.wikipedia.org/wiki/Timex_Sinclair_2068), 1983 | the TS2068 is the same machine sold in America: fifty lines fewer, a slightly faster crystal, its own ROM |
 
 *Argentina: la CZ Spectrum se hizo en Paraná, Entre Ríos. Está en la lista de modelos, con su nombre.*
 
@@ -71,7 +71,7 @@ onto the machine it was taken on. → [Your files](Your-files)
 ## Adding one
 
 A machine is a handful of declarations, how it pages, which chip draws it, how long its frame is, which ROM
-it runs, and it arrives as a plugin like everything else. The Pentagon was added mostly to see what adding a
-machine costs. → [Why it all fits](Why-it-all-fits)
+it runs, and it arrives as a plugin like everything else. The three Pentagons are six files and 382 lines.
+→ [Why it all fits](Why-it-all-fits)
 
 Next: [The catalogue of peripherals](The-catalogue-of-peripherals).

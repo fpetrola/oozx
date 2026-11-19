@@ -10,7 +10,7 @@ Manic Miner at 9,775 %.*
 
 ## A window is a machine
 
-`Emulator → New Emulator` (Ctrl+N) opens a Spectrum. Open five and you have five Spectrums, each with its own
+`Emulator → New Emulator` opens a Spectrum. Open six and you have six Spectrums, each with its own
 model, its own speed, its own sound, its own pokes, its own picture settings, its own tape. Close a window
 and that Spectrum is gone.
 
@@ -27,13 +27,15 @@ Along the top of each machine, its own controls:
 | **Border**, **Zoom**, **Fullscreen** | the border on or off; 1×, 2×, 3×; Escape leaves full screen |
 | **Screen** | scaling, television and colour → [The picture, by lead](The-picture-by-lead) |
 | **Save** | this machine exactly as it is, to open again later |
-| **Game details**, **Favorite**, **Pokes** | of the game this machine is running → [Your files](Your-files) |
+| **View Game Details**, **Keep this game in Favorites**, **Cheats/Pokes** | of the game this machine is running → [Your files](Your-files) |
 
 Along the bottom: which model it is, and the speed it is actually reaching. Choose another model there and
 the machine becomes that machine.
 
 What you type goes to the machine in front, or to the machine that the window in front is clipped to. So
-typing with a cassette deck in front types into the Spectrum the deck belongs to.
+typing with a cassette deck in front types into the Spectrum the deck belongs to. That includes Ctrl and Alt,
+which are the Spectrum's SYMBOL SHIFT: the desk's own keys answer when no machine has the keyboard.
+→ [Shortcuts](Shortcuts)
 
 ## Clip: where a window is, means something
 
@@ -54,7 +56,7 @@ This is not decoration.
 - **For a tool, the machine it is clipped to is the one it looks at.** Two machines can be under two
   debuggers at once without sharing a thing. → [The game lab](The-game-lab)
 - **For the settings, what they are clipped to is what they configure.** Clipped onto a machine, the window
-  says "Configuring this machine". Let go of, it says "Defaults - every machine, the open ones too", and
+  says "Configuring this machine". Left free, it says "Defaults - every machine, the open ones too", and
   *Apply* writes what is set there into every machine.
 
 ![The settings window clipped onto a machine](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/settings-tabs.png)
@@ -64,7 +66,7 @@ its one line of controls when you want the room.
 
 ## It comes back
 
-`File → Quit` (Ctrl+Q), and open it again: the desk is as you left it. The windows that were open are open,
+`File → Quit`, and open it again: the desk is as you left it. The windows that were open are open,
 where they were, and every machine is running where it was, with its pokes, its speed, its mute and its
 pause as they were. What was clipped to a machine comes back clipped to it.
 
@@ -72,7 +74,7 @@ The machines are kept as snapshots under `~/.oozx/session/`, and every setting i
 
 ## Asking for things by name
 
-`Discover → What do you want to do?...` (Ctrl+Shift+P) is a box you type into. "printer" finds *Plug in: ZX
+`Discover → What do you want to do?...` is a box you type into. "printer" finds *Plug in: ZX
 Printer*; "pokes" finds *Put pokes in the game*; "full" finds *Play in full screen*. More than sixty things
 answer there today, and every plugin adds its own.
 

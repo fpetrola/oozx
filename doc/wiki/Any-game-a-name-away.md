@@ -11,7 +11,7 @@ used to do by hand.
 ## Finding one
 
 `Emulator → Game Browser...` searches [ZXInfo.dk](https://zxinfo.dk), which is the whole of
-[ZXDB](https://github.com/zxdb/ZXDB), with no browser and no files. Type in *Search* and press Enter. What
+[ZXDB](https://github.com/zxdb/ZXDB), without opening a web browser or downloading anything by hand. Type in *Search* and press Enter. What
 comes back is a wall of games, each with its own screen and how many recordings there are of it.
 
 Down the left side:
@@ -42,7 +42,7 @@ Double-click a game and it loads into a machine of its own. A right click has th
 
 You typed a name and clicked twice. This is what the desk did, in order:
 
-1. **Looked the game up**, in ZXInfo, or in the copy of ZXDB that ships when ZXInfo does not answer.
+1. **Looked the game up** in ZXInfo or, when ZXInfo does not answer, in the copy of ZXDB inside the jar.
 2. **Fetched the archive and opened it**, without asking you anything.
 3. **Chose the file inside**, by score: a recording before a snapshot, a snapshot before a tape, a tape
    before a `.csw`; a bonus for "48" in the name, a penalty for a name that says "alternate".

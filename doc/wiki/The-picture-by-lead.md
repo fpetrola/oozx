@@ -44,7 +44,7 @@ text, enlarged here from the same four pictures:
 | **Persistence** | how much of the frame before is still glowing. A tube fades rather than going dark, which is why a flickering game is easier to watch on one |
 | **Tube curve** | how much the glass bulges. A flat panel is nothing; a small portable from the eighties is most of the way along |
 | **Tint** | green phosphor, amber phosphor, black and white, sepia, or warm for the night |
-| **Brightness**, **Colour depth** | how bright, and how strong the colours are. Two is more colour than a Spectrum ever managed |
+| **Brightness**, **Colour depth** | how bright, and how strong the colours are: at nothing the picture is black and white, and at two it has more colour than a Spectrum ever showed |
 
 Each knob has an arrow beside it that puts it back.
 

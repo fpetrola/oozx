@@ -39,8 +39,8 @@ It also works with no machine at all, to look inside a tape before deciding what
 `Emulator → Equipment → Real Cassette (audio in)` opens an oscilloscope on your sound card's input. Choose the
 line, zoom, follow the head, and press *Hear* to listen to what is coming in.
 
-It is the same piece of equipment as the deck beside it, with a different cassette in it: one made of air
-rather than of a file. So it clips onto a machine the same way, and while it is clipped on, what comes in
+It is the same thing as the deck beside it, with a different cassette in it: one made of air rather than of
+a file. So it clips onto a machine the same way, and while it is clipped on, what comes in
 through the sound card is what that machine hears. Carry it away and the machine goes back to its own tape.
 
 ![The audio input window](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/window-audioin.png)
@@ -50,8 +50,8 @@ a window you clip on.
 
 ## Disks, cartridges and cards
 
-A disk goes where its drive is. The +3 has its drive built in; every other disk system is a peripheral with a
-slot for each drive, where you insert, eject, flip and write-protect a disk. Microdrive cartridges go in the
+A disk goes where its drive is. The +3 and the Pentagon have theirs built in; every other disk system is a
+peripheral with a slot for each drive, where you insert, eject, flip and write-protect a disk. Microdrive cartridges go in the
 Interface 1's bays, ROM cartridges in the Interface 2 or the Timex's dock, and hard disk and memory card
 images in the bays of the interfaces that take them. → [The catalogue of peripherals](The-catalogue-of-peripherals)
 

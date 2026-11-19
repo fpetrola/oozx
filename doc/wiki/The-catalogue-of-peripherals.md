@@ -74,7 +74,7 @@ These came later, from people who went on building for the machine.
 |---|---|---|
 | **DivIDE** | [Pavel Cimbal, 2002](https://divide.speccy.cz) | a hard disk image in its bay, its write-protect jumper and its NMI button |
 | **DivMMC** | [Mario Prato, 2013](https://github.com/mprato/DivMMC) | a memory card the machine talks to a byte at a time |
-| **ZXMMC** | | the same idea, in under fifty lines of code |
+| **ZXMMC** | | a card slot on two ports, and nothing else |
 | **ZXCF**, **ZXATASP** | [Sami Vehmaa](https://spectrumcomputing.co.uk/entry/1000946/Hardware/ZXCF) | CompactFlash and hard disk bays, where *Save* is what commits |
 | **Simple 8-bit IDE** | | a hard disk on one chip |
 
@@ -88,17 +88,12 @@ These came later, from people who went on building for the machine.
 | **ULAplus** | | sixty-four colours a program picks for itself. Plugging it in is what gives a machine those colours |
 | **Spec256** | [Iñigo Ayo and David Goti's emulator, 1999](https://spectrumcomputing.co.uk/tool/13/Spec256) | a 1984 game in 256 colours → [256 colours](256-colours) |
 
-![A machine with the printer, the mouse and a Covox clipped onto it](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/peripherals-clipped.png)
-
-*Manic Miner with three peripherals plugged in: the ZX Printer with its paper, the Kempston Mouse, and a
-Covox with its level meter.*
-
 ## What is not in this catalogue
 
 What a machine had inside when you bought it is not plugged in: the 128's sound chip, the +3's disk drive,
 the Pentagon's Beta 128. That is not a peripheral, that is the computer.
 
-Three more are named and not written: SpeccyBoot, Spectranet and the TTX2000S teletext adaptor.
+What is named and not yet written is on [Limits](Limits).
 
 The makers and years above are as each linked page gives them. Where two sources disagreed about a year, it
 is left out.

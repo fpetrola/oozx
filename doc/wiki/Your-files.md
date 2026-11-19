@@ -56,8 +56,8 @@ brought in the background as soon as the card opens, so most of what you click i
    piece becomes one number. Cutting by content rather than by position is the whole trick: a trainer, a
    different loader, a TZX carrying the blocks a TAP carries bare, or a snapshot holding the same code at
    another address damage only the pieces they touch.
-2. **It asked the catalogue that ships** whose fingerprint that is. 4,922 games have one there, the top of
-   ZXInfo's own ranking.
+2. **It asked the catalogue that ships** whose fingerprint that is. Of its 5,000 games, the most voted
+   ones, 4,922 have a fingerprint.
 3. **It chose the machine** from what the catalogue says that game was made for.
 4. **It opened the card** from what ships, and asked ZXInfo for the rest.
 

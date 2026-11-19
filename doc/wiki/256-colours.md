@@ -3,8 +3,8 @@
 A 1984 game in 256 colours, with the game's own code untouched. Put a Spec256 colour file beside a game and
 the machine plays it in colour, with no colour clash, over photographic backgrounds.
 
-This is beta: eleven of the thirteen games measured below come out 90 % identical to their reference picture
-or better, and two do not.
+This is beta: of the thirteen games in the table below, eleven come out 90 % identical to their reference
+picture or better, and two do not.
 
 ![Jet Set Willy running side by side: Sinclair colours on the left, Spec256 on the right](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/jsw-side-by-side.gif)
 
@@ -49,7 +49,8 @@ The stripes down the sides are the game's own border effect, drawn where the bea
 
 Measured on 14 September 2026 against the 29 games of the public Spec256 collection that ship a `.SNA` and a
 `.GFX`: 300 frames each with everything at its default, compared pixel by pixel against the title-screen
-capture each game carries, over all 49,152 pixels.
+capture each game carries, over all 49,152 pixels. Thirteen of them are in this table; the working notes have
+the rest.
 
 | Game | Identical | |
 |---|---|---|
@@ -89,6 +90,10 @@ has no ports, because what a port answers is never a colour. The picture is pain
 | Object core, picture off | 0.35–0.38 | ~55 |
 | Nine in lockstep, picture off | 4.31 | 4.6 |
 | **Nine in lockstep, a real game painting itself** (Cybernoid, 256 colours) | **5.24** | **~3.8** |
+
+These four rows were taken together, with the harness of the Spec256 notes, to be compared with each other.
+They are not the figures on [How fast, and how we know](How-fast-and-how-we-know), which were taken another
+way.
 
 Nine processors cost about nine processors, which is the honest price of the idea. It is still faster than
 a Spectrum, and it is only paid while a Spec256 game is loaded.

@@ -27,7 +27,7 @@ and room.
 
 A machine appears with the game in it. If the game is on tape, `LOAD ""` types itself and the tape starts,
 stripes and noise included. To skip the wait, tick *Fast Loading* under `Emulator → Settings... → Machine`:
-from then on a tape runs flat out and the machine drops back to its own speed when it stops.
+from then on a tape runs flat out and the machine drops back to the speed it had when it stops.
 
 What the double click did for you is on [Any game, a name away](Any-game-a-name-away).
 
@@ -36,17 +36,17 @@ What the double click did for you is on [Any game, a name away](Any-game-a-name-
 1. **Drop a file of your own.** Drag any tape, snapshot, zip or recording from your disk onto the desk. The
    machine that game needs starts, and a card unfolds beside it with everything there is about the game,
    whatever the file was called. → [Your files](Your-files)
-2. **Go faster.** The rocket on the machine's bar, or Ctrl+T, runs it flat out. Right-click the rocket for a
+2. **Go faster.** The rocket on the machine's bar runs it flat out. Right-click the rocket for a
    speed of your choice, from 25 % to 40,000 %. → [How fast, and how we know](How-fast-and-how-we-know)
 3. **Plug something in.** `Emulator → Equipment → Kempston Mouse` opens the mouse's window. Drag it against
    the machine's window and let go: it is plugged in. Drag it away and it is not.
    → [The catalogue of peripherals](The-catalogue-of-peripherals)
-4. **Quit.** `File → Quit`, or Ctrl+Q. Open it again and the desk is as you left it, with every machine
+4. **Quit.** `File → Quit`. Open it again and the desk is as you left it, with every machine
    running where it was. → [The desk](The-desk)
 
 ## A machine of your own
 
-`Emulator → New Emulator`, or Ctrl+N, opens a Spectrum 48K at its prompt. The window is the machine, not a
+`Emulator → New Emulator` opens a Spectrum 48K at its prompt. The window is the machine, not a
 picture of one: close it and that Spectrum is gone. The box at the bottom says which model it is; choose
 another and the machine becomes that machine. → [The machines, and yours](The-machines-and-yours)
 
@@ -59,8 +59,9 @@ needs and who publishes them, asks, fetches them once and keeps the copy.
 |---|---|
 | `Help → Guide...` | these pages, inside the emulator |
 | `Help → Keys` | every key there is, read from the menus as they stand |
-| `Discover → What do you want to do?...` (Ctrl+Shift+P) | find any action by typing what you want: "printer", "pokes", "full screen" |
+| `Discover → What do you want to do?...` | find any action by typing what you want: "printer", "pokes", "full screen" |
 
-While a machine has the focus its keys are the Spectrum's, Ctrl included: Ctrl is Symbol Shift.
+While a machine has the focus the keyboard is the Spectrum's, Ctrl and Alt included: they are its SYMBOL
+SHIFT. The desk's own keys, and when they answer, are on [Shortcuts](Shortcuts).
 
 Next: [Any game, a name away](Any-game-a-name-away).

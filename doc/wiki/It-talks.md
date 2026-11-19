@@ -1,7 +1,7 @@
 # It talks: the µSpeech
 
 Plug it in. It talks. Clip the Currah µSpeech onto a 48K and the Spectrum says every key you press, or
-whatever you write for it, in English or in Spanish.
+whatever you write for it, in English or in Spanish. It needs its two ROMs, which you supply.
 
 > **Clip** · *Plug it in. It talks.* A 48K comes up saying "Speech System © CURRAH 1983". Keys are typed and
 > each one is said; a sentence in Spanish is written in *Say*, and the Spectrum says it. With sound.
@@ -49,7 +49,6 @@ Two things stand behind it. The chip is compared with the one in Fuse: the same 
 they have to agree sample for sample. And the spelling has its own tests, word by word.
 
 English is spelt with the letter-to-sound rules of the Naval Research Laboratory. Spanish has a few rules of
-its own: the *elle* sounds as it does in the Río de la Plata, the *c* of *cielo* is an *s*, and the *h* is
-silent.
+its own: the *elle* of the Río de la Plata, the *c* of *cielo* as an *s*, a silent *h*.
 
 That is the last page of this tour. The next one goes [under the hood](Why-it-all-fits).

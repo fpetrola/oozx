@@ -37,8 +37,8 @@ the player.
    other answers are *went up*, *did not change* and *changed*.
 3. **Or say the number.** When the number is on the screen, three lives, type it and press *Is*: only the
    addresses holding exactly that are kept.
-4. **Go round again.** The window says how many are left after how many rounds. Three or four rounds leave a
-   handful out of tens of thousands.
+4. **Go round again.** The window says how many are left after how many rounds. A few rounds are usually
+   enough to be left with a handful.
 5. **Hold it.** Choose an address and press *Hold*: it is kept at that value, the way the poke would keep it.
    If the lives stop going down, that is the one.
 6. **Take it with you.** *As a poke* writes the line of a `.pok` file that does the same.
@@ -46,7 +46,7 @@ the player.
 *Start over* makes every address a candidate again.
 
 The finder watches nothing and hooks nothing. Looking at a machine's memory costs the machine no cycles
-here, so a search is only looking at the same 48K again and comparing. That is why this is the whole of what
-a poke finder needs to be. Poke finders are not new to emulators; this one is told for how little it took.
+here, so a search is only looking at the same 48K again and comparing. That is all a poke finder needs to
+be. Poke finders are not new; this one is here for how little code it needed.
 
 Next: [Recordings and Take Over](Recordings-and-Take-Over).
