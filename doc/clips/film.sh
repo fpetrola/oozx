@@ -1,5 +1,7 @@
 #!/bin/bash
 # Films one clip of the real desk: ./film.sh <clip> <file to use> <jar of the application>
+# Filmed at twice the size, each pixel as four: the colour of a video is kept at half its sharpness, and at twice
+# the size that half is still a whole pixel of the Spectrum.
 # A display of its own, a home of its own with real speed, the application, the camera, and then the hand.
 set -e
 clip=$1; file=$(realpath "$2"); jar=$(realpath "$3"); here=$(cd "$(dirname "$0")" && pwd)
@@ -13,7 +15,7 @@ $run java -Duser.home="$work/home" -Dawt.robot.screenshotMethod=x11 -cp "$jar" "
   >"$here/out/desk.log" 2>&1 & desk=$!
 sleep "${WARM:-40}"
 $run ffmpeg -y -loglevel error -f x11grab -draw_mouse 1 -framerate 30 -video_size 1280x800 -i :98 \
-  -c:v libx264 -preset veryfast -pix_fmt yuv420p "$here/out/$clip.mp4" & camera=$!
+  -vf scale=iw*2:ih*2:flags=neighbor -c:v libx264 -preset veryfast -crf 16 -pix_fmt yuv420p "$here/out/$clip.mp4" & camera=$!
 sleep 1
 touch "$work/rolling"
 wait $desk || true
