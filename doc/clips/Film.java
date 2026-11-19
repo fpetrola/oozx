@@ -51,7 +51,7 @@ public class Film {
     // The tape loads while the card fills; the hand goes to the card and waits for the game to be there.
     look(6000);
     move(980, 380);
-    look(9000);
+    look(6500);
   }
 
   /** A folder as a file manager shows it, with that file among others to be taken by the hand; where the file is. */
