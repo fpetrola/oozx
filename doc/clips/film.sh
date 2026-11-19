@@ -6,7 +6,7 @@
 set -e
 clip=$1; file=$(realpath "$2"); jar=$(realpath "$3"); here=$(cd "$(dirname "$0")" && pwd)
 work=$(mktemp -d); mkdir -p "$work/home/.oozx" "$here/out"
-echo '{"speed":{"emulation":100,"fastLoading":false}}' > "$work/home/.oozx/config.json"
+echo '{"speed":{"emulation":100,"fastLoading":true}}' > "$work/home/.oozx/config.json"
 Xephyr :98 -screen 1280x800 -ac -noreset >/dev/null 2>&1 & screen=$!
 trap 'kill $camera $desk $screen 2>/dev/null; rm -rf "$work"' EXIT
 until [ -e /tmp/.X11-unix/X98 ]; do sleep 0.3; done
