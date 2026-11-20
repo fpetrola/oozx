@@ -5,8 +5,9 @@ and what has not been measured yet.
 
 ![The speed dial going from 100 % to 22,000 %](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/turbo.gif)
 
-> **Clip** · *An hour in twelve seconds.* Manic Miner is dropped on the desk and the rocket is pressed: the
-> caverns go by at more than twenty thousand per cent, and it comes back to 100 %. (`an-hour`, filmed)
+<video src="https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/an-hour.mp4" controls width="100%"></video>
+
+*An hour in twelve seconds.* Manic Miner is dropped on the desk and the rocket is pressed: the caverns go by at more than twenty thousand per cent, and it comes back to 100 %.
 
 ## The numbers
 

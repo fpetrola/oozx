@@ -3,9 +3,9 @@
 Plug it in. It talks. Clip the Currah µSpeech onto a 48K and the Spectrum says every key you press, or
 whatever you write for it, in English or in Spanish. It needs its two ROMs, which you supply.
 
-> **Clip** · *Plug it in. It talks.* A 48K comes up saying "Speech System © CURRAH 1983". Keys are typed and
-> each one is said; a sentence in Spanish is written in *Say*, and the Spectrum says it. With sound.
-> (`speech`, filmed)
+<video src="https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/speech.mp4" controls width="100%"></video>
+
+*Plug it in. It talks.* A 48K comes up saying "Speech System © CURRAH 1983". Keys are typed and each one is said; a sentence in Spanish is written in *Say*, and the Spectrum says it. With sound.
 
 The µSpeech was a small box [Currah sold in 1983](https://spectrumcomputing.co.uk/entry/1000081/Hardware/Currah_MicroSpeech):
 a speech chip, and a ROM that made the Spectrum say its keys.

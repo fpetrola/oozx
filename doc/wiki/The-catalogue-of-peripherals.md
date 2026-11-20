@@ -3,8 +3,9 @@
 The back pages of the magazine, on your desk. More than two dozen peripherals, each a window with the front
 of the thing on it. Drag one against a machine and it is plugged in; drag it off and it is not.
 
-> **Clip** · *Drag it on. It is plugged in.* The Art Studio is running. The Kempston Mouse is clipped on and
-> a house is drawn with it; the ZX Printer is clipped on and prints the house. (`art-colour`, filmed)
+<video src="https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/art-colour.mp4" controls width="100%"></video>
+
+*Drag it on. It is plugged in.* The Art Studio is running. The Kempston Mouse is clipped on and a house is drawn with it; the ZX Printer is clipped on and prints the house.
 
 ![Drawing in the Art Studio with the Kempston Mouse and printing it on the ZX Printer](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/multi-devices.gif)
 

@@ -31,31 +31,31 @@ Drop a file called `cinta3.tzx` on the desk. The machine that game needs starts 
 card unfolds with everything there is about it: its screens, its maps, its pokes, other people's recordings.
 It was recognised by what is inside the file. → [Your files](Your-files)
 
-> **Clip** · `any-name`, filmed
+<video src="https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/any-name.mp4" controls width="100%"></video>
 
 **2. Type a name. Play.**
 Open the game browser, type `dizzy`, double-click. A machine appears, `LOAD ""` types itself, and the game's
 pokes are already there. → [Any game, a name away](Any-game-a-name-away)
 
-> **Clip** · `type-a-name`, filmed
+<video src="https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/type-a-name.mp4" controls width="100%"></video>
 
 **3. Drag it on. It is plugged in.**
 The Art Studio is running. Drag the Kempston Mouse's window against the machine and draw; drag the ZX
 Printer's and print what you drew. No dialog, no checkbox. → [The catalogue of peripherals](The-catalogue-of-peripherals)
 
-> **Clip** · `art-colour`, filmed
+<video src="https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/art-colour.mp4" controls width="100%"></video>
 
 **4. Somebody else's playthrough, and then yours.**
 A recording gets through the screen you never could. Press *Take Over* and the machine is yours, from that
 frame. → [Recordings and Take Over](Recordings-and-Take-Over)
 
-> **Clip** · `take-over`, filmed
+<video src="https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/take-over.mp4" controls width="100%"></video>
 
 **5. An hour in twelve seconds.**
 Manic Miner at three hundred times its speed, with sound and picture on.
 → [How fast, and how we know](How-fast-and-how-we-know)
 
-> **Clip** · `an-hour`, filmed
+<video src="https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/an-hour.mp4" controls width="100%"></video>
 
 ## Four nothings
 

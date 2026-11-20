@@ -3,8 +3,9 @@
 Somebody else's playthrough, and then yours. Watch a recording get through the screen you never could, and
 take the machine from it at any frame.
 
-> **Clip** · *Somebody else's playthrough, and then yours.* A recording of Exolon plays; *Take Over*; the
-> player says the machine is yours, and the keys are. (`take-over`, filmed)
+<video src="https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/take-over.mp4" controls width="100%"></video>
+
+*Somebody else's playthrough, and then yours.* A recording of Exolon plays; *Take Over*; the player says the machine is yours, and the keys are.
 
 ![Taking over a recording of Exolon](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/rzx-takeover.gif)
 

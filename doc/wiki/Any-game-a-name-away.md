@@ -3,8 +3,9 @@
 Type a name and play. The catalogue is inside the emulator, and the double click does the eight things you
 used to do by hand.
 
-> **Clip** · *Type a name. Play.* The game browser, `dizzy`, a double click: a machine appears, `LOAD ""`
-> types itself and the game arrives with its pokes. (`type-a-name`, filmed)
+<video src="https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/type-a-name.mp4" controls width="100%"></video>
+
+*Type a name. Play.* The game browser, `dizzy`, a double click: a machine appears, `LOAD ""` types itself and the game arrives with its pokes.
 
 ![The game browser](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/game-browser.png)
 

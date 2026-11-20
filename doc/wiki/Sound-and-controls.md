@@ -70,8 +70,9 @@ pad that is doing it.
 The Kempston Mouse is a peripheral: open it from `Emulator → Equipment`, clip it onto a machine, and your
 mouse over that machine's picture is the Spectrum's mouse.
 
-> **Clip** · *Drag it on. It is plugged in.* A house is drawn in the Art Studio with a thick brush, the
-> program's pointer under the hand all the way. (`art`, filmed)
+<video src="https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/art.mp4" controls width="100%"></video>
+
+*Drag it on. It is plugged in.* A house is drawn in the Art Studio with a thick brush, the program's pointer under the hand all the way.
 
 **The program's pointer is put under your hand.** A Spectrum mouse only ever says how far it moved, so no
 program knows where your hand is. When your pointer comes onto the picture, the peripheral walks the

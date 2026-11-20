@@ -18,8 +18,9 @@ and room.
 
 ## Minute one: a game
 
-> **Clip** · *Type a name. Play.* The game browser opens, `dizzy` is typed, a double click, and Dizzy is
-> loading in a machine of its own. (`type-a-name`, filmed)
+<video src="https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/type-a-name.mp4" controls width="100%"></video>
+
+*Type a name. Play.* The game browser opens, `dizzy` is typed, a double click, and Dizzy is loading in a machine of its own.
 
 1. `Emulator → Game Browser...`, or its button on the desk's bar.
 2. Type `dizzy` and press Enter. What comes back is the catalogue's answer, each game with its own screen.
