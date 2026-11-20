@@ -1,0 +1,245 @@
+diff --git a/libs/rzx/src/main/java/com/fpetrola/oozx/rzx/RzxSession.java b/libs/rzx/src/main/java/com/fpetrola/oozx/rzx/RzxSession.java
+index 4170656..7660984 100644
+--- a/libs/rzx/src/main/java/com/fpetrola/oozx/rzx/RzxSession.java
++++ b/libs/rzx/src/main/java/com/fpetrola/oozx/rzx/RzxSession.java
+@@ -72,7 +72,7 @@ public class RzxSession {
+   /** A driver for this recording over this machine: it steps the machine, and ends the machine's frames where the recording ends its own. */
+   private static RzxPlayback playbackOf(Speccy speccy, RZXPlayerIO player, RzxFile recording) {
+     return new RzxPlayback(speccy.cpu.getOoz80(), player, recording,
+-        length -> speccy.machine.current.frameEnded(length), speccy.cpu::step);
++        length -> speccy.machine.current.frameEnded(length), fetches -> speccy.cpu.getOoz80().runFetches(fetches, speccy.cpu::step));
+   }
+ 
+   /**
+diff --git a/libs/rzx/src/test/java/model/tests/media/WholeRecordingTime.java b/libs/rzx/src/test/java/model/tests/media/WholeRecordingTime.java
+index 7696cc7..11d205e 100644
+--- a/libs/rzx/src/test/java/model/tests/media/WholeRecordingTime.java
++++ b/libs/rzx/src/test/java/model/tests/media/WholeRecordingTime.java
+@@ -17,6 +17,7 @@
+ 
+ package model.tests.media;
+ 
++import com.fpetrola.oozx.Speccy;
+ import com.fpetrola.oozx.rzx.RzxSession;
+ import com.fpetrola.z80.minizx.RzxPlayback;
+ import model.harness.MachineTest;
+@@ -41,17 +42,53 @@ class WholeRecordingTime extends MachineTest {
+   @Test
+   void theWholeThing() throws Exception {
+     dev.plugdesk.app.Configuration.shared().setValue("machine", "processor", "Generated");
+-    RzxSession session = RzxSession.open(model.harness.TestFiles.testFile("/rzx/jsw-full.rzx"));
+-    session.getSpeccy().picture.active = false;
+-    session.getSpeccy().sound.output.enabled = false;
+-    RzxPlayback playback = session.getPlayback();
+-    long start = System.nanoTime();
+-    int frames = 0;
+-    while (session.playFrame()) frames++;
+-    double seconds = (System.nanoTime() - start) / 1e9;
+-    System.out.printf("TOTAL %d frames, %d instrucciones, %.2f s, %.1f MIPS%n",
+-        frames, playback.getInstructions(), seconds, playback.getInstructions() / seconds / 1e6);
+-    session.release();
++    for (int round = 1; round <= Integer.getInteger("oozx.rounds", 1); round++) {
++      RzxSession session = RzxSession.open(System.getProperty("oozx.rzx") != null ? new java.io.File(System.getProperty("oozx.rzx")) : model.harness.TestFiles.testFile("/rzx/jsw-full.rzx"));
++      session.getSpeccy().picture.active = Boolean.getBoolean("oozx.picture");
++      session.getSpeccy().sound.output.enabled = Boolean.getBoolean("oozx.sound");
++      session.getSpeccy().sound.setCard(new com.fpetrola.oozx.speccy.modules.sound.SilentSoundDevice());
++      RzxPlayback playback = session.getPlayback();
++      long start = System.nanoTime();
++      int frames = 0;
++      while (session.playFrame()) frames++;
++      double seconds = (System.nanoTime() - start) / 1e9;
++      System.out.printf("TOTAL round %d: %d frames, %d instrucciones, %.2f s, %.1f MIPS%n",
++          round, frames, playback.getInstructions(), seconds, playback.getInstructions() / seconds / 1e6);
++      session.release();
++    }
++    dev.plugdesk.app.Configuration.shared().setValue("machine", "processor", null);
++  }
++
++  /** The same moment of the game, driven by the recording and then by the machine's own loop: what the player costs. */
++  @Test
++  void theRecordingAgainstTheMachineAlone() throws Exception {
++    dev.plugdesk.app.Configuration.shared().setValue("machine", "processor", "Generated");
++    for (int round = 1; round <= Integer.getInteger("oozx.rounds", 1); round++) {
++      RzxSession session = RzxSession.open(new java.io.File(System.getProperty("oozx.rzx")));
++      Speccy speccy = session.getSpeccy();
++      speccy.picture.active = false;
++      speccy.sound.output.enabled = false;
++      speccy.sound.setCard(new com.fpetrola.oozx.speccy.modules.sound.SilentSoundDevice());
++      RzxPlayback playback = session.getPlayback();
++      for (int frame = 0; frame < 10000; frame++) session.playFrame();
++      long instructions = playback.getInstructions(), start = System.nanoTime();
++      for (int frame = 0; frame < 10000; frame++) session.playFrame();
++      double played = (System.nanoTime() - start) / 1e9;
++      instructions = playback.getInstructions() - instructions;
++      session.release();
++      speccy.speed.setEmulation(com.fpetrola.oozx.speccy.modules.timer.Speed.UNLIMITED);
++      step(speccy);
++      long frames = speccy.machine.current.frameCount(), tstates = 0, steps = 0;
++      start = System.nanoTime();
++      while (System.nanoTime() - start < played * 1e9) {
++        int r = speccy.cpu.getOoz80().getState().getRegister(com.fpetrola.z80.registers.RegisterName.R).read();
++        step(speccy);
++        steps += (speccy.cpu.getOoz80().getState().getRegister(com.fpetrola.z80.registers.RegisterName.R).read() - r) & 0x7F;
++        tstates++;
++      }
++      System.out.printf("ALONE round %d: played 10000 frames in %.2f s, %.0f instr/frame | own loop in the same time: %d doOpcodes calls, %d frames, R advanced %d (mod 128 per call)%n",
++          round, played, instructions / 10000.0, tstates, speccy.machine.current.frameCount() - frames, steps);
++    }
+     dev.plugdesk.app.Configuration.shared().setValue("machine", "processor", null);
+   }
+ }
+diff --git a/libs/zx-rzx/src/main/java/com/fpetrola/z80/minizx/RZXPlayerIO.java b/libs/zx-rzx/src/main/java/com/fpetrola/z80/minizx/RZXPlayerIO.java
+index ecb05bd..044c4a3 100644
+--- a/libs/zx-rzx/src/main/java/com/fpetrola/z80/minizx/RZXPlayerIO.java
++++ b/libs/zx-rzx/src/main/java/com/fpetrola/z80/minizx/RZXPlayerIO.java
+@@ -173,6 +173,11 @@ public class RZXPlayerIO implements MiniZXIO {
+     return fetchCounter;
+   }
+ 
++  /** The first fetch count at which the interrupt condition can say the frame is over: before it, asking is a no. */
++  public long getFrameEnd() {
++    return lastCount + frameBudget;
++  }
++
+   /** Fetch index where the current frame started; {@code fetchCounter - lastCount} is its height. */
+   public long getFrameStart() {
+     return lastCount;
+diff --git a/libs/zx-rzx/src/main/java/com/fpetrola/z80/minizx/RzxPlayback.java b/libs/zx-rzx/src/main/java/com/fpetrola/z80/minizx/RzxPlayback.java
+index 229dfc7..95711c3 100644
+--- a/libs/zx-rzx/src/main/java/com/fpetrola/z80/minizx/RzxPlayback.java
++++ b/libs/zx-rzx/src/main/java/com/fpetrola/z80/minizx/RzxPlayback.java
+@@ -23,7 +23,6 @@ import com.fpetrola.z80.cpu.State;
+ import com.fpetrola.z80.ide.rzx.InputRecordingBlock;
+ import com.fpetrola.z80.ide.rzx.RzxFile;
+ import java.util.List;
+-import com.fpetrola.z80.registers.Register;
+ 
+ /**
+  * Runs a recording against a processor: steps one instruction at a time, counts fetches, and
+@@ -33,13 +32,9 @@ import com.fpetrola.z80.registers.Register;
+  * than letting a machine's own frame event decide when to interrupt. Feeding a recording into a
+  * machine that keeps interrupting on its own clock desynchronises it within a frame or two.
+  * <p>
+- * The fetch count comes from the R register, which the processor bumps once per M1 cycle, read
+- * either side of every step. R is observable, but its increment writes the field directly and
+- * never tells a listener, so listening to it counts nothing; taking the difference is exact
+- * either way, and needs nothing installed into the machine. Two is as much as one step can add,
+- * for a prefixed opcode, so the seven-bit wrap is never ambiguous - and a difference above two
+- * is not a count at all but LD R,A having written the register, which {@link #step()} says more
+- * about.
++ * The fetches are counted by the processor ({@link com.fpetrola.z80.cpu.Z80Cpu#runFetches}), which runs the whole
++ * stretch up to the end of a frame in one loop: stepped from here one instruction at a time, the same recording
++ * took between 22.6 and 24.2 seconds depending on how the JIT shaped this loop, and 20 run as one stretch.
+  * <p>
+  * It knows nothing about any particular machine: give it a processor, the port that plays the
+  * recorded input back, and the recording.
+@@ -52,38 +47,25 @@ import com.fpetrola.z80.registers.Register;
+  */
+ public class RzxPlayback {
+ 
+-  private final OOZ80 cpu;
+   private final State state;
+-  private final Register registerR;
+   private final RZXPlayerIO player;
+   private final java.util.function.IntPredicate endOfFrame;
+   private final List<InputRecordingBlock.Frame> frames;
+   private final com.fpetrola.z80.cpu.Z80Clock clock;
+   /** Told the length of every frame the recording ends, for the machine to end its own on. */
+   private final java.util.function.IntConsumer frameEnded;
+-  /**
+-   * How an instruction is run: through the machine rather than the bare processor, so that
+-   * whatever it hangs on a fetch is heard.
+-   * <p>
+-   * Final and given at construction, not set afterwards by a builder. It is read once per
+-   * instruction, and a field the compiler cannot fold to a constant is read there too: measured on
+-   * a whole recording, the version that set it afterwards deoptimised playFrame 62 times in a slow
+-   * run against 12 in a fast one, and the same recording took between 7.2 and 10.1 seconds.
+-   */
+-  private final Runnable stepper;
++  /** Runs instructions through the machine, so that whatever it hangs on a fetch is heard, up to a number of fetches. */
++  private final java.util.function.IntToLongFunction stretch;
+ 
+   private int fetchCounter;
+-  private int previousR;
+   private int frameIndex;
+   private long instructions;
+ 
+-  public RzxPlayback(OOZ80 cpu, RZXPlayerIO player, RzxFile recording, java.util.function.IntConsumer frameEnded, Runnable stepper) {
++  public RzxPlayback(OOZ80 cpu, RZXPlayerIO player, RzxFile recording, java.util.function.IntConsumer frameEnded, java.util.function.IntToLongFunction stretch) {
+     this.frameEnded = frameEnded;
+-    this.stepper = stepper;
+-    this.cpu = cpu;
++    this.stretch = stretch;
+     this.player = player;
+     this.state = cpu.getState();
+-    this.registerR = state.getRegisterR();
+     this.frames = recording.getInputRecordingBlock().frames;
+ 
+     player.setup(recording);
+@@ -103,7 +85,6 @@ public class RzxPlayback {
+     // is EI takes its interrupt too and its acknowledge is discounted like any other.
+     player.setAcceptsInterrupt(state::isIff1);
+     this.endOfFrame = player.getInterruptionCondition();
+-    this.previousR = registerR.read() & 0x7F;
+     this.clock = state.clock;
+   }
+ 
+@@ -117,8 +98,10 @@ public class RzxPlayback {
+       return false;
+     }
+ 
+-    while (!endOfFrame.test(fetchCounter)) {
+-      step();
++    while (true) {
++      run((int) (player.getFrameEnd() - fetchCounter));
++      if (endOfFrame.test(fetchCounter)) break;
++      run(1);
+     }
+ 
+     // The machine's frame ends here too, and lasted what the clock says it lasted: the interrupt
+@@ -135,8 +118,8 @@ public class RzxPlayback {
+     // Heels, frame 904, and every frame after it one port read short or over).
+     state.setINTLine(true);
+     while (state.isPendingEI())
+-      step();
+-    step();
++      run(1);
++    run(1);
+     state.setINTLine(false);
+     frameIndex++;
+     return true;
+@@ -151,18 +134,10 @@ public class RzxPlayback {
+     return played;
+   }
+ 
+-  private void step() {
+-    int pc = state.getPc().read();
+-    // LD R,A writes R instead of bumping it, so the difference across its step counts nothing: it is its own two
+-    // fetches. Everything else is what R says, including an accepted interrupt, whose step is the acknowledge plus
+-    // the handler's first instruction: three when that one is prefixed (Batman The Movie starts its handler with
+-    // PUSH IX, and capped at two every frame ran one fetch long).
+-    boolean writesR = state.getMemory().peek(pc) == 0xED && state.getMemory().peek(pc + 1 & 0xFFFF) == 0x4F;
+-    stepper.run();
+-    instructions++;
+-    int now = registerR.read() & 0x7F;
+-    fetchCounter += writesR ? 2 : (now - previousR) & 0x7F;
+-    previousR = now;
++  private void run(int fetches) {
++    long ran = stretch.applyAsLong(fetches);
++    fetchCounter += (int) ran;
++    instructions += ran >>> 32;
+   }
+ 
+   /** Asked of the recording each time, since one being made grows while it is played. */
+diff --git a/libs/zx-rzx/src/test/java/com/fpetrola/z80/minizx/RzxPlaybackTest.java b/libs/zx-rzx/src/test/java/com/fpetrola/z80/minizx/RzxPlaybackTest.java
+index 7032f78..57728e5 100644
+--- a/libs/zx-rzx/src/test/java/com/fpetrola/z80/minizx/RzxPlaybackTest.java
++++ b/libs/zx-rzx/src/test/java/com/fpetrola/z80/minizx/RzxPlaybackTest.java
+@@ -66,6 +66,6 @@ class RzxPlaybackTest {
+     }
+     block.numberOfFrames = block.frames.size();
+     return new RzxPlayback(ooz80, player, new RzxFile(null, null, null, block), tstates -> {
+-    }, ooz80::execute);
++    }, fetches -> ooz80.runFetches(fetches, ooz80::execute));
+   }
+ }

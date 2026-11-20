@@ -1,0 +1,22 @@
+date: 2026-11-20T01:27:57-03:00
+cpu: 13th Gen Intel(R) Core(TM) i5-1335U
+cores used: 0-3 (P-cores), taskset
+scaling_max_freq cpu0-3 (kHz): 2000000 2000000 2000000 2000000 
+governor: powersave
+kernel: 7.0.0-43-generic
+java: java version "25.0.5.0.3" 2026-10-25 LTS Java(TM) SE Runtime Environment Oracle GraalVM 25.5.5.0.3+1.1 (build 25.0.5.0.3+1-LTS-jvmci-25.5-b26) Java HotSpot(TM) 64-Bit Server VM Oracle GraalVM 25.5.5.0.3+1.1 (build 25.0.5.0.3+1-LTS-jvmci-25.5-b26, mixed mode, sharing) 
+maven: [1mApache Maven 3.9.12[m
+oozx: 591e33eef + uncommitted:  M emulator/src/main/java/com/fpetrola/z80/cpu/State.java  M emulator/src/main/java/com/fpetrola/z80/cpu/Z80Cpu.java  M machine/bridge/src/test/java/model/tests/devices/TestSpeccySound.java ?? emulator/src/test/java/com/fpetrola/z80/FetchCountTest.java 
+oozx-plugins: d9b88f3 + uncommitted:  M libs/rzx/src/main/java/com/fpetrola/oozx/rzx/RzxSession.java  M libs/rzx/src/test/java/model/tests/media/WholeRecordingTime.java  M libs/zx-rzx/src/main/java/com/fpetrola/z80/minizx/RZXPlayerIO.java  M libs/zx-rzx/src/main/java/com/fpetrola/z80/minizx/RzxPlayback.java  M libs/zx-rzx/src/test/java/com/fpetrola/z80/minizx/RzxPlaybackTest.java 
+fuse: fuse-libretro e997e2b branch oozx-bridge (Fuse 1.6.0 core), harness oozx/playrzx: sound 0, picture every 1000 frames
+oozx run: WholeRecordingTime, generated core, 2 JVMs x 4 rounds, round 1 = warm-up; silent sound device
+recordings:
+  darkfusion.rzx 169935 bytes sha1 8f26ee7ed652
+  dynamitedan.rzx 154284 bytes sha1 f596a65ecb89
+  eawally.rzx 431494 bytes sha1 b7107dfe89ff
+  exolon.rzx 286683 bytes sha1 dd2977db489f
+  fairlight.rzx 304726 bytes sha1 de11e7df1a2f
+  greatescape.rzx 244610 bytes sha1 1df44faaab10
+  jetsetwilly.rzx 166709 bytes sha1 e3f72d3972e0
+  manic.rzx 137199 bytes sha1 82c2863b7425
+  target.rzx 172017 bytes sha1 1ca3dde151af

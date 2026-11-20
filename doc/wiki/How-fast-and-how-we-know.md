@@ -89,18 +89,60 @@ This part matters more than the numbers.
 Every number is in `doc/plan-superar-zxspin.md`, `doc/plan-nucleo-generado.md`,
 `doc/plan-nucleo-generado-jvm.md` and `doc/plan-nucleo-generado-modulo.md`, with its conditions beside it.
 
-## What has not been measured
+## Against Fuse
 
-**I have not measured any other emulator.** The one comparison in the diaries, that the generated core ran
-at the speed of the reference emulator and another emulator a fifth faster, is the premise the work started
-from and not a result. I have not found another emulator's published figure to put beside these, either.
+I put Fuse's own core and this one behind the same recording and timed both. Nine recordings, played whole
+from start to end, nothing pacing them, no picture and no sound on either side. Both count the same frames.
 
-The way to settle it is already in the repository: `machine/bridge` runs Fuse's own core, the real one,
-behind the same interface as this one. Putting both behind the same harness and the same recording is the
-measurement, and I have not run it.
+| Recording | frames | this emulator | Fuse | faster by |
+|---|---|---|---|---|
+| Fairlight | 102,512 | 15.40 s | 25.42 s | **65 %** |
+| Jet Set Willy | 85,368 | 10.38 s | 16.72 s | **61 %** |
+| Target Renegade | 56,598 | 10.95 s | 13.59 s | 24 % |
+| Dark Fusion | 63,652 | 14.14 s | 17.03 s | 20 % |
+| Manic Miner | 69,676 | 7.96 s | 9.57 s | 20 % |
+| The Great Escape | 95,264 | 16.82 s | 19.50 s | 16 % |
+| Dynamite Dan | 52,878 | 8.97 s | 9.85 s | 10 % |
+| Everyone's a Wally | 184,099 | 23.78 s | 26.09 s | 10 % |
+| Exolon | 112,473 | 22.19 s | 22.26 s | 0 % |
 
-Until then, what I stand behind is what I can show: 15,256 frames a second with sound and picture on, and
-4.3 times the object model, from a model that was not bent to get there and is still the reference.
+**24 % faster on average** (geometric mean), and faster on eight of the nine. At 2 GHz that is between 9,000 %
+and 17,500 % of a Spectrum's speed; scaled to the processor's 4.6 GHz peak it would be 20,700 % to 40,300 %,
+which is a projection, not a measurement.
+
+The conditions: 20 November 2026, the same i5-1335U held at **2 GHz on its four performance cores**, because
+at full speed it heats up and slows down within seconds and the same run varied by 15 %; at 2 GHz its
+throttle counter did not move once. Fuse 1.6.0 is its libretro core built from the upstream source, driven
+by a small C program. This emulator is the generated core under GraalVM 25, two JVMs per recording, four
+rounds each, the first thrown away while the JIT warms up. Both count the frames the same way; the
+instructions this one ran are identical across JVMs.
+
+What it does not say: it is the **recording player**, not the loop you play on, and neither side drew the
+picture or made sound. Exolon ties because one of its two JVMs settled about 10 % slower than the other: the
+same build lands in one of two speeds depending on how the JIT shapes it, and with the fast one Exolon is
+10 % ahead too.
+
+### How it got there
+
+The first run lost: Exolon took 25.9 s against Fuse's 22.2 s. Each step below was measured in alternated
+JVMs, and kept only if it moved.
+
+| Step | Exolon |
+|---|---|
+| Start | 25.9 s, 0.85 times Fuse |
+| The player runs a frame in one loop, and only looks at the bytes of an instruction when R comes out equal to A | 24.0 s |
+| A mask on the memory page index of the generated core | no change, reverted |
+| A JIT option to inline the player's step | no change, not kept |
+| **The processor runs the whole stretch to the end of the frame itself** | **21.0 s, 1.07 times Fuse** |
+
+The last step is the one worth telling. A recording measures a frame in instruction fetches, which the
+processor counts in its R register. The player used to ask for one instruction, read R before and after,
+and ask again, 930 million times for Exolon; the hot loop was split between two classes and the JIT never
+joined them. Now the player asks the processor once a frame to run *until N fetches*, and the processor
+counts its own fetches, as it should, since R is its own. It is faster, it varies less, and the player lost
+25 lines. This change is not in a released jar yet: the patches measured are beside the data.
+
+Every round, the machine, the patches and the story are in `doc/performance/` in the repository.
 
 The translator is a separate question with the same answer: a translated game is not emulated, it runs, and
 how fast it runs has not been measured either. → [The translator](The-translator)
@@ -118,7 +160,7 @@ down from 951 to 671 bytes a frame.
 ## Doing it yourself
 
 ```bash
-taskset -c 2,3 java -jar oozx-<version>.jar
+taskset -c 0-3 java -jar oozx-<version>.jar
 ```
 
 Load a game, turn the dial to its maximum, and read the percentage at the foot of the machine. The harnesses

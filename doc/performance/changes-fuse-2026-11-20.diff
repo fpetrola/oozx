@@ -1,0 +1,302 @@
+diff --git a/build/Makefile.common b/build/Makefile.common
+index b3cbb92..5473664 100644
+--- a/build/Makefile.common
++++ b/build/Makefile.common
+@@ -9,6 +9,7 @@ INCLUDES += -I$(CORE_DIR)/deps/libretro-common/include \
+             -I$(CORE_DIR)/bzip2
+ 
+ SOURCES_C += $(CORE_DIR)/src/libretro.c
++SOURCES_C += $(CORE_DIR)/src/bridge.c
+ SOURCES_C += $(CORE_DIR)/src/coreopt.c
+ SOURCES_C += $(CORE_DIR)/src/missing.c
+ SOURCES_C += $(CORE_DIR)/src/version.c
+diff --git a/fuse/memory_pages.c b/fuse/memory_pages.c
+index d016c8b..600b7bd 100644
+--- a/fuse/memory_pages.c
++++ b/fuse/memory_pages.c
+@@ -32,6 +32,7 @@
+ 
+ #include <libspectrum.h>
+ 
++#include "bridge.h"
+ #include "debugger/debugger.h"
+ #include "display.h"
+ #include "fuse.h"
+@@ -383,8 +384,8 @@ readbyte( libspectrum_word address )
+   if( debugger_mode != DEBUGGER_MODE_INACTIVE )
+     debugger_check( DEBUGGER_BREAKPOINT_TYPE_READ, address );
+ 
+-  if( mapping->contended ) tstates += ula_contention[ tstates ];
+-  tstates += 3;
++  if( mapping->contended ) bridge_add( "ula readbyte", ula_contention[ tstates ] );
++  bridge_add( "readbyte", 3 );
+ 
+   if( opus_active && address >= 0x2800 && address < 0x3800 )
+     return opus_read( address );
+@@ -423,9 +424,9 @@ writebyte( libspectrum_word address, libspectrum_byte b )
+   if( debugger_mode != DEBUGGER_MODE_INACTIVE )
+     debugger_check( DEBUGGER_BREAKPOINT_TYPE_WRITE, address );
+ 
+-  if( mapping->contended ) tstates += ula_contention[ tstates ];
++  if( mapping->contended ) bridge_add( "ula writebyte", ula_contention[ tstates ] );
+ 
+-  tstates += 3;
++  bridge_add( "writebyte", 3 );
+ 
+   writebyte_internal( address, b );
+ }
+diff --git a/fuse/periph.c b/fuse/periph.c
+index e076156..7c84f64 100644
+--- a/fuse/periph.c
++++ b/fuse/periph.c
+@@ -26,6 +26,7 @@
+ 
+ #include <libspectrum.h>
+ 
++#include "bridge.h"
+ #include "debugger/debugger.h"
+ #include "event.h"
+ #include "fuse.h"
+@@ -289,7 +290,7 @@ readport( libspectrum_word port )
+ 	machine_current->machine == LIBSPECTRUM_MACHINE_PLUS2    ) )
+     writeport_internal( 0x7ffd, b );
+ 
+-  tstates++;
++  bridge_add( "contend_port_late", 1 );
+ 
+   return b;
+ }
+@@ -374,7 +375,7 @@ writeport( libspectrum_word port, libspectrum_byte b )
+ {
+   ula_contend_port_early( port );
+   writeport_internal( port, b );
+-  ula_contend_port_late( port ); tstates++;
++  ula_contend_port_late( port ); bridge_add( "contend_port_late", 1 );
+ }
+ 
+ /* Write a byte to a specific port response */
+diff --git a/fuse/peripherals/ula.c b/fuse/peripherals/ula.c
+index ae9086a..907d3c0 100644
+--- a/fuse/peripherals/ula.c
++++ b/fuse/peripherals/ula.c
+@@ -27,6 +27,7 @@
+ 
+ #include <libspectrum.h>
+ 
++#include "bridge.h"
+ #include "compat.h"
+ #include "debugger/debugger.h"
+ #include "keyboard.h"
+@@ -260,9 +261,9 @@ void
+ ula_contend_port_early( libspectrum_word port )
+ {
+   if( memory_map_read[ port >> MEMORY_PAGE_SIZE_LOGARITHM ].contended )
+-    tstates += ula_contention_no_mreq[ tstates ];
++    bridge_add( "ula contend_port_early", ula_contention_no_mreq[ tstates ] );
+    
+-  tstates++;
++  bridge_add( "contend_port_early", 1 );
+ }
+ 
+ void
+@@ -270,16 +271,19 @@ ula_contend_port_late( libspectrum_word port )
+ {
+   if( machine_current->ram.port_from_ula( port ) ) {
+ 
+-    tstates += ula_contention_no_mreq[ tstates ]; tstates += 2;
++    bridge_add( "ula contend_port_late", ula_contention_no_mreq[ tstates ] );
++    bridge_add( "contend_port_late", 2 );
+ 
+   } else {
+ 
+     if( memory_map_read[ port >> MEMORY_PAGE_SIZE_LOGARITHM ].contended ) {
+-      tstates += ula_contention_no_mreq[ tstates ]; tstates++;
+-      tstates += ula_contention_no_mreq[ tstates ]; tstates++;
+-      tstates += ula_contention_no_mreq[ tstates ];
++      bridge_add( "ula contend_port_late", ula_contention_no_mreq[ tstates ] );
++      bridge_add( "contend_port_late", 1 );
++      bridge_add( "ula contend_port_late", ula_contention_no_mreq[ tstates ] );
++      bridge_add( "contend_port_late", 1 );
++      bridge_add( "ula contend_port_late", ula_contention_no_mreq[ tstates ] );
+     } else {
+-      tstates += 2;
++      bridge_add( "contend_port_late", 2 );
+     }
+ 
+   }
+diff --git a/fuse/z80/z80.c b/fuse/z80/z80.c
+index 6de8b8b..f010bac 100644
+--- a/fuse/z80/z80.c
++++ b/fuse/z80/z80.c
+@@ -26,6 +26,7 @@
+ 
+ #include <libspectrum.h>
+ 
++#include "bridge.h"
+ #include "debugger/debugger.h"
+ #include "event.h"
+ #include "fuse.h"
+@@ -204,7 +205,7 @@ z80_interrupt( void )
+     IFF1=IFF2=0;
+     R++; rzx_instructions_offset--;
+ 
+-    tstates += 7; /* Longer than usual M1 cycle */
++    bridge_add( "interrupt", 7 ); /* Longer than usual M1 cycle */
+ 
+     writebyte( --SP, PCH ); writebyte( --SP, PCL );
+ 
+@@ -257,7 +258,7 @@ z80_nmi( libspectrum_dword ts, int type, void *user_data )
+   if( z80.halted ) { PC++; z80.halted = 0; }
+ 
+   IFF1 = 0;
+-  R++; tstates += 5;
++  R++; bridge_add( "interrupt", 5 );
+ 
+   writebyte( --SP, PCH ); writebyte( --SP, PCL );
+ 
+diff --git a/fuse/z80/z80_macros.h b/fuse/z80/z80_macros.h
+index 2511a52..bcae868 100644
+--- a/fuse/z80/z80_macros.h
++++ b/fuse/z80/z80_macros.h
+@@ -108,18 +108,18 @@
+ 
+ #define contend_read(address,time) \
+   if( memory_map_read[ (address) >> MEMORY_PAGE_SIZE_LOGARITHM ].contended ) \
+-    tstates += ula_contention[ tstates ]; \
+-  tstates += (time);
++    bridge_add( "ula readbyte", ula_contention[ tstates ] ); \
++  bridge_add( "readbyte", (time) );
+ 
+ #define contend_read_no_mreq(address,time) \
+   if( memory_map_read[ (address) >> MEMORY_PAGE_SIZE_LOGARITHM ].contended ) \
+-    tstates += ula_contention_no_mreq[ tstates ]; \
+-  tstates += (time);
++    bridge_add( "ula contend_read_no_mreq", ula_contention_no_mreq[ tstates ] ); \
++  bridge_add( "contend_read_no_mreq", (time) );
+ 
+ #define contend_write_no_mreq(address,time) \
+   if( memory_map_write[ (address) >> MEMORY_PAGE_SIZE_LOGARITHM ].contended ) \
+-    tstates += ula_contention_no_mreq[ tstates ]; \
+-  tstates += (time);
++    bridge_add( "ula contend_write_no_mreq", ula_contention_no_mreq[ tstates ] ); \
++  bridge_add( "contend_write_no_mreq", (time) );
+ 
+ #else				/* #ifndef CORETEST */
+ 
+diff --git a/fuse/z80/z80_ops.c b/fuse/z80/z80_ops.c
+index 9c2f961..debe050 100755
+--- a/fuse/z80/z80_ops.c
++++ b/fuse/z80/z80_ops.c
+@@ -28,6 +28,7 @@
+ 
+ #include <stdio.h>
+ 
++#include "bridge.h"
+ #include "debugger/debugger.h"
+ #include "event.h"
+ #include "machine.h"
+@@ -140,6 +141,8 @@ z80_do_opcodes( void )
+ 
+   while( tstates < event_next_event ) {
+ 
++    if( bridge_command && bridge_before_instruction() ) break;
++
+     /* If we're due an end of frame from RZX playback, generate one */
+     CHECK( rzx, rzx_playback )
+ 
+diff --git a/src/libretro.c b/src/libretro.c
+index bc28113..0bfc04a 100644
+--- a/src/libretro.c
++++ b/src/libretro.c
+@@ -30,6 +30,18 @@
+ #include <timer/timer.h>
+ 
+ #include "ui/uimedia.h"
++#include "bridge.h"
++
++int bridge_read_memory(int address);
++void bridge_reset(void);
++int bridge_load(const struct retro_game_info *game);
++
++/* What a core loaded by something that is not a frontend runs with. */
++static bool no_frontend(unsigned cmd, void *data) { return cmd == RETRO_ENVIRONMENT_SET_PIXEL_FORMAT; }
++static void no_video(const void *data, unsigned width, unsigned height, size_t pitch) {}
++static void no_input_poll(void) {}
++static int16_t no_input_state(unsigned port, unsigned device, unsigned index, unsigned id) { return 0; }
++static size_t no_audio(const int16_t *data, size_t frames) { return frames; }
+ 
+ static void dummy_log(enum retro_log_level level, const char *fmt, ...)
+ {
+@@ -294,8 +306,8 @@ static int opt_stereo_ay = -1;
+ static int opt_volume_ay = -1;
+ static int opt_volume_beeper = -1;
+ 
+-static retro_video_refresh_t video_cb;
+-static retro_input_poll_t input_poll_cb;
++static retro_video_refresh_t video_cb = no_video;
++static retro_input_poll_t input_poll_cb = no_input_poll;
+ 
+ static uint16_t image_buffer_2[MAX_WIDTH * MAX_HEIGHT];
+ static unsigned first_pixel;
+@@ -327,7 +339,7 @@ static char initial_disk_path_hint[MAX_DISK_PATH_LEN];
+ 
+ // allow access to variables declared here
+ double total_time_ms;
+-retro_environment_t env_cb;
++retro_environment_t env_cb = no_frontend;
+ 
+ /* The frontend's system directory, or "" when it offers none. Fuse looks for
+    auxiliary files it does not have baked in - currently the two Currah
+@@ -335,8 +347,8 @@ retro_environment_t env_cb;
+    and compat_get_next_path() offers this as a search location. */
+ char system_dir[PATH_MAX] = "";
+ retro_log_printf_t log_cb = dummy_log;
+-retro_audio_sample_batch_t audio_cb;
+-retro_input_state_t input_state_cb;
++retro_audio_sample_batch_t audio_cb = no_audio;
++retro_input_state_t input_state_cb = no_input_state;
+ uint16_t image_buffer[MAX_WIDTH * MAX_HEIGHT];
+ unsigned hard_width, hard_height;
+ int show_frame, some_audio;
+@@ -2105,6 +2117,9 @@ extern const char* fuse_gitstamp;
+ 
+ bool retro_load_game(const struct retro_game_info *info)
+ {
++   if (bridge_command && fuse_init_called)
++      return bridge_load(info);
++
+ #ifndef GIT_VERSION
+    log_cb( RETRO_LOG_INFO, "\n%s\n", fuse_gitstamp );
+ #endif
+@@ -2445,7 +2460,7 @@ size_t retro_get_memory_size(unsigned id)
+ 
+ void *retro_get_memory_data(unsigned id)
+ {
+-   return NULL;
++   return bridge_command ? (void *)(intptr_t)bridge_read_memory(id) : NULL;
+ }
+ 
+ void retro_set_video_refresh(retro_video_refresh_t cb)
+@@ -2641,6 +2656,9 @@ void retro_run(void)
+ {
+    bool updated = false;
+ 
++   if (!fuse_init_called)
++      retro_load_game(NULL);
++
+    if (periph_needs_update)
+    {
+       int needs_reset = periph_needs_reset;
+@@ -3007,6 +3025,12 @@ void retro_set_controller_port_device(unsigned port, unsigned device)
+ 
+ void retro_reset(void)
+ {
++   if (bridge_command)
++   {
++      bridge_reset();
++      return;
++   }
++
+    const char* ext;
+    libspectrum_id_t type;
+    char filename[32];

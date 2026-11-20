@@ -1,0 +1,109 @@
+diff --git a/emulator/src/main/java/com/fpetrola/z80/cpu/State.java b/emulator/src/main/java/com/fpetrola/z80/cpu/State.java
+index b9ea9956b..3ef5f8e58 100644
+--- a/emulator/src/main/java/com/fpetrola/z80/cpu/State.java
++++ b/emulator/src/main/java/com/fpetrola/z80/cpu/State.java
+@@ -146,7 +146,8 @@ public class State {
+ 
+   /** One instruction has run, so the shadow an EI casts is one instruction shorter. */
+   public void instructionRan() {
+-    interruptShadow = Math.max(0, interruptShadow - 1);
++    if (interruptShadow > 0)
++      interruptShadow--;
+   }
+ 
+   /** Whether an interrupt on the line is taken now: enabled, and not in the shadow of an EI. */
+@@ -160,9 +161,10 @@ public class State {
+ 
+   /** The NMI pin is an edge: latched until the CPU takes it, between two instructions, once. */
+   public boolean takeNMI() {
+-    boolean taken = activeNMI;
++    if (!activeNMI)
++      return false;
+     activeNMI = false;
+-    return taken;
++    return true;
+   }
+ 
+   /** An NMI keeps IFF1 in IFF2 for RETN to bring back, and masks INT meanwhile. */
+diff --git a/emulator/src/main/java/com/fpetrola/z80/cpu/Z80Cpu.java b/emulator/src/main/java/com/fpetrola/z80/cpu/Z80Cpu.java
+index 1eaef8477..10f3d2338 100644
+--- a/emulator/src/main/java/com/fpetrola/z80/cpu/Z80Cpu.java
++++ b/emulator/src/main/java/com/fpetrola/z80/cpu/Z80Cpu.java
+@@ -31,4 +31,27 @@ public interface Z80Cpu {
+   State getState();
+ 
+   InstructionExecutor getInstructionExecutor();
++
++  /**
++   * Runs instructions, each through the given one, until the processor has made at least that many fetches, counted by
++   * R. LD R,A writes R instead of bumping it, so it is its own two fetches; it is only looked for when R came out equal
++   * to A, which it always leaves. Answers instructions << 32 | fetches.
++   */
++  default long runFetches(int budget, Runnable instruction) {
++    State state = getState();
++    var r = state.getRegisterR();
++    var a = state.getRegister(com.fpetrola.z80.registers.RegisterName.A);
++    var memory = state.getMemory();
++    int done = 0, previous = r.read() & 0x7F;
++    long executed = 0;
++    while (done < budget) {
++      int pc = state.getPc().read();
++      instruction.run();
++      executed++;
++      int now = r.read() & 0x7F;
++      done += now == (a.read() & 0x7F) && memory.peek(pc) == 0xED && memory.peek(pc + 1 & 0xFFFF) == 0x4F ? 2 : (now - previous) & 0x7F;
++      previous = now;
++    }
++    return executed << 32 | done;
++  }
+ }
+diff --git a/emulator/src/test/java/com/fpetrola/z80/FetchCountTest.java b/emulator/src/test/java/com/fpetrola/z80/FetchCountTest.java
+new file mode 100644
+index 000000000..5fa5dc732
+--- /dev/null
++++ b/emulator/src/test/java/com/fpetrola/z80/FetchCountTest.java
+@@ -0,0 +1,44 @@
++package com.fpetrola.z80;
++
++import com.fpetrola.z80.cpu.OOZ80;
++import com.fpetrola.z80.registers.RegisterName;
++import org.junit.jupiter.api.Test;
++
++import static org.junit.jupiter.api.Assertions.assertEquals;
++
++class FetchCountTest {
++
++  private static OOZ80 running(int... bytes) {
++    OOZ80 cpu = ProcessorUnderTest.found().processor(null);
++    for (int i = 0; i < bytes.length; i++)
++      cpu.getState().getMemory().write(0x8000 + i, bytes[i]);
++    cpu.getState().getPc().write(0x8000);
++    return cpu;
++  }
++
++  private static void assertRan(long instructions, long fetches, long ran) {
++    assertEquals(instructions, ran >>> 32);
++    assertEquals(fetches, (int) ran);
++  }
++
++  @Test
++  void stopsAtTheFirstInstructionThatReachesTheBudget() {
++    OOZ80 cpu = running(0, 0, 0, 0, 0);
++    assertRan(3, 3, cpu.runFetches(3, cpu::execute));
++    assertEquals(0x8003, cpu.getState().getPc().read());
++  }
++
++  @Test
++  void aPrefixedInstructionIsTwoFetchesAndMayOvershoot() {
++    OOZ80 cpu = running(0xDD, 0x21, 0x34, 0x12, 0);
++    assertRan(1, 2, cpu.runFetches(1, cpu::execute));
++  }
++
++  @Test
++  void ldRAWritesRAndStillCountsItsTwoFetches() {
++    OOZ80 cpu = running(0xED, 0x4F, 0);
++    cpu.getState().getRegister(RegisterName.A).write(0x55);
++    assertRan(1, 2, cpu.runFetches(1, cpu::execute));
++    assertEquals(0x55, cpu.getState().getRegisterR().read() & 0x7F);
++  }
++}
