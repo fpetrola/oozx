@@ -30,7 +30,7 @@ Nobody can say which address holds the lives by looking at 48K of memory. But wh
 something the memory does not say: that a life was just lost. So the search is not of the memory, it is of
 the player.
 
-`Emulator → Equipment → Poke finder` opens the finder. Clip it onto the machine.
+`Emulator → Equipment → The game lab → Poke finder` opens the finder. Clip it onto the machine.
 
 1. **Play until something you can name happens.** You lose a life.
 2. **Say what happened.** Press *went down*. Every address whose value did not go down is thrown away. The

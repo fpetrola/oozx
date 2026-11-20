@@ -40,7 +40,7 @@ What the double click did for you is on [Any game, a name away](Any-game-a-name-
    whatever the file was called. → [Your files](Your-files)
 2. **Go faster.** The rocket on the machine's bar runs it flat out. Right-click the rocket for a
    speed of your choice, from 25 % to 40,000 %. → [How fast, and how we know](How-fast-and-how-we-know)
-3. **Plug something in.** `Emulator → Equipment → Kempston Mouse` opens the mouse's window. Drag it against
+3. **Plug something in.** `Emulator → Equipment → Printers and pointers → Kempston Mouse` opens the mouse's window. Drag it against
    the machine's window and let go: it is plugged in. Drag it away and it is not.
    → [The catalogue of peripherals](The-catalogue-of-peripherals)
 4. **Quit.** `File → Quit`. Open it again and the desk is as you left it, with every machine

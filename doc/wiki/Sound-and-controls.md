@@ -37,7 +37,7 @@ Alt are Symbol Shift, so while a machine has the focus they belong to the Spectr
 *CAPS SHIFT, M, SPACE and ENTER held down on the machine: each one is sunk into the photograph for as long as
 the machine sees it.*
 
-`Emulator → Equipment → Keyboard` is a photograph of a 48K with every key that is down on the machine shown
+`Emulator → Equipment → The game lab → Keyboard` is a photograph of a 48K with every key that is down on the machine shown
 pressed into the picture. It shows what the machine reads, not what your computer sent.
 
 It is the place to look when typing does not arrive. A key that lights here and is ignored is the game's
@@ -58,7 +58,7 @@ wired the stick to keys of the machine's own keyboard. So a joystick here is a k
 | **Sinclair 1 and 2**, **Cursor**, **Timex 1 and 2** | keys of the machine |
 | **Fuller** | its own port, on the Fuller Box |
 
-`Emulator → Equipment → Joystick` shows the direction and the fire as the machine reads them, and names the
+`Emulator → Equipment → Printers and pointers → Joystick` shows the direction and the fire as the machine reads them, and names the
 pad that is doing it.
 
 ![The joystick window](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/img/window-joystick.png)
@@ -67,7 +67,7 @@ pad that is doing it.
 
 ## The mouse
 
-The Kempston Mouse is a peripheral: open it from `Emulator → Equipment`, clip it onto a machine, and your
+The Kempston Mouse is a peripheral: open it from `Emulator → Equipment → Printers and pointers`, clip it onto a machine, and your
 mouse over that machine's picture is the Spectrum's mouse.
 
 [![art](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/art.gif)](https://fpetrola.github.io/oozx/clips/art.mp4)

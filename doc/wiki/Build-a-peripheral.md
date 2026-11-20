@@ -194,7 +194,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 
 /** The lamps' window: clipping it onto a machine is what plugs them in. */
-@Offers("Plug in: Lamps")
+@Offers("Printers and pointers/Lamps")
 public class LampsEquipment implements Equipment {
   public String name() {
     return "Lamps";
@@ -244,8 +244,10 @@ public class LampsEquipment implements Equipment {
 }
 ```
 
-- **`name()`** is what `Emulator → Equipment` lists.
-- **`@Offers`** is what `Discover → What do you want to do?...` finds when somebody types "lamps".
+- **`@Offers`** is the shelf and the name it has under `Emulator → Equipment`, and what `Discover → What do
+  you want to do?...` finds when somebody types "lamps", even before the plugin is installed. A shelf that
+  is not there yet is made.
+- **`name()`** is what the desk knows it by: which of its windows are open, and which come back next time.
 - **`controls`** is the bar of the window, the part that stays when it is folded. `assemble` takes what
   shows when it is unfolded.
 - **`device()`** is the peripheral of the machine this window is clipped to, or nothing while it is clipped
@@ -261,11 +263,12 @@ cp target/device-lamps-1.0.jar ~/.oozx/plugins/
 The build wrote into your jar what it brings: which classes answer to which way in. You registered nothing,
 and nothing in the emulator names your classes.
 
-Start the desk. *Lamps* is under `Emulator → Equipment`, among the peripherals that came with it.
+Start the desk. *Lamps* is under `Emulator → Equipment → Printers and pointers`, beside the peripherals that
+came with it.
 
 ## 6. Light them
 
-1. `Emulator → New Machine`, and `Emulator → Equipment → Lamps`.
+1. `Emulator → New Machine`, and `Emulator → Equipment → Printers and pointers → Lamps`.
 2. Drag the Lamps window against the machine's.
 3. On the Spectrum, type `OUT 255,170` and Enter. `OUT` is on the O key in extended mode: on your keyboard,
    Tab and then Ctrl+O.

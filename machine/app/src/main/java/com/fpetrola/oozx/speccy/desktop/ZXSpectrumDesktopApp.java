@@ -611,8 +611,8 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
       config.save();
       workbench.changed();
     }));
-    for (Equipment kind : has.equipment())
-      offers.add(offering("Emulator/Equipment/" + dev.plugdesk.desk.Action.step(kind.name()), null, 100, () -> show(kind)));
+    has.equipment().stream().map(kind -> offering(offered.placeOf(kind, kind.name()), null, 100, () -> show(kind)))
+        .sorted(java.util.Comparator.comparing(dev.plugdesk.desk.Action::path)).forEach(offers::add);
     offers.add(pluginsWindow);
     for (com.fpetrola.oozx.speccy.devices.MachineTool tool : has.tools()) {
       if (tool.key() == null) continue;

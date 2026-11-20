@@ -24,7 +24,7 @@ How long that takes is yours to choose, under `Emulator → Settings... → Mach
 
 ## The deck
 
-`Emulator → Equipment → Cassette` is a cassette deck. Clip it onto a machine and it is that machine's deck:
+`Emulator → Equipment → Disks and tape → Cassette` is a cassette deck. Clip it onto a machine and it is that machine's deck:
 the blocks of the tape, how far along it is, play, stop and rewind, and *Open Tape...*.
 
 It also works with no machine at all, to look inside a tape before deciding what to do with it.
@@ -36,7 +36,7 @@ It also works with no machine at all, to look inside a tape before deciding what
 > **Clip** · a cassette player beside the computer, its lead in the sound card; the trace moves on the
 > oscilloscope and the game loads. With sound. (`real-cassette`, to film)
 
-`Emulator → Equipment → Real Cassette (audio in)` opens an oscilloscope on your sound card's input. Choose the
+`Emulator → Equipment → The game lab → Real Cassette (audio in)` opens an oscilloscope on your sound card's input. Choose the
 line, zoom, follow the head, and press *Hear* to listen to what is coming in.
 
 It is the same thing as the deck beside it, with a different cassette in it: one made of air rather than of

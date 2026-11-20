@@ -103,7 +103,8 @@ what is installed, what is published, and what each one brought. → [Plugins](P
 | **Every tool** | debugger, sprites, map, poke finder and the rest → [The game lab](The-game-lab) |
 | **Plugins**, **Guide** | what is installed, and these pages |
 
-Everything a machine can have clipped to it is under `Emulator → Equipment`.
+Everything a machine can have clipped to it is under `Emulator → Equipment`, on shelves: the peripherals by
+what they are, the instruments in *The game lab*. The last three you opened wait above the shelves.
 
 ## A look you can live with
 

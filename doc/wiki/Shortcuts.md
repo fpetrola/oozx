@@ -42,7 +42,7 @@ While a machine has the focus, your keyboard is its keyboard.
 So `PRINT "HELLO"` is typed as it reads: `P`, then `"HELLO"`. And a keyword that lives in extended mode, such
 as `OUT`, is Tab and then Ctrl with its key.
 
-`Emulator → Equipment → Keyboard` shows which of the Spectrum's keys are down at any moment.
+`Emulator → Equipment → The game lab → Keyboard` shows which of the Spectrum's keys are down at any moment.
 → [Sound and controls](Sound-and-controls)
 
 ## The mouse on a machine

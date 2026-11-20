@@ -13,7 +13,7 @@ a speech chip, and a ROM that made the Spectrum say its keys.
 
 ## Using it
 
-1. `Emulator → Equipment → Currah µSpeech`, and clip its window onto a 48K. The machine restarts with the
+1. `Emulator → Equipment → Things that make a sound → Currah µSpeech`, and clip its window onto a 48K. The machine restarts with the
    µSpeech's message at the top of the screen.
 2. **Type.** The Spectrum says each key as you press it. *Speak keys* on the window turns that off and on:
    it types the µSpeech's own setting for it, `LET keys=0` or `LET keys=1`.

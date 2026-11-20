@@ -12,8 +12,9 @@ of the thing on it. Drag one against a machine and it is plugged in; drag it off
 
 ## Plugging one in
 
-Everything here is under `Emulator → Equipment`, or a few letters away in `Discover → What do you want to
-do?...`. Open one and you get its window. Then:
+Everything here is under `Emulator → Equipment`, on the shelf of its section below, or a few letters away in
+`Discover → What do you want to do?...`. The last three you opened wait above the shelves, and first in
+what you type into. Open one and you get its window. Then:
 
 - **Drag the window against a machine's window and let go.** It is plugged in. The window says so: the
   Kempston Mouse's label goes from "not plugged into a machine" to "over the machine's picture".

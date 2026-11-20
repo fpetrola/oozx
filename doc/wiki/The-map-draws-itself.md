@@ -11,7 +11,7 @@ games, the ones made of rooms.
 
 ## Using it
 
-`Emulator → Equipment → Map` opens the map. Clip it onto the machine that is running the game, and play.
+`Emulator → Equipment → The game lab → Map` opens the map. Clip it onto the machine that is running the game, and play.
 
 Each room you reach is drawn on its own square, with the one you are in outlined. Leave by the right and the
 next room is drawn to the right; climb out through the top and it goes above. *Start again* begins the map
