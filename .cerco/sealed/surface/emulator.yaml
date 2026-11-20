@@ -261,6 +261,7 @@ types:
       - "getState(): State"
       - "interruption(): void"
       - "reset(): void"
+      - "runFetches(int, Runnable): long"
   "com.fpetrola.z80.helpers.ItemHandler":
     kind: interface
     members:

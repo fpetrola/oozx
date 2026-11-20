@@ -146,7 +146,8 @@ public class State {
 
   /** One instruction has run, so the shadow an EI casts is one instruction shorter. */
   public void instructionRan() {
-    interruptShadow = Math.max(0, interruptShadow - 1);
+    if (interruptShadow > 0)
+      interruptShadow--;
   }
 
   /** Whether an interrupt on the line is taken now: enabled, and not in the shadow of an EI. */
@@ -160,9 +161,10 @@ public class State {
 
   /** The NMI pin is an edge: latched until the CPU takes it, between two instructions, once. */
   public boolean takeNMI() {
-    boolean taken = activeNMI;
+    if (!activeNMI)
+      return false;
     activeNMI = false;
-    return taken;
+    return true;
   }
 
   /** An NMI keeps IFF1 in IFF2 for RETN to bring back, and masks INT meanwhile. */
