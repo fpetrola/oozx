@@ -18,7 +18,8 @@ and room.
 
 ## Minute one: a game
 
-<video src="https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/type-a-name.mp4" controls width="100%"></video>
+[![type-a-name](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/type-a-name.gif)](https://fpetrola.github.io/oozx/clips/type-a-name.mp4)
+[▶ With sound](https://fpetrola.github.io/oozx/clips/type-a-name.mp4)
 
 *Type a name. Play.* The game browser opens, `dizzy` is typed, a double click, and Dizzy is loading in a machine of its own.
 

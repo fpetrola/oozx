@@ -3,7 +3,8 @@
 Any name. The right game. Drop a file on the desk and it answers with the machine that game needs and
 everything there is about it, because it looked at what is inside the file and not at what it is called.
 
-<video src="https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/any-name.mp4" controls width="100%"></video>
+[![any-name](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/any-name.gif)](https://fpetrola.github.io/oozx/clips/any-name.mp4)
+[▶ With sound](https://fpetrola.github.io/oozx/clips/any-name.mp4)
 
 *Any name. The right game.* A file called `cinta3.tzx` is dragged out of a folder and let go of over the desk. A machine starts loading it, and beside it a card fills in: ThunderCats, its screens, its maps, its pokes.
 

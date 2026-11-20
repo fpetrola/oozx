@@ -3,7 +3,8 @@
 Somebody else's playthrough, and then yours. Watch a recording get through the screen you never could, and
 take the machine from it at any frame.
 
-<video src="https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/take-over.mp4" controls width="100%"></video>
+[![take-over](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/take-over.gif)](https://fpetrola.github.io/oozx/clips/take-over.mp4)
+[▶ With sound](https://fpetrola.github.io/oozx/clips/take-over.mp4)
 
 *Somebody else's playthrough, and then yours.* A recording of Exolon plays; *Take Over*; the player says the machine is yours, and the keys are.
 

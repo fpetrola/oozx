@@ -3,7 +3,8 @@
 The back pages of the magazine, on your desk. More than two dozen peripherals, each a window with the front
 of the thing on it. Drag one against a machine and it is plugged in; drag it off and it is not.
 
-<video src="https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/art-colour.mp4" controls width="100%"></video>
+[![art-colour](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/art-colour.gif)](https://fpetrola.github.io/oozx/clips/art-colour.mp4)
+[▶ With sound](https://fpetrola.github.io/oozx/clips/art-colour.mp4)
 
 *Drag it on. It is plugged in.* The Art Studio is running. The Kempston Mouse is clipped on and a house is drawn with it; the ZX Printer is clipped on and prints the house.
 

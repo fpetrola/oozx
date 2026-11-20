@@ -70,7 +70,8 @@ pad that is doing it.
 The Kempston Mouse is a peripheral: open it from `Emulator → Equipment`, clip it onto a machine, and your
 mouse over that machine's picture is the Spectrum's mouse.
 
-<video src="https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/art.mp4" controls width="100%"></video>
+[![art](https://raw.githubusercontent.com/fpetrola/oozx/main/doc/wiki/clips/art.gif)](https://fpetrola.github.io/oozx/clips/art.mp4)
+[▶ With sound](https://fpetrola.github.io/oozx/clips/art.mp4)
 
 *Drag it on. It is plugged in.* A house is drawn in the Art Studio with a thick brush, the program's pointer under the hand all the way.
 
