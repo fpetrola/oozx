@@ -59,7 +59,7 @@ No. Twenty-four Spectrums and their clones. → [Machines](Machines)
 ## Speed
 
 **Is it faster than other emulators?**
-Than Fuse, replaying recordings: 24 % faster on average over nine games, at the same fixed clock and with
+Than Fuse, replaying recordings: 25 % faster on average over nine games, at the same fixed clock and with
 nothing drawn on either side. I have not measured it against any other emulator, nor the loop you play on.
 → [How fast, and how we know](How-fast-and-how-we-know)
 

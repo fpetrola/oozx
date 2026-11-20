@@ -39,7 +39,7 @@ Three peripherals are named and not written: SpeccyBoot, Spectranet and the TTX2
 - **Some peripherals need a ROM you supply.** The Beta 128, the Interface 1, the Multiface, the Opus, the
   Didaktik, the DivIDE, the DivMMC, the µSpeech and the µSource had ROMs of their own that are not mine to
   ship. → [Peripherals](Peripherals)
-- **Its speed has been compared with one other emulator, Fuse, and only replaying recordings**: 24 % faster
+- **Its speed has been compared with one other emulator, Fuse, and only replaying recordings**: 25 % faster
   on nine recordings, tied on one of them, at a fixed 2 GHz with no picture and no sound on either side. The
   loop you play on has not been compared, and the frames-a-second figures on
   [How fast, and how we know](How-fast-and-how-we-know) are from September and have not been taken again on a

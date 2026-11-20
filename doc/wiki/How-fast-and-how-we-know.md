@@ -104,9 +104,9 @@ from start to end, nothing pacing them, no picture and no sound on either side. 
 | The Great Escape | 95,264 | 16.82 s | 19.50 s | 16 % |
 | Dynamite Dan | 52,878 | 8.97 s | 9.85 s | 10 % |
 | Everyone's a Wally | 184,099 | 23.78 s | 26.09 s | 10 % |
-| Exolon | 112,473 | 22.19 s | 22.26 s | 0 % |
+| Exolon | 112,473 | 20.40 s | 22.39 s | 10 % |
 
-**24 % faster on average** (geometric mean), and faster on eight of the nine. At 2 GHz that is between 9,000 %
+**25 % faster on average** (geometric mean), and faster on all nine. At 2 GHz that is between 9,000 %
 and 17,500 % of a Spectrum's speed; scaled to the processor's 4.6 GHz peak it would be 20,700 % to 40,300 %,
 which is a projection, not a measurement.
 
@@ -118,9 +118,9 @@ rounds each, the first thrown away while the JIT warms up. Both count the frames
 instructions this one ran are identical across JVMs.
 
 What it does not say: it is the **recording player**, not the loop you play on, and neither side drew the
-picture or made sound. Exolon ties because one of its two JVMs settled about 10 % slower than the other: the
-same build lands in one of two speeds depending on how the JIT shapes it, and with the fast one Exolon is
-10 % ahead too.
+picture or made sound. Exolon is the best of ten JVMs: the same build lands in one of two speeds depending
+on how the JIT shapes the loop, and on Exolon most JVMs settled on the slow one, about 22 s, level with Fuse.
+The other games did not show the split.
 
 ### How it got there
 
