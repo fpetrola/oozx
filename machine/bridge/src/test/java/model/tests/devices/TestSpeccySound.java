@@ -80,11 +80,10 @@ public class TestSpeccySound extends SpeccyBaseForTests {
   static void tearDown() {
   }
 
-  @Disabled
   @Test
   void test48KExecuteGame() {
     String model = "48K";
-    String fileName = "/home/fernando/detodo/desarrollo/m/zx/roms/emlyn.z80";
+    String fileName = System.getProperty("oozx.snapshot");
 
     testDriver1.setModel(model);
     testDriver1.loadSnapshot(fileName);

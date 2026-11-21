@@ -60,7 +60,6 @@
 1	machine/core/src/main/java/com/fpetrola/oozx/config/RomFiles.java|com.fpetrola.oozx.config.RomFiles.download(String, String, Consent)|instanceof InterruptedException
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/media/DownloadAndUnzip.java|com.fpetrola.oozx.speccy.media.DownloadAndUnzip.cannotReach(URL, IOException)|instanceof java.net.SocketTimeoutException
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/media/DownloadAndUnzip.java|com.fpetrola.oozx.speccy.media.DownloadAndUnzip.cannotReach(URL, IOException)|instanceof java.net.UnknownHostException
-1	machine/core/src/main/java/com/fpetrola/oozx/speccy/media/DownloadAndUnzip.java|com.fpetrola.oozx.speccy.media.DownloadAndUnzip.downloadFile(URL)|instanceof HttpURLConnection
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/machine/Machine.java|com.fpetrola.oozx.speccy.modules.machine.Machine.model(Class)|getClass()==
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/memory/DecodedMemoryBus.java|com.fpetrola.oozx.speccy.modules.memory.DecodedMemoryBus.Covering.cover(MappedMemory, int)|instanceof Storage
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/peripherals/PeripheralRegistry.java|com.fpetrola.oozx.speccy.peripherals.PeripheralRegistry.activateType(Class, boolean)|instanceof Pluggable

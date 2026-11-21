@@ -19,7 +19,6 @@ package com.fpetrola.oozx.speccy.media;
 
 
 import java.io.*;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -292,17 +291,14 @@ public class DownloadAndUnzip {
     URLConnection connection = url.openConnection();
     connection.setConnectTimeout(20_000);
     connection.setReadTimeout(60_000);
-    if (connection instanceof HttpURLConnection http) {
-      http.setInstanceFollowRedirects(true);
-      int status;
-      try {
-        status = http.getResponseCode();
-      } catch (IOException unreachable) {
-        throw new DownloadFailed(cannotReach(url, unreachable));
-      }
-      if (status / 100 != 2) {
-        throw new DownloadFailed(refusal(url, status));
-      }
+    try {
+      connection.connect();
+    } catch (IOException unreachable) {
+      throw new DownloadFailed(cannotReach(url, unreachable));
+    }
+    int status = statusOf(connection);
+    if (status / 100 != 2) {
+      throw new DownloadFailed(refusal(url, status));
     }
     try (InputStream in = connection.getInputStream();
          ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
@@ -316,6 +312,12 @@ public class DownloadAndUnzip {
     } catch (java.net.SocketTimeoutException timeout) {
       throw new DownloadFailed(url.getHost() + " stopped sending " + nameOf(url) + " partway through");
     }
+  }
+
+  /** What the other end answered, by the status line a web server answers with; a file on disk answers none, and is there. */
+  private static int statusOf(URLConnection connection) {
+    String line = connection.getHeaderField(0);
+    return line == null || !line.startsWith("HTTP/") ? 200 : Integer.parseInt(line.split(" ")[1]);
   }
 
   /**
