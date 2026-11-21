@@ -61,9 +61,104 @@ jobs:
           {
             echo "OOZX $TAG, a ZX Spectrum emulator, with every published plugin inside."
             echo
-            echo "Needs Java 21 or later: \`java -jar oozx-$TAG.jar\`."
+            echo "Windows: \`oozx-$TAG.msi\` installs it for you alone, no administrator needed; \`oozx-$TAG-windows.zip\` runs from wherever it is unpacked."
+            echo "Linux: \`oozx-$TAG.deb\`, or \`oozx-$TAG-linux.tar.gz\` to unpack and run \`OOZX/bin/OOZX\`."
+            echo "macOS: \`oozx-$TAG.dmg\`. It is not signed: the first time, open it with right-click, Open."
+            echo "Each one carries its own Java. With Java 21 or later already installed, \`java -jar oozx-$TAG.jar\` is the same."
+            echo
             echo "Plugins are added, removed and updated from the Plugins window."
           } > notes.md
           gh release delete "$TAG" --yes --repo "$GITHUB_REPOSITORY" || true
           gh release create "$TAG" "oozx-$TAG.jar" --repo "$GITHUB_REPOSITORY" --verify-tag \
             --title "OOZX $TAG" --notes-file notes.md
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jar
+          path: oozx-${{ env.TAG }}.jar
+
+  # The same jar, with a Java of its own, packaged the way each system installs things: the
+  # download is all there is, and a double click on a tape opens it. jpackage only packages for
+  # the system it runs on, hence one runner each. windows-2022 because jpackage 21 builds the
+  # installer with WiX 3, which that image carries.
+  packages:
+    needs: release
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-2022, macos-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: jar
+          path: in
+
+      # Measured with jdeps on the jar and the plugins inside it: seven modules. A plugin installed
+      # later may need any other of Java SE, and a module missing here would break that released
+      # plugin, so all of Java SE goes in. jdk.crypto.ec is the TLS the downloads need.
+      - name: A Java of its own
+        run: |
+          jlink --add-modules java.se,jdk.unsupported,jdk.crypto.ec,jdk.charsets,jdk.zipfs,jdk.accessibility \
+            --strip-debug --no-header-files --no-man-pages --compress=zip-6 --output runtime
+
+      # What the system hands to OOZX on a double click. Not .scr (on Windows a screen saver),
+      # .img or .zip: those belong to other programs too.
+      - name: The files it opens
+        run: |
+          for ext in tap tzx csw pzx trd scl dsk mgt opd d80 z80 sna szx rzx; do
+            printf 'extension=%s\nmime-type=application/x-zx-%s\ndescription=ZX Spectrum %s\n' \
+              "$ext" "$ext" "$(echo "$ext" | tr a-z A-Z)" > "assoc-$ext.properties"
+          done
+
+      # The manifest's Add-Opens and Enable-Native-Access only hold for java -jar; a packaged
+      # launcher starts the class itself, so they are said again here.
+      - name: Package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mv "in/oozx-$TAG.jar" in/oozx.jar
+          common=(--name OOZX --vendor "Fernando Petrola" --input in --main-jar oozx.jar
+            --main-class com.fpetrola.oozx.speccy.desktop.OOSpectrumLauncher --runtime-image runtime
+            --description "ZX Spectrum emulator"
+            --java-options "--add-opens=java.desktop/javax.swing=ALL-UNNAMED"
+            --java-options "--enable-native-access=ALL-UNNAMED")
+          # Only an installer tells the system which files it opens; a portable copy is just unpacked.
+          opens=(); for f in assoc-*.properties; do opens+=(--file-associations "$f"); done
+          case "$RUNNER_OS" in
+            Linux)
+              jpackage --type app-image --app-version "$TAG" "${common[@]}" --dest image
+              tar -C image -czf "oozx-$TAG-linux.tar.gz" OOZX
+              command -v fakeroot >/dev/null || sudo apt-get install -y fakeroot
+              jpackage --type deb --app-version "$TAG" "${common[@]}" "${opens[@]}" --dest out \
+                --linux-package-name oozx --linux-shortcut --linux-menu-group Game
+              mv out/*.deb "oozx-$TAG.deb"
+              files=("oozx-$TAG-linux.tar.gz" "oozx-$TAG.deb") ;;
+            Windows)
+              jpackage --type app-image --app-version "$TAG" "${common[@]}" --dest image
+              (cd image && 7z a -tzip "../oozx-$TAG-windows.zip" OOZX >/dev/null)
+              jpackage --type msi --app-version "$TAG" "${common[@]}" "${opens[@]}" --dest out \
+                --win-per-user-install --win-menu --win-menu-group OOZX --win-shortcut --win-dir-chooser \
+                --win-upgrade-uuid eb36d4a6-d233-44e0-8d3e-1576c319fcba
+              mv out/*.msi "oozx-$TAG.msi"
+              files=("oozx-$TAG-windows.zip" "oozx-$TAG.msi") ;;
+            macOS)
+              # A Mac bundle's version cannot start with 0, so while OOZX is at 0.x it carries
+              # jpackage's own 1.0 inside; the file name says the real one.
+              version=(); [[ "$TAG" == 0.* ]] || version=(--app-version "$TAG")
+              jpackage --type dmg "${version[@]}" "${common[@]}" "${opens[@]}" --dest out \
+                --mac-package-identifier com.fpetrola.oozx
+              mv out/*.dmg "oozx-$TAG.dmg"
+              files=("oozx-$TAG.dmg") ;;
+          esac
+          gh release upload "$TAG" "${files[@]}" --clobber --repo "$GITHUB_REPOSITORY"

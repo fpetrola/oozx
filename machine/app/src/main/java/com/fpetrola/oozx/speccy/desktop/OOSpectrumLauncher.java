@@ -44,10 +44,11 @@ public class OOSpectrumLauncher {
     // Windows and everything in them are built on the event thread, which is where Swing says
     // they belong: building them on this one worked by luck, and a look and feel that checks
     // (Radiance does, and refuses) left the desktop with components that were never finished.
-    SwingUtilities.invokeLater(() -> new OOSpectrumLauncher().init());
+    SwingUtilities.invokeLater(() -> new OOSpectrumLauncher().init(args));
   }
 
-  public void init() {
+  /** The desk, and on it the files it was started with: a double click on a tape starts this with that tape. */
+  private void init(String... toOpen) {
     // Some machines need a ROM this build cannot ship. Nothing is fetched without a yes, and
     // whoever is in front of the machine is the only one who can give it.
     com.fpetrola.oozx.config.RomFiles.askingFirst(RomNotShippedDialog.asking());
@@ -84,18 +85,28 @@ public class OOSpectrumLauncher {
 
     appHolder[0] = zxSpectrumDesktopApp;
     zxSpectrumDesktopApp.comeBack();
-    inItsWindow(zxSpectrumDesktopApp);
+    inItsWindow(zxSpectrumDesktopApp, toOpen);
   }
 
-  /** The desk in the window a person sees: a file let go of over it opens as from the menu, and whoever knows of games says which it is. */
-  private static void inItsWindow(ZXSpectrumDesktopApp desk) {
-    dev.plugdesk.desk.DeskWindow.dropping(desk, file -> {
-      // A game let go of here is to be played, so it gets a machine; a recording or a zip goes where the menu sends it.
+  /**
+   * The desk in the window a person sees. A file that arrives from outside - let go of over it,
+   * named when starting, or opened from the system's file manager - opens as from the menu, and
+   * whoever knows of games says which it is. macOS hands files to a running application rather
+   * than as arguments, so that way in is the system's own.
+   */
+  private static void inItsWindow(ZXSpectrumDesktopApp desk, String[] toOpen) {
+    java.util.function.Consumer<File> arrived = file -> {
+      // A game that arrives is to be played, so it gets a machine; a recording or a zip goes where the menu sends it.
       if (file.getName().toLowerCase().matches(".*\\.(rzx|zip)")) desk.open(file.getPath());
       else desk.loadInNewEmulator(file.getPath());
       desk.showDetails(new com.fpetrola.oozx.speccy.devices.Desk.Game(file.getPath(), null, null, null));
-    });
+    };
+    dev.plugdesk.desk.DeskWindow.dropping(desk, arrived);
     dev.plugdesk.desk.DeskWindow.open(dev.plugdesk.app.Application.it().said("title"), desk, desk.menus(), desk::keepTheSession);
+    for (String path : toOpen) arrived.accept(new File(path).getAbsoluteFile());
+    if (java.awt.Desktop.isDesktopSupported() && java.awt.Desktop.getDesktop().isSupported(java.awt.Desktop.Action.APP_OPEN_FILE))
+      java.awt.Desktop.getDesktop().setOpenFileHandler(opened ->
+          SwingUtilities.invokeLater(() -> opened.getFiles().forEach(arrived)));
   }
 
   /** A machine with nothing loaded, sitting at the BASIC prompt, running at real speed. */
@@ -123,6 +134,7 @@ public class OOSpectrumLauncher {
     File file = new File(filename);
     StartsAMachineOn opener = whoStartsOn(file);
 
+    speccy.speed.emulation = Speed.REAL_TIME;
     speccy.init();
     becomeTheMachineItWants(speccy, file, opener, chosenMachine);
     if (opener == null) nothingHereOpensThat(file);

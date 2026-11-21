@@ -830,7 +830,6 @@
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java|OOSpectrumLauncher.createBareSpeccy/0
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java|OOSpectrumLauncher.createSpeccy/1
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java|OOSpectrumLauncher.createSpeccy/2
-1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java|OOSpectrumLauncher.init/0
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java|OOSpectrumLauncher.void main(String[])
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java|OOSpectrumLauncher.void nothingHereOpensThat(File)
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/RomNotShippedDialog.java|RomNotShippedDialog.RomNotShippedDialog asking()

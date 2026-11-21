@@ -280,7 +280,7 @@ e3457fd771b7a2b85e06387cdd8b76f56c6f9c2de57aeb19798678137548bfdb	emulator/src/te
 1eec061d4c6d319248e8eefd7f83bb6b4ab4ee7a65ed6f42ffa6632dcfe4c741	emulator/src/test/java/net/emustudio/plugins/cpu/zilogZ80/suite/injectors/RegisterPair2.java
 2c2126b75455e1e074f82fce24e1610d9afd50f78f221ab87af4108692d36f10	emulator/src/test/java/net/emustudio/plugins/cpu/zilogZ80/suite/injectors/RegisterPairPSW.java
 704edee8b24efe9fa456c33bb1fc5ec3a90653ec213b254fcef32078695cfcff	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/Chosen.java
-b63fddaeb6090b2107ad45c62fa564c4cc8b6b3d781bfc555e6019642c254ea7	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java
+a1976b7d27e4633d2b86b12aa18526c43286cc67db9e32da7ee522c0c2f62662	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java
 03603b7645adad9725dc0830a802f6eb828a1c439547c526d6ff8d29ba0d558d	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/RomNotShippedDialog.java
 cd03fb099182a3a38df8d34d9ef9cf01bb096186ee3b35a3d215a61a689a174b	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/SwingKeyboard.java
 90e1c1c07e16b59b5dac39e084b3213844d9f74d55464f85b5f2ecd19b3f493e	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/WhatIsPluggedIn.java
