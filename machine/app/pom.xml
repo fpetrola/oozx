@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.github.fpetrola.oozx</groupId>
         <artifactId>machine</artifactId>
-        <version>0.1.5</version>
+        <version>0.1.6</version>
     </parent>
 
     <artifactId>app</artifactId>
@@ -55,12 +55,12 @@
         <dependency>
             <groupId>com.github.fpetrola.oozx</groupId>
             <artifactId>core</artifactId>
-            <version>0.1.5</version>
+            <version>0.1.6</version>
         </dependency>
         <dependency>
             <groupId>com.github.fpetrola.oozx</groupId>
             <artifactId>ui</artifactId>
-            <version>0.1.5</version>
+            <version>0.1.6</version>
         </dependency>
         <!-- The peripherals this build offers. Nothing here names one; they arrive by service file. -->
         <!--
@@ -70,20 +70,20 @@
         <dependency>
             <groupId>com.github.fpetrola.oozx</groupId>
             <artifactId>devices-kit</artifactId>
-            <version>0.1.5</version>
+            <version>0.1.6</version>
         </dependency>
         <!-- The ATA and MMC code six of the boards share, for the same reason the kit is here. -->
         <!-- The fast core, which arrives the same way and makes itself on the first run. -->
         <dependency>
             <groupId>com.github.fpetrola.oozx</groupId>
             <artifactId>generated-core</artifactId>
-            <version>0.1.5</version>
+            <version>0.1.6</version>
         </dependency>
         <!-- The Slow tag, which lives in the most upstream module so every module shares it. -->
         <dependency>
             <groupId>com.github.fpetrola.oozx</groupId>
             <artifactId>emulator</artifactId>
-            <version>0.1.5</version>
+            <version>0.1.6</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -91,7 +91,7 @@
         <dependency>
             <groupId>com.github.fpetrola.oozx</groupId>
             <artifactId>core</artifactId>
-            <version>0.1.5</version>
+            <version>0.1.6</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
