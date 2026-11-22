@@ -34,6 +34,7 @@ import com.fpetrola.oozx.speccy.modules.machine.Machine;
 import com.fasterxml.jackson.annotation.JsonMerge;
 
 @Singleton
+@dev.crystal.plugins.api.Offers(value = "Spectrum 48K", description = "The 48K: the beeper, the contended ULA and the rubber keys", known = "zxdb:1000486", icon = "device-desktop")
 public class Spec48 extends Spectrum {
 
   @Inject

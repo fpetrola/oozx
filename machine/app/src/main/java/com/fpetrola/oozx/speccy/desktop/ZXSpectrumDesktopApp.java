@@ -124,9 +124,6 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
      this.parentApp = parentApp;
      this.game = game;
      this.emulatorCore = core;
-     // Every emulator window is built here, so this is where the machines a build has become
-     // known - the browser needs them before one is open and cannot make one to ask.
-     parentApp.rememberMachines(core);
     setLocation(x, y);
 
     // Main Panel (emulator screen)
@@ -241,10 +238,6 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
   }
 
   /**
-   * Trims the padding a button keeps around its icon. Shrinking the icon alone leaves the
-   * button the size it was, since most of a toolbar button is margin.
-   */
-  /**
    * A button showing a drawing, falling back to its word if the drawing will not load — the
    * loader throws on a missing file, so without this a mistyped name takes the whole window
    * down instead of one picture.
@@ -354,11 +347,12 @@ class EmulatorInternalFrame extends JInternalFrame implements EmulatorWindow {
 public class ZXSpectrumDesktopApp extends JPanel implements Desk {
   /** Builds a machine for a file; the second argument names the machine, or is null for automatic. */
   private final java.util.function.BiFunction<String, String, EmulatorCore> mockCore;
-  /** The machines this build has, learnt from the last emulator made, for offering them. */
-  private java.util.List<String> knownMachines = java.util.List.of();
+  /** The models this build has, from a machine built and never switched on; asked again once a plugin comes or goes. */
+  private java.util.List<com.fpetrola.oozx.speccy.machine.Spectrum> models = java.util.List.of();
 
-  void rememberMachines(EmulatorCore core) {
-    if (knownMachines.isEmpty() && core != null) knownMachines = core.getMachineModels();
+  private java.util.List<com.fpetrola.oozx.speccy.machine.Spectrum> models() {
+    if (models.isEmpty()) models = com.fpetrola.oozx.Speccy.create().machine.getMachineTypes();
+    return models;
   }
   private final Function<String, EmulatorCore> mockCoreState;
   /** The windows of the desk, free inside it, and the desk that offers what the menus and the bar have. */
@@ -471,9 +465,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
   private EmulatorInternalFrame getActiveEmulatorOrCreateNew() {
     EmulatorInternalFrame frame = machineBeingUsed();
     if (frame == null) {
-      EmulatorCore core = mockCore.apply("", null);
-      knownMachines = core.getMachineModels();
-      frame = createNewEmulator(core);
+      frame = createNewEmulator(mockCore.apply("", null));
     }
     try {
       frame.setSelected(true);
@@ -529,11 +521,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     stopsThePersonWhenSomethingIsMissing();
     whatThereIs();
     adoptWhatTheBaseKeepsNow();
-    // Emulators apply the defaults themselves as they are built, so putting the saved ones in
-    // place here is all it takes for the next window to open configured.
-    if (config.getScreenDefaults() != null && !config.getScreenDefaults().isEmpty()) {
-      ScreenSettings.setDefaults(config.getScreenDefaults());
-    }
+    screenDefaultsAsSaved();
     restoreKeptProfiles();
 
     // Made after the saved look is on: a pane takes its look from whoever is on when it is made.
@@ -543,12 +531,8 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
 
     // The menus and the bar are what is offered: this desk's own, the plugins' windows, and what
     // the plugins that are not here would bring, each where its kind goes.
-    java.util.Map<Class<?>, String> whereEachGoes = new java.util.LinkedHashMap<>();
-    whereEachGoes.put(com.fpetrola.oozx.speccy.devices.Explains.class, "Help");
-    whereEachGoes.put(DeskEquipment.class, "Emulator");
-    whereEachGoes.put(Equipment.class, "Emulator/Equipment");
-    whereEachGoes.put(dev.plugdesk.desk.Look.class, "Window/Look&Feel");
-    offered = new dev.plugdesk.desk.Offered(whereEachGoes, null, offer -> {
+    offered = new dev.plugdesk.desk.Offered(List.of(com.fpetrola.oozx.speccy.devices.Explains.class, DeskEquipment.class,
+        Equipment.class, dev.plugdesk.desk.Look.class), null, offer -> {
       somethingWasPluggedIn();
       doWhatIsOffered(offer);
     });
@@ -558,6 +542,16 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
         dev.plugdesk.app.Plugins.live(dev.plugdesk.desk.Part.class));
     add(workbench, BorderLayout.CENTER);
     offered.look(workbench::changed);
+  }
+
+  /**
+   * Emulators apply the defaults themselves as they are built, so putting the saved ones in place is all it takes for
+   * the next window to open configured.
+   */
+  private void screenDefaultsAsSaved() {
+    if (config.getScreenDefaults() != null && !config.getScreenDefaults().isEmpty()) {
+      ScreenSettings.setDefaults(config.getScreenDefaults());
+    }
   }
 
   /** For the window the desk is put in. */
@@ -611,8 +605,10 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
       config.save();
       workbench.changed();
     }));
-    has.equipment().stream().map(kind -> offered.here(kind, kind.name(), () -> show(kind), kind::open))
+    has.equipment().stream().map(kind -> offered.here(kind, kind.name(), () -> show(kind)))
         .sorted(java.util.Comparator.comparing(dev.plugdesk.desk.Action::path)).forEach(offers::add);
+    for (com.fpetrola.oozx.speccy.machine.Spectrum model : models())
+      offers.add(offered.here("Emulator/Machines", model, model.getName(), () -> createNewEmulator(mockCore.apply("", model.getName()))));
     offers.add(pluginsWindow);
     for (com.fpetrola.oozx.speccy.devices.MachineTool tool : has.tools()) {
       if (tool.key() == null) continue;
@@ -621,6 +617,13 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
         if (active != null) tool.use(active);
       }));
     }
+    offers.addAll(screens());
+    return offers;
+  }
+
+  /** The kinds of television a machine is shown on, and its scan lines. */
+  private List<dev.plugdesk.desk.Action> screens() {
+    List<dev.plugdesk.desk.Action> offers = new java.util.ArrayList<>();
     String lead = screenDefault("tv", TvScreen.RGB_MONITOR.label());
     for (TvScreen tv : TvScreen.values())
       offers.add(new Offering("Window/TV/" + tv.label(), List.of(), 301, null, tv.label().equals(lead) || tv.name().equals(lead),
@@ -650,12 +653,6 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     return new Offering(path, key == null ? List.of() : List.of(KeyStroke.getKeyStroke(key)), place, null, null, doing);
   }
 
-  /**
-   * Which lead the picture is imagined to arrive through, and the two things that go with it.
-   * <p>
-   * The modes come from the enum rather than being listed here, so adding one to the engine puts
-   * it in the menu without anybody remembering to.
-   */
   /** Looks saved in an earlier run, put back where the windows look for them. */
   private void restoreKeptProfiles() {
     List<ScreenProfile> kept = new java.util.ArrayList<>();
@@ -664,11 +661,6 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     ScreenSettings.setKeptProfiles(kept);
   }
 
-  /**
-   * Through the core, the same way the border button asks for its option, rather than reaching
-   * into the panel to find the screen: the screen is somewhere under a component tree that is
-   * not ours to depend on, and a search that stops finding it would fail silently.
-   */
   /**
    * Changes one screen knob everywhere: in what new emulators start with, in the file, and in
    * the windows already open.
@@ -761,11 +753,6 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
         : title + " was already a favourite.", "Favorites", JOptionPane.INFORMATION_MESSAGE);
   }
 
-  /**
-   * Keeps the recording a player has open. What is stored is where it came from plus which file
-   * inside the archive it turned out to be, because a URL alone comes back to a zip and not to
-   * the recording that was actually being watched.
-   */
   /** What is playing into that machine, for keeping it: the window clipped on knows, not this. */
   private Opens playingInto(JInternalFrame machine) {
     if (machine == null) {
@@ -831,22 +818,12 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
   }
 
   /**
-   * The machines this build can open a game on.
-   * <p>
-   * Learnt from a machine that exists, because the list belongs to the build and there is no
-   * copy of it to read; the first one made is remembered so a window can offer them without one
-   * having to be open.
-   * <p>
-   * With none made yet, one is built and never started, which is what the settings already do to
-   * ask the same sort of question. A written-down list stood here before, and a machine that
-   * arrives in a jar is not on any list written down.
+   * The machines this build can open a game on: a written-down list stood here before, and a machine that arrives in
+   * a jar is not on any list written down.
    */
   @Override
   public java.util.List<String> machines() {
-    if (knownMachines.isEmpty()) {
-      knownMachines = new DefaultsCore(config).getMachineModels();
-    }
-    return knownMachines;
+    return models().stream().map(com.fpetrola.oozx.speccy.machine.Spectrum::getName).toList();
   }
 
   /** A recording from wherever it lives, which is a machine driven by it. */
@@ -895,12 +872,6 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
    * you move it by unplugging it and clipping it onto the next.
    */
 
-  /**
-   * Every player open at once. There used to be one, kept in a field and reused, so a second
-   * recording took the first one's window and its machine: watching two was watching the later
-   * one. A recording already builds its own machine - its session makes its own
-   * injector and its own Speccy - so nothing below the window ever required there to be one.
-   */
   /**
    * Fetches a recording and plays it. The fetching is off the event thread, and a recording may
    * arrive on its own or inside a zip, which is the same choice a game download already makes.
@@ -1100,11 +1071,6 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
   }
 
   /**
-   * Opens a machine on a file and lets it load itself, which for a tape means the auto loader
-   * types LOAD "" and plays from the start. Off the event thread: building a machine downloads,
-   * unzips and boots, and doing that on the event thread freezes the window.
-   */
-  /**
    * What to tell someone about a failure: what went wrong, not the pile of wrappers that carried
    * it here. A download refused by an archive arrives as an ExecutionException around a
    * RuntimeException around an IOException, and printing that put three Java class names and a
@@ -1142,9 +1108,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
               WhatIsMissing.bringingBeside(com.fpetrola.oozx.plugins.BesideTheGame.kindsBeside(file));
           if (!beside.isEmpty()) return beside;
         }
-        EmulatorCore core = mockCore.apply(local, game == null ? null : game.machine());
-        knownMachines = core.getMachineModels();
-        return core;
+        return mockCore.apply(local, game == null ? null : game.machine());
       }
 
       @Override
@@ -1223,13 +1187,6 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     return dialog;
   }
 
-  /**
-   * A window for this file: one of the kind that takes it with nothing in it yet, or another.
-   * <p>
-   * Reusing an empty one keeps the menu item from leaving a trail of blank decks behind someone
-   * who clicked it twice; opening a second cassette while the first is loading gets its own
-   * window, which is the point of there being more than one.
-   */
   /** Whoever opens this kind of file, opened but not yet given it. */
   private java.util.Optional<MachineFrame> opensFor(java.io.File file) {
     return has.opening(file).map(kind -> show(kind, open -> open.player().filter(Opens::empty).isPresent()));
@@ -1263,7 +1220,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
   /** Said once the folder changed: the menus offer what is there now, and only that. */
   public void somethingWasPluggedIn() {
     // A plugin can bring a machine: the list learnt before it came is asked again when next wanted.
-    knownMachines = java.util.List.of();
+    models = java.util.List.of();
     whatThereIs();
     refillMachineToolBars();
     workbench.changed();

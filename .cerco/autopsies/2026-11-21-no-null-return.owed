@@ -1,0 +1,2 @@
+no-null-return
+machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.configuration()|return null

@@ -30,7 +30,6 @@
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/StartsAMachineOn.java|com.fpetrola.oozx.speccy.machine.StartsAMachineOn.Going.wrong()|return null
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/StartsAMachineOn.java|com.fpetrola.oozx.speccy.machine.StartsAMachineOn.machineFor(File)|return null
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.choose(String)|return null
-1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.configuration()|return null
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.coreOf(java.awt.Component)|return null
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.equipment(String)|return null
 2	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.keep(Session, JInternalFrame, File, int)|return null

@@ -259,7 +259,7 @@ public final class RomFiles implements Roms {
   /** Which of the ROMs this machine or device asks for are not here yet, in the order it asks. */
   public List<String> missingFor(Object device) {
     List<String> missing = new java.util.ArrayList<>();
-    for (String filename : files.getOrDefault(keyOf(device), List.of())) {
+    for (String filename : running(device)) {
       if (!here(filename)) missing.add(filename);
     }
     return missing;

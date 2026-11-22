@@ -27,6 +27,7 @@ import dev.crystal.plugins.api.RoleInterface;
  * says what it is called and how to open it.
  */
 @RoleInterface
+@dev.plugdesk.desk.Offered.Goes("Emulator/Equipment")
 public interface Equipment {
   String name();
 

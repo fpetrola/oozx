@@ -70,7 +70,7 @@ public class OOSpectrumLauncher {
 
       if (filename == null || filename.isBlank()) {
         // Nothing asked for: a machine at the BASIC prompt, which is what "New Machine" means.
-        speccy = createBareSpeccy();
+        speccy = createBareSpeccy(chosenMachine);
       } else {
         string = filename;
         speccy = createSpeccy(string, chosenMachine);
@@ -109,11 +109,12 @@ public class OOSpectrumLauncher {
           SwingUtilities.invokeLater(() -> opened.getFiles().forEach(arrived)));
   }
 
-  /** A machine with nothing loaded, sitting at the BASIC prompt, running at real speed. */
-  public Speccy createBareSpeccy() {
+  /** A machine with nothing loaded, the one asked for or else the usual, sitting at the BASIC prompt at real speed. */
+  private Speccy createBareSpeccy(String chosenMachine) {
     Speccy speccy = Speccy.create();
     speccy.speed.emulation = Speed.REAL_TIME;
     speccy.init();
+    becomeTheMachineItWants(speccy, null, null, chosenMachine);
     extracted(speccy);
     return speccy;
   }

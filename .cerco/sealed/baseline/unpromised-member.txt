@@ -827,7 +827,6 @@
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/Chosen.java|Chosen.source/0
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java|OOSpectrumLauncher.String kindOf(File)
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java|OOSpectrumLauncher.boolean somethingOpens(File)
-1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java|OOSpectrumLauncher.createBareSpeccy/0
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java|OOSpectrumLauncher.createSpeccy/1
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java|OOSpectrumLauncher.createSpeccy/2
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java|OOSpectrumLauncher.void main(String[])
@@ -879,7 +878,6 @@
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|ZXSpectrumDesktopApp.openFor/1
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|ZXSpectrumDesktopApp.playRecording/3
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|ZXSpectrumDesktopApp.putMachinesAway/0
-1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|ZXSpectrumDesktopApp.rememberMachines/1
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|ZXSpectrumDesktopApp.setScreenDefault/2
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|ZXSpectrumDesktopApp.showLoading/1
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|ZXSpectrumDesktopApp.somethingWasPluggedIn/0
@@ -1642,9 +1640,7 @@
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/z80/Processors.java|Processors.current/0
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/z80/Processors.java|Processors.onChanged/1
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/z80/Processors.java|Processors.startOn/1
-1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/z80/Processors.java|Processors.stopTellingAboutReads/1
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/z80/Processors.java|Processors.use/1
-1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/z80/Processors.java|Processors.whenRead/1
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/z80/SpeccyPhaseProcessor.java|SpeccyPhaseProcessor.SpeccyPhaseProcessor(State, MemoryBus, Ula, SpectrumZ80Clock)
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/z80/SpeccyPhaseProcessor.java|SpeccyPhaseProcessor.contend/4
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/z80/SpectrumZ80Clock.java|SpectrumZ80Clock.acknowledge/1

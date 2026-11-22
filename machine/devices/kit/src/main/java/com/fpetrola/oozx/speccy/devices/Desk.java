@@ -124,9 +124,9 @@ public interface Desk extends dev.plugdesk.desk.Desk {
     return java.util.List.of();
   }
 
-  /** Lo que el escritorio recuerda entre corridas: favoritos, historial, estados guardados. */
+  /** Lo que el escritorio recuerda entre corridas: favoritos, historial, estados guardados; sin escritorio, nada todavia. */
   default com.fpetrola.oozx.speccy.config.OOZxConfiguration configuration() {
-    return null;
+    return new com.fpetrola.oozx.speccy.config.OOZxConfiguration();
   }
 
   /** Abre lo que haya en ese camino como se abre desde el menu: una maquina, una grabacion, un zip. */
