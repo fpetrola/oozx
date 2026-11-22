@@ -284,7 +284,7 @@ e3457fd771b7a2b85e06387cdd8b76f56c6f9c2de57aeb19798678137548bfdb	emulator/src/te
 03603b7645adad9725dc0830a802f6eb828a1c439547c526d6ff8d29ba0d558d	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/RomNotShippedDialog.java
 cd03fb099182a3a38df8d34d9ef9cf01bb096186ee3b35a3d215a61a689a174b	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/SwingKeyboard.java
 90e1c1c07e16b59b5dac39e084b3213844d9f74d55464f85b5f2ecd19b3f493e	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/WhatIsPluggedIn.java
-f558fa229c64aca85bbe1024f6c1b0c5430bc67520ebfe02052f3ec37eaaa36c	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java
+d622aebbe49638ea7b2c333940f4fcf041beb3d00a56ddbf3ef0979ad4e7f9c6	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java
 fcafe35d57f63ef18dd460a7f187c4e8d35ce0eb18c25a0d7ca698a23b389b75	machine/app/src/main/java/com/fpetrola/oozx/speccy/peripherals/SpeccyEmulatorCore.java
 08092bc6dda6ade89ca10fbfe78228dab8758d36cec84f7bf39f9a8e7d5ddd03	machine/app/src/test/java/com/fpetrola/oozx/speccy/desktop/TheDeskIsMadeWithoutAWindowTest.java
 449c071fc8051d2bdaf60a156eb49f4417c36de89d8f97e30d3d9fa3f75968d4	machine/app/src/test/java/com/fpetrola/oozx/speccy/desktop/TypingReachesTheMachineTest.java
@@ -386,7 +386,7 @@ f6a26edbeb2bdfaf3b31d6d26698afa2f51f842d9ec4d4513866ab53cb8aa3f9	machine/core/sr
 9a57014313018749681c191669c195c1bbdc0affe47d06dcc0876b50452070b6	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/RomNotLoadedException.java
 7b8bedbcc7caaad9a1783237637ac6ca76b1381d0510c02f6a8314de11a64633	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/Roms.java
 b7b16d20c3d707dba7c0e6ddf8fa908a6f2b151941912ff1d175b91dab7a5a5a	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/SpecPlus3Constants.java
-97f88bfde9a64f3d82d6d3775ccef4295ab7fa061fac3f681521192f5c8326e3	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/Spectrum.java
+7c6017693aea0362245dd88b74d30a34238c5d75cff5592542cf5ccc01fcf397	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/Spectrum.java
 478f942e27c9791f5e23789c5813d1581fbdcb02d67328d85bb391a23d992071	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/SpectrumMachine.java
 1c3e0fe560d24ec2022717aaaa81dd3176a43c4d33e80c78f9ba78627a245eab	machine/core/src/main/java/com/fpetrola/oozx/speccy/machine/StartsAMachineOn.java
 32b8bee71a544cdf255de5d4376372164296721bdd4c2c613974ac5ee64579a1	machine/core/src/main/java/com/fpetrola/oozx/speccy/media/DownloadAndUnzip.java
@@ -488,11 +488,11 @@ f29574f8f7f5ea9257d37488ea9ae61ddae20d1457f27203e0eb1dfb62ab8f78	machine/core/sr
 5a70b68dc99fd90aa8b737a691358e863c45faca9c611ccf19317898f04f1657	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/AboutAGame.java
 eb958cef2eccdab992e2dc7a30798c73ff1138ecb21de5b2f3852fa4d4f50441	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/DacFrame.java
 5b22280752783e7d1d1944246177f42dde84d8a15e6f2701731d23f3a3135e68	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java
-5296d3f52eb4b2de7e242a3131a6a0876ccbd0c20b611ad2d9981bedc91f7314	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/DeskEquipment.java
+91827850a449d120d0276885d43d13f92730f9e1f045405a5a3276e294e9d8c6	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/DeskEquipment.java
 c468888948bac9f7c621b49105f0a94620c0ffdc0e00219565a56b5436b09f3b	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/DeviceFrame.java
 b98e1863f75bd91ee9be4e8a68a0a4db72e35341534335a1421bec40ed31a0f9	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/EmulatorWindow.java
-55af04e28961f5dec0bc6a208afedfbf8bb7527722a2e096129fd8f06388f281	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Equipment.java
-530ddb009d21874cdf5246cad96246af1a5a93d741fe062ec5f44ea1a829fddc	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Explains.java
+3ab89815b5805741b08a7399c906e31802407764d314eb80e9e31fa7976dcce7	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Equipment.java
+52f1898d1c4f2d98a2cac73ae7ce98374eb2dbc0108d040fc4cad120a1c6b230	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Explains.java
 60ee67bf8e8a2e81919959ebb5be033dbfbb0dbdd3e3715cbf8ae19d8cce3aaf	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/InstructionListing.java
 6040dc2653c8084cbc9cef2077e84283b1f39e1894a4f40f2958c03fb66c78eb	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/KeepsItsPlace.java
 5cc613f250a105561c18adc2fb27d2c399a52e178f8851d4bc6d9d1cf581c65e	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/LabelledRows.java
@@ -533,7 +533,7 @@ a057f3b9b00d4f613e4b81ae18216ee72f312958a8bd205e24aa48836b61fb08	machine/host/so
 1d810d37bdedf7b11d08fb34423860fcabb345abc158a2f40105ebc9aa6e775e	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/DacDevice.java
 3550457e63867f80bd5a2608cd76cfcde25063ef5753d632ffb8695cb0587cbf	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/JavaSoundDevice.java
 84e011c73504c1fa04a6016b903425bfe64abbcdddf808cf7477913aa58bb190	machine/host/sound/src/test/java/model/tests/devices/TheCardComesWithTheModuleTest.java
-6c032e1a60b12282a94028f2504b364eac454ed19c4ac9e729c8a134bac639c8	machine/machines/src/main/java/com/fpetrola/oozx/speccy/machine/Spec48.java
+6ff126b85f2fb5019fe179d6f86bf05263535c2fed26f0ca77163704304d4381	machine/machines/src/main/java/com/fpetrola/oozx/speccy/machine/Spec48.java
 4302e500e423b0fda277a3c10d68fdc691d70848fa3dd36cf83fbf148a48773a	machine/machines/src/main/java/com/fpetrola/oozx/speccy/machines/Machines.java
 de748de9e5c6c00dcb5d44b158d9c7d263a9872c9366eff893ddfb94274f7418	machine/machines/src/test/java/model/suites/MachineSuite.java
 9ccb10812dd63fcf1a11df33a918a8a6e0828519ed3ba6c9b4808579c012fb1d	machine/machines/src/test/java/model/tests/config/SectionsAreDeclaredTest.java

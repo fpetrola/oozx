@@ -21,7 +21,7 @@ import dev.crystal.plugins.api.RoleInterface;
 
 /** Una ventana del escritorio que explica algo del emulador: va al menu Help y no a las demas. */
 @RoleInterface
-@dev.plugdesk.desk.Offered.Goes("Help")
+@dev.plugdesk.app.Goes("Help")
 public interface Explains extends DeskEquipment {
   @Override
   default String path() {

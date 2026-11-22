@@ -454,8 +454,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
    */
   void doWhatIsOffered(dev.crystal.plugins.api.Offer offer) {
     java.util.function.Predicate<Object> offering = one -> one.getClass().getName().equals(offer.extension());
-    has.deskWindows().stream().filter(offering).findFirst().ifPresent(this::show);
-    has.equipment().stream().filter(offering).findFirst().ifPresent(this::show);
+    workbench.offered().stream().filter(one -> offer.extension().equals(one.offeredBy())).findFirst().ifPresent(workbench::choose);
     has.tools().stream().filter(offering).findFirst().ifPresent(tool -> {
       EmulatorInternalFrame machine = machineBeingUsed();
       if (machine != null) tool.use(machine);
@@ -532,7 +531,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     // The menus and the bar are what is offered: this desk's own, the plugins' windows, and what
     // the plugins that are not here would bring, each where its kind goes.
     offered = new dev.plugdesk.desk.Offered(List.of(com.fpetrola.oozx.speccy.devices.Explains.class, DeskEquipment.class,
-        Equipment.class, dev.plugdesk.desk.Look.class), null, offer -> {
+        Equipment.class, dev.plugdesk.desk.Look.class, com.fpetrola.oozx.speccy.machine.Spectrum.class), null, offer -> {
       somethingWasPluggedIn();
       doWhatIsOffered(offer);
     });
@@ -608,7 +607,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     has.equipment().stream().map(kind -> offered.here(kind, kind.name(), () -> show(kind)))
         .sorted(java.util.Comparator.comparing(dev.plugdesk.desk.Action::path)).forEach(offers::add);
     for (com.fpetrola.oozx.speccy.machine.Spectrum model : models())
-      offers.add(offered.here("Emulator/Machines", model, model.getName(), () -> createNewEmulator(mockCore.apply("", model.getName()))));
+      offers.add(offered.here(model, model.getName(), () -> createNewEmulator(mockCore.apply("", model.getName()))));
     offers.add(pluginsWindow);
     for (com.fpetrola.oozx.speccy.devices.MachineTool tool : has.tools()) {
       if (tool.key() == null) continue;

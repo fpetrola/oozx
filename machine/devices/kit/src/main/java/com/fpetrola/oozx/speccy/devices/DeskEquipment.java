@@ -30,7 +30,7 @@ import javax.swing.JInternalFrame;
  * this window is about the desk, so it has no machine and no clip.
  */
 @RoleInterface
-@dev.plugdesk.desk.Offered.Goes("Emulator")
+@dev.plugdesk.app.Goes("Emulator")
 public interface DeskEquipment extends dev.plugdesk.desk.Window {
 
   String name();

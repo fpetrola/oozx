@@ -32,6 +32,7 @@ import com.fpetrola.oozx.speccy.machine.SpectrumMachine;
 import com.fpetrola.oozx.speccy.modules.z80.Cpu;
 import com.fpetrola.z80.cpu.Z80Clock;
 
+@dev.plugdesk.app.Goes("Emulator")
 public abstract class Spectrum extends AbstractSpectrumMachine {
   protected final Roms roms;
   protected final MemoryBus memory;
