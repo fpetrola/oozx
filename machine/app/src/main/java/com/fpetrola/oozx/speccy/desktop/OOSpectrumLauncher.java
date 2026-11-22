@@ -203,7 +203,7 @@ public class OOSpectrumLauncher {
       return;
     }
     speccy.machine.model(wanted).ifPresent(type -> {
-      if (!RomNotShippedDialog.readyFor(dev.plugdesk.app.Configuration.shared().of(com.fpetrola.oozx.config.RomFiles.class), type)) return;
+      if (!dev.plugdesk.app.Configuration.shared().of(com.fpetrola.oozx.config.RomFiles.class).readyFor(type)) return;
       speccy.machine.selectDefault();
       speccy.machine.select(type);
     });

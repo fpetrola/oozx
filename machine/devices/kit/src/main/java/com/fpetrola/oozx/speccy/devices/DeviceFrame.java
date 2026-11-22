@@ -99,12 +99,13 @@ public abstract class DeviceFrame<P extends Peripheral & Pluggable> extends Mach
     if (into == null || wired == null) {
       return;
     }
+    boolean withItsRoms = !connected || into.roms.readyFor(wired);
     into.loop.later(() -> {
       wired.plugIn(connected);
       // A device that changes the machine's memory map - a ROM, RAM of its own - only arrives at
       // a reset, which is what the hardware needed too: you did not plug a Multiface into a
-      // running Spectrum.
-      if (into.peripheralRegistry.update()) {
+      // running Spectrum. One whose ROM is not here waits for the reset that choosing it brings.
+      if (into.peripheralRegistry.update() && withItsRoms) {
         into.machine.reset(true);
       }
     });

@@ -56,6 +56,18 @@ class TheRomsAJarBringsTest {
     assertEquals(List.of("whatever.rom"), theLeast.files().get("Whatever"));
   }
 
+  @Test
+  void whereARomIsPublishedTravelsNextToItAsData() {
+    RomsOfItsOwn jar = () -> Map.of("Whatever", List.of("whatever.rom", "with-its-source.rom"));
+
+    RomFiles.Source source = jar.sources().get("with-its-source.rom");
+    assertEquals(List.of("with-its-source.rom"), List.copyOf(jar.sources().keySet()));
+    assertEquals("https://example.org/both-chips.bin", source.url);
+    assertEquals("abc", source.sha256);
+    assertEquals(8192, source.at);
+    assertEquals(8192, source.length);
+  }
+
   /** What the build knows is worked out again when a jar arrives, or a machine brought now would
    * be one nobody knows the ROM of. */
   @Test

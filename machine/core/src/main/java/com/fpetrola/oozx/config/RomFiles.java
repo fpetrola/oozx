@@ -71,23 +71,23 @@ public final class RomFiles implements Roms {
   public interface Consent {
     boolean toDownload(String rom, String from);
 
-    /**
-     * How much of it has arrived so far, told often enough to be watched. The length is what the
-     * other end said it would send, or -1 when it would not say, which is what a bar that cannot
-     * show a fraction has to live with.
-     */
-    default void arriving(String rom, long soFar, long length) {
-    }
-
-    /** Nothing more is coming, whether because it all arrived or because it stopped. */
-    default void arrived(String rom) {
+    /** Brings what a machine or board is missing, the way whoever is in front of it wants to watch it happen. */
+    default boolean bring(RomFiles roms, List<String> missing) {
+      return missing.stream().allMatch(roms::bring);
     }
   }
 
   private static Consent consent = (rom, from) -> false;
 
-  /** What this emulator calls itself when it asks somebody for a file. */
-  private static final String WHO_IS_ASKING = "oozx (ZX Spectrum emulator)";
+  /**
+   * Whether this machine or board can be started: everything it is made with is here, or was just
+   * brought because somebody said so. Asked before it is built or plugged in, never while.
+   */
+  @Override
+  public boolean readyFor(Object device) {
+    List<String> missing = missingFor(device);
+    return missing.isEmpty() || consent.bring(this, missing);
+  }
 
   public static void askingFirst(Consent asking) {
     consent = asking == null ? (rom, from) -> false : asking;
@@ -339,9 +339,9 @@ public final class RomFiles implements Roms {
     if (source == null || source.url == null || !consent.toDownload(filename, source.url)) return null;
     byte[] image;
     try {
-      image = download(filename, source.url, consent);
-    } finally {
-      consent.arrived(filename);
+      image = com.fpetrola.oozx.speccy.media.DownloadAndUnzip.downloadFile(java.net.URI.create(source.url).toURL());
+    } catch (IOException | IllegalArgumentException didNotArrive) {
+      throw new RomNotLoadedException("ROM '" + filename + "' could not be fetched: " + didNotArrive.getMessage(), filename);
     }
     if (source.length > 0) {
       if (image.length < source.at + source.length)
@@ -356,41 +356,6 @@ public final class RomFiles implements Roms {
       // Not being able to keep it costs a download next time and nothing else.
     }
     return image;
-  }
-
-  private static byte[] download(String filename, String from, Consent watching) {
-    java.net.URI where = java.net.URI.create(from);
-    if ("file".equals(where.getScheme())) {
-      byte[] published = bytesOf(new File(where));
-      if (published == null) throw new RomNotLoadedException("ROM '" + filename + "' was not at " + from, filename);
-      return published;
-    }
-    try {
-      // Saying who is asking, and saying it as this emulator: the archives that publish these ROMs
-      // hang up on a request that does not introduce itself, and one of them hangs up on the name
-      // this toolkit gives itself when nobody sets one.
-      java.net.http.HttpResponse<InputStream> answer = java.net.http.HttpClient.newBuilder()
-          .version(java.net.http.HttpClient.Version.HTTP_1_1)
-          .connectTimeout(java.time.Duration.ofSeconds(20)).followRedirects(java.net.http.HttpClient.Redirect.NORMAL).build()
-          .send(java.net.http.HttpRequest.newBuilder(where).header("User-Agent", WHO_IS_ASKING)
-              .timeout(java.time.Duration.ofSeconds(60)).build(),
-              java.net.http.HttpResponse.BodyHandlers.ofInputStream());
-      if (answer.statusCode() != 200) throw new RomNotLoadedException("ROM '" + filename + "' was not at " + from + ": " + answer.statusCode(), filename);
-      // Read in pieces rather than in one go, which is the only way anybody can be told how it is going.
-      long length = answer.headers().firstValueAsLong("content-length").orElse(-1);
-      java.io.ByteArrayOutputStream arriving = new java.io.ByteArrayOutputStream();
-      byte[] piece = new byte[8192];
-      try (InputStream coming = answer.body()) {
-        for (int read; (read = coming.read(piece)) > 0; ) {
-          arriving.write(piece, 0, read);
-          watching.arriving(filename, arriving.size(), length);
-        }
-      }
-      return arriving.toByteArray();
-    } catch (IOException | InterruptedException didNotArrive) {
-      if (didNotArrive instanceof InterruptedException) Thread.currentThread().interrupt();
-      throw new RomNotLoadedException("ROM '" + filename + "' could not be fetched from " + from + ": " + didNotArrive, filename);
-    }
   }
 
   /**

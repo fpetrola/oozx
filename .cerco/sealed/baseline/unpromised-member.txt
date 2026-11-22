@@ -832,7 +832,6 @@
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java|OOSpectrumLauncher.void main(String[])
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java|OOSpectrumLauncher.void nothingHereOpensThat(File)
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/RomNotShippedDialog.java|RomNotShippedDialog.RomNotShippedDialog asking()
-1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/RomNotShippedDialog.java|RomNotShippedDialog.boolean readyFor(RomFiles, Object)
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/SwingKeyboard.java|SwingKeyboard.SwingKeyboard(Keyboard, Input)
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/WhatIsPluggedIn.java|WhatIsPluggedIn.WhatIsPluggedIn theOne()
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/WhatIsPluggedIn.java|WhatIsPluggedIn.WhatIsPluggedIn(Set<Equipment>, Set<DeskEquipment>, Set<ScreenEffect>, Set<SnapshotFile>, Set<StartsAMachineOn>, Set<WhatGameThisIs>, Set<MachineTool>)

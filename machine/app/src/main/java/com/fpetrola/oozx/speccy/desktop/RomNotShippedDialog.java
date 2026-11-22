@@ -33,7 +33,7 @@ import java.awt.BorderLayout;
 import java.util.List;
 
 /**
- * Brings the ROMs a machine needs and this build cannot carry, before anybody starts that machine.
+ * Brings the ROMs a machine or board needs and this build cannot carry, before anybody starts or plugs it in.
  * <p>
  * Before, and never during: a machine is built on the emulator's own thread, and asking a question
  * there means the window that asks is waiting on a thread that is waiting on the window. The
@@ -45,24 +45,13 @@ public class RomNotShippedDialog implements RomFiles.Consent {
 
   private boolean agreed;
   private JDialog window;
-  private JProgressBar bar;
-  private JLabel howMuch;
 
   public static RomNotShippedDialog asking() {
     return ASKING;
   }
 
-  /**
-   * Whether this machine can be started: everything it asks for is here, or was brought just now
-   * because somebody said so. Answered from the window's own thread, where questions belong.
-   */
-  public static boolean readyFor(RomFiles roms, Object machine) {
-    return ASKING.bringWhatIsMissing(roms, machine);
-  }
-
-  private boolean bringWhatIsMissing(RomFiles roms, Object machine) {
-    List<String> missing = roms.missingFor(machine);
-    if (missing.isEmpty()) return true;
+  @Override
+  public boolean bring(RomFiles roms, List<String> missing) {
     if (!SwingUtilities.isEventDispatchThread()) return false;
     if (!agreesTo(missing)) return false;
 
@@ -96,7 +85,7 @@ public class RomNotShippedDialog implements RomFiles.Consent {
 
   private static boolean agreesTo(List<String> missing) {
     RomFiles roms = Configuration.shared().of(RomFiles.class);
-    StringBuilder said = new StringBuilder("<html>This machine needs "
+    StringBuilder said = new StringBuilder("<html>This needs "
         + (missing.size() == 1 ? "a ROM" : missing.size() + " ROMs") + " that this emulator does not carry:<br><br>");
     for (String rom : missing) {
       RomFiles.Source source = roms.sourceFor(rom);
@@ -111,33 +100,15 @@ public class RomNotShippedDialog implements RomFiles.Consent {
     return agreed;
   }
 
-  public void arriving(String rom, long soFar, long length) {
-    SwingUtilities.invokeLater(() -> {
-      if (window == null) return;
-      if (length > 0) {
-        bar.setIndeterminate(false);
-        bar.setValue((int) (soFar * 100 / length));
-      }
-      howMuch.setText(rom + "  -  " + kb(soFar) + (length > 0 ? " of " + kb(length) : ""));
-    });
-  }
-
-  public void arrived(String rom) {
-  }
-
-  private static String kb(long bytes) {
-    return (bytes + 1023) / 1024 + " KB";
-  }
-
   private void open(List<String> missing) {
     window = new JDialog((java.awt.Frame) null, missing.size() == 1 ? "Fetching a ROM" : "Fetching " + missing.size() + " ROMs", true);
-    bar = new JProgressBar(0, 100);
+    JProgressBar bar = new JProgressBar(0, 100);
     bar.setIndeterminate(true);
-    howMuch = new JLabel(String.join(", ", missing), JLabel.CENTER);
+    JLabel which = new JLabel(String.join(", ", missing), JLabel.CENTER);
     JPanel inside = new JPanel(new BorderLayout(0, 8));
     inside.setBorder(BorderFactory.createEmptyBorder(14, 14, 14, 14));
     inside.add(bar, BorderLayout.CENTER);
-    inside.add(howMuch, BorderLayout.SOUTH);
+    inside.add(which, BorderLayout.SOUTH);
     window.setContentPane(inside);
     window.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
     window.setSize(380, 120);

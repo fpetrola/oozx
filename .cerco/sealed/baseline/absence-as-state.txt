@@ -1,5 +1,4 @@
 # cerco baseline v1 absence-as-state: count, key
-1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/RomNotShippedDialog.java|com.fpetrola.oozx.speccy.desktop.RomNotShippedDialog.window
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/memory/SpectrumMemory.java|com.fpetrola.oozx.speccy.modules.memory.SpectrumMemory.beside
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/sound/blip/BlipBuffer.java|com.fpetrola.oozx.speccy.modules.sound.blip.BlipBuffer.buffer
 1	machine/host/sound/src/main/java/com/fpetrola/oozx/speccy/modules/sound/AudioIn.java|com.fpetrola.oozx.speccy.modules.sound.AudioIn.line

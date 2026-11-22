@@ -22,7 +22,6 @@
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java|com.fpetrola.oozx.speccy.desktop.OOSpectrumLauncher.kindOf(File)
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java|com.fpetrola.oozx.speccy.desktop.OOSpectrumLauncher.nothingHereOpensThat(File)
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/OOSpectrumLauncher.java|com.fpetrola.oozx.speccy.desktop.OOSpectrumLauncher.somethingOpens(File)
-1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/RomNotShippedDialog.java|com.fpetrola.oozx.speccy.desktop.RomNotShippedDialog.readyFor(RomFiles, Object)
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.EmulatorInternalFrame.iconButton(String, String, String)
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.EmulatorInternalFrame.iconToggle(String, String, String)
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.EmulatorInternalFrame.loadIcon(String)

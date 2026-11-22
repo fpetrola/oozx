@@ -156,9 +156,14 @@ public class Speccy {
     peripheralRegistry.accept(visitor);
   }
 
-  /** Becomes that model, between two frames: what changes the machine is done on its own loop. */
-  public void select(SpectrumMachine type) {
+  /**
+   * Becomes that model, between two frames: what changes the machine is done on its own loop. What
+   * it is made with is brought first, here, where a question can be asked; says whether it could.
+   */
+  public boolean select(SpectrumMachine type) {
+    if (!roms.readyFor(type)) return false;
     loop.later(() -> machine.select(type));
+    return true;
   }
 
   /** The reset button, pressed between two frames. */

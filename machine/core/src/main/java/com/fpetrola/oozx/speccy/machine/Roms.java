@@ -32,4 +32,9 @@ public interface Roms {
   default byte[] of(Peripheral device, int length) {
     return of(device, 0, length);
   }
+
+  /** Whether everything this machine or device is made with is here, or was just brought; asked before it is built or plugged in. */
+  default boolean readyFor(Object device) {
+    return true;
+  }
 }

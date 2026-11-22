@@ -174,57 +174,51 @@ class ARomThatIsNotShippedTest {
     assertEquals(0, timesAsked, "nothing was asked, because nothing was fetched");
   }
 
-  /**
-   * How much has arrived, told as it arrives. A ROM is small, but the person who said yes is
-   * waiting on a machine that will not start until it is here, and a wait with nothing moving is
-   * the same as a wait that has gone wrong.
-   */
+  /** What is missing is brought through whoever is asking, once, before the machine or board is started. */
   @Test
-  void howMuchOfItHasArrivedIsToldWhileItArrives() throws Exception {
-    byte[] big = new byte[64 * 1024];
-    for (int at = 0; at < big.length; at++) big[at] = (byte) at;
-    java.util.List<Long> told = new java.util.ArrayList<>();
-    boolean[] finished = {false};
-    long[] lengthSaid = {0};
+  void beingReadyIsBringingWhatIsMissingFirst() throws Exception {
+    publishedAs(shaOfTheFile());
+    java.util.List<java.util.List<String>> brought = new java.util.ArrayList<>();
     RomFiles.askingFirst(new RomFiles.Consent() {
       public boolean toDownload(String rom, String from) {
         return true;
       }
 
-      public void arriving(String rom, long soFar, long length) {
-        told.add(soFar);
-        lengthSaid[0] = length;
-      }
-
-      public void arrived(String rom) {
-        finished[0] = true;
+      public boolean bring(RomFiles those, java.util.List<String> missing) {
+        brought.add(missing);
+        return RomFiles.Consent.super.bring(those, missing);
       }
     });
 
+    assertTrue(roms.readyFor(asking), "it was brought");
+    assertTrue(roms.readyFor(asking), "and the second time there is nothing to bring");
+    assertEquals(List.of(List.of(NAME)), brought, "asked once, for what was missing");
+    assertEquals(LENGTH, roms.of(asking, LENGTH).length);
+  }
+
+  /** The archives that publish ROMs hang up on a request that does not say who is asking. */
+  @Test
+  void theArchiveIsToldWhoIsAsking() throws Exception {
+    byte[] published = Files.readAllBytes(java.nio.file.Path.of(java.net.URI.create(publishedAt)));
+    String[] who = {null};
     com.sun.net.httpserver.HttpServer server = com.sun.net.httpserver.HttpServer.create(new java.net.InetSocketAddress("127.0.0.1", 0), 0);
     server.createContext("/rom", exchange -> {
-      exchange.sendResponseHeaders(200, big.length);
+      who[0] = exchange.getRequestHeaders().getFirst("User-Agent");
+      exchange.sendResponseHeaders(200, published.length);
       try (java.io.OutputStream out = exchange.getResponseBody()) {
-        out.write(big);
+        out.write(published);
       }
     });
     server.start();
     try {
-      RomFiles.Source source = new RomFiles.Source();
-      source.url = "http://127.0.0.1:" + server.getAddress().getPort() + "/rom";
-      source.sha256 = shaOf(big);
-      roms.sources.put(NAME, source);
+      publishedAs(shaOfTheFile());
+      roms.sources.get(NAME).url = "http://127.0.0.1:" + server.getAddress().getPort() + "/rom";
 
       assertTrue(roms.bring(NAME));
-      assertArrayEquals(big, roms.of(asking, big.length));
     } finally {
       server.stop(0);
     }
-
-    assertTrue(told.size() > 1, "it arrived in one piece and nobody could have watched it: " + told);
-    assertEquals(big.length, told.get(told.size() - 1), "the last thing said was that all of it was here");
-    assertEquals(big.length, lengthSaid[0], "and it said how much there was to wait for");
-    assertTrue(finished[0], "and that nothing more was coming");
+    assertTrue(who[0] != null && who[0].startsWith("oozx"), "it introduced itself as " + who[0]);
   }
 
   /**

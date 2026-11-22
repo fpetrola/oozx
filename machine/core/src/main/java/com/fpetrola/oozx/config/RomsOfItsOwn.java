@@ -56,8 +56,20 @@ public interface RomsOfItsOwn {
     return Map.of();
   }
 
-  /** Where an image that cannot be given away is published, for whoever says yes to fetching it. */
+  /**
+   * Where an image that cannot be given away is published, for whoever says yes to fetching it:
+   * the jar keeps it as data next to where the image would be, {@code /roms/<file>.json}.
+   */
   default Map<String, RomFiles.Source> sources() {
-    return Map.of();
+    Map<String, RomFiles.Source> published = new java.util.LinkedHashMap<>();
+    java.util.stream.Stream.concat(files().values().stream(), sets().values().stream().flatMap(set -> set.values().stream()))
+        .flatMap(List::stream).distinct().forEach(rom -> {
+          try (java.io.InputStream source = open(rom + ".json")) {
+            if (source != null) published.put(rom, new com.fasterxml.jackson.databind.ObjectMapper().readValue(source, RomFiles.Source.class));
+          } catch (java.io.IOException unreadable) {
+            throw new java.io.UncheckedIOException(unreadable);
+          }
+        });
+    return published;
   }
 }

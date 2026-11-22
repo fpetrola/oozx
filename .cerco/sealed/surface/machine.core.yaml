@@ -54,8 +54,7 @@ types:
   "com.fpetrola.oozx.config.RomFiles.Consent":
     kind: interface
     members:
-      - "arrived(String): void"
-      - "arriving(String, long, long): void"
+      - "bring(RomFiles, List<String>): boolean"
       - "toDownload(String, String): boolean"
   "com.fpetrola.oozx.config.RomsOfItsOwn":
     kind: interface
@@ -112,6 +111,7 @@ types:
       - "of(Peripheral, int): byte[]"
       - "of(Peripheral, int, int): byte[]"
       - "of(Spectrum, int, int): byte[]"
+      - "readyFor(Object): boolean"
   "com.fpetrola.oozx.speccy.machine.SpecPlus3Constants":
     kind: interface
   "com.fpetrola.oozx.speccy.machine.SpectrumMachine":

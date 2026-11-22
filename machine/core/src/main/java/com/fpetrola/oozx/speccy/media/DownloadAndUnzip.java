@@ -291,6 +291,8 @@ public class DownloadAndUnzip {
     URLConnection connection = url.openConnection();
     connection.setConnectTimeout(20_000);
     connection.setReadTimeout(60_000);
+    // Archives that publish ROMs hang up on a request that does not say who is asking.
+    connection.setRequestProperty("User-Agent", "oozx (ZX Spectrum emulator)");
     try {
       connection.connect();
     } catch (IOException unreachable) {

@@ -57,7 +57,6 @@
 1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/LocalLibretroCore.java|com.fpetrola.oozx.speccy.bridge.LocalLibretroCore.sourceOf(MemoryPart)|instanceof Rom
 2	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/OOSpectrumConnector.java|com.fpetrola.oozx.speccy.bridge.OOSpectrumConnector.queueDriving(DefaultCommandHandler, LibretroCore)|instanceof ContinueExecutionCommand
 2	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/TStateUpdate.java|com.fpetrola.oozx.speccy.bridge.TStateUpdate.equals(Object)|getClass()==
-1	machine/core/src/main/java/com/fpetrola/oozx/config/RomFiles.java|com.fpetrola.oozx.config.RomFiles.download(String, String, Consent)|instanceof InterruptedException
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/media/DownloadAndUnzip.java|com.fpetrola.oozx.speccy.media.DownloadAndUnzip.cannotReach(URL, IOException)|instanceof java.net.SocketTimeoutException
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/media/DownloadAndUnzip.java|com.fpetrola.oozx.speccy.media.DownloadAndUnzip.cannotReach(URL, IOException)|instanceof java.net.UnknownHostException
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/machine/Machine.java|com.fpetrola.oozx.speccy.modules.machine.Machine.model(Class)|getClass()==

@@ -116,11 +116,7 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
     speccy.machine.running().ifPresent(machine -> {
       java.util.List<String> before = speccy.roms.running(machine);
       speccy.roms.chooseSet(machine, set);
-      if (com.fpetrola.oozx.speccy.desktop.RomNotShippedDialog.readyFor(speccy.roms, machine)) {
-        speccy.select(machine);
-      } else {
-        speccy.roms.runOn(machine, before);
-      }
+      if (!speccy.select(machine)) speccy.roms.runOn(machine, before);
     });
   }
 
@@ -298,9 +294,6 @@ public class SpeccyEmulatorCore extends MockEmulatorCore {
           return;
         }
         speccy.machine.model(model).ifPresent(type -> {
-          // Whatever this machine needs is brought here and now, where a question can be asked:
-          // by the time the emulator's own thread builds it, everything it reads is on this disk.
-          if (!com.fpetrola.oozx.speccy.desktop.RomNotShippedDialog.readyFor(speccy.roms, type)) return;
           // Straight to the one asked for. Passing through the default first meant the
           // machine became a 48K on the way, said so, and every box showing the model flicked
           // to "Spectrum 48K" and back - and selecting a machine already clears the
