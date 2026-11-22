@@ -22,6 +22,7 @@ import dev.plugdesk.app.TellsThePerson;
 import com.fpetrola.z80.cpu.Core;
 import com.fpetrola.z80.cpu.IO;
 import com.fpetrola.z80.cpu.State;
+import com.fpetrola.z80.registers.RegisterName;
 import com.fpetrola.z80.memory.Memory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -42,7 +43,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * handed and nothing about where it came from.
  */
 @Singleton
-public class Processors {
+public class Processors implements PortTraffic {
 
   /**
    * The one of them a machine starts on: what the settings name, or whichever this build prefers.
@@ -67,18 +68,41 @@ public class Processors {
   private Cpu cpu;
   private final List<Runnable> listeners = new CopyOnWriteArrayList<>();
   private final List<ReadListener> readListeners = new CopyOnWriteArrayList<>();
+  private final List<WriteListener> writeListeners = new CopyOnWriteArrayList<>();
+  /** The registers and the memory of the processor running now, whichever it is. */
+  private State state;
 
   /** Told what every port read answered, whoever answered it: the hardware, or a recording being replayed. */
   public interface ReadListener {
     void read(int port, int value);
   }
 
+  @Override
   public void whenRead(ReadListener listener) {
     readListeners.add(listener);
   }
 
+  @Override
   public void stopTellingAboutReads(ReadListener listener) {
     readListeners.remove(listener);
+  }
+
+  /**
+   * Told of every port write, with the instruction that made it and where the stack stood: a routine that plays sound
+   * is told apart from another by where it is and by where it was called from, which is the top of the stack.
+   */
+  public interface WriteListener {
+    void written(long tstates, int port, int value, int pc, int sp);
+  }
+
+  @Override
+  public void whenWritten(WriteListener listener) {
+    writeListeners.add(listener);
+  }
+
+  @Override
+  public void stopTellingAboutWrites(WriteListener listener) {
+    writeListeners.remove(listener);
   }
 
   @Inject
@@ -93,6 +117,9 @@ public class Processors {
 
       public void out(int port, int value) {
         io.out(port, value);
+        if (writeListeners.isEmpty()) return;
+        int pc = state.getRegister(RegisterName.PC).read(), sp = state.getRegisterSP().read();
+        for (WriteListener listener : writeListeners) listener.written(zxClock.getTStates(), port, value, pc, sp);
       }
     };
     this.core = core;
@@ -200,6 +227,7 @@ public class Processors {
       }
     };
     state.clock = zxClock;
+    this.state = state;
     return state;
   }
 }

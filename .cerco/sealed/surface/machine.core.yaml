@@ -214,6 +214,13 @@ types:
     kind: interface
     members:
       - "reached(int): void"
+  "com.fpetrola.oozx.speccy.modules.z80.PortTraffic":
+    kind: interface
+    members:
+      - "stopTellingAboutReads(Processors.ReadListener): void"
+      - "stopTellingAboutWrites(Processors.WriteListener): void"
+      - "whenRead(Processors.ReadListener): void"
+      - "whenWritten(Processors.WriteListener): void"
   "com.fpetrola.oozx.speccy.modules.z80.ProcessorWiring":
     kind: interface
     members:
@@ -223,6 +230,10 @@ types:
     kind: interface
     members:
       - "read(int, int): void"
+  "com.fpetrola.oozx.speccy.modules.z80.Processors.WriteListener":
+    kind: interface
+    members:
+      - "written(long, int, int, int, int): void"
   "com.fpetrola.oozx.speccy.parts.PartVisitor":
     kind: interface
     members:
