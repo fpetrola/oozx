@@ -516,7 +516,8 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     com.fpetrola.oozx.speccy.devices.Desk.isRunBy(this);
     dev.plugdesk.desk.WhatIsMissing.answering(List.of(com.fpetrola.oozx.speccy.machine.StartsAMachineOn.class,
         com.fpetrola.emulation.helpers.snapshots.SnapshotFile.class, com.fpetrola.oozx.formats.SnapshotFormat.class,
-        Equipment.class, com.fpetrola.oozx.Extension.class, com.fpetrola.oozx.plugins.BesideTheGame.class));
+        Equipment.class, com.fpetrola.oozx.Extension.class, com.fpetrola.oozx.plugins.BesideTheGame.class,
+        com.fpetrola.oozx.speccy.devices.Session.class));
     stopsThePersonWhenSomethingIsMissing();
     whatThereIs();
     adoptWhatTheBaseKeepsNow();
@@ -1128,7 +1129,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
                 () -> load(local, game, whenDone, false));
             return;
           }
-          if (game != null) createNewEmulator((EmulatorCore) got, game);
+          if (game != null) createNewEmulator((EmulatorCore) got, null, game);
           else createNewEmulator((EmulatorCore) got, path);
         } catch (Exception e) {
           JOptionPane.showMessageDialog(ZXSpectrumDesktopApp.this, "Could not load "
@@ -1445,6 +1446,8 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
   /** A machine's window joins the machines on the desk, and leaves them and lets its machine go when closed. */
   private void onTheDesk(EmulatorInternalFrame frame, EmulatorCore core) {
     machines.add(frame);
+    if (session() == com.fpetrola.oozx.speccy.devices.Session.WITHOUT_MACHINES) TellsThePerson.thisBuildCannot(
+        "Nothing installed keeps machines when the desk closes, nor what is plugged into them.", com.fpetrola.oozx.speccy.devices.Session.ASKED_AS);
     frame.addInternalFrameListener(new InternalFrameAdapter() {
       @Override
       public void internalFrameClosed(InternalFrameEvent e) {
@@ -1465,10 +1468,6 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
 
   public EmulatorInternalFrame createNewEmulator(EmulatorCore core1, String filePath) {
     return createNewEmulator(core1, filePath, null);
-  }
-
-  public EmulatorInternalFrame createNewEmulator(EmulatorCore core1, Desk.Game game) {
-    return createNewEmulator(core1, null, game);
   }
 
   public EmulatorInternalFrame createNewEmulator(EmulatorCore core1, String filePath, Desk.Game game) {

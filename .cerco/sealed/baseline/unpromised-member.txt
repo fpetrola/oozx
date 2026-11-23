@@ -864,7 +864,7 @@
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|ZXSpectrumDesktopApp.backToFront/0
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|ZXSpectrumDesktopApp.comeBack/0
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|ZXSpectrumDesktopApp.createNewEmulator/1
-2	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|ZXSpectrumDesktopApp.createNewEmulator/2
+1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|ZXSpectrumDesktopApp.createNewEmulator/2
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|ZXSpectrumDesktopApp.createNewEmulator/3
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|ZXSpectrumDesktopApp.doWhatIsOffered/1
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|ZXSpectrumDesktopApp.field[config]

@@ -32,6 +32,9 @@ import dev.crystal.plugins.api.RoleInterface;
 @RoleInterface
 public interface Session {
 
+  /** What the desk asks for when nothing installed keeps sessions, and what a plugin that does answers. */
+  String ASKED_AS = "session";
+
   /** Como terminan los archivos que escribe. */
   String extension();
 
