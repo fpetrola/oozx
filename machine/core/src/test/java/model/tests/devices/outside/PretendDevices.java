@@ -20,11 +20,16 @@ package model.tests.devices.outside;
 import com.fpetrola.oozx.Extension;
 import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 import com.google.inject.AbstractModule;
-import com.google.inject.multibindings.Multibinder;
+
+import java.util.List;
 
 /** What the pretend interface's package brings, said the way any device package says it. */
 public class PretendDevices extends AbstractModule implements Extension {
   protected void configure() {
-    Multibinder.newSetBinder(binder(), Peripheral.class).addBinding().to(PretendInterface.class);
+  }
+
+  @Override
+  public List<Class<? extends Peripheral>> devices() {
+    return List.of(PretendInterface.class);
   }
 }

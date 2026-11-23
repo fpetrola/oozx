@@ -40,7 +40,6 @@ import com.fpetrola.oozx.speccy.modules.timer.Speed;
 import com.google.inject.util.Modules;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 
 @Singleton
 public class Speccy {
@@ -72,7 +71,6 @@ public class Speccy {
   public final Ula ula;
   public final Scheduler scheduler;
   public final Machine machine;
-  private final java.util.Set<Peripheral> devices;
   public final Cpu cpu;
   public final Picture picture;
 
@@ -110,10 +108,9 @@ public class Speccy {
   }
 
   @Inject
-  public Speccy(SpectrumZ80Clock zxClock, EmulationSession session, MemoryBus memory, SpectrumMemory banks,
+  Speccy(SpectrumZ80Clock zxClock, EmulationSession session, MemoryBus memory, SpectrumMemory banks,
                 Display display, KeyMatrix keys, PeripheralRegistry peripheralRegistry, MachinePortBus ports, Sound sound, Ula ula,
                 Scheduler scheduler, Machine machine, Cpu cpu, Picture picture, Speed speed, dev.plugdesk.app.Configuration configuration, com.fpetrola.oozx.config.RomFiles roms,
-                java.util.Set<Peripheral> devices,
                 Timer timer, com.fpetrola.oozx.speccy.modules.z80.Processors processors, com.fpetrola.oozx.speccy.modules.z80.MachineLoop loop) {
     this.zxClock = zxClock;
     this.session = session;
@@ -130,7 +127,6 @@ public class Speccy {
     this.ula = ula;
     this.scheduler = scheduler;
     this.machine = machine;
-    this.devices = devices;
     this.cpu = cpu;
     this.picture = picture;
     this.timer = timer;
@@ -187,13 +183,10 @@ public class Speccy {
    * then a list of start() calls in no particular order stood in for it. Neither is here: a part
    * that has what it needs to work is built with it, the Machine included, models and all.
    * <p>
-   * The devices are what is left, and they cannot be handed to the registry that holds them,
-   * because some of them ask for the Machine and the Machine asks for that registry. Whatever
-   * this build turned out to have arrives here instead. Each says which machines it fits, so
-   * they can all be registered without anything knowing what any of them is.
+   * The devices are not here: the registry makes the ones the extensions say they bring, the
+   * first time it is asked, which also lets one that arrives later reach a machine already made.
    */
   public void init() {
-    devices.forEach(peripheralRegistry::register);
     machine.selectDefault();
   }
 

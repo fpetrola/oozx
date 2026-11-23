@@ -975,7 +975,6 @@
 1	machine/core/src/main/java/com/fpetrola/oozx/EmulatorModule.java|TheOneChosen.get/0
 1	machine/core/src/main/java/com/fpetrola/oozx/Speccy.java|Speccy.Speccy create()
 1	machine/core/src/main/java/com/fpetrola/oozx/Speccy.java|Speccy.Speccy create(SpectrumZ80Clock, com.google.inject.Module...)
-1	machine/core/src/main/java/com/fpetrola/oozx/Speccy.java|Speccy.Speccy(SpectrumZ80Clock, EmulationSession, MemoryBus, SpectrumMemory, Display, KeyMatrix, PeripheralRegistry, MachinePortBus, Sound, Ula, Scheduler, Machine, Cpu, Picture, Speed, dev.plugdesk.app.Configuration, com.fpetrola.oozx.config.RomFiles, java.util.Set<Peripheral>, Timer, com.fpetrola.oozx.speccy.modules.z80.Processors, com.fpetrola.oozx.speccy.modules.z80.MachineLoop)
 1	machine/core/src/main/java/com/fpetrola/oozx/Speccy.java|Speccy.accept/1
 1	machine/core/src/main/java/com/fpetrola/oozx/Speccy.java|Speccy.changeSpeed/1
 1	machine/core/src/main/java/com/fpetrola/oozx/Speccy.java|Speccy.end/0
@@ -1648,7 +1647,6 @@
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/z80/SpectrumZ80Clock.java|SpectrumZ80Clock.phase/2
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/peripherals/AbstractPeripheral.java|AbstractPeripheral.AbstractPeripheral(List<Wired>)
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/peripherals/AbstractPeripheral.java|AbstractPeripheral.ports/1
-1	machine/core/src/main/java/com/fpetrola/oozx/speccy/peripherals/PeripheralRegistry.java|PeripheralRegistry.PeripheralRegistry(Backplane, MemoryBus, Provider<Machine>)
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/peripherals/PeripheralRegistry.java|PeripheralRegistry.accept/1
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/peripherals/PeripheralRegistry.java|PeripheralRegistry.activateType/2
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/peripherals/PeripheralRegistry.java|PeripheralRegistry.allThatAre/1

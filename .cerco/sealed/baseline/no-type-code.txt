@@ -9,7 +9,6 @@
 1	machine/core/src/main/java/com/fpetrola/oozx/config/RomsOfItsOwn.java|com.fpetrola.oozx.config.RomsOfItsOwn.open(String)|getClass().getResourceAsStream("/roms/" + rom)
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/modules/machine/Machine.java|com.fpetrola.oozx.speccy.modules.machine.Machine.model(Class)|m.getClass() == type
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/peripherals/AbstractPeripheral.java|com.fpetrola.oozx.speccy.peripherals.AbstractPeripheral.fitsOn(SpectrumMachine)|machine.onBoard().contains(getClass())
-1	machine/core/src/main/java/com/fpetrola/oozx/speccy/peripherals/PeripheralRegistry.java|com.fpetrola.oozx.speccy.peripherals.PeripheralRegistry.register(Peripheral)|registry.put(peripheral.getClass(), new Registration(peripheral))
 1	machine/core/src/main/java/com/fpetrola/oozx/speccy/peripherals/PeripheralRegistry.java|com.fpetrola.oozx.speccy.peripherals.PeripheralRegistry.update()|activateType(device.peripheral.getClass(), wanted)
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.bringBack(Session, List)|"EMULATOR".equals(state.getType())
 3	machine/spectrum/src/main/java/com/fpetrola/emulation/helpers/snapshots/SnapshotFactory.java|com.fpetrola.emulation.helpers.snapshots.SnapshotFactory.formats()|already.add(one.getClass())

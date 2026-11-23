@@ -51,6 +51,8 @@ types:
       - "onTurboModeChanged(boolean): void"
   "com.fpetrola.oozx.Extension":
     kind: interface
+    members:
+      - "devices(): java.util.List<Class<? extends com.fpetrola.oozx.speccy.peripherals.Peripheral>>"
   "com.fpetrola.oozx.config.RomFiles.Consent":
     kind: interface
     members:

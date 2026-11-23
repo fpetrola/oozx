@@ -53,6 +53,14 @@ class TheMachineIsWalkedPartByPartTest {
     }
   }
 
+  static class AnotherGadget extends Gadget {
+  }
+
+  private Gadget plugged(Class<? extends Gadget> kind) {
+    speccy.peripheralRegistry.register(kind);
+    return kind.cast(speccy.peripheralRegistry.find(kind));
+  }
+
   Speccy speccy;
 
   @BeforeEach
@@ -89,8 +97,7 @@ class TheMachineIsWalkedPartByPartTest {
 
   @Test
   void aPeripheralIsMetWhileItIsSwitchedOn() {
-    Gadget gadget = new Gadget();
-    speccy.peripheralRegistry.register(gadget);
+    Gadget gadget = plugged(Gadget.class);
     assertFalse(walked().contains(gadget));
 
     speccy.peripheralRegistry.activateType(Gadget.class, true);
@@ -102,12 +109,9 @@ class TheMachineIsWalkedPartByPartTest {
 
   @Test
   void peripheralsComeAfterTheCoreInTheOrderTheyWereRegistered() {
-    Gadget first = new Gadget();
-    Gadget second = new Gadget() {
-    };
-    speccy.peripheralRegistry.register(first);
-    speccy.peripheralRegistry.register(second);
-    speccy.peripheralRegistry.activateType(second.getClass(), true);
+    Gadget first = plugged(Gadget.class);
+    Gadget second = plugged(AnotherGadget.class);
+    speccy.peripheralRegistry.activateType(AnotherGadget.class, true);
     speccy.peripheralRegistry.activateType(Gadget.class, true);
     List<Visitable> parts = walked();
     assertTrue(parts.indexOf(first) > 5);

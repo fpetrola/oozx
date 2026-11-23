@@ -53,22 +53,52 @@ public class PeripheralRegistry {
   private final Backplane backplane;
   private final MemoryBus memory;
   private final Supplier<Machine> machine;
+  /** What made this machine, for what arrives after it was made. */
+  @Inject
+  private com.google.inject.Injector injector;
+
+  /** Which lot of plugins the registry has made the devices of; none, before it is first asked. */
+  private int caughtUpWith = -1;
 
   @Inject
-  public PeripheralRegistry(Backplane backplane, MemoryBus memory, Provider<Machine> machine) {
+  PeripheralRegistry(Backplane backplane, MemoryBus memory, Provider<Machine> machine) {
     this.machine = Suppliers.memoize(machine::get);
     this.backplane = backplane;
     this.memory = memory;
   }
 
-  public void register(Peripheral peripheral) {
-    registry.put(peripheral.getClass(), new Registration(peripheral));
+  /**
+   * One more kind of device on this machine, made as the machine makes the rest of it. One that
+   * needs what its own module binds cannot be made by a machine that never installed that module.
+   */
+  public synchronized void register(Class<? extends Peripheral> kind) {
+    try {
+      registry.put(kind, new Registration(injector.getInstance(kind)));
+    } catch (com.google.inject.ConfigurationException needsItsModule) {
+      dev.plugdesk.app.TellsThePerson.thisBuildCannot(kind.getSimpleName()
+          + " arrived after this machine was built and needs what only a new one has; open the machine again to use it ("
+          + needsItsModule.getErrorMessages().iterator().next().getMessage() + ")");
+    }
   }
 
   /** The registered peripheral of a kind, or null if this build has none. */
-  public Peripheral find(Class<? extends Peripheral> type) {
+  public synchronized Peripheral find(Class<? extends Peripheral> type) {
+    catchUp();
     Registration device = registry.get(type);
     return device == null ? null : device.peripheral;
+  }
+
+  /**
+   * Makes the devices the extensions say they bring and this machine does not have yet: all of
+   * them the first time, and those of a jar that arrived while it was running after that.
+   */
+  private void catchUp() {
+    if (caughtUpWith == dev.plugdesk.app.Plugins.generation()) return;
+    caughtUpWith = dev.plugdesk.app.Plugins.generation();
+    dev.plugdesk.app.Plugins.found(com.fpetrola.oozx.Extension.class).stream()
+        .flatMap(extension -> extension.devices().stream())
+        .filter(kind -> !registry.containsKey(kind))
+        .forEach(this::register);
   }
 
   /**
@@ -80,23 +110,25 @@ public class PeripheralRegistry {
   }
 
   /** Every one registered that does it, switched on or not, in the order they were registered. */
-  public <T> java.util.List<T> allThatAre(Class<T> kind) {
+  public synchronized <T> java.util.List<T> allThatAre(Class<T> kind) {
+    catchUp();
     return registry.values().stream().map(device -> device.peripheral).filter(kind::isInstance).map(kind::cast).toList();
   }
 
   /** The ones switched on, each presenting itself, in the order they were registered. */
-  public void accept(com.fpetrola.oozx.speccy.parts.PartVisitor visitor) {
+  public synchronized void accept(com.fpetrola.oozx.speccy.parts.PartVisitor visitor) {
+    catchUp();
     registry.values().stream().filter(device -> device.active).toList()
         .forEach(device -> device.peripheral.accept(visitor));
   }
 
-  public boolean isActive(Class<? extends Peripheral> type) {
+  public synchronized boolean isActive(Class<? extends Peripheral> type) {
     Registration device = registry.get(type);
     return device != null && device.active;
   }
 
   /** Whether anything changed. */
-  public boolean activateType(Class<? extends Peripheral> type, boolean active) {
+  public synchronized boolean activateType(Class<? extends Peripheral> type, boolean active) {
     Registration device = registry.get(type);
     if (device == null || device.active == active) {
       return false;
@@ -114,7 +146,8 @@ public class PeripheralRegistry {
   }
 
   /** Switches on what belongs on that machine and has been asked for, off the rest; says whether that calls for a hard reset. */
-  public boolean update() {
+  public synchronized boolean update() {
+    catchUp();
     boolean needsHardReset = false;
     for (Registration device : registry.values()) {
       boolean wanted = device.peripheral.fitsOn(machine.get().current) && device.peripheral.isWanted();
@@ -125,7 +158,7 @@ public class PeripheralRegistry {
   }
 
   /** The machine reset: every device that is switched on for it puts itself back. */
-  public void machineWasReset(boolean hard) {
+  public synchronized void machineWasReset(boolean hard) {
     registry.values().forEach(device -> {
       if (device.active) {
         device.peripheral.machineWasReset(hard);
@@ -134,7 +167,7 @@ public class PeripheralRegistry {
   }
 
   /** Everything off. Told, not just marked: a device that was on has things to put back - a chip in the mixer, a ROM paged over the machine's - and only it knows what they are. */
-  public void clear() {
+  public synchronized void clear() {
     backplane.clear();
     memory.unplugAll();
     registry.values().forEach(device -> {
@@ -145,7 +178,7 @@ public class PeripheralRegistry {
     });
   }
 
-  public void end() {
+  public synchronized void end() {
     clear();
     registry.clear();
   }

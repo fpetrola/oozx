@@ -28,4 +28,12 @@ import com.google.inject.Module;
  */
 @RoleInterface
 public interface Extension extends Module {
+
+  /**
+   * The devices it brings. Said here rather than bound, so that a machine built before the jar
+   * arrived can still make them: it is not the binding that is missing then, only the asking.
+   */
+  default java.util.List<Class<? extends com.fpetrola.oozx.speccy.peripherals.Peripheral>> devices() {
+    return java.util.List.of();
+  }
 }

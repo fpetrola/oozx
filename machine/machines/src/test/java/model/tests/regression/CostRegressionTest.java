@@ -129,10 +129,9 @@ public class CostRegressionTest extends MachineTest {
   }
 
   private Bank plug(Speccy speccy) {
-    Bank bank = new Bank();
-    speccy.peripheralRegistry.register(bank);
+    speccy.peripheralRegistry.register(Bank.class);
     speccy.peripheralRegistry.activateType(Bank.class, true);
-    return bank;
+    return (Bank) speccy.peripheralRegistry.find(Bank.class);
   }
 
   private void load(Speccy speccy, int[] program) {
@@ -166,7 +165,7 @@ public class CostRegressionTest extends MachineTest {
 
   /** Fake peripheral bank: one handler answering the hammered port, plus many decoy handlers
    * on other ports. Counters are increment-only, so measurement itself allocates nothing. */
-  private static class Bank implements Peripheral {
+  static class Bank implements Peripheral {
     long reads, writes, deafReads, deafWrites, decodes;
     final Wired[] ports = new Wired[DEAF_HANDLERS + 1];
 

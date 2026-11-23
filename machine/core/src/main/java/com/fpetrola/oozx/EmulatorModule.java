@@ -37,7 +37,6 @@ import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.multibindings.OptionalBinder;
 import dev.plugdesk.app.Configuration;
-import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 import java.util.ServiceLoader;
 
 /**
@@ -122,10 +121,6 @@ public class EmulatorModule extends AbstractModule {
 
     // Every model the emulator can be, and separately which one it falls back to. The set says
     // nothing about order, so nothing depends on the order these are listed in.
-    // Devices are found, not named: every Extension on the classpath is installed, and each
-    // says what it brings. The empty set binder is what lets a build have no devices at all
-    // rather than fail to resolve one.
-    Multibinder.newSetBinder(binder(), Peripheral.class);
     // The tape socket, empty unless something says otherwise: a deck is a device that arrives,
     // and the ULA reads what is in the socket rather than holding a deck of its own.
     com.google.inject.multibindings.OptionalBinder

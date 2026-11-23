@@ -24,10 +24,14 @@ import com.google.inject.multibindings.Multibinder;
 /** Snapshots on every machine: the seam between a file and the machine it was taken on. */
 public class SnapshotMedia extends AbstractModule implements Extension {
   protected void configure() {
-    Multibinder.newSetBinder(binder(), Peripheral.class).addBinding().to(Snapshots.class);
     Multibinder.newSetBinder(binder(),
         com.fpetrola.oozx.speccy.modules.snapshot.RestoredFromASnapshot.class);
     // Which files can be read is not said here: this runs when a machine is built, and a file
     // is opened before there is one. Whoever put this emulator on a screen says it, on the way up.
+  }
+
+  @Override
+  public java.util.List<Class<? extends Peripheral>> devices() {
+    return java.util.List.of(Snapshots.class);
   }
 }

@@ -21,13 +21,16 @@ import com.fpetrola.oozx.speccy.modules.input.Input;
 import com.fpetrola.oozx.speccy.modules.input.InputSetup;
 import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 import com.google.inject.AbstractModule;
-import com.google.inject.multibindings.Multibinder;
 
 /** Whoever is typing and whatever they hold: reaches every machine, and the file keeps how. */
 public class InputDevices extends AbstractModule implements Extension {
   protected void configure() {
-    Multibinder.newSetBinder(binder(), Peripheral.class).addBinding().to(Input.class);
     Settings.mirror(binder(), "input", InputSetup.class, "joystick1", "joystick2", "keyboard",
         "arrowsShifted", "kempstonJoystick", "kempstonMouse", "recreatedSpectrum");
+  }
+
+  @Override
+  public java.util.List<Class<? extends Peripheral>> devices() {
+    return java.util.List.of(Input.class);
   }
 }

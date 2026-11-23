@@ -19,14 +19,15 @@ package com.fpetrola.oozx.speccy.devices.ula;
 
 import com.fpetrola.oozx.speccy.peripherals.Peripheral;
 import com.google.inject.AbstractModule;
-import com.google.inject.multibindings.Multibinder;
 import com.fpetrola.oozx.Extension;
 
 /** The ULA as a machine reaches it: loosely decoded, or on every bit of its port. */
 public class UlaDevices extends AbstractModule implements Extension {
   protected void configure() {
-    Multibinder<Peripheral> devices = Multibinder.newSetBinder(binder(), Peripheral.class);
-    devices.addBinding().to(UlaPeripheral.class);
-    devices.addBinding().to(UlaFullDecodePeripheral.class);
+  }
+
+  @Override
+  public java.util.List<Class<? extends Peripheral>> devices() {
+    return java.util.List.of(UlaPeripheral.class, UlaFullDecodePeripheral.class);
   }
 }
