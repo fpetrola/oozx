@@ -23,7 +23,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.fpetrola.oozx</groupId>
     <artifactId>oozx</artifactId>
-    <version>0.1.6</version>
+    <version>0.1.7</version>
 
     <packaging>pom</packaging>
 
@@ -268,7 +268,7 @@
             <plugin>
                 <groupId>com.github.fpetrola.crystal-plugins</groupId>
                 <artifactId>framework-maven-plugin</artifactId>
-                <version>0.1.6</version>
+                <version>0.1.7</version>
                 <extensions>true</extensions>
             </plugin>
             <plugin>
