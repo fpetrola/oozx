@@ -43,11 +43,26 @@ public interface Session {
 
   /** Que ventana es esa y lo que tiene adentro, por nombre; nada si no es de las que vuelven. */
   default java.util.Map<String, String> keep(javax.swing.JInternalFrame window) {
-    return java.util.Map.of();
+    return Desk.theOne().inside(window);
   }
 
   /** Esa ventana otra vez en el escritorio, como estaba por dentro; null si ya no hay quien la abra. */
   default javax.swing.JInternalFrame bringBack(java.util.Map<String, String> kept) {
-    return null;
+    Desk desk = Desk.theOne();
+    return kept.containsKey(Desk.NAME) ? desk.givenBack(desk.window(kept.get(Desk.NAME)), kept) : null;
   }
+
+  /** Donde nada instalado escribe maquinas: las otras ventanas vuelven igual, por el nombre que les da el escritorio. */
+  Session WITHOUT_MACHINES = new Session() {
+    public String extension() {
+      return "none";
+    }
+
+    public byte[] write(EmulatorWindow window) throws SnapshotException {
+      throw new SnapshotException("nothing installed writes a machine down");
+    }
+
+    public void bringBack(byte[] file, EmulatorWindow window) {
+    }
+  };
 }

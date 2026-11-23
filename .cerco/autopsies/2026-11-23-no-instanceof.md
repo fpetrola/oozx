@@ -1,0 +1,90 @@
+# Autopsy 2026-11-23-no-instanceof (no-instanceof)
+
+<!-- Findings went away. That is the symptom gone, not the cause understood. Read the code around the fix
+and answer: what was missing from the model that let this shape appear, where else it shows, and what
+rule would stop it next time. cerco stays red until every section is filled; then it files this form in
+.cerco/autopsies/ by itself. Places are written path:line, relative to the project root, and must exist. -->
+
+## Symptom
+
+Findings of `no-instanceof` that went away (written by cerco):
+
+- `machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.window(String)|instanceof JInternalFrame`
+
+## Cause
+
+<!-- Not what the rule says, but why the code was written that way: the concept, responsibility or
+abstraction that was missing or in the wrong place. In your own words, not copied from another autopsy.
+Then, on a line of its own, `model: <id>` with the one that fits best of:
+  behaviour-not-on-owner: the object holding the data lacks the behaviour
+  variation-as-data: a variant is encoded as a value that others decide on
+  dispatch-from-outside: the hierarchy exists but the operation lives outside it
+  structure-walked-from-outside: the structure does not know how to walk itself
+  concept-without-a-class: data that travels together has no type
+  value-without-a-type: a primitive or a string plays a role of the domain
+  state-without-an-object: a mode or a phase is kept in flags or in null
+  shape-repeated: the same shape is written again with one part varying
+  knowledge-without-one-owner: the same fact or decision lives in several places
+  procedure-instead-of-model: a procedure is narrated step by step
+  protocol-by-convention: a collaboration works only if callers do things in order
+  hierarchy-without-is-a: a type inherits what it does not do, or stands between others doing nothing
+-->
+
+The desk asked each window whether it was a JInternalFrame because the layout that frames windows kept to itself
+which frame holds which window. A window the base opens as a plain panel, like the Catalogue, is put by Mdi in a
+frame it makes; the oozx desk lists frames, so it could neither name that frame (workbench.nameOf compared it with
+the panel) nor give one back for it (the instanceof answered "not a frame" and fell to equipment). The pairing of
+window and frame has one owner, Mdi, and now it answers both ways instead of each caller testing the type.
+
+model: knowledge-without-one-owner
+
+
+## Context
+
+<!-- At least two places you read, path:line, one of them outside the fixed file(s): callers, the
+hierarchy, the data that flows in, the code that forced the shape. Say what each one showed. -->
+
+- machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java:527 — the desk lays its
+  windows out with an Mdi and keeps them from desktop.getAllFrames(), the frames, not the windows.
+- machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java:711 — nameOf asked the
+  workbench with the frame; for the Catalogue it never matched, so the session kept the Game Browser and Plugins
+  (frames of their own) and dropped the Catalogue, as seen on a scratch desk on 2026-11-23.
+- machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Session.java:51 — bringing a kept window back
+  goes through desk.window(name), which needs the frame.
+
+
+## Same cause elsewhere
+
+<!-- Other places (path:line) where the same missing model shows, even under a different rule or no rule
+at all; they are the next fixes. Or `none` and how you looked. -->
+
+none — looked for `instanceof JInternalFrame` in machine/app and machine/devices/kit; the remaining ones test
+windows the oozx desk made itself (machines, equipment), not ones the base framed.
+
+
+## Principle
+
+<!-- The design principle at stake: tell don't ask, command-query separation, single owner of a concept,
+polymorphism over type tests, information hiding... -->
+
+A single owner for a relation: whoever made the pairing (the layout that framed the window) answers questions
+about it, instead of callers recovering it by testing types.
+
+
+## Candidate rule
+
+<!-- One of:
+rule: <new-rule-id>  then what it would detect, what it would tell the agent, and an example path:line
+none: why no deterministic check could catch this cause; a person files it with mvn cerco:approve, and
+      while one waits every other autopsy proposes a rule
+covered-by: <id of a rule this cerco has>  when that rule had marked this code and what it told already
+      led to the missing model: say why, in 150 characters or more. Not the way out when the rule
+      found the symptom and something else was the cause
+same-as: <id of a filed autopsy>  when one already proposed the rule; the sections above still describe
+this case -->
+
+covered-by: no-instanceof
+The rule marked the `instanceof JInternalFrame` in window(String) and told to give the behaviour to the type that
+owns the answer; following it is what led to Mdi, which made the frame around the window, answering frameOf and
+shownIn for every caller, so no new rule is needed for this case.
+

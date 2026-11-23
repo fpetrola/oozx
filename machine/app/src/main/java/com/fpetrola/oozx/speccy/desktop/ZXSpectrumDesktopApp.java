@@ -708,7 +708,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
 
   @Override
   public String nameOf(javax.swing.JComponent window) {
-    String path = workbench.nameOf(window);
+    String path = workbench.nameOf(mdi.shownIn(window));
     if (path != null) return path.equals(pluginsWindow.path()) ? PLUGINS
         : has.deskWindowAt(path).map(DeskEquipment::name).orElse(path);
     return equipment.keySet().stream().filter(name -> equipment.get(name).contains(window)).findFirst().orElse(null);
@@ -719,7 +719,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
     String path = PLUGINS.equals(name) ? pluginsWindow.path()
         : has.deskWindowNamed(name).map(DeskEquipment::path).orElse(name);
     javax.swing.JComponent window = workbench.window(path);
-    return window instanceof JInternalFrame frame ? frame : equipment(name);
+    return window != null ? mdi.frameOf(window) : equipment(name);
   }
 
   /**
@@ -1545,7 +1545,7 @@ public class ZXSpectrumDesktopApp extends JPanel implements Desk {
 
   private static com.fpetrola.oozx.speccy.devices.Session session() {
     return dev.plugdesk.app.Plugins.found(com.fpetrola.oozx.speccy.devices.Session.class)
-        .stream().findFirst().orElse(null);
+        .stream().findFirst().orElse(com.fpetrola.oozx.speccy.devices.Session.WITHOUT_MACHINES);
   }
 
   /**

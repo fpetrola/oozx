@@ -218,7 +218,6 @@ public interface Desk extends dev.plugdesk.desk.Desk {
    * does not keep it, or could not.
    */
   default WindowState keep(Session session, JInternalFrame window, File folder, int n) {
-    if (session == null) return null;
     try {
       java.awt.Rectangle place = window.getNormalBounds();
       WindowState state = new WindowState(window instanceof EmulatorWindow ? "EMULATOR" : "WINDOW", place.x, place.y, place.width, place.height);
@@ -248,9 +247,9 @@ public interface Desk extends dev.plugdesk.desk.Desk {
         if ("EMULATOR".equals(state.getType())) {
           File file = new File(state.getFilePath());
           EmulatorWindow machine = file.isFile() ? machineFrom(file) : null;
-          if (machine != null && session != null) session.bringBack(java.nio.file.Files.readAllBytes(file.toPath()), machine);
+          if (machine != null) session.bringBack(java.nio.file.Files.readAllBytes(file.toPath()), machine);
           if (machine instanceof JInternalFrame frame) window = frame;
-        } else if (session != null && state.getInside() != null) {
+        } else if (state.getInside() != null) {
           window = session.bringBack(state.getInside());
           if (window != null) place(window);
         }

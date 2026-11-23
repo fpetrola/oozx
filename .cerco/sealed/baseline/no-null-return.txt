@@ -32,7 +32,7 @@
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.choose(String)|return null
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.coreOf(java.awt.Component)|return null
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.equipment(String)|return null
-2	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.keep(Session, JInternalFrame, File, int)|return null
+1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.keep(Session, JInternalFrame, File, int)|return null
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.machineFrom(File)|return null
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.nameOf(javax.swing.JComponent)|return null
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Desk.java|com.fpetrola.oozx.speccy.devices.Desk.show(com.fpetrola.oozx.Speccy, String, MachineFrame)|return null
@@ -44,7 +44,6 @@
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Opens.java|com.fpetrola.oozx.speccy.devices.Opens.cameFrom()|return null
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Opens.java|com.fpetrola.oozx.speccy.devices.Opens.entryInside()|return null
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Opens.java|com.fpetrola.oozx.speccy.devices.Opens.label()|return null
-1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/Session.java|com.fpetrola.oozx.speccy.devices.Session.bringBack(java.util.Map)|return null
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/devices/WhatGameThisIs.java|com.fpetrola.oozx.speccy.devices.WhatGameThisIs.gameIn(String)|return null
 1	machine/devices/kit/src/main/java/com/fpetrola/oozx/speccy/peripherals/MockEmulatorCore.java|com.fpetrola.oozx.speccy.peripherals.MockEmulatorCore.getKeyListener()|return null
 1	machine/media/snapshot/src/main/java/com/fpetrola/oozx/speccy/media/snapshot/ASnapshotStartsAMachine.java|com.fpetrola.oozx.speccy.media.snapshot.ASnapshotStartsAMachine.start(Speccy, File)|return null

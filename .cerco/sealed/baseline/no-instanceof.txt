@@ -51,7 +51,6 @@
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.somebodyIsWriting()|instanceof Dialog
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.somebodyIsWriting()|instanceof JComboBox<?>
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.somebodyIsWriting()|instanceof javax.swing.text.JTextComponent
-1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.window(String)|instanceof JInternalFrame
 1	machine/app/src/main/java/com/fpetrola/oozx/speccy/desktop/ZXSpectrumDesktopApp.java|com.fpetrola.oozx.speccy.desktop.ZXSpectrumDesktopApp.working(boolean)|instanceof javax.swing.RootPaneContainer
 1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/LocalLibretroCore.java|com.fpetrola.oozx.speccy.bridge.LocalLibretroCore.sourceOf(MemoryPart)|instanceof Ram
 1	machine/bridge/src/main/java/com/fpetrola/oozx/speccy/bridge/LocalLibretroCore.java|com.fpetrola.oozx.speccy.bridge.LocalLibretroCore.sourceOf(MemoryPart)|instanceof Rom
